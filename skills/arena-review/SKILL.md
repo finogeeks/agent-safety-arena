@@ -1,5 +1,5 @@
 ---
-name: groundwork-review
+name: arena-review
 description: >-
   Reviews pull requests and diffs against project requirements. Use when a
   user requests a review or before preparing a change for review.
@@ -33,9 +33,9 @@ flowchart LR
 - Check for unnecessary complexity and unrelated changes. Treat them as
   optional suggestions unless they break a requirement or cause a failure.
 - Before local PR checks, confirm that the files match the reviewed revision.
-- For code, use `skills/groundwork-tdd/SKILL.md` to check test evidence.
+- For code, use `skills/arena-tdd/SKILL.md` to check test evidence.
   Run relevant checks when available. A review does not require a fix.
-- For documents and skills, use `skills/groundwork-verify/SKILL.md`.
+- For documents and skills, use `skills/arena-verify/SKILL.md`.
   Check facts, links, and instruction conflicts. Test runs are not required
   for document changes alone.
 - Confirm how each defect causes a failure. Missing CI or an optional section

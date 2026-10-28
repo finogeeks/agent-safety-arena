@@ -1,5 +1,5 @@
 ---
-name: groundwork-verify
+name: arena-verify
 description: >-
   Reviews the instruction tree and reports verification evidence. Use after
   edits to instructions, skills, documents, or code, and before reporting completion.
@@ -10,7 +10,7 @@ description: >-
 Follow the communication and documentation rules in `AGENTS.md`.
 
 Use local commands first. Add CI only when the project needs it. For code
-changes, establish the evidence required by `skills/groundwork-tdd/SKILL.md`
+changes, establish the evidence required by `skills/arena-tdd/SKILL.md`
 before implementation. Return to that skill to compare and report results.
 
 ```mermaid
@@ -32,7 +32,7 @@ Check these conditions by reading the files and comparing the indexes:
 
 1. `AGENTS.md` starts with the communication and documentation rules.
 2. Every `skills/<name>/SKILL.md` has YAML `name` and `description` fields.
-   The name matches its directory and uses the `groundwork-` prefix.
+   The name matches its directory and uses the `arena-` prefix.
    The description is nonempty. The body has fewer than 500 lines.
 3. Every skill appears exactly once in the Task guides table in `AGENTS.md`
    and in `skills/README.md`. Every index entry points to an existing skill.

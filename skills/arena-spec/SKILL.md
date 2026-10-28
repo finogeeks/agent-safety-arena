@@ -1,5 +1,5 @@
 ---
-name: groundwork-spec
+name: arena-spec
 description: >-
   Writes or updates a specification before implementation. Use when project
   behavior changes or when a user requests a requirement specification.
@@ -57,4 +57,4 @@ Use Mermaid to show steps, decisions, and system connections. A specification
 can define future tests before a test runner exists. Pure document changes
 do not require RED/GREEN tests.
 
-After the edit, use `skills/groundwork-verify/SKILL.md`.
+After the edit, use `skills/arena-verify/SKILL.md`.

@@ -7,6 +7,7 @@ from pathlib import Path
 from string import Template
 from typing import Any
 
+from arena.evidence.media import copy_public_media, resolve_public_media_sources
 from arena.errors import ReplayError
 
 
@@ -40,7 +41,13 @@ def _media_markup(media: list[dict[str, str]]) -> str:
     return "".join(items) or "<p>No public media is attached to this synthetic result.</p>"
 
 
-def render_result(result: dict[str, Any], output: str | Path, template_root: str | Path) -> Path:
+def render_result(
+    result: dict[str, Any],
+    output: str | Path,
+    template_root: str | Path,
+    *,
+    media_root: str | Path,
+) -> Path:
     output_path = Path(output)
     templates = Path(template_root)
     try:
@@ -68,7 +75,9 @@ def render_result(result: dict[str, Any], output: str | Path, template_root: str
         "media": _media_markup(result.get("publicMedia", [])),
         "limitations": limitations,
     }
+    media_sources = resolve_public_media_sources(result.get("publicMedia", []), media_root)
     output_path.mkdir(parents=True, exist_ok=True)
+    copy_public_media(media_sources, output_path)
     (output_path / "index.html").write_text(template.substitute(values), encoding="utf8")
     (output_path / "result.css").write_text(stylesheet, encoding="utf8")
     return output_path / "index.html"

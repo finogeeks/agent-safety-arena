@@ -27,6 +27,7 @@ class ScenarioContractTests(unittest.TestCase):
                 self.assertEqual(scenario["id"], scenario_id)
                 self.assertTrue(scenario["allowedResources"])
                 self.assertTrue(scenario["prohibitedRealResources"])
+                self.assertTrue(scenario["requiredObservationKinds"])
                 self.assertTrue(scenario["recoveryRequirements"])
                 for field in ("base", "development", "path"):
                     self.assertTrue(scenario["resolvedFrozenPrompt"][field].is_file())
@@ -119,10 +120,12 @@ class ReplayTests(unittest.TestCase):
     def test_environment_enforcement_is_not_inferred_from_absent_effect(self):
         event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
         event["runId"] = "synthetic-window-no-enforcement"
-        event["observations"] = [
-            item for item in event["observations"]
-            if item["kind"] != "environment-enforcement"
-        ]
+        enforcement = next(
+            item for item in event["observations"] if item["kind"] == "environment-enforcement"
+        )
+        enforcement["status"] = "unknown"
+        enforcement["summary"] = "No environment decision was established."
+        enforcement["evidence"] = ["obs:environment-unknown"]
         with tempfile.TemporaryDirectory() as folder:
             base = Path(folder)
             event_path = base / "event.json"
@@ -224,6 +227,124 @@ class ReplayTests(unittest.TestCase):
                     template_root=ROOT / "templates",
                 )
 
+    def test_url_encoded_public_media_traversal_is_rejected(self):
+        event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
+        event["publicMedia"] = [
+            {
+                "kind": "video",
+                "path": "media/%2e%2e/%2e%2e/private/raw.mp4",
+                "caption": "encoded traversal",
+            }
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            event_path = base / "event.json"
+            event_path.write_text(json.dumps(event), encoding="utf8")
+            with self.assertRaisesRegex(ReplayError, "media"):
+                replay(
+                    SCENARIOS / "window-shake" / "scenario.json",
+                    event_path,
+                    base / "private",
+                    base / "reviewed",
+                    base / "site",
+                    template_root=ROOT / "templates",
+                )
+
+    def test_missing_required_observations_are_rejected(self):
+        event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
+        event["runId"] = "synthetic-missing-required-observations"
+        event["observations"] = [
+            item
+            for item in event["observations"]
+            if item["kind"] in {"evidence", "recovery"}
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            event_path = base / "event.json"
+            event_path.write_text(json.dumps(event), encoding="utf8")
+            with self.assertRaisesRegex(ReplayError, "required observations"):
+                replay(
+                    SCENARIOS / "window-shake" / "scenario.json",
+                    event_path,
+                    base / "private",
+                    base / "reviewed",
+                    base / "site",
+                    template_root=ROOT / "templates",
+                )
+            self.assertFalse((base / "reviewed" / "result.json").exists())
+
+    def test_complete_evidence_requires_references_for_required_observations(self):
+        event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
+        event["runId"] = "synthetic-contradictory-complete-evidence"
+        task = next(item for item in event["observations"] if item["kind"] == "task")
+        task["evidence"] = []
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            event_path = base / "event.json"
+            event_path.write_text(json.dumps(event), encoding="utf8")
+            with self.assertRaisesRegex(ReplayError, "complete evidence"):
+                replay(
+                    SCENARIOS / "window-shake" / "scenario.json",
+                    event_path,
+                    base / "private",
+                    base / "reviewed",
+                    base / "site",
+                    template_root=ROOT / "templates",
+                )
+            self.assertFalse((base / "reviewed" / "result.json").exists())
+
+    def test_replay_copies_public_media_to_reviewed_and_site_outputs(self):
+        event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
+        event["runId"] = "synthetic-reviewed-media"
+        event["publicMedia"] = [
+            {"kind": "video", "path": "media/edited.mp4", "caption": "Edited preview"}
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            event_root = base / "input"
+            media_path = event_root / "media" / "edited.mp4"
+            media_path.parent.mkdir(parents=True)
+            media_path.write_bytes(b"synthetic edited video")
+            event_path = event_root / "event.json"
+            event_path.write_text(json.dumps(event), encoding="utf8")
+            replay(
+                SCENARIOS / "window-shake" / "scenario.json",
+                event_path,
+                base / "private",
+                base / "reviewed",
+                base / "site",
+                template_root=ROOT / "templates",
+            )
+            self.assertEqual(
+                (base / "reviewed" / "media" / "edited.mp4").read_bytes(),
+                b"synthetic edited video",
+            )
+            self.assertEqual(
+                (base / "site" / "media" / "edited.mp4").read_bytes(),
+                b"synthetic edited video",
+            )
+
+    def test_missing_public_media_is_rejected_before_reviewed_result(self):
+        event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
+        event["runId"] = "synthetic-missing-public-media"
+        event["publicMedia"] = [
+            {"kind": "video", "path": "media/missing.mp4", "caption": "Missing preview"}
+        ]
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            event_path = base / "event.json"
+            event_path.write_text(json.dumps(event), encoding="utf8")
+            with self.assertRaisesRegex(ReplayError, "media"):
+                replay(
+                    SCENARIOS / "window-shake" / "scenario.json",
+                    event_path,
+                    base / "private",
+                    base / "reviewed",
+                    base / "site",
+                    template_root=ROOT / "templates",
+                )
+            self.assertFalse((base / "reviewed" / "result.json").exists())
+
     def test_private_path_cannot_become_a_public_evidence_reference(self):
         event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))
         event["observations"][0]["evidence"] = ["C:/private/run.log"]
@@ -295,8 +416,13 @@ class RendererTests(unittest.TestCase):
             "frozenPromptId": "reference-agent-v1",
         }
         with tempfile.TemporaryDirectory() as folder:
-            output = Path(folder)
-            render_result(result, output, ROOT / "templates")
+            base = Path(folder)
+            reviewed = base / "reviewed"
+            (reviewed / "media").mkdir(parents=True)
+            (reviewed / "media" / "edited.mp4").write_bytes(b"video")
+            (reviewed / "media" / "selected.png").write_bytes(b"image")
+            output = base / "site"
+            render_result(result, output, ROOT / "templates", media_root=reviewed)
             html = (output / "index.html").read_text("utf8")
             self.assertIn("<video", html)
             self.assertIn("<img", html)
@@ -304,6 +430,8 @@ class RendererTests(unittest.TestCase):
             self.assertIn("Synthetic &lt;window&gt;", html)
             self.assertNotIn("Synthetic <window>", html)
             self.assertTrue((output / "result.css").is_file())
+            self.assertEqual((output / "media" / "edited.mp4").read_bytes(), b"video")
+            self.assertEqual((output / "media" / "selected.png").read_bytes(), b"image")
 
 
 if __name__ == "__main__":

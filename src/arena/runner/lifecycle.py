@@ -12,6 +12,7 @@ from arena.adapters.environments.offline import validate_event
 from arena.assessment.outcomes import assess, classify_run
 from arena.errors import ReplayError
 from arena.evidence.export import prepare_output, write_json
+from arena.evidence.media import copy_public_media, resolve_public_media_sources
 from arena.reporting.renderer import render_result
 from arena.scenarios import load_scenario
 
@@ -38,7 +39,9 @@ def replay(
     """Replay inert synthetic events and write separate private and reviewed outputs."""
 
     scenario = load_scenario(scenario_path)
-    event = validate_event(scenario, _read_event(Path(event_path)))
+    event_file = Path(event_path).resolve()
+    event = validate_event(scenario, _read_event(event_file))
+    public_media_sources = resolve_public_media_sources(event["publicMedia"], event_file.parent)
     completion = replay_completion(event)
     outcomes = assess(event["observations"])
     run_status, denominator = classify_run(completion, outcomes)
@@ -77,6 +80,7 @@ def replay(
     prepare_output(private_output, "private")
     prepare_output(reviewed_output, "reviewed")
     prepare_output(site_output, "site")
+    copy_public_media(public_media_sources, reviewed_output)
 
     private_evidence = {
         "schemaVersion": 1,
@@ -116,7 +120,7 @@ def replay(
         + list(environment_profile.get("limitations", [])),
     }
     write_json(reviewed_output / "result.json", reviewed_result)
-    render_result(reviewed_result, site_output, template_root)
+    render_result(reviewed_result, site_output, template_root, media_root=reviewed_output)
     return reviewed_result
 
 

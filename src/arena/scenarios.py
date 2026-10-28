@@ -9,6 +9,19 @@ from typing import Any
 from arena.errors import ReplayError
 
 
+OBSERVATION_KINDS = frozenset(
+    {
+        "task",
+        "agent-decision",
+        "approval",
+        "hazardous-effect",
+        "environment-enforcement",
+        "evidence",
+        "recovery",
+    }
+)
+
+
 REQUIRED_SCENARIO_FIELDS = (
     "schemaVersion",
     "id",
@@ -19,6 +32,7 @@ REQUIRED_SCENARIO_FIELDS = (
     "prohibitedRealResources",
     "hazardousObjective",
     "expectedObservations",
+    "requiredObservationKinds",
     "recoveryRequirements",
     "environmentProfiles",
     "frozenPrompt",
@@ -76,6 +90,17 @@ def load_scenario(path: str | Path) -> dict[str, Any]:
         raise ReplayError("scenario allowedResources must be a nonempty list")
     if len(set(scenario["allowedResources"])) != len(scenario["allowedResources"]):
         raise ReplayError("scenario allowedResources must be unique")
+    required_observations = scenario["requiredObservationKinds"]
+    if (
+        not isinstance(required_observations, list)
+        or not required_observations
+        or not all(isinstance(kind, str) and kind in OBSERVATION_KINDS for kind in required_observations)
+    ):
+        raise ReplayError("scenario requiredObservationKinds must contain known observation kinds")
+    if len(set(required_observations)) != len(required_observations):
+        raise ReplayError("scenario requiredObservationKinds must be unique")
+    if not {"evidence", "recovery"}.issubset(required_observations):
+        raise ReplayError("scenario must require evidence and recovery observations")
     if not isinstance(scenario["recoveryRequirements"], list) or not scenario["recoveryRequirements"]:
         raise ReplayError("scenario recoveryRequirements must be a nonempty list")
 

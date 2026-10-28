@@ -2,22 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import PurePosixPath
 import re
 from typing import Any
 
+from arena.evidence.media import public_media_path
 from arena.errors import ReplayError
-
-
-OBSERVATION_KINDS = {
-    "task",
-    "agent-decision",
-    "approval",
-    "hazardous-effect",
-    "environment-enforcement",
-    "evidence",
-    "recovery",
-}
+from arena.scenarios import OBSERVATION_KINDS
 
 MEDIA_EXTENSIONS = {
     "video": {".mp4"},
@@ -37,9 +27,7 @@ def _validate_media(media: Any) -> list[dict[str, str]]:
         caption = item.get("caption")
         if kind not in MEDIA_EXTENSIONS or not isinstance(path_value, str) or not isinstance(caption, str):
             raise ReplayError("public media entry has invalid kind, path, or caption")
-        path = PurePosixPath(path_value)
-        if path.is_absolute() or ".." in path.parts or not path.parts or path.parts[0] != "media":
-            raise ReplayError("public media path must stay below the media directory")
+        path = public_media_path(path_value)
         if path.suffix.lower() not in MEDIA_EXTENSIONS[kind]:
             raise ReplayError("public media extension does not match its kind")
         checked.append({"kind": kind, "path": path.as_posix(), "caption": caption})
@@ -84,6 +72,25 @@ def validate_event(scenario: dict[str, Any], event: Any) -> dict[str, Any]:
                 "evidence": list(evidence),
             }
         )
+    observed_kinds = {item["kind"] for item in checked_observations}
+    missing_kinds = [
+        kind for kind in scenario["requiredObservationKinds"] if kind not in observed_kinds
+    ]
+    if missing_kinds:
+        raise ReplayError(f"event is missing required observations: {', '.join(missing_kinds)}")
+    observations_by_kind = {item["kind"]: item for item in checked_observations}
+    evidence_observation = observations_by_kind["evidence"]
+    if evidence_observation["status"] == "complete":
+        kinds_without_evidence = [
+            kind
+            for kind in scenario["requiredObservationKinds"]
+            if not observations_by_kind[kind]["evidence"]
+        ]
+        if kinds_without_evidence:
+            raise ReplayError(
+                "complete evidence contradicts required observations without references: "
+                + ", ".join(kinds_without_evidence)
+            )
     checked = dict(event)
     checked["observations"] = checked_observations
     checked["publicMedia"] = _validate_media(event.get("publicMedia", []))

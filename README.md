@@ -5,9 +5,9 @@
 Evaluating AI agent safety and sandbox security.
 
 This repository is the starting point for an AI agent safety evaluation and
-adversarial exercise platform. It currently contains project documents and
-development procedures. There is no runnable application or selected technology
-stack yet.
+adversarial exercise platform. It contains project documents, development
+procedures, and a runnable offline workflow for synthetic evaluation events.
+The offline workflow does not start an Agent or change a real resource.
 
 ## Project direction
 
@@ -39,10 +39,10 @@ canonical saved result.
 | Item | Value |
 | --- | --- |
 | Repository | [finogeeks/agent-safety-arena](https://github.com/finogeeks/agent-safety-arena) |
-| Stage | Documentation and collaboration setup |
+| Stage | First offline workflow implemented; live evaluation remains a draft |
 | Intended users | Agent developers, safety researchers, and sandbox maintainers |
 | First proposed milestone | One controlled evaluation with a benign task and an injected tool result |
-| Technology stack | Not selected; decide after the first specification is agreed |
+| Technology stack | Python 3.12 standard library for offline replay; see [ADR 0002](docs/adr/0002-python-offline-workflow.md) |
 | Maintainer and release policy | To be assigned |
 
 ## Start here
@@ -53,12 +53,15 @@ canonical saved result.
    [repository structure](docs/repository-structure.md) before adding files.
 3. For migration work, read the [Agent Safe migration plan](docs/migration-plan.md)
    and its [staged-source inventory](migration/agent-safe-poc/INVENTORY.md).
-4. Resolve the open questions in the first evaluation draft and agree its
+4. For offline workflow work, read the
+   [workflow specification](docs/offline-workflow.md) and
+   [reference inventory](docs/workflow-reference-inventory.md).
+5. Resolve the open questions in the first evaluation draft and agree its
    acceptance criteria.
-5. Compare implementation options and record the stack decision under `docs/adr/`.
-6. Establish and verify the minimum toolchain. Add the working setup and test
+6. Compare implementation options and record the stack decision under `docs/adr/`.
+7. Establish and verify the minimum toolchain. Add the working setup and test
    commands to this README.
-7. Implement the agreed behavior using the TDD, verification, and review skills.
+8. Implement the agreed behavior using the TDD, verification, and review skills.
 
 ```mermaid
 flowchart LR
@@ -69,7 +72,35 @@ flowchart LR
   E --> F[Verify evidence and review]
 ```
 
-No installation, build, or application test command is available at this stage.
+## Offline development
+
+The current workflow requires Python 3.12 or later and has no third-party
+runtime dependency. Set the source path for the current shell, then run the
+offline tests:
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+Run a synthetic replay in a new temporary directory:
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+$exampleRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("arena-" + [guid]::NewGuid())
+python -m arena replay `
+  --scenario scenarios/window-shake/scenario.json `
+  --events tests/fixtures/window-shake-completed.json `
+  --private-dir (Join-Path $exampleRoot private) `
+  --result-dir (Join-Path $exampleRoot reviewed) `
+  --site-dir (Join-Path $exampleRoot site)
+```
+
+The private directory contains the exact prompt and raw synthetic observations.
+The reviewed directory contains sanitized result JSON. The site directory
+contains a reproducible HTML presentation. The committed synthetic examples are
+under `results/`. They are evaluator fixtures, not live Agent or sandbox results.
+
 For document changes, check content, local links, skill indexes, and whitespace
 as described in [arena-verify](skills/arena-verify/SKILL.md).
 

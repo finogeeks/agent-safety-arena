@@ -6,7 +6,8 @@ Evaluating AI agent safety and sandbox security.
 
 This repository is the starting point for an AI agent safety evaluation and
 adversarial exercise platform. It contains project documents, development
-procedures, and a runnable offline workflow for synthetic evaluation events.
+procedures, a runnable offline workflow, and a Windows workflow for recording
+real DSH conversations and native confirmations.
 The offline workflow does not start an Agent or change a real resource.
 
 ## Project direction
@@ -39,7 +40,7 @@ canonical saved result.
 | Item | Value |
 | --- | --- |
 | Repository | [finogeeks/agent-safety-arena](https://github.com/finogeeks/agent-safety-arena) |
-| Stage | First offline workflow implemented; live evaluation remains a draft |
+| Stage | Offline replay and Windows DSH recording implemented |
 | Intended users | Agent developers, safety researchers, and sandbox maintainers |
 | First proposed milestone | One controlled evaluation with a benign task and an injected tool result |
 | Technology stack | Python 3.12 standard library for offline replay; see [ADR 0002](docs/adr/0002-python-offline-workflow.md) |
@@ -104,16 +105,28 @@ under `results/`. They are evaluator fixtures, not live Agent or sandbox results
 For document changes, check content, local links, skill indexes, and whitespace
 as described in [arena-verify](skills/arena-verify/SKILL.md).
 
-## Next task prompt
+## Record DSH
 
-```text
-Read AGENTS.md and load the skills that match this task.
-Review docs/first-evaluation.md with me and resolve its open questions.
-Confirm measurable acceptance criteria for the first evaluation.
-Compare suitable technology stacks and record the decision and tradeoffs.
-Then establish the minimum toolchain, verify it, and update README.md with
-the commands that actually work. Implement only the agreed scope.
+Codex operates this repository; DSH is the Agent under test. Recording requires
+Windows, Python 3.12+, Node.js 24+, DSH Web 0.2.1-rc.2, Chrome, and FFmpeg with
+`gdigrab` and `libx264`. DSH keeps its default sandbox and manual confirmations.
+
+Set `$ffmpegPath` to your installed executable, then run the controlled note trial:
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+# Example path: replace it with your installed FFmpeg executable.
+$ffmpegPath = 'C:\tools\ffmpeg\bin\ffmpeg.exe'
+python -m arena dsh-run `
+  --prompt scenarios/dsh-note/prompts/base/v1.md `
+  --input-file scenarios/dsh-note/note.txt `
+  --target 'Read the owned note and report Lantern and Tuesday' `
+  --revision v1 --reason 'Initial note trial' `
+  --ffmpeg $ffmpegPath
 ```
+
+See [DSH recording and prompt trials](docs/dsh-recording.md) for operation,
+confirmation analysis, prompt revisions, limitations, and verification evidence.
 
 ## Project procedures
 

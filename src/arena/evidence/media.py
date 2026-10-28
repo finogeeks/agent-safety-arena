@@ -16,6 +16,8 @@ def public_media_path(value: Any) -> PurePosixPath:
         raise ReplayError("public media path must be a nonempty string")
     if "%" in value or "\\" in value or "?" in value or "#" in value:
         raise ReplayError("public media path must be an unencoded POSIX path")
+    if ":" in value:
+        raise ReplayError("public media path must not contain native drive or stream syntax")
     if any(ord(character) < 32 or ord(character) == 127 for character in value):
         raise ReplayError("public media path contains a control character")
     path = PurePosixPath(value)
@@ -36,13 +38,23 @@ def resolve_public_media_sources(
     """Resolve approved public media and reject missing files or escaping links."""
 
     root = Path(source_root).resolve()
+    media_root = (root / "media").resolve()
     sources = []
     for item in media:
         public_path = public_media_path(item.get("path"))
         relative_path = Path(*public_path.parts)
+        if (
+            relative_path.drive
+            or relative_path.root
+            or relative_path.anchor
+            or relative_path.parts != public_path.parts
+        ):
+            raise ReplayError("public media path changes during native path conversion")
         source = (root / relative_path).resolve()
-        if not source.is_relative_to(root) or not source.is_file():
-            raise ReplayError(f"public media file does not exist below the media directory: {public_path}")
+        if not source.is_relative_to(media_root) or not source.is_file():
+            raise ReplayError(
+                f"public media file does not exist below the media directory: {public_path}"
+            )
         sources.append((relative_path, source))
     return sources
 

@@ -10,6 +10,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from arena.evidence.media import public_media_path
 from arena.reporting.renderer import render_result
 from arena.runner.lifecycle import ReplayError, replay
 from arena.scenarios import load_scenario
@@ -249,6 +250,44 @@ class ReplayTests(unittest.TestCase):
                     base / "site",
                     template_root=ROOT / "templates",
                 )
+
+    def test_windows_drive_syntax_in_public_media_paths_is_rejected(self):
+        for path in ("media/C:../secret.mp4", "media/C:/clip.mp4"):
+            with self.subTest(path=path), self.assertRaisesRegex(ReplayError, "media"):
+                public_media_path(path)
+
+    @unittest.skipUnless(sys.platform == "win32", "Windows native path regression")
+    def test_replay_rejects_windows_drive_media_paths_before_export(self):
+        cases = (
+            ("media/C:../secret.mp4", Path("secret.mp4")),
+            ("media/C:/clip.mp4", Path("media/clip.mp4")),
+        )
+        for index, (public_path, source_path) in enumerate(cases):
+            with self.subTest(path=public_path), tempfile.TemporaryDirectory() as folder:
+                base = Path(folder)
+                event_root = base / "input"
+                source = event_root / source_path
+                source.parent.mkdir(parents=True, exist_ok=True)
+                source.write_bytes(b"outside the declared native media path")
+                event = json.loads(
+                    (FIXTURES / "window-shake-completed.json").read_text("utf8")
+                )
+                event["runId"] = f"synthetic-windows-drive-media-{index}"
+                event["publicMedia"] = [
+                    {"kind": "video", "path": public_path, "caption": "unsafe"}
+                ]
+                event_path = event_root / "event.json"
+                event_path.write_text(json.dumps(event), encoding="utf8")
+                with self.assertRaisesRegex(ReplayError, "media"):
+                    replay(
+                        SCENARIOS / "window-shake" / "scenario.json",
+                        event_path,
+                        base / "private",
+                        base / "reviewed",
+                        base / "site",
+                        template_root=ROOT / "templates",
+                    )
+                self.assertFalse((base / "reviewed" / "result.json").exists())
 
     def test_missing_required_observations_are_rejected(self):
         event = json.loads((FIXTURES / "window-shake-completed.json").read_text("utf8"))

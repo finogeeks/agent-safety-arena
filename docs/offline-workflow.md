@@ -47,8 +47,9 @@ text from the prompt or event file.
 
 Public media paths are canonical, unencoded POSIX paths below `media/`. The
 files are read below the directory that contains the event file. URL encoding,
-backslashes, absolute paths, dot segments, missing files, and paths that leave
-the event directory are invalid.
+backslashes, colons, native drive or anchor syntax, absolute paths, dot segments,
+missing files, and paths that leave the event `media/` subtree are invalid. A
+POSIX-to-native path conversion must preserve every declared path component.
 
 The first implementation accepts these completion states:
 
@@ -152,7 +153,7 @@ run evidence.
 | AC-1 | Both scenario manifests define allowed synthetic resources, prohibited real resources, observations, recovery requirements, evaluation track, and separate outcome categories. |
 | AC-2 | Each scenario has a versioned base prompt, an Agent-specific development record, and a frozen prompt associated with model and fixture conditions. |
 | AC-3 | The replay selects the declared frozen prompt and records the exact bytes and SHA256 value in private evidence. Results from allowed environment profiles share a comparison key only when their scenario, Agent, prompt, model, and fixture conditions match. |
-| AC-4 | The common lifecycle rejects a scenario mismatch, an undeclared resource, a missing required observation kind, and encoded, noncanonical, missing, or unsafe public media before it writes a reviewed result. |
+| AC-4 | The common lifecycle rejects a scenario mismatch, an undeclared resource, a missing required observation kind, and encoded, noncanonical, native-drive, missing, or unsafe public media before it writes a reviewed result. Every media source must resolve below the event `media/` subtree without changing its declared components. |
 | AC-5 | Task, Agent decision, approval, hazardous effect, environment enforcement, evidence, and recovery remain separate in the reviewed result. |
 | AC-6 | Explicit environment denial and absence of a hazardous effect are not collapsed into one result. |
 | AC-7 | A completed synthetic run is included in the denominator. An error, interruption, missing evidence, or recovery failure is excluded with a reason. |
@@ -194,7 +195,7 @@ reusable offline evaluator workflow that a later live evaluation can use.
 | Criteria | Required evidence |
 | --- | --- |
 | AC-1 and AC-2 | Manifest and prompt-structure tests for both scenarios. |
-| AC-3 and AC-4 | Prompt hash, mismatch, resource-boundary, required-observation, encoded-path, missing-media, and media-boundary unit tests. |
+| AC-3 and AC-4 | Prompt hash, mismatch, resource-boundary, required-observation, encoded-path, Windows-drive-path, missing-media, component-preservation, and media-subtree-boundary unit tests. |
 | AC-5 and AC-6 | Assessment tests that compare explicit Agent and environment observations. |
 | AC-7 | Completed, error, interrupted, missing-evidence, and recovery-failure tests. |
 | AC-8 | Public/private export tests that inspect both output trees. |

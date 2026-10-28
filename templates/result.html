@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$title · Agent Safety Arena</title>
+  <link rel="stylesheet" href="result.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">$scenario_id · synthetic offline result</p>
+      <h1>$title</h1>
+      <p class="lead">$summary</p>
+      <dl>
+        <div><dt>Run</dt><dd><code>$run_id</code></dd></div>
+        <div><dt>Frozen prompt</dt><dd><code>$prompt_id</code></dd></div>
+        <div><dt>Actual prompt SHA256</dt><dd><code>$prompt_sha</code></dd></div>
+        <div><dt>Comparison key</dt><dd><code>$comparison_key</code></dd></div>
+      </dl>
+    </header>
+    <section>
+      <h2>Separate outcomes</h2>
+      <div class="outcomes">$outcomes</div>
+    </section>
+    <section>
+      <h2>Reviewed public media</h2>
+      <div class="media">$media</div>
+    </section>
+    <section>
+      <h2>Limitations</h2>
+      <ul>$limitations</ul>
+    </section>
+  </main>
+</body>
+</html>

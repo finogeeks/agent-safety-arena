@@ -4,8 +4,9 @@
 
 评测 AI Agent 安全与沙箱安全。
 
-本项目旨在构建 AI Agent 安全评测与攻防演练平台。目前处于初始化阶段，
-仓库包含项目文档和开发协作流程，尚无可运行的应用，也未确定技术栈。
+本项目旨在构建 AI Agent 安全评测与攻防演练平台。仓库包含项目文档、开发协作流程，
+以及可运行的 synthetic evaluation event 离线工作流。离线工作流不会启动 Agent，
+也不会修改真实资源。
 
 ## 项目方向
 
@@ -34,10 +35,10 @@ Agent 行为与沙箱防护应分别记录结果。工具调用被拦截，可�
 | 项目 | 内容 |
 | --- | --- |
 | 代码仓库 | [finogeeks/agent-safety-arena](https://github.com/finogeeks/agent-safety-arena) |
-| 当前阶段 | 项目文档与协作规范初始化 |
+| 当前阶段 | 首个离线工作流已实现；live evaluation 仍为草案 |
 | 目标用户 | Agent 开发者、安全研究人员和沙箱维护者 |
 | 首个里程碑提案 | 在受控环境中，对正常任务和包含提示注入的工具结果分别进行一次评测 |
-| 技术栈 | 尚未选择，待首个需求确认后决定 |
+| 技术栈 | 离线重放使用 Python 3.12 标准库；参见 [ADR 0002](docs/adr/0002-python-offline-workflow.md) |
 | 维护负责人及发布策略 | 待确定 |
 
 ## 从这里开始
@@ -47,10 +48,12 @@ Agent 行为与沙箱防护应分别记录结果。工具调用被拦截，可�
    添加文件前，先使用[仓库目录结构](docs/repository-structure.md)确定归属。
 3. 进行迁移工作时，先阅读 [Agent Safe 迁移计划](docs/migration-plan.md)和
    [暂存源码清单](migration/agent-safe-poc/INVENTORY.md)。
-4. 讨论首个评测草案中的待定问题，确认验收标准。
-5. 比较实现方案，将技术栈决策及理由记录在 `docs/adr/` 下。
-6. 建立并验证最小开发工具链，将实际可用的安装和测试命令补充到中英文 README。
-7. 按照测试驱动开发、验证和评审技能，实现已经确认的需求。
+4. 开发离线工作流前，阅读[工作流规格](docs/offline-workflow.md)和
+   [本地参考清单](docs/workflow-reference-inventory.md)。
+5. 讨论首个评测草案中的待定问题，确认验收标准。
+6. 比较实现方案，将技术栈决策及理由记录在 `docs/adr/` 下。
+7. 建立并验证最小开发工具链，将实际可用的安装和测试命令补充到中英文 README。
+8. 按照测试驱动开发、验证和评审技能，实现已经确认的需求。
 
 ```mermaid
 flowchart LR
@@ -61,8 +64,34 @@ flowchart LR
   E --> F[核验证据并评审]
 ```
 
-当前没有可用的安装、构建或应用测试命令。修改文档时，按照
-[arena-verify](skills/arena-verify/SKILL.md) 检查内容、本地链接、
+## 离线开发
+
+当前工作流需要 Python 3.12 或更高版本，不依赖第三方运行库。为当前 shell 设置
+源码路径，然后运行离线测试：
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+python -m unittest discover -s tests -p "test_*.py" -v
+```
+
+在新的临时目录中运行一次 synthetic replay：
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+$exampleRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("arena-" + [guid]::NewGuid())
+python -m arena replay `
+  --scenario scenarios/window-shake/scenario.json `
+  --events tests/fixtures/window-shake-completed.json `
+  --private-dir (Join-Path $exampleRoot private) `
+  --result-dir (Join-Path $exampleRoot reviewed) `
+  --site-dir (Join-Path $exampleRoot site)
+```
+
+private 目录保存 exact prompt 和原始 synthetic observations；reviewed 目录保存清理后的
+result JSON；site 目录保存可重新生成的 HTML 展示页面。`results/` 下提交的 synthetic
+examples 仅用于验证 evaluator，不是 live Agent 或 sandbox 结果。
+
+修改文档时，按照 [arena-verify](skills/arena-verify/SKILL.md) 检查内容、本地链接、
 技能索引和空白格式。
 
 ## 下一步任务提示词

@@ -5,7 +5,8 @@
 评测 AI Agent 安全与沙箱安全。
 
 本项目旨在构建 AI Agent 安全评测与攻防演练平台。仓库包含项目文档、开发协作流程，
-以及可运行的 synthetic evaluation event 离线工作流。离线工作流不会启动 Agent，
+以及可运行的离线工作流和 Windows 下录制真实 DSH 会话及原生确认弹窗的流程。
+离线工作流不会启动 Agent，
 也不会修改真实资源。
 
 ## 项目方向
@@ -35,7 +36,7 @@ Agent 行为与沙箱防护应分别记录结果。工具调用被拦截，可�
 | 项目 | 内容 |
 | --- | --- |
 | 代码仓库 | [finogeeks/agent-safety-arena](https://github.com/finogeeks/agent-safety-arena) |
-| 当前阶段 | 首个离线工作流已实现；live evaluation 仍为草案 |
+| 当前阶段 | 已实现离线重放和 Windows DSH 录制 |
 | 目标用户 | Agent 开发者、安全研究人员和沙箱维护者 |
 | 首个里程碑提案 | 在受控环境中，对正常任务和包含提示注入的工具结果分别进行一次评测 |
 | 技术栈 | 离线重放使用 Python 3.12 标准库；参见 [ADR 0002](docs/adr/0002-python-offline-workflow.md) |
@@ -94,18 +95,28 @@ examples 仅用于验证 evaluator，不是 live Agent 或 sandbox 结果。
 修改文档时，按照 [arena-verify](skills/arena-verify/SKILL.md) 检查内容、本地链接、
 技能索引和空白格式。
 
-## 下一步任务提示词
+## 录制 DSH
 
-以下提示词可直接用于下一次开发会话。按照仓库协作规范，模板提示词使用英文。
+Codex 操作这个仓库，DSH 是被测 Agent。录制需要 Windows、Python 3.12+、
+Node.js 24+、DSH Web 0.2.1-rc.2、Chrome，以及支持 `gdigrab` 和 `libx264`
+的 FFmpeg。保留 DSH 默认沙箱，由你手动处理确认弹窗。
 
-```text
-Read AGENTS.md and load the skills that match this task.
-Review docs/first-evaluation.md with me and resolve its open questions.
-Confirm measurable acceptance criteria for the first evaluation.
-Compare suitable technology stacks and record the decision and tradeoffs.
-Then establish the minimum toolchain, verify it, and update README.md with
-the commands that actually work. Implement only the agreed scope.
+将 `$ffmpegPath` 设置为已安装的可执行文件，然后运行受控笔记试验：
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+# Example path: replace it with your installed FFmpeg executable.
+$ffmpegPath = 'C:\tools\ffmpeg\bin\ffmpeg.exe'
+python -m arena dsh-run `
+  --prompt scenarios/dsh-note/prompts/base/v1.md `
+  --input-file scenarios/dsh-note/note.txt `
+  --target 'Read the owned note and report Lantern and Tuesday' `
+  --revision v1 --reason 'Initial note trial' `
+  --ffmpeg $ffmpegPath
 ```
+
+完整操作、弹窗分析、prompt 迭代、限制与验证记录，见
+[DSH 录制与 prompt 试验文档](docs/dsh-recording.md)。
 
 ## 项目流程
 

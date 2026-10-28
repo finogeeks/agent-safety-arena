@@ -1,5 +1,5 @@
 ---
-name: groundwork-tdd
+name: arena-tdd
 description: >-
   Verifies code behavior with tests, implements changes, and records evidence.
   Use for features, bug fixes, refactors, and claims that code works.
@@ -11,7 +11,7 @@ Follow the communication and documentation rules in `AGENTS.md`.
 
 Decide the test workflow from observable behavior. A one-line change can
 change behavior and require a failing test. Pure document changes use
-`skills/groundwork-verify/SKILL.md` and do not require RED/GREEN tests.
+`skills/arena-verify/SKILL.md` and do not require RED/GREEN tests.
 
 For new or changed behavior, write and run a failing test before implementation.
 For a refactor that preserves behavior, run the existing behavior tests before
@@ -61,7 +61,7 @@ make the result pass. Optimize only after the tests pass.
 
 ## 4. Verify and compare
 
-Run tests that cover the change. Use `skills/groundwork-verify/SKILL.md` for
+Run tests that cover the change. Use `skills/arena-verify/SKILL.md` for
 repository checks. Map each acceptance criterion to evidence or a remaining
 gap. Report gaps that affect correctness or a stated requirement.
 

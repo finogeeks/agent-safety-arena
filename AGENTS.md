@@ -31,7 +31,7 @@ technology stack from agreed evaluation requirements.
 - Keep one skill tree at `skills/`. Do not create tool-specific copies.
 - Do not create `.cursor/rules/*.mdc` or another directory named `skills`.
 - Write a specification under `docs/` before you define a new API, CLI, or architecture.
-- Use `skills/groundwork-tdd/SKILL.md` for code changes. Judge TDD needs by
+- Use `skills/arena-tdd/SKILL.md` for code changes. Judge TDD needs by
   observable behavior. Sentence length does not determine test needs.
 - Read a file before you edit it.
 - Read command output before you report success.
@@ -54,13 +54,13 @@ Read the matching skill before you start its task.
 
 | Task | Skill |
 | --- | --- |
-| First session or project initialization | [groundwork-workspace](skills/groundwork-workspace/SKILL.md) |
-| Add or change a skill | [groundwork-author-skills](skills/groundwork-author-skills/SKILL.md) |
-| Write or change a specification | [groundwork-spec](skills/groundwork-spec/SKILL.md) |
-| Review a pull request or diff | [groundwork-review](skills/groundwork-review/SKILL.md) |
-| Assess or address review comments | [groundwork-receive-review](skills/groundwork-receive-review/SKILL.md) |
-| Change code and verify behavior | [groundwork-tdd](skills/groundwork-tdd/SKILL.md) |
-| Check the instruction tree and report evidence | [groundwork-verify](skills/groundwork-verify/SKILL.md) |
+| First session or project initialization | [arena-workspace](skills/arena-workspace/SKILL.md) |
+| Add or change a skill | [arena-author-skills](skills/arena-author-skills/SKILL.md) |
+| Write or change a specification | [arena-spec](skills/arena-spec/SKILL.md) |
+| Review a pull request or diff | [arena-review](skills/arena-review/SKILL.md) |
+| Assess or address review comments | [arena-receive-review](skills/arena-receive-review/SKILL.md) |
+| Change code and verify behavior | [arena-tdd](skills/arena-tdd/SKILL.md) |
+| Check the instruction tree and report evidence | [arena-verify](skills/arena-verify/SKILL.md) |
 
 ## Skill discovery
 

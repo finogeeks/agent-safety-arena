@@ -1,5 +1,5 @@
 ---
-name: groundwork-author-skills
+name: arena-author-skills
 description: >-
   Creates or updates canonical skills and both skill indexes. Use when a
   user requests a skill, agent rule, or tool-specific instruction file.
@@ -9,7 +9,7 @@ description: >-
 
 Follow the communication and documentation rules in `AGENTS.md`.
 
-Put skills only at `skills/<skill-name>/SKILL.md`. Use the `groundwork-`
+Put skills only at `skills/<skill-name>/SKILL.md`. Use the `arena-`
 prefix, lowercase letters, numbers, and hyphens. If a user requests a
 tool-specific rule, put the procedure in this canonical tree.
 
@@ -28,7 +28,7 @@ tool-specific rule, put the procedure in this canonical tree.
 
 ```markdown
 ---
-name: groundwork-example
+name: arena-example
 description: >-
   Performs a defined task. Use when the stated trigger applies.
 ---
@@ -41,5 +41,5 @@ When you add, rename, or remove a skill, update these files together:
 3. The Task guides table in `AGENTS.md`.
 4. All references to the changed name or path.
 
-Review the text, indexes, and links with `skills/groundwork-verify/SKILL.md`.
+Review the text, indexes, and links with `skills/arena-verify/SKILL.md`.
 Report the result.

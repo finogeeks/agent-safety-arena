@@ -1,5 +1,5 @@
 ---
-name: groundwork-receive-review
+name: arena-receive-review
 description: >-
   Evaluates code review feedback and applies verified corrections when
   requested. Use when a user asks to assess or address review comments.
@@ -36,8 +36,8 @@ flowchart LR
 - For an assessment request, report the decisions. For a correction request,
   apply the verified fixes. Resolve conflicts with requirements before editing.
 - Fix critical failures first. Make small changes. Avoid unrelated cleanup.
-- For code changes, follow `skills/groundwork-tdd/SKILL.md`.
-  For document changes, follow `skills/groundwork-verify/SKILL.md`.
+- For code changes, follow `skills/arena-tdd/SKILL.md`.
+  For document changes, follow `skills/arena-verify/SKILL.md`.
 - If the code is difficult to understand, improve the code or its comments.
   An explanation in the review thread alone does not help future readers.
 - Run checks that cover each correction and its effect on related behavior.

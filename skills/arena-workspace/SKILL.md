@@ -1,5 +1,5 @@
 ---
-name: groundwork-workspace
+name: arena-workspace
 description: >-
   Maps the project, discovers task skills, and guides initialization. Use on
   the first session or when a user asks how to start this repository.
@@ -9,7 +9,7 @@ description: >-
 
 Follow the communication and documentation rules in `AGENTS.md`.
 
-This repository uses the groundwork collaboration template. Read `README.md`
+This repository uses Agent Safety Arena project procedures. Read `README.md`
 for the current project purpose. Select the application stack from its requirements.
 
 ## Start

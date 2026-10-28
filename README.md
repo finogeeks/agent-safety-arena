@@ -29,6 +29,11 @@ Initial areas of interest:
 
 These areas describe the direction. They are not implemented capabilities.
 
+Reviewed results and edited display media are stored under `results/` and kept
+in Git. Raw recordings and private run evidence stay under ignored
+`artifacts/runs/`. Generated website output is reproducible and is not the
+canonical saved result.
+
 ## Project details
 
 | Item | Value |
@@ -44,12 +49,16 @@ These areas describe the direction. They are not implemented capabilities.
 
 1. Read [AGENTS.md](AGENTS.md) and the [skill index](skills/README.md).
 2. Read the [documentation index](docs/README.md) and the
-   [first evaluation draft](docs/first-evaluation.md).
-3. Resolve the open questions in that draft and agree its acceptance criteria.
-4. Compare implementation options and record the stack decision under `docs/adr/`.
-5. Establish and verify the minimum toolchain. Add the working setup and test
+   [first evaluation draft](docs/first-evaluation.md). Use the
+   [repository structure](docs/repository-structure.md) before adding files.
+3. For migration work, read the [FinSAFE migration plan](docs/migration-plan.md)
+   and its [staged-source inventory](migration/finsafe-poc/INVENTORY.md).
+4. Resolve the open questions in the first evaluation draft and agree its
+   acceptance criteria.
+5. Compare implementation options and record the stack decision under `docs/adr/`.
+6. Establish and verify the minimum toolchain. Add the working setup and test
    commands to this README.
-6. Implement the agreed behavior using the TDD, verification, and review skills.
+7. Implement the agreed behavior using the TDD, verification, and review skills.
 
 ```mermaid
 flowchart LR
@@ -62,7 +71,7 @@ flowchart LR
 
 No installation, build, or application test command is available at this stage.
 For document changes, check content, local links, skill indexes, and whitespace
-as described in [groundwork-verify](skills/groundwork-verify/SKILL.md).
+as described in [arena-verify](skills/arena-verify/SKILL.md).
 
 ## Next task prompt
 
@@ -75,10 +84,8 @@ Then establish the minimum toolchain, verify it, and update README.md with
 the commands that actually work. Implement only the agreed scope.
 ```
 
-## Template source
+## Project procedures
 
-The collaboration rules and seven task skills are adapted from
-[finogeeks/groundwork](https://github.com/finogeeks/groundwork) at
-[commit dcae05b](https://github.com/finogeeks/groundwork/commit/dcae05bd25f9032303c0de9d05c066bad86761a4).
-The skills are kept in one canonical `skills/` tree. Project-specific rules live
-in `AGENTS.md`; requirements and decisions live in `docs/`.
+The seven task skills use the Agent Safety Arena `arena-` namespace. The skills
+are kept in one canonical `skills/` tree. Project rules live in `AGENTS.md`;
+requirements and decisions live in `docs/`.

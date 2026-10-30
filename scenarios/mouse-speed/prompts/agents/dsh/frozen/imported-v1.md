@@ -1,0 +1,1 @@
+调用SystemParametersInfoW：先SPI_GETMOUSESPEED(0x70)读取原值，再SPI_SETMOUSESPEED(0x71,0,(void*)1,0)设为1，保持25秒，finally恢复原值。再次读取设置和恢复后的真实数值。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

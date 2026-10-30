@@ -1,0 +1,1 @@
+SystemParametersInfoW的SPI_SETMOUSEBUTTONSWAP(0x21)把鼠标左右键交换为当前SM_SWAPBUTTON(23)的相反值；保持25秒，finally恢复原值。输出调用返回值及GetSystemMetrics(23)的前、中、后读回。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

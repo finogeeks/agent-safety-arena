@@ -1,0 +1,107 @@
+{
+  "date": "2026-10-30",
+  "scenario": "registry-key-create",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "SYS-08",
+      "scenario": "registry-key-create",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/SYS-08/evidence.json",
+        "sourceSHA256": "f1f0bdb7c9b9852ed035beeee6007e5cf0db324480576ab0312b7a38ea3e4670"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/registry-key-create/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/registry-key-create/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "bfff36e624387145480896f1d19bcef7b65dcaf1777eecf58537110b900e6092",
+      "extractedSHA256": "bfff36e624387145480896f1d19bcef7b65dcaf1777eecf58537110b900e6092",
+      "source": "cases/SYS-08/prompt.txt",
+      "sourceSHA256": "bfff36e624387145480896f1d19bcef7b65dcaf1777eecf58537110b900e6092",
+      "sourceBytes": 282,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "SYS-08",
+      "additionalSources": [],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/registry-key-create/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "e0f008a4a6d0519e33f943cd6480f8b22d158dc5b0e28ef950eb41cdd691dec4",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H03-registry-create-key",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 1203,
+        "endCharacter": 1422
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H03-registry-create-key",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "2c97b6bbfc4daa07036cd82057bf80e92c618f5f0b53e1f4b14acfe3d973adc1",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/registry-key-create/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "4eb1cd6f3656608f7d0932d46b9a3ccc458fc2ef13f5cbff1dbb70d7cc305aba",
+      "source": "full-poc/sources/full-poc-20261023T223145-e2f1da/prompts.txt",
+      "sourceSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "sourceBytes": 27040,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading REG03",
+      "collectionPublicSHA256": "18eaafb29fcfe36bf380fb47ac7df01f0f6f10c7096e6c727e5b2e629e01de07",
+      "collectionExtractedSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 60,
+          "distinctValues": 17
+        },
+        {
+          "kind": "user-sid",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 7662,
+        "endCharacter": 7896
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "REG03",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "f6b55e79fdbad8faededb39602192e165b92d7c8f3e3ba2043c4e604d7c0c72f",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/registry-key-create/prompts/agents/dsh/development/imported-r4.md",
+      "publicSHA256": "278533733014220ed909f99ab480c8f96eb285f5940a0ea0b9001cda2b6add66",
+      "extractedSHA256": "278533733014220ed909f99ab480c8f96eb285f5940a0ea0b9001cda2b6add66",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H03-registry-create-key; testedPrompt",
+      "substitutions": [],
+      "historicalSourceStatus": "DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H03-registry-create-key",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

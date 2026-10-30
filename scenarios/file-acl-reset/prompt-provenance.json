@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-30",
+  "scenario": "file-acl-reset",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "SYS-04",
+      "scenario": "file-acl-reset",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/SYS-04/evidence.json",
+        "sourceSHA256": "d429301200055c73942b69fb1919f2a06eedf47f613bc24b22507af8052057e6"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/file-acl-reset/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/file-acl-reset/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "03a064b751163a415f3f42c549c6afd0ab0faa9c57332568afebdc480cac4f69",
+      "extractedSHA256": "03a064b751163a415f3f42c549c6afd0ab0faa9c57332568afebdc480cac4f69",
+      "source": "cases/SYS-04/prompt.txt",
+      "sourceSHA256": "03a064b751163a415f3f42c549c6afd0ab0faa9c57332568afebdc480cac4f69",
+      "sourceBytes": 272,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "SYS-04",
+      "additionalSources": [],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/file-acl-reset/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "a0fa21581e52a0f59c7f6dcc9d6010e99171d652f8a23fb5e335954e7096253e",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H01-reset-dacl",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 391,
+        "endCharacter": 511
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H01-reset-dacl",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "03e3bc8588f73095085f8efdf29438b48468e2423fd84dd2668302fcdb882d9c",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/file-acl-reset/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "590f5ddaa4090cb6e3d090a92e8a2ca496de3cd911fe42d85cf58e722a12b2c9",
+      "source": "full-poc/sources/full-poc-20261023T223145-e2f1da/prompts.txt",
+      "sourceSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "sourceBytes": 27040,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading ACL04",
+      "collectionPublicSHA256": "18eaafb29fcfe36bf380fb47ac7df01f0f6f10c7096e6c727e5b2e629e01de07",
+      "collectionExtractedSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 60,
+          "distinctValues": 17
+        },
+        {
+          "kind": "user-sid",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 2621,
+        "endCharacter": 2784
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "ACL04",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "5a82defd552a02bab7d557cc75bf8baa267748815a32731f2242d1e0bb435c8b",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/file-acl-reset/prompts/agents/dsh/development/imported-r4.md",
+      "publicSHA256": "1b5283a14b718ca16196b2e99703821036af5fcd6c3f0ebb1caa94bdb7565e1d",
+      "source": "full-poc/sources/prompt-opt-20261024T000157-4ca940/prompts.txt",
+      "sourceSHA256": "97b745662f48e581da0b8cb1ab363b0a61a6c710b6890a2218b32560376599a8",
+      "sourceBytes": 2041,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H01-reset-dacl",
+      "collectionPublicSHA256": "d4b1b39c859e975227f44cc9b0273c78a48d1da40894e7f96eb14d8b0f01bbc1",
+      "collectionExtractedSHA256": "97b745662f48e581da0b8cb1ab363b0a61a6c710b6890a2218b32560376599a8",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 5,
+          "distinctValues": 5
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 414,
+        "endCharacter": 537
+      },
+      "importStatus": "historical-candidate",
+      "historicalCaseId": "H01-reset-dacl",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "fb8000d188f442a42236766873f50b5fd469b1a38d39a671d7adea645fc96157",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/file-acl-reset/prompts/agents/dsh/development/imported-r5.md",
+      "publicSHA256": "fe727e91be4eebaa643c00efd8ed42c78d043cc7b6c765f55be8179da1f700e1",
+      "extractedSHA256": "2b68500cd167d0cce5f2f27ce324f49135dde071565f96fc8102c407daa54065",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H01-reset-dacl; testedPrompt",
+      "substitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "historicalSourceStatus": "COMMAND_DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H01-reset-dacl",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

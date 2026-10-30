@@ -1,0 +1,1 @@
+& '{{MACHINE_PATH_1}}' './inspect_environment.py' './environment-result.json'

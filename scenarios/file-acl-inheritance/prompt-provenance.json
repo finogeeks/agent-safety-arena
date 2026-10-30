@@ -1,0 +1,139 @@
+{
+  "date": "2026-10-30",
+  "scenario": "file-acl-inheritance",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "SYS-03",
+      "scenario": "file-acl-inheritance",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/SYS-03/evidence.json",
+        "sourceSHA256": "f15c57935c68fbbf3375afa13e18c22e55bce097ebc6f136b546511ec36fe929"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/file-acl-inheritance/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/file-acl-inheritance/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "896d02bde942cd08d06451b50a6d5ba48ff4ea9fd3776bfaa1f3ee05f732c100",
+      "extractedSHA256": "896d02bde942cd08d06451b50a6d5ba48ff4ea9fd3776bfaa1f3ee05f732c100",
+      "source": "cases/SYS-03/prompt.txt",
+      "sourceSHA256": "896d02bde942cd08d06451b50a6d5ba48ff4ea9fd3776bfaa1f3ee05f732c100",
+      "sourceBytes": 305,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "SYS-03",
+      "additionalSources": [],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/file-acl-inheritance/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "7b07685151c5b789bdec4489d6510c54ad6778000c89792bba932930112a61ac",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H01-inheritance",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 265,
+        "endCharacter": 391
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H01-inheritance",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "05d4d8b6f074b0d0239f6bc483f78586de19b04afaa9b136dad5abd7e818fd11",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/file-acl-inheritance/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "ea644659b120581e9666d3a9fb170d0a918cf685a9f27f091d8b178a5e87f109",
+      "source": "full-poc/sources/full-poc-20261023T223145-e2f1da/prompts.txt",
+      "sourceSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "sourceBytes": 27040,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading ACL03",
+      "collectionPublicSHA256": "18eaafb29fcfe36bf380fb47ac7df01f0f6f10c7096e6c727e5b2e629e01de07",
+      "collectionExtractedSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 60,
+          "distinctValues": 17
+        },
+        {
+          "kind": "user-sid",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 2450,
+        "endCharacter": 2621
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "ACL03",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "d6796ead85524c8d3c65b779b32caba4b608d1f066e539f93bfd74636a9f9ec4",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/file-acl-inheritance/prompts/agents/dsh/development/imported-r4.md",
+      "publicSHA256": "1c56491b55b4e3b7486d82abd3323ed9e37f73b70427af6f1d93234f4c7b6939",
+      "source": "full-poc/sources/prompt-opt-20261024T000157-4ca940/prompts.txt",
+      "sourceSHA256": "97b745662f48e581da0b8cb1ab363b0a61a6c710b6890a2218b32560376599a8",
+      "sourceBytes": 2041,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H01-inheritance",
+      "collectionPublicSHA256": "d4b1b39c859e975227f44cc9b0273c78a48d1da40894e7f96eb14d8b0f01bbc1",
+      "collectionExtractedSHA256": "97b745662f48e581da0b8cb1ab363b0a61a6c710b6890a2218b32560376599a8",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 5,
+          "distinctValues": 5
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 279,
+        "endCharacter": 414
+      },
+      "importStatus": "historical-candidate",
+      "historicalCaseId": "H01-inheritance",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "886328076c1cb19925874a957e4e6b4a47dd0209878e3d2dc05294305911de1c",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/file-acl-inheritance/prompts/agents/dsh/development/imported-r5.md",
+      "publicSHA256": "e500a3d4125523992c000ed08bb595816fb1b943d71d2f62e811c1f6a453e234",
+      "extractedSHA256": "00c255a90ca342747e20e5fa45dff9b01705b7449a0aa2733cf8ea75f3aff4a5",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H01-inheritance; testedPrompt",
+      "substitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "historicalSourceStatus": "COMMAND_DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H01-inheritance",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

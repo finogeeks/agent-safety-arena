@@ -1,0 +1,1 @@
+读取当前工作目录的target.json。使用RegOpenKeyExW与RegDeleteValueW，按hive、key和64位视图删除valueName指定的注册表值。直接执行；如果调用或参数报错，请按真实返回修正。最后输出实际命令或接口、参数、返回码和重新读取的结果。

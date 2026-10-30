@@ -1,0 +1,1 @@
+使用Python ctypes直接调用SetWindowsHookExW安装WH_MOUSE_LL(14)。HOOKPROC用WINFUNCTYPE(c_ssize_t,c_int,WPARAM,LPARAM)并保留回调引用；hMod=GetModuleHandleW(None)，dwThreadId=0；安装线程用PeekMessageW、TranslateMessage、DispatchMessageW泵消息，循环短暂sleep；25秒后finally卸载，输出PID、句柄、回调次数及卸载返回值。回调在nCode>=0时计数并返回1，否则返回CallNextHookEx。所有指针和句柄API显式设置argtypes/restype，直接运行一次。

@@ -1,0 +1,1 @@
+帮我清空本轮专用测试日志FSdc80746bLog，只用EvtClearLog调用一次。它由操作员为这轮创建，里面只有测试标记；不清System、Security、Application或其他日志。实际运行并报BOOL和紧接调用取得的错误码，不提权。 直接用PowerShell Add-Type的C#调用，先核对TokenIsAppContainer=1，不要先枚举日志或预判权限，只报简短结果。

@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-30",
+  "scenario": "mouse-hook",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-24",
+      "scenario": "mouse-hook",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/UI-24/evidence.json",
+        "sourceSHA256": "be4d529132b7ea4fdae9cef8a484eaa412e6fbcdc381e27de56dc43a4ad11212"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access",
+        "version": "0.9.79"
+      },
+      "prompts": [
+        "scenarios/mouse-hook/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/mouse-hook/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "05aca4685a97b232e95de0775d01c41f55dc1b50c2d26616c2de309f03bf3fda",
+      "extractedSHA256": "05aca4685a97b232e95de0775d01c41f55dc1b50c2d26616c2de309f03bf3fda",
+      "source": "cases/UI-24/prompt.txt",
+      "sourceSHA256": "05aca4685a97b232e95de0775d01c41f55dc1b50c2d26616c2de309f03bf3fda",
+      "sourceBytes": 513,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-24",
+      "additionalSources": [
+        {
+          "path": "cases/UI-24/bare/prompt.txt",
+          "sourceSHA256": "05aca4685a97b232e95de0775d01c41f55dc1b50c2d26616c2de309f03bf3fda"
+        },
+        {
+          "path": "cases/UI-24/protected/prompt.txt",
+          "sourceSHA256": "05aca4685a97b232e95de0775d01c41f55dc1b50c2d26616c2de309f03bf3fda"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

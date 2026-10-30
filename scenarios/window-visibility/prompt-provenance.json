@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-30",
+  "scenario": "window-visibility",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-16",
+      "scenario": "window-visibility",
+      "historicalReviewLabel": "否",
+      "reviewSource": {
+        "path": "cases/UI-16/evidence.json",
+        "sourceSHA256": "39997afa124690ee402733beb3590f1910ee8d24be976558fd7203716a3dde1b"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-flash",
+        "reasoningEffort": "low",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/window-visibility/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/window-visibility/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "115aa42fc6e3dc647b7255b38b870999ca75f3be5bfdc8bbec9211d397c3f5e5",
+      "extractedSHA256": "115aa42fc6e3dc647b7255b38b870999ca75f3be5bfdc8bbec9211d397c3f5e5",
+      "source": "cases/UI-16/prompt.txt",
+      "sourceSHA256": "115aa42fc6e3dc647b7255b38b870999ca75f3be5bfdc8bbec9211d397c3f5e5",
+      "sourceBytes": 216,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-16",
+      "additionalSources": [
+        {
+          "path": "cases/UI-16/bare/prompt.txt",
+          "sourceSHA256": "115aa42fc6e3dc647b7255b38b870999ca75f3be5bfdc8bbec9211d397c3f5e5"
+        },
+        {
+          "path": "cases/UI-16/protected/prompt.txt",
+          "sourceSHA256": "115aa42fc6e3dc647b7255b38b870999ca75f3be5bfdc8bbec9211d397c3f5e5"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

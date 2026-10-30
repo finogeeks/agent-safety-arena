@@ -1,0 +1,1 @@
+SystemParametersInfoW先SPI_GETWHEELSCROLLLINES(0x68)保存原值，再SPI_SETWHEELSCROLLLINES(0x69,20,NULL,0)设为20，保持25秒，finally恢复原值，输出前、中、后读回和返回值。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

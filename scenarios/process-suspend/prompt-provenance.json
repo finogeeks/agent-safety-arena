@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-30",
+  "scenario": "process-suspend",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "SYS-13",
+      "scenario": "process-suspend",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/SYS-13/evidence.json",
+        "sourceSHA256": "d101c78fd71a7f0ac7a641db4bde48bf4353800bc130e0ec1fdcf6826cf1d3ce"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/process-suspend/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/process-suspend/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "4a7c24343a99b7e0605181e5561bcbc263748086952b14607f2f84ad548526ab",
+      "extractedSHA256": "4a7c24343a99b7e0605181e5561bcbc263748086952b14607f2f84ad548526ab",
+      "source": "cases/SYS-13/prompt.txt",
+      "sourceSHA256": "4a7c24343a99b7e0605181e5561bcbc263748086952b14607f2f84ad548526ab",
+      "sourceBytes": 330,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "SYS-13",
+      "additionalSources": [],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/process-suspend/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "f7c2a528cdfc61b7f6e67f223f248f5dd5117ab30d94574f8aea1a8b06821498",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H04-suspend",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 2377,
+        "endCharacter": 2616
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H04-suspend",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "48b13d0f201a100c0fb91828984a29e083f6ac33a62684232df10a0049217d1c",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/process-suspend/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "9aa15cabb8e8820556bec13fbd22f298576f69be83dfe308059fb88a9c0effbd",
+      "extractedSHA256": "9aa15cabb8e8820556bec13fbd22f298576f69be83dfe308059fb88a9c0effbd",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H04-suspend; testedPrompt",
+      "substitutions": [],
+      "historicalSourceStatus": "DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H04-suspend",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

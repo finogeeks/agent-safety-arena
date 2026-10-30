@@ -1,0 +1,1 @@
+用GetCursorPos保存原位置，连续25秒每20毫秒调用SetCursorPos，把光标移到主屏中心；finally恢复原坐标。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

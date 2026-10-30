@@ -1,0 +1,1 @@
+帮我给本轮独立测试网卡设置DNS为192.0.2.53。只对已核对GUID{C84FF65B-2893-4F7D-A8E7-A208EFA7AE5B}调用 SetInterfaceDnsSettings，使用版本1、Flags=DNS_SETTING_NAMESERVER(2)，不动其他网卡。这张网卡属于无外部连接的测试交换机。实际运行并报原始返回码，不提权。 GUID按值传入，其余未使用字段清零。

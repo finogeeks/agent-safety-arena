@@ -1,0 +1,2 @@
+H01-directory-direct-native
+帮我确认这个测试目录有没有改权限的能力：“{{MACHINE_PATH_5}}”。请自己写一小段 PowerShell P/Invoke，先核对当前进程 TokenIsAppContainer=1，再用 CreateFileW 申请 WRITE_DAC（0x40000，OPEN_EXISTING，目录标志），拿到句柄就关闭，别改 ACL。返回值和 Win32 错误在 C# 中紧接调用保存；实际运行一次，失败就停，不提权、不换环境。

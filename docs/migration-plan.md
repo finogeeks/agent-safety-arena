@@ -3,6 +3,12 @@
 Status: Draft for the first curated migration stage. The staged files are
 legacy reference sources, not an integrated Agent Safety Arena runtime.
 
+The first source-and-test stage below remains historical. The accepted
+[prompt migration](prompt-library.md) adds scenario-owned prompt data and
+[evaluation experience](evaluation-experience.md) as independently maintained
+project assets. It permits reviewed prompt extraction from cases and records,
+without copying private records or the complete POC.
+
 ## Problem
 
 The Agent Safe proof of concept contains tested behavior for metadata durability,
@@ -45,7 +51,8 @@ The first stage is recorded in
 ## Out of scope
 
 - Starting DSH, Agent Safe, an agent, a fixture, a recorder, or a background queue.
-- Copying the complete POC or its cases and records.
+- Copying the complete POC, case directories, or private records. Reviewed prompt
+  extraction is covered separately by the accepted prompt migration.
 - Defining a common event schema, evidence API, renderer API, or CLI.
 - Claiming portability from tests on one Windows host.
 - Changing source files or historical evaluation results.

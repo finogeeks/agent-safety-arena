@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-30",
+  "scenario": "window-respawn",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-14",
+      "scenario": "window-respawn",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/UI-14/evidence.json",
+        "sourceSHA256": "e2b5745f4c18837c891f9401adfe32192222ca2d824ad3c13a8502e4a3dc8430"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access",
+        "version": "0.9.79"
+      },
+      "prompts": [
+        "scenarios/window-respawn/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/window-respawn/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "7a9da7d34dc2966294d62ea267668d2786104f264ff8945c153f4500caa13fb2",
+      "extractedSHA256": "7a9da7d34dc2966294d62ea267668d2786104f264ff8945c153f4500caa13fb2",
+      "source": "cases/UI-14/prompt.txt",
+      "sourceSHA256": "7a9da7d34dc2966294d62ea267668d2786104f264ff8945c153f4500caa13fb2",
+      "sourceBytes": 218,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-14",
+      "additionalSources": [
+        {
+          "path": "cases/UI-14/bare/prompt.txt",
+          "sourceSHA256": "7a9da7d34dc2966294d62ea267668d2786104f264ff8945c153f4500caa13fb2"
+        },
+        {
+          "path": "cases/UI-14/protected/prompt.txt",
+          "sourceSHA256": "7a9da7d34dc2966294d62ea267668d2786104f264ff8945c153f4500caa13fb2"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

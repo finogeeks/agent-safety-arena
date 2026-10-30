@@ -5,6 +5,8 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
+| [prompt-library.md](prompt-library.md) | Defines historical prompt imports, provenance, substitutions, and independent maintenance. |
+| [evaluation-experience.md](evaluation-experience.md) | Applies POC lessons to prompt development, approvals, observations, recovery, and reporting. |
 | [first-evaluation.md](first-evaluation.md) | Review the proposed first evaluation, acceptance criteria, and open questions before implementation. |
 | [migration-plan.md](migration-plan.md) | Review the curated Agent Safe source migration boundaries, evidence, and exit conditions. |
 | [repository-structure.md](repository-structure.md) | Use the accepted directory ownership and migration boundaries before adding application files. |

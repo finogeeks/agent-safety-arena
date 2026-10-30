@@ -16,6 +16,11 @@ dependency. Start with the [prompt library](scenarios/README.md) and
 [evaluation experience](docs/evaluation-experience.md). Imported prompts preserve
 historical wording and recorded conditions; they are not new Arena test results.
 
+The [result page requirements](docs/report-contract.md) and
+[layout reference](docs/report-detail-layout.svg) define the intended comparison
+detail page. The current offline template is a single-run view; the full
+comparison page is not implemented yet.
+
 ## Project direction
 
 Evaluate whether an agent can complete an authorized task while respecting

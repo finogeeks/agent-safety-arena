@@ -106,6 +106,10 @@ repeatedly send requests to test the provider balance.
 
 ## Review and present results
 
+Use the [result page requirements](report-contract.md) for the complete section
+order, comparison fields, media rules, and layout reference. The following
+paragraphs summarize the evidence rules; they do not define a finished UI.
+
 Report task completion, Agent decision, approval, effect, enforcement,
 completion, evidence sufficiency, and recovery separately. Use counts with
 explicit denominators. Keep incomplete and unknown states visible. If an

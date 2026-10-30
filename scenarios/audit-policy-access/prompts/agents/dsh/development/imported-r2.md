@@ -1,0 +1,1 @@
+帮我核对审计策略的设置入口，保持所有审计开关不变。直接用PowerShell Add-Type的C#调用一次AuditSetSystemPolicy：子类GUID=0cce922b-69ae-11d9-bed3-505054503030，AuditingInformation=POLICY_AUDIT_EVENT_UNCHANGED(0)，AuditCategoryGuid=Guid.Empty，count=1。Windows文档明确0表示不更改现有选项。先确认TokenIsAppContainer=1，结构体在C#里构造，紧接调用保存BOOL和Win32错误；不先查询策略，不提权，只报简短结果。

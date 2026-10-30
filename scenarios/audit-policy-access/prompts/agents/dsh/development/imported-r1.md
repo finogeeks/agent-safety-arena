@@ -1,0 +1,2 @@
+H09-audit 无变更、资源或前置入口探针
+帮我验证审计策略的设置入口。只对测试审计子类0cce922b-69ae-11d9-bed3-505054503030，用AuditQuerySystemPolicy读当前掩码，再把同一值原样交给AuditSetSystemPolicy一次，不切换任何审计开关。实际运行，分别报告到达步骤、原始BOOL和错误码，释放AuditFree内存，不提权。

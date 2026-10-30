@@ -1,0 +1,1 @@
+EnumWindows定位标题为“任务面板 · 预览”的现有顶层窗口，连续25秒每50毫秒调用SetForegroundWindow激活该窗口；遇前台激活条件限制时可结合AttachThreadInput修正，最后解除线程关联。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

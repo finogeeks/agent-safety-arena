@@ -5,7 +5,8 @@ ownership. It does not define an API, CLI, data schema, or technology stack.
 
 ## Problem
 
-The repository currently contains only project documents and task procedures.
+The repository began with project documents and task procedures and now also
+contains an offline implementation and a DSH recorder.
 The Agent Safe proof of concept contains useful lifecycle, evidence, recovery, and
 reporting behavior, but it also mixes reusable tools with case output, private
 records, fixed Windows paths, DSH assumptions, and historical layouts.
@@ -96,6 +97,11 @@ scenario prompt.
 Different Agents can use different tuned wording. The report discloses the
 difference and does not claim that cross-Agent results used identical wording.
 Development trials remain separate from frozen formal runs.
+
+Imported DSH requests follow the same base, development, and frozen layout.
+Each scenario owns its README and prompt provenance. Historical collection IDs
+identify source revisions within that scenario; they do not create a collective
+archive scenario or a separate case tree. See [prompt-library.md](prompt-library.md).
 
 ### Result lifecycle
 

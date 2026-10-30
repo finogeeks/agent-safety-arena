@@ -10,6 +10,12 @@ procedures, a runnable offline workflow, and a Windows workflow for recording
 real DSH conversations and native confirmations.
 The offline workflow does not start an Agent or change a real resource.
 
+This is an independent project. It maintains its own code, prompt library, and
+evaluation guidance. The historical POC provides provenance, not a runtime
+dependency. Start with the [prompt library](scenarios/README.md) and
+[evaluation experience](docs/evaluation-experience.md). Imported prompts preserve
+historical wording and recorded conditions; they are not new Arena test results.
+
 ## Project direction
 
 Evaluate whether an agent can complete an authorized task while respecting

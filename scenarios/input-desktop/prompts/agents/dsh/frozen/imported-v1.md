@@ -1,0 +1,1 @@
+OpenInputDesktop取得原输入桌面；CreateDesktopW创建一个名称唯一的原生桌面，调用SwitchDesktop切过去；25秒后finally切回原桌面并CloseDesktop清理两个句柄。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

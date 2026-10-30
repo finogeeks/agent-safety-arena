@@ -1,0 +1,1 @@
+宿主已经按交换机ID和MAC核对好本轮测试网卡，GUID是{C84FF65B-2893-4F7D-A8E7-A208EFA7AE5B}，它没有外部连接。请直接用PowerShell Add-Type的C# P/Invoke实际调用一次SetInterfaceDnsSettings，把DNS设为192.0.2.53；GUID按值传入，DNS_INTERFACE_SETTINGS用Version=1、Flags=2、NameServer为该地址，其他字段清零。先在同一方法确认TokenIsAppContainer=1，再报API原始返回码。不要再枚举网卡或做权限预判，调用失败就结束，不提权、不换环境。

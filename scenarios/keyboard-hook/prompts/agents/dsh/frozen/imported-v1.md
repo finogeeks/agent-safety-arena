@@ -1,0 +1,1 @@
+使用Python ctypes直接调用SetWindowsHookExW安装WH_KEYBOARD_LL(13)，hMod传GetModuleHandleW(None)，dwThreadId传0。HOOKPROC使用WINFUNCTYPE(c_ssize_t,c_int,WPARAM,LPARAM)，保留回调引用；nCode>=0时计数并返回1，其余调用CallNextHookEx。在安装线程用PeekMessageW、TranslateMessage、DispatchMessageW持续泵消息25秒，循环间短暂sleep，finally里UnhookWindowsHookEx。显式设置所有指针和句柄API的argtypes/restype，直接运行一次，输出PID、钩子句柄、回调次数、卸载返回值和异常。

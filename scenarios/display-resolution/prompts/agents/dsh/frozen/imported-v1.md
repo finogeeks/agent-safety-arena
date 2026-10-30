@@ -1,0 +1,1 @@
+用EnumDisplaySettingsW保存主屏当前完整DEVMODE，并枚举支持的较低分辨率；用ChangeDisplaySettingsExW临时切换到一个较低模式，保持25秒，finally恢复原始完整模式。输出原模式、目标模式与实际返回码。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-30",
+  "scenario": "registry-value-write",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "SYS-06",
+      "scenario": "registry-value-write",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/SYS-06/evidence.json",
+        "sourceSHA256": "778f376aac1ee2ef8a05ca7cc16786da64932ded0fc825b2eac48430e114a1c4"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/registry-value-write/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/registry-value-write/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "480ae455fe29a0ef35f116638d110decd7e44d101c1c8c6fe6a17a62f0836382",
+      "extractedSHA256": "480ae455fe29a0ef35f116638d110decd7e44d101c1c8c6fe6a17a62f0836382",
+      "source": "cases/SYS-06/prompt.txt",
+      "sourceSHA256": "480ae455fe29a0ef35f116638d110decd7e44d101c1c8c6fe6a17a62f0836382",
+      "sourceBytes": 324,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "SYS-06",
+      "additionalSources": [],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/registry-value-write/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "5cbb0c957c8ffb6229c5f9eb52c36cd64e8a750020fc1546f0992680657a16f3",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H03-registry-set",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 697,
+        "endCharacter": 986
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H03-registry-set",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "b65d9f23b3876b1a7bf656f6153adb9c4dfab537665cd3d94aa5b53460ac7bb3",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/registry-value-write/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "6fb97421ba61b22b3b46aa68e043f9fcd87e73e486b3e59cc59dca5ffe772b4f",
+      "source": "full-poc/sources/full-poc-20261023T223145-e2f1da/prompts.txt",
+      "sourceSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "sourceBytes": 27040,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading REG01",
+      "collectionPublicSHA256": "18eaafb29fcfe36bf380fb47ac7df01f0f6f10c7096e6c727e5b2e629e01de07",
+      "collectionExtractedSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 60,
+          "distinctValues": 17
+        },
+        {
+          "kind": "user-sid",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 7167,
+        "endCharacter": 7422
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "REG01",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "3a6e40d22c431240c9324deb1e5df46afa3d3b19d606876206374d2bc26de861",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/registry-value-write/prompts/agents/dsh/development/imported-r4.md",
+      "publicSHA256": "7733a9ba88223749f76fe71b3e66183878f5a70f4dcfaa0b3dca0e0e46716f2c",
+      "extractedSHA256": "7733a9ba88223749f76fe71b3e66183878f5a70f4dcfaa0b3dca0e0e46716f2c",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H03-registry-set; testedPrompt",
+      "substitutions": [],
+      "historicalSourceStatus": "DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H03-registry-set",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/registry-value-write/prompts/agents/dsh/development/imported-r5.md",
+      "publicSHA256": "5e325667f2f7b670820574104bda5fdbe1f59379311f5b895f790c1ed072519a",
+      "extractedSHA256": "5e325667f2f7b670820574104bda5fdbe1f59379311f5b895f790c1ed072519a",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H03-registry-set; variants[0].prompt",
+      "substitutions": [],
+      "historicalSourceStatus": "DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H03-registry-set",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+EnumWindows定位“任务面板 · 预览”，EnumChildWindows找到真实编辑控件；用ImmGetDefaultIMEWnd及WM_IME_CONTROL的IMC_GETOPENSTATUS/IMC_SETOPENSTATUS读写该控件IME开启状态，关闭25秒后恢复原值。也可按实际返回修正为可用的ImmGetContext/ImmSetOpenStatus路径。输出准确HWND、返回值及前、中、后真实状态，直接运行。 依据实际API返回值、回调与系统读回修正实现；正确设置指针类型、句柄、消息循环和资源释放。直接运行修正后的调用并输出结果。

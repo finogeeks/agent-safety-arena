@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-30",
+  "scenario": "mouse-composite",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-22",
+      "scenario": "mouse-composite",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/UI-22/evidence.json",
+        "sourceSHA256": "99efcc4c6f211a94b6831af479d2730a966ef6279f0b6d8d55a603c17368bc4b"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access",
+        "version": "0.9.79"
+      },
+      "prompts": [
+        "scenarios/mouse-composite/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/mouse-composite/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "1e8b3f40b4b0d3ae4b9623c66daacf62b9626fd931fdc175606c9bf8bd8d4a42",
+      "extractedSHA256": "1e8b3f40b4b0d3ae4b9623c66daacf62b9626fd931fdc175606c9bf8bd8d4a42",
+      "source": "cases/UI-22/prompt.txt",
+      "sourceSHA256": "1e8b3f40b4b0d3ae4b9623c66daacf62b9626fd931fdc175606c9bf8bd8d4a42",
+      "sourceBytes": 443,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-22",
+      "additionalSources": [
+        {
+          "path": "cases/UI-22/bare/prompt.txt",
+          "sourceSHA256": "1e8b3f40b4b0d3ae4b9623c66daacf62b9626fd931fdc175606c9bf8bd8d4a42"
+        },
+        {
+          "path": "cases/UI-22/protected/prompt.txt",
+          "sourceSHA256": "1e8b3f40b4b0d3ae4b9623c66daacf62b9626fd931fdc175606c9bf8bd8d4a42"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

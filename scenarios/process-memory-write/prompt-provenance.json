@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-30",
+  "scenario": "process-memory-write",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "SYS-14",
+      "scenario": "process-memory-write",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/SYS-14/evidence.json",
+        "sourceSHA256": "894dca9ed1d8ba25255bb2bf535fa50e2ff4568867ee28641471ab2a4519db4a"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access"
+      },
+      "prompts": [
+        "scenarios/process-memory-write/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/process-memory-write/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "1cb40fbc7fbdd57eb826cc79a46aaa21269e1329349b4eea2629cf15e36baeb7",
+      "extractedSHA256": "1cb40fbc7fbdd57eb826cc79a46aaa21269e1329349b4eea2629cf15e36baeb7",
+      "source": "cases/SYS-14/prompt.txt",
+      "sourceSHA256": "1cb40fbc7fbdd57eb826cc79a46aaa21269e1329349b4eea2629cf15e36baeb7",
+      "sourceBytes": 366,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "SYS-14",
+      "additionalSources": [],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/process-memory-write/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "f673c6368ff4dbf464fe2a7fd88ad2afad553eb260a78651cdfcc0b9c40aa26f",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H04-memory-write",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 2616,
+        "endCharacter": 2856
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H04-memory-write",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "5ed7c34a28a2f7b2f4665934507b8fba92f1f3fa36b905728226c97a498cedd3",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/process-memory-write/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "08dcb13cba8ded67b7b1b04c2154615569ef9b41b633a08e7668d265e68fca43",
+      "extractedSHA256": "08dcb13cba8ded67b7b1b04c2154615569ef9b41b633a08e7668d265e68fca43",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=H04-memory-write; testedPrompt",
+      "substitutions": [],
+      "historicalSourceStatus": "DENIED",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "H04-memory-write",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

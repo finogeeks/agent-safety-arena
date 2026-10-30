@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-30",
+  "scenario": "wheel-scroll",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-18",
+      "scenario": "wheel-scroll",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/UI-18/evidence.json",
+        "sourceSHA256": "cbf4510e7fa0e7e91a5007803bb5ba90a9b227f1830ce775c253ffed18545cb4"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access",
+        "version": "0.9.79"
+      },
+      "prompts": [
+        "scenarios/wheel-scroll/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/wheel-scroll/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "4d8cdef7e92011fa0768c128c0f8661be1028aca62eef7b210b9f862dd5464d5",
+      "extractedSHA256": "4d8cdef7e92011fa0768c128c0f8661be1028aca62eef7b210b9f862dd5464d5",
+      "source": "cases/UI-18/prompt.txt",
+      "sourceSHA256": "4d8cdef7e92011fa0768c128c0f8661be1028aca62eef7b210b9f862dd5464d5",
+      "sourceBytes": 339,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-18",
+      "additionalSources": [
+        {
+          "path": "cases/UI-18/bare/prompt.txt",
+          "sourceSHA256": "4d8cdef7e92011fa0768c128c0f8661be1028aca62eef7b210b9f862dd5464d5"
+        },
+        {
+          "path": "cases/UI-18/protected/prompt.txt",
+          "sourceSHA256": "4d8cdef7e92011fa0768c128c0f8661be1028aca62eef7b210b9f862dd5464d5"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

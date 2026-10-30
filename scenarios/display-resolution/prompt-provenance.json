@@ -1,0 +1,163 @@
+{
+  "date": "2026-10-30",
+  "scenario": "display-resolution",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-08",
+      "scenario": "display-resolution",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/UI-08/evidence.json",
+        "sourceSHA256": "2c30b5a767e70b5ef0f9fd2438bb4747c97b4d4494cf264fff38ec133d197dc8"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-v4-pro",
+        "reasoningEffort": "high",
+        "access": "Full Access",
+        "version": "0.9.79"
+      },
+      "prompts": [
+        "scenarios/display-resolution/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/display-resolution/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "39a6d84c7162b05073bf2c2a26b79a6f716746536998e31d6e831dbe41ed8cd7",
+      "extractedSHA256": "39a6d84c7162b05073bf2c2a26b79a6f716746536998e31d6e831dbe41ed8cd7",
+      "source": "cases/UI-08/prompt.txt",
+      "sourceSHA256": "39a6d84c7162b05073bf2c2a26b79a6f716746536998e31d6e831dbe41ed8cd7",
+      "sourceBytes": 395,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-08",
+      "additionalSources": [
+        {
+          "path": "cases/UI-08/bare/prompt.txt",
+          "sourceSHA256": "39a6d84c7162b05073bf2c2a26b79a6f716746536998e31d6e831dbe41ed8cd7"
+        },
+        {
+          "path": "cases/UI-08/protected/prompt.txt",
+          "sourceSHA256": "39a6d84c7162b05073bf2c2a26b79a6f716746536998e31d6e831dbe41ed8cd7"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    },
+    {
+      "path": "scenarios/display-resolution/prompts/agents/dsh/development/imported-r2.md",
+      "publicSHA256": "23d25dea519a5dd1aece775009b94402c84644b366f1cb7e89249ce6be0eed68",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompts.txt",
+      "sourceSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "sourceBytes": 19473,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading J08",
+      "collectionPublicSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionExtractedSHA256": "ef4e42b74491bcf2fbb78d1d0e134bc34e1f0992722cabaa6a1fec0747253ba3",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 8673,
+        "endCharacter": 8917
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "J08",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "d209356a626b86b8806b8c39a5a73418b1b31d6073e149a6f8aff453cd92cc6a",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/display-resolution/prompts/agents/dsh/development/imported-r3.md",
+      "publicSHA256": "34f6ac36a0c2a4f4f70b663a3126a1ef1e4f216ed516d2fa7658d0708fb3d172",
+      "source": "full-poc/sources/dsh-protected-20261024/prompts.txt",
+      "sourceSHA256": "00775df0d16095f24ae23acd21a2fc557373c45c076b5d3f68d000ec7036f76a",
+      "sourceBytes": 6155,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading J08",
+      "collectionPublicSHA256": "e39d377a3867f46055585f82490c1c167a5f99c157f26e85f21702d2ef66ddd6",
+      "collectionExtractedSHA256": "00775df0d16095f24ae23acd21a2fc557373c45c076b5d3f68d000ec7036f76a",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 1854,
+        "endCharacter": 2233
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "J08",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "7a74771f3d2e05b4b714d20ece5f1559b747cd6e8eb519517ee8e39469f64306",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/display-resolution/prompts/agents/dsh/development/imported-r4.md",
+      "publicSHA256": "93eb0ef72488fef619a57c202cb947fd7e0f6c43b341de9895e5ea8ca3a612eb",
+      "source": "full-poc/sources/full-poc-20261023T223145-e2f1da/prompts.txt",
+      "sourceSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "sourceBytes": 27040,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading J08",
+      "collectionPublicSHA256": "18eaafb29fcfe36bf380fb47ac7df01f0f6f10c7096e6c727e5b2e629e01de07",
+      "collectionExtractedSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 60,
+          "distinctValues": 17
+        },
+        {
+          "kind": "user-sid",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 10203,
+        "endCharacter": 10461
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "J08",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "515569a88175c72e5e5294c729df20f0e5cade80207de7275dee97a6b11d49b2",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/display-resolution/prompts/agents/dsh/development/imported-r5.md",
+      "publicSHA256": "4939f2de61ba9c95ffd5e37ca8d23226a015bc45963352921350c645e2cc7f51",
+      "source": "full-poc/sources/job-ui-baseline-20261024/job-ui-demo-prompts.txt",
+      "sourceSHA256": "d501b72474ae51fe903a1a5af211b92c143c50f460c3601b3342587bff78f1fc",
+      "sourceBytes": 3176,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading J08",
+      "collectionPublicSHA256": "d501b72474ae51fe903a1a5af211b92c143c50f460c3601b3342587bff78f1fc",
+      "collectionExtractedSHA256": "d501b72474ae51fe903a1a5af211b92c143c50f460c3601b3342587bff78f1fc",
+      "collectionSubstitutions": [],
+      "collectionRange": {
+        "startCharacter": 856,
+        "endCharacter": 958
+      },
+      "importStatus": "historical-candidate",
+      "historicalCaseId": "J08",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "c32c7a915061de17aa1d39a2a6ea047003c94e4ebdf3e4aa633a195d9b4c902c",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    },
+    {
+      "path": "scenarios/display-resolution/prompts/agents/dsh/development/imported-r6.md",
+      "publicSHA256": "d3c1a930dd8fd3e5056356b8b29a5b9d243ddc06f52cbe8cd859a3c762179edf",
+      "extractedSHA256": "d3c1a930dd8fd3e5056356b8b29a5b9d243ddc06f52cbe8cd859a3c762179edf",
+      "source": "full-poc/sources/danger-prompts-20261024T003302-dc80746b/prompt-catalog.json",
+      "sourceSHA256": "09b7f1102ef45c31616fae532a30f57f0a36d5627568c9d43678c6fde4df52cf",
+      "sourceBytes": 125206,
+      "extraction": "row id=J08; testedPrompt",
+      "substitutions": [],
+      "historicalSourceStatus": "REUSED_API_FAILURE",
+      "importStatus": "historical-submission; comparison acceptance unknown",
+      "historicalCaseId": "J08",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

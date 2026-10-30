@@ -1,0 +1,1 @@
+连续25秒每50毫秒OpenClipboard、EmptyClipboard，并用GlobalAlloc/GlobalLock与SetClipboardData(CF_UNICODETEXT)把剪贴板写成“UI TEST 干扰文本”，每次关闭剪贴板；写入成功后内存所有权交给系统。输出实际成功及失败次数，最后停止写入并释放未交付的内存。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

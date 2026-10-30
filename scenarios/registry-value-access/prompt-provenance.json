@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-30",
+  "scenario": "registry-value-access",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [],
+  "files": [
+    {
+      "path": "scenarios/registry-value-access/prompts/agents/dsh/development/imported-r1.md",
+      "publicSHA256": "04e094cd5035cc045ddc7506f72545e7ed34df59615ddef4812b52f7a54e6385",
+      "source": "full-poc/sources/full-poc-20261023T223145-e2f1da/prompts.txt",
+      "sourceSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "sourceBytes": 27040,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader; split at source case heading H03-SET_VALUE",
+      "collectionPublicSHA256": "18eaafb29fcfe36bf380fb47ac7df01f0f6f10c7096e6c727e5b2e629e01de07",
+      "collectionExtractedSHA256": "b618724ec6c147d58897e26fe3c4c1e97376552d5cca1430bb59c2442866887d",
+      "collectionSubstitutions": [
+        {
+          "kind": "machine-path",
+          "occurrences": 60,
+          "distinctValues": 17
+        },
+        {
+          "kind": "user-sid",
+          "occurrences": 1,
+          "distinctValues": 1
+        }
+      ],
+      "collectionRange": {
+        "startCharacter": 3852,
+        "endCharacter": 4067
+      },
+      "importStatus": "historical-collection-entry; annotations retained; not a new result",
+      "historicalCaseId": "H03-SET_VALUE",
+      "base": "prompts/base/imported-v1.md",
+      "beforeFinalFormattingSHA256": "21f31c2bd32b286077a8e2fd7ab0acc45172e9a15439fd52330c4e5ab9b82ce3",
+      "publicFormatting": "Remove blank separator lines at EOF; keep one final LF. Source extraction and collection ranges refer to text before this formatting."
+    }
+  ]
+}

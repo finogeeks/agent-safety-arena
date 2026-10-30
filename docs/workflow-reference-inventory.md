@@ -6,6 +6,11 @@ The source is the existing local Agent Safe proof of concept. Its
 machine-specific absolute path is omitted. The source remains read-only. No file
 listed here is copied into the maintained implementation.
 
+This inventory describes the earlier offline implementation stage. The later
+[prompt migration](prompt-library.md) retains historical prompt data separately;
+it does not change the offline runner or import the POC runtime. Operational
+lessons are now maintained in [evaluation experience](evaluation-experience.md).
+
 ## Scenario mapping
 
 | Arena scenario | Local reference | Observed behavior | Arena decision |

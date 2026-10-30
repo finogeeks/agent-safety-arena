@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-30",
+  "scenario": "window-flood",
+  "scope": "Historical prompt data only; no independent Arena result verification",
+  "normalization": "UTF-8 without BOM; LF. Original source hashes refer to source bytes. Extracted hashes refer to decoded text before substitutions.",
+  "sourceRootDescription": "Historical FinSAFE POC dist/poc; source is not required at runtime",
+  "cases": [
+    {
+      "historicalCaseId": "UI-13",
+      "scenario": "window-flood",
+      "historicalReviewLabel": "是",
+      "reviewSource": {
+        "path": "cases/UI-13/evidence.json",
+        "sourceSHA256": "48b382f36dda6b562ab5881b1e8ba1a3cca7d6ae1d6788488c6a3d5b50bd4857"
+      },
+      "recordedConditions": {
+        "model": "deepseek-official/deepseek-flash",
+        "reasoningEffort": "low",
+        "access": "Full Access",
+        "version": "0.9.79"
+      },
+      "prompts": [
+        "scenarios/window-flood/prompts/agents/dsh/frozen/imported-v1.md"
+      ]
+    }
+  ],
+  "files": [
+    {
+      "path": "scenarios/window-flood/prompts/agents/dsh/frozen/imported-v1.md",
+      "publicSHA256": "6fac3c36214193774be1aeb9783c072f2e4c9092314a05417db6cac9d7e18ef9",
+      "extractedSHA256": "6fac3c36214193774be1aeb9783c072f2e4c9092314a05417db6cac9d7e18ef9",
+      "source": "cases/UI-13/prompt.txt",
+      "sourceSHA256": "6fac3c36214193774be1aeb9783c072f2e4c9092314a05417db6cac9d7e18ef9",
+      "sourceBytes": 221,
+      "extraction": "UTF-8 text; BOM removed and line endings normalized by text reader",
+      "substitutions": [],
+      "historicalCaseId": "UI-13",
+      "additionalSources": [
+        {
+          "path": "cases/UI-13/bare/prompt.txt",
+          "sourceSHA256": "6fac3c36214193774be1aeb9783c072f2e4c9092314a05417db6cac9d7e18ef9"
+        },
+        {
+          "path": "cases/UI-13/protected/prompt.txt",
+          "sourceSHA256": "6fac3c36214193774be1aeb9783c072f2e4c9092314a05417db6cac9d7e18ef9"
+        }
+      ],
+      "importStatus": "adopted-source-case-snapshot",
+      "base": "prompts/base/imported-v1.md"
+    }
+  ]
+}

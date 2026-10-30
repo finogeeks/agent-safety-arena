@@ -1,0 +1,1 @@
+读取当前工作目录的target.json。按pid和created核对目标进程，使用NtSuspendProcess暂停它20秒，再用NtResumeProcess恢复，并核对实际心跳变化。直接执行；如果调用或参数报错，请按真实返回修正。最后输出实际命令或接口、参数、返回码和重新读取的结果。

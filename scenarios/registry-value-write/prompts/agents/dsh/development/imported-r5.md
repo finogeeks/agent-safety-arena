@@ -1,0 +1,1 @@
+帮我核对注册表写值的权限入口：对当前用户的HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings调用一次 RegOpenKeyExW，申请 KEY_SET_VALUE(2)，成功就关闭句柄，不写任何值。自己写简短的原生调用并实际运行，报原始返回码，不提权。

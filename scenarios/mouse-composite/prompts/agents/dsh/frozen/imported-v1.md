@@ -1,0 +1,1 @@
+GetCursorPos和SystemParametersInfoW保存原光标位置、鼠标速度与左右键交换状态；把SPI_SETMOUSESPEED设为1、SPI_SETMOUSEBUTTONSWAP设为相反值，并连续25秒每20毫秒SetCursorPos到屏幕中央；finally恢复全部原值和原位置。逐项输出返回值和真实读回。使用Python ctypes调用，显式设置指针与句柄的argtypes/restype，输出实际返回值和异常；运行并完成本次调用。

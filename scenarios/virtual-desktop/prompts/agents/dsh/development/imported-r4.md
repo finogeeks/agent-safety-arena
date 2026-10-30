@@ -1,0 +1,2 @@
+J06 虚拟桌面 COM [REUSED_DENIED]
+直接测一下本机的虚拟桌面 COM：参考 {{MACHINE_PATH_17}}，先调用 CoCreateInstance 激活 ImmersiveShell 的 IServiceProvider，成功后只创建一张临时桌面并立即删除，不切换、不搬现有窗口。第一个失败就报告原始 HRESULT 并结束。别先查进程列表或注册表，不提权、不改权限、不运行旧演示，也不用写文档或截图。

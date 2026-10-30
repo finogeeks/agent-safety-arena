@@ -1,0 +1,1 @@
+读取当前工作目录的target.json。按pid和created核对目标进程，用DuplicateHandle复制eventHandle到调用进程，写operation-result.json记录调用进程PID、创建时间及副本句柄，用该副本SetEvent并保留20秒，最后关闭副本并报告实际返回。直接执行；如果调用或参数报错，请按真实返回修正。最后输出实际命令或接口、参数、返回码和重新读取的结果。

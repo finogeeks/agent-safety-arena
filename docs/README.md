@@ -5,6 +5,7 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
+| [report-contract.md](report-contract.md) | Defines the target case navigation, six-section comparison detail page, required fields, media rules, and static layout reference. |
 | [prompt-library.md](prompt-library.md) | Defines historical prompt imports, provenance, substitutions, and independent maintenance. |
 | [evaluation-experience.md](evaluation-experience.md) | Applies POC lessons to prompt development, approvals, observations, recovery, and reporting. |
 | [first-evaluation.md](first-evaluation.md) | Review the proposed first evaluation, acceptance criteria, and open questions before implementation. |

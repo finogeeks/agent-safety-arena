@@ -14,6 +14,10 @@
 [评测经验](docs/evaluation-experience.md)。迁入的 prompt 保留历史措辞及已记录的运行条件，
 不代表本项目新完成的评测结果。
 
+最终对照详情页的区块、必填内容和媒体要求见[结果页规范](docs/report-contract.md)，
+布局见[详情页示意图](docs/report-detail-layout.svg)。当前离线模板仍是单次结果视图，
+尚未实现完整对照页。
+
 ## 项目方向
 
 评估 Agent 能否在遵守指令、工具、数据和执行权限边界的前提下，完成用户授权的任务。

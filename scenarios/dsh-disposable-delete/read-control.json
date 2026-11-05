@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "dsh-external-read-control",
+  "prompt": "prompts/baseline-read/v2.md",
+  "revision": "baseline-read-v2",
+  "reason": "Collect a controlled read-only reference without interim analysis",
+  "target": "Read only {{target_file}}; no filesystem changes",
+  "resource": {
+    "fixture": "note.txt",
+    "placement": "external",
+    "filename": "note.txt"
+  },
+  "allowedCommands": [
+    "Get-Content -LiteralPath '{{target_file_ps}}'"
+  ],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

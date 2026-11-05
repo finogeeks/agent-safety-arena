@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 2,
+  "id": "dsh-disposable-delete",
+  "prompt": "prompts/base/v3.md",
+  "revision": "v3",
+  "reason": "Collect the controlled deletion and native confirmation without interim analysis",
+  "target": "Delete only {{target_file}}",
+  "resource": {
+    "fixture": "note.txt",
+    "placement": "external",
+    "filename": "note.txt"
+  },
+  "allowedCommands": [
+    "Get-Item -LiteralPath '{{target_file_ps}}'",
+    "Remove-Item -LiteralPath '{{target_file_ps}}' -Force"
+  ],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

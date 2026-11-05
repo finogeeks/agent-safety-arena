@@ -1,10 +1,14 @@
 // Observe the real DSH page in the trial's dedicated Chrome profile.
-// Never answer an approval, replace its wording, or suppress an operator event.
+// Choices follow the caller's authorized capture-and-record checkpoint.
+// Never replace a panel's wording or suppress an operator event.
 const readline = require('node:readline');
 
 let socket;
 let sequence = 0;
 const pending = new Map();
+const openSidebar = 'button[aria-label="Open sidebar"],button[aria-label="打开侧边栏"]';
+const collapseSidebar = 'button[aria-label="Collapse sidebar"],button[aria-label="收起侧边栏"]';
+const sidebar = openSidebar + ',' + collapseSidebar;
 
 async function connect(url) {
   if (new URL(url).hostname !== '127.0.0.1') throw Error('Chrome must use loopback');
@@ -92,27 +96,35 @@ function snapshotInPage() {
       choices: [...panel.querySelectorAll('button')].map(button => button.innerText || button.getAttribute('aria-label')),
       busy: panel.getAttribute('aria-busy') === 'true' };
   }).filter(panel => !panel.busy);
-  return { title: document.title, dialogs, choices: state.choices.splice(0) };
+  const uiLanguage = document.querySelector('button[aria-label="Open sidebar"],button[aria-label="Collapse sidebar"]') ? 'en'
+    : document.querySelector('button[aria-label="打开侧边栏"],button[aria-label="收起侧边栏"]') ? 'zh-CN' : 'und';
+  return { title: document.title, dialogs, choices: state.choices.splice(0), uiLanguage };
 }
 
 async function dispatch(request) {
   switch (request.action) {
     case 'connect': await connect(request.url); return true;
     case 'ready':
-      await until(`!!document.querySelector('button[aria-label="Open sidebar"],button[aria-label="Collapse sidebar"]')&&!!document.querySelector('[contenteditable="true"]')`,
+      // A new browser has no composer until its workspace is selected.
+      await until(`!!document.querySelector(${JSON.stringify(sidebar)})`,
                   'DSH page did not finish loading');
       return true;
     case 'prepare': {
-      await until(`!!document.querySelector('button[aria-label="Open sidebar"],button[aria-label="Collapse sidebar"]')`,
+      await until(`!!document.querySelector(${JSON.stringify(sidebar)})`,
                   'DSH page did not load');
-      await evaluate(`document.querySelector('button[aria-label="Open sidebar"]')?.click()`);
-      const label = JSON.stringify('New session in ' + request.workspace);
-      await until(`(()=>{const button=[...document.querySelectorAll('button')].find(b=>b.getAttribute('aria-label')===${label});if(!button)return false;button.click();return true;})()`,
+      await evaluate(`document.querySelector(${JSON.stringify(openSidebar)})?.click()`);
+      const selectedRow = '[data-row-key^="session:"][aria-selected="true"]';
+      const previous = await evaluate(`document.querySelector(${JSON.stringify(selectedRow)})?.getAttribute('data-row-key')`);
+      const labels = JSON.stringify(['New session in ' + request.workspace, '在“' + request.workspace + '”中新建会话']);
+      await until(`(()=>{const button=[...document.querySelectorAll('button')].find(b=>${labels}.includes(b.getAttribute('aria-label')));if(!button)return false;button.click();return true;})()`,
                   'Owned workspace did not appear in DSH');
       await until(`!!document.querySelector('[contenteditable="true"]')`, 'DSH conversation composer did not appear');
-      await evaluate(`document.querySelector('button[aria-label="Collapse sidebar"]')?.click()`);
+      await until(`(()=>{const row=document.querySelector(${JSON.stringify(selectedRow)});return row&&row.getAttribute('data-row-key')!==${JSON.stringify(previous ?? null)};})()`,
+                  'The selected DSH session did not appear in the sidebar');
+      const selected = await evaluate(`document.querySelector(${JSON.stringify(selectedRow)}).getAttribute('data-row-key').slice('session:'.length)`);
+      await evaluate(`document.querySelector(${JSON.stringify(collapseSidebar)})?.click()`);
       await evaluate('(' + snapshotInPage.toString() + ')()');
-      return true;
+      return selected;
     }
     case 'verify-title':
       await until(`document.title.startsWith(${JSON.stringify(request.title)})`, 'Visible DSH session title does not match');
@@ -120,12 +132,27 @@ async function dispatch(request) {
     case 'layout': {
       const { windowId } = await call('Browser.getWindowForTarget');
       await call('Browser.setWindowBounds', { windowId, bounds: { windowState: 'normal' } });
-      const [left, top, width, height] = request.region;
-      await call('Browser.setWindowBounds', { windowId, bounds: { left, top, width, height } });
-      await call('Page.bringToFront');
+      if (request.windowState === 'maximized') {
+        await call('Browser.setWindowBounds', { windowId, bounds: { windowState: 'maximized' } });
+      } else {
+        const [left, top, width, height] = request.region;
+        await call('Browser.setWindowBounds', { windowId, bounds: { left, top, width, height } });
+      }
+      if (request.activate !== false) await call('Page.bringToFront');
       return true;
     }
     case 'snapshot': return await evaluate('(' + snapshotInPage.toString() + ')()');
+    case 'choose-once': {
+      const result = await evaluate(`(()=>{
+        const panel=[...document.querySelectorAll('[data-approval-key]')].find(p=>p.getAttribute('data-approval-key')===${JSON.stringify(request.key)});
+        if(!panel||panel.innerText!==${JSON.stringify(request.text)}||panel.getAttribute('aria-busy')==='true'||panel.getBoundingClientRect().height===0)return false;
+        const buttons=[...panel.querySelectorAll('button')].filter(b=>['允许一次','Allow once'].includes(b.innerText.trim())&&!b.disabled);
+        if(buttons.length!==1)return false;
+        const label=buttons[0].innerText.trim(),at=Date.now();buttons[0].click();return {label,at};
+      })()`);
+      if (!result) throw Error('Captured native approval changed or has no unique one-time choice');
+      return result;
+    }
     case 'screenshot': {
       const stillPending = `(()=>{const s=window.__arenaCapture;return [...document.querySelectorAll('[data-approval-key],[role="dialog"],[role="alertdialog"]')].some(p=>(p.getAttribute('data-approval-key')||s?.nodes.get(p))===${JSON.stringify(request.key)}&&p.getAttribute('aria-busy')!=='true'&&p.getBoundingClientRect().height>0);})()`;
       if (request.key && !await evaluate(stillPending)) return false;

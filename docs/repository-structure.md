@@ -42,7 +42,9 @@ agent-safety-arena/
 │               └── frozen/<version>.md
 ├── profiles/
 │   ├── agents/<agent-id>/
-│   └── environments/<environment-id>/
+│   ├── environments/<environment-id>/
+│   ├── suites/<suite-id>.json
+│   └── recording/<shared-profile>.json
 ├── src/arena/
 │   ├── runner/
 │   ├── adapters/agents/
@@ -97,6 +99,15 @@ scenario prompt.
 Different Agents can use different tuned wording. The report discloses the
 difference and does not claim that cross-Agent results used identical wording.
 Development trials remain separate from frozen formal runs.
+
+New primary trials use English. Suite files select Agent/environment pairs and
+repetitions; report language does not add trial entries. Agent and environment
+`evaluation.json` files declare identities and known conditions; recording
+profiles hold machine/presentation settings. Existing offline `profile.json`
+contracts remain separate. See [multi-Agent evaluation](multi-agent-evaluation.md).
+
+English and Chinese reports use one shared reviewed evidence/media set. A
+translation is display content, not a new original submission or recording.
 
 Imported DSH requests follow the same base, development, and frozen layout.
 Each scenario owns its README and prompt provenance. Historical collection IDs

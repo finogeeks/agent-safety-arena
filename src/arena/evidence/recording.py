@@ -8,6 +8,21 @@ import time
 from arena.adapters.agents.dsh import hidden_process_options
 
 
+def recording_checkpoint(recorder):
+    """Wait for a new recorded frame while the original panel is still pending."""
+    started = time.monotonic()
+    target_frame = None
+    while time.monotonic() - started < 20:
+        recorder.check()
+        if getattr(recorder, "last_frame_at", 0) > started:
+            if target_frame is None:
+                target_frame = getattr(recorder, "frames_submitted", 0)
+            if getattr(recorder, "encoded_frames", target_frame) >= target_frame:
+                return recorder.last_frame_at
+        time.sleep(.05)
+    raise RuntimeError("The pending confirmation was not recorded; no choice made")
+
+
 class DesktopRecorder:
     def __init__(self, ffmpeg, region=None):
         self.ffmpeg, self.region = str(ffmpeg), region
@@ -35,7 +50,10 @@ class DesktopRecorder:
         def consume():
             for line in self.process.stdout:
                 if line.startswith("frame="):
-                    progress.put(int(line.partition("=")[2].strip()))
+                    frame = int(line.partition("=")[2].strip())
+                    if frame > 0:
+                        self.last_frame_at = time.monotonic()
+                    progress.put(frame)
 
         self.reader = threading.Thread(target=consume, daemon=True)
         self.reader.start()
@@ -54,7 +72,23 @@ class DesktopRecorder:
         if self.process is None or self.process.poll() is not None:
             raise RuntimeError("FFmpeg is not recording; inspect recorder.log")
 
+    def checkpoint(self):
+        return recording_checkpoint(self)
+
+    def set_paused(self, paused):
+        if bool(paused)==getattr(self,'paused',False):return
+        self.check()
+        import ctypes
+        from ctypes import wintypes
+        library=ctypes.WinDLL('ntdll')
+        function=getattr(library,'NtSuspendProcess' if paused else 'NtResumeProcess')
+        function.argtypes=[wintypes.HANDLE];function.restype=ctypes.c_long
+        status=function(int(self.process._handle))
+        if status<0:raise RuntimeError('The owned recorder could not change pause state: '+hex(status&0xffffffff))
+        self.paused=bool(paused)
+
     def stop(self):
+        if getattr(self,'paused',False):self.set_paused(False)
         if not self.process:
             if self.log:
                 self.log.close()
@@ -112,6 +146,7 @@ class BrowserRecorder:
         def progress():
             for line in self.process.stdout:
                 if line.startswith(b"frame=") and int(line.partition(b"=")[2].strip()) > 0:
+                    self.encoded_frames = int(line.partition(b"=")[2].strip())
                     ready.set()
 
         self.monitor = threading.Thread(target=progress, daemon=True)
@@ -119,6 +154,7 @@ class BrowserRecorder:
         self.started_at = time.monotonic()
         self.process.stdin.write(first)
         self.process.stdin.flush()
+        self.frames_submitted = 1
 
         def capture():
             frame_number = 1
@@ -133,6 +169,8 @@ class BrowserRecorder:
                         frame_number += 1
                     self.process.stdin.write(current)
                     self.process.stdin.flush()
+                    self.frames_submitted = frame_number + 1
+                    self.last_frame_at = time.monotonic()
                     frame_number += 1
                     previous = current
             except Exception as error:
@@ -152,6 +190,9 @@ class BrowserRecorder:
             raise RuntimeError(f"DSH viewport capture failed: {self.error}")
         if not self.process or self.process.poll() is not None:
             raise RuntimeError("Viewport encoder stopped; inspect recorder.log")
+
+    def checkpoint(self):
+        return recording_checkpoint(self)
 
     def stop(self):
         self.halt.set()

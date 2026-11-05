@@ -54,10 +54,11 @@ def hidden_process_options():
     return {"creationflags": subprocess.CREATE_NO_WINDOW} if hasattr(subprocess, "CREATE_NO_WINDOW") else {}
 
 
-def new_blank_sessions(sessions, workspace, previous_ids):
+def new_blank_sessions(sessions, workspace, previous_ids, visible_id=None):
     return [item for item in sessions if item.get("cwd")
             and Path(item["cwd"]).resolve() == Path(workspace).resolve()
             and item.get("sessionId") not in previous_ids
+            and (visible_id is None or item.get("sessionId") == visible_id)
             and item.get("blank") and not item.get("running")]
 
 
@@ -72,12 +73,14 @@ class DshAgent:
     """Start one installed DSH Web server and use only its owned session."""
 
     METHODS = {"workspace/create", "session/list", "session/projections", "session/page",
-               "session/prompt", "session/cancel", "session/rename"}
+               "session/prompt", "session/cancel", "session/rename", "settings/describe", "settings/mutate"}
 
-    def __init__(self, node, entry):
+    def __init__(self, node, entry, preferences=None, process_boundary=None):
         self.node, self.entry = str(node), Path(entry)
         self.process = None
         self.session_id = None
+        self.preferences = preferences or {}
+        self.process_boundary = process_boundary
         self.opener = urllib.request.build_opener(
             urllib.request.ProxyHandler({}), LocalRedirect(),
             urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
@@ -117,6 +120,8 @@ class DshAgent:
         self.reader = threading.Thread(target=self._read_output,
                                        args=(self.process.stdout, evidence_directory / "dsh.log", ready), daemon=True)
         self.reader.start()
+        if self.process_boundary:
+            self.process_boundary.assign(self.process, evidence_directory)
         deadline = time.monotonic() + 120
         while True:
             try:
@@ -134,16 +139,23 @@ class DshAgent:
                 response.read()
         except (urllib.error.URLError, OSError) as error:
             raise RuntimeError(f"DSH authentication failed: {scrub(error)}") from None
+        for namespace, values in self.preferences.items():
+            if namespace not in {'ui-theme', 'agent-default-model'}:
+                raise ValueError('Unsupported recording preference namespace')
+            description = self.rpc('settings/describe', {})
+            found = next(item for item in description['namespaces'] if item['ns'] == namespace)
+            self.rpc('settings/mutate', {'ns': namespace, 'expectedRevision': found['revision'],
+                'ops': [{'op': 'set', 'path': [key], 'value': value} for key, value in values.items()]})
         self.rpc("workspace/create", {"request": {"path": str(workspace)}})
         browser.open(authenticated_url, self.base)
         browser.wait_ready()
         existing = self.rpc("session/list", {"_request": {}})["items"]
         previous_ids = {item["sessionId"] for item in existing}
-        browser.prepare(workspace.name)
+        visible_id = browser.prepare(workspace.name)
         deadline = time.monotonic() + 30
         while time.monotonic() < deadline:
             sessions = self.rpc("session/list", {"_request": {}})["items"]
-            candidates = new_blank_sessions(sessions, workspace, previous_ids)
+            candidates = new_blank_sessions(sessions, workspace, previous_ids, visible_id)
             if len(candidates) == 1:
                 self.session_id = candidates[0]["sessionId"]
                 break
@@ -158,10 +170,15 @@ class DshAgent:
         projection = self.rpc("session/projections", {"request": {"sessionId": self.session_id}})
         values = (projection or {}).get("values", {})
         package = json.loads((self.entry.parent.parent / "package.json").read_text("utf8"))
+        initial = self.observe()
+        (evidence_directory/'initial-native-events.json').write_text(json.dumps(initial,ensure_ascii=False,indent=2),encoding='utf8')
+        mode=next((row['data']['mode'] for row in reversed(initial) if row['type']=='sandbox/mode'),None)
+        policy=next((row['data']['policy'] for row in reversed(initial) if row['type']=='approval/policy'),None)
         return {"sessionId": self.session_id, "agent": "DSH", "agentVersion": package["version"],
                 "model": values.get("modelSelection"), "permissions": values.get("permissions"),
                 "captureWindowTitle": browser.capture_title(title),
-                "addedProtection": False}
+                "addedProtection": bool(self.process_boundary),"sandboxMode":mode,"approvalPolicy":policy,
+                "uiLanguage":browser.snapshot().get('uiLanguage','und')}
 
     def submit(self, prompt, request_id):
         self.rpc("session/prompt", {"request": {"sessionId": self.session_id, "requestId": request_id,

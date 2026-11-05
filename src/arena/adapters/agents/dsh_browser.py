@@ -16,22 +16,47 @@ from arena.adapters.agents.dsh import hidden_process_options
 
 
 class DshBrowser:
-    def __init__(self, node, chrome, region=None):
+    def __init__(self, node, chrome, region=None, *, desktop=None, window_size=(1200, 900),
+                 window_state='normal', scale_factor=1, language=None):
         self.node, self.chrome, self.region = str(node), str(chrome), region
         self.chrome_process = None
         self.bridge = None
         self.profile = None
         self.command_lock = threading.Lock()
+        self.desktop = desktop
+        self.window_size = window_size
+        self.window_state = window_state
+        self.scale_factor = scale_factor
+        self.language = language
+        if language not in (None,'en-US','zh-CN'):
+            raise ValueError('Unsupported recording browser language')
+        if window_state not in {'normal','maximized'} or not 1 <= scale_factor <= 3:
+            raise ValueError('Unsupported browser presentation')
 
     def open(self, url, origin):
         self.profile = Path(tempfile.mkdtemp(prefix="arena-dsh-chrome-"))
-        x, y, width, height = self.region or (0, 0, 1200, 900)
+        preferences = self.profile/'Default/Preferences'
+        preferences.parent.mkdir()
+        settings={'translate':{'enabled':False}}
+        if self.language:
+            settings['intl']={'accept_languages':'en-US,en' if self.language=='en-US' else 'zh-CN,zh'}
+        preferences.write_text(json.dumps(settings),encoding='utf8')
+        x, y, width, height = self.region or (0, 0, *self.window_size)
+        options = {}
+        if self.desktop:
+            startup = subprocess.STARTUPINFO()
+            startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startup.wShowWindow = 7
+            options['startupinfo'] = startup
         self.chrome_process = subprocess.Popen(
-            [self.chrome, "--user-data-dir=" + str(self.profile), "--remote-debugging-port=0",
+            [self.chrome, *(["--start-minimized"] if self.desktop else []),
+             *(['--lang='+self.language] if self.language else []),
+             "--user-data-dir=" + str(self.profile), "--remote-debugging-port=0",
              "--remote-debugging-address=127.0.0.1", "--no-first-run", "--no-default-browser-check",
-             "--force-device-scale-factor=1",
+             f"--force-device-scale-factor={self.scale_factor}",
              "--disable-session-crashed-bubble", f"--window-position={x},{y}", f"--window-size={width},{height}",
-             "--app=" + url], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+             "--app=" + url], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+             **options)
         deadline = time.monotonic() + 30
         port_file = self.profile / "DevToolsActivePort"
         while not port_file.exists():
@@ -55,6 +80,8 @@ class DshBrowser:
                                         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
                                         text=True, encoding="utf8", **hidden_process_options())
         self.command("connect", url=target["webSocketDebuggerUrl"])
+        if self.desktop:
+            self.desktop.move(self.chrome_process.pid)
 
     def command(self, action, **fields):
         with self.command_lock:
@@ -69,14 +96,17 @@ class DshBrowser:
         return response.get("value")
 
     def prepare(self, workspace):
-        self.command("prepare", workspace=workspace)
+        return self.command("prepare", workspace=workspace)
 
     def wait_ready(self):
         self.command("ready")
 
     def verify_title(self, title):
         self.command("verify-title", title=title)
-        self.command("layout", region=self.region or (0, 0, 1200, 900))
+        self.command("layout", region=self.region or (0, 0, *self.window_size),
+                     windowState=self.window_state, activate=not bool(self.desktop))
+        if self.desktop:
+            self.desktop.verify(self.chrome_process.pid)
 
     def capture_title(self, expected):
         """Resolve the visible native title only from the Chrome process we started."""
@@ -110,6 +140,9 @@ class DshBrowser:
 
     def snapshot(self):
         return self.command("snapshot")
+
+    def choose_once(self, key, text):
+        return self.command("choose-once", key=key, text=text)
 
     def screenshot(self, path, key=None):
         screenshot = self.command("screenshot", key=key)

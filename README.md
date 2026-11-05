@@ -18,8 +18,9 @@ historical wording and recorded conditions; they are not new Arena test results.
 
 The [result page requirements](docs/report-contract.md) and
 [layout reference](docs/report-detail-layout.svg) define the intended comparison
-detail page. The current offline template is a single-run view; the full
-comparison page is not implemented yet.
+detail page. The reviewed-record exporter now generates local bilingual
+comparison pages. Missing environments remain visibly untested. The older
+offline replay template remains a single-run view.
 
 ## Project direction
 
@@ -118,9 +119,72 @@ as described in [arena-verify](skills/arena-verify/SKILL.md).
 
 ## Record DSH
 
+New primary tests use English; one evidence set supports English and Chinese
+reports. Start with the [multi-Agent workflow](docs/multi-agent-evaluation.md):
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+python -m arena plan --suite profiles/suites/desktop-en.json --output artifacts/runs/desktop-plan.json
+python -m arena preflight --plan artifacts/runs/desktop-plan.json --entry window-flood--c1--dsh--r1--native --profile profiles/recording/windows-native-pro.local.json
+# This next command starts a real trial only when explicitly requested:
+# python -m arena collect --plan artifacts/runs/desktop-plan.json --entry window-flood--c1--dsh--r1--native --profile profiles/recording/windows-native-pro.local.json
+python -m arena report --record templates/reviewed-record.example.json --output artifacts/site/bilingual-example
+```
+
+The suite plans six entries, not twelve, for three Agents and two environments.
+Only DSH with built-in controls currently has a live adapter. Codex, Claude, and
+FinShield entries disclose missing configuration/adapters and cannot execute by
+label alone. The report example is synthetic and calls no Agent. The exporter
+writes bilingual Markdown content with shared evidence/media; the full interactive
+comparison renderer remains a separate target.
+
+Codex CLI uses its existing default configuration with a model-only DeepSeek Pro
+profile. Claude Code has a separate local DeepSeek configuration.
+See [DeepSeek CLI setup](docs/deepseek-cli-setup.md) for credential handling and
+connectivity evidence. This setup does not add their Arena recording adapters.
+
+Use one controller for case-driven collection. Cases change only their prompt,
+controlled fixture, and exact approval command allowlist:
+
+```powershell
+$env:PYTHONPATH = (Resolve-Path src).Path
+python -m arena dsh-batch `
+  --case scenarios/dsh-disposable-delete/case.json `
+  --case scenarios/dsh-disposable-delete/read-control.json
+```
+
+The common recording profile selects Desktop 1, light appearance, Pro, and
+capture-before-choice. Copy `profiles/recording/windows-pro.json` to the ignored
+`windows-pro.local.json` beside it to set this machine's executable paths.
+Collection retains facts and an unassessed review form; analyze only after the
+whole batch finishes. See [shared collection workflow](docs/dsh-batch.md).
+
+Single-application profiles maximize the window and enlarge text. After
+collection, `python -m arena dsh-preview --run-dir <run> --moments <moments.json>`
+joins opening (5 seconds), effect (10 seconds), and final-response (5 seconds)
+excerpts into a 20-second preview.
+The original video stays unchanged; edit recipes and hashes are retained.
+Use the shared [editing workflow](skills/arena-edit-recording/SKILL.md): the
+coordinating Agent delegates frame selection to an editing subagent, which uses
+this exporter. Include prompt submission and effect buildup; present sandbox
+confirmations as separate original screenshots. Change the case prompt and reuse
+the same collection and editing procedures. The Python recorder does not launch
+subagents itself.
+
+For new English native-window trials, use `scenarios/window-flood/case.en.json` with a local
+copy of `profiles/recording/windows-native-pro.json`. Set the physical screen
+rectangle and tool paths. This profile temporarily switches to Desktop 1,
+records the screen and owned windows, then restores the original desktop.
+Generated commands use the documented local scope check before any approval.
+The existing `case.json` retains the historical Chinese request.
+
 Codex operates this repository; DSH is the Agent under test. Recording requires
 Windows, Python 3.12+, Node.js 24+, DSH Web 0.2.1-rc.2, Chrome, and FFmpeg with
-`gdigrab` and `libx264`. DSH keeps its default sandbox and manual confirmations.
+`gdigrab` and `libx264`. DSH keeps its default sandbox and approval policy. For
+controlled trials, the recorder saves each native confirmation and an encoded
+panel frame before selecting its one-time approval. Use `--confirmation-mode manual`
+when a trial needs human choices.
+The recorder supports the installed English and Simplified Chinese interfaces.
 
 Set `$ffmpegPath` to your installed executable, then run the controlled note trial:
 

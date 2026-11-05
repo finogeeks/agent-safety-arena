@@ -5,13 +5,15 @@ import json
 from pathlib import Path
 import sys
 import tempfile
+import threading
+import time
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from arena.adapters.agents.dsh import completion_for, new_blank_sessions, scrub
-from arena.assessment.confirmation import validate_review
-from arena.runner.trial import Confirmations, run_trial
+from arena.assessment.confirmation import validate_review, review_trial
+from arena.runner.trial import Confirmations, run_trial, save, local_scope_guard
 from arena.cli import parser
 from arena.evidence.recording import BrowserRecorder
 
@@ -33,6 +35,31 @@ def completed_events(request_id="request-1", reason="completed"):
 
 
 class CompletionTests(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == 'win32', 'Windows evidence sharing regression')
+    def test_evidence_write_survives_a_transient_windows_reader_lock(self):
+        with tempfile.TemporaryDirectory() as folder:
+            target = Path(folder) / 'native-events.json'
+            target.write_text('[]', encoding='utf8')
+            held = target.open('r', encoding='utf8')
+            def release():
+                time.sleep(.12)
+                held.close()
+            reader = threading.Thread(target=release)
+            reader.start()
+            try:
+                save(target, [{'type': 'turn/end'}])
+                self.assertEqual(json.loads(target.read_text('utf8')), [{'type': 'turn/end'}])
+            finally:
+                reader.join()
+                held.close()
+
+    def test_visible_session_identity_resolves_two_new_blank_sessions(self):
+        rows = [{"sessionId": name, "cwd": str(Path.cwd()), "blank": True, "running": False}
+                for name in ("automatic-blank", "selected-in-ui")]
+        selected = new_blank_sessions(rows, Path.cwd(), set(), "selected-in-ui")
+        self.assertEqual([item["sessionId"] for item in selected], ["selected-in-ui"])
+        self.assertEqual(new_blank_sessions(rows, Path.cwd(), set(), "unknown-session"), [])
+
     def test_visible_session_selection_excludes_automatically_created_blank(self):
         rows = [{"sessionId": name, "cwd": str(Path.cwd()), "blank": True, "running": False}
                 for name in ("automatic-blank", "selected-in-ui")]
@@ -46,6 +73,7 @@ class CompletionTests(unittest.TestCase):
     def test_cli_exposes_the_recording_and_review_workflow(self):
         self.assertIn("dsh-run", parser().format_help())
         self.assertIn("dsh-review", parser().format_help())
+        self.assertIn("dsh-preview", parser().format_help())
 
     def test_diagnostic_redaction_does_not_store_authentication_token(self):
         text = scrub("http://127.0.0.1:1234/?token=synthetic-test-token Bearer synthetic-bearer")
@@ -88,17 +116,26 @@ class FakeBrowser:
     def screenshot(self, path, key=None):
         self.calls.append("screenshot")
         Path(path).write_bytes(b"controlled screenshot")
+        self.last_screenshot = Path(path)
+
+    def choose_once(self, key, text):
+        saved = self.last_screenshot.parent.parent / 'confirmations.json'
+        if not saved.is_file() or json.loads(saved.read_text('utf8'))[0]['captureStatus'] != 'captured':
+            raise RuntimeError('Capture was not persisted before choice')
+        self.calls.append('choose-once')
+        return {'at': 2000, 'label': '允许一次'}
 
     def close(self):
         self.calls.append("browser-close")
 
 
 class FakeRecorder:
-    def __init__(self, calls, fail_start=False, fail_health=False, fail_stop=False):
+    def __init__(self, calls, fail_start=False, fail_health=False, fail_stop=False, fail_checkpoint=False):
         self.calls = calls
         self.fail_start = fail_start
         self.fail_health = fail_health
         self.fail_stop = fail_stop
+        self.fail_checkpoint = fail_checkpoint
 
     def select_window(self, title):
         self.calls.append("select-owned-window")
@@ -112,6 +149,12 @@ class FakeRecorder:
     def check(self):
         if self.fail_health:
             raise RuntimeError("recorder exited")
+
+    def checkpoint(self):
+        self.calls.append('record-panel')
+        if self.fail_checkpoint:
+            raise RuntimeError('Panel was not recorded')
+        return 1.5
 
     def stop(self):
         self.calls.append("record-stop")
@@ -158,18 +201,107 @@ class FakeAgent:
 
 
 class TrialTests(unittest.TestCase):
-    def execute(self, root, *, recorder_options=None, observations=None, snapshots=None, timeout=10):
+    def test_attempted_submission_flag_is_persisted_before_transport_call(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);prompt=root/'prompt.txt';prompt.write_text('synthetic request',encoding='utf8')
+            calls=[];persisted=[]
+            class Agent(FakeAgent):
+                def prepare(self,workspace,browser,evidence_directory):
+                    self.directory=evidence_directory
+                    return super().prepare(workspace,browser,evidence_directory)
+                def submit(self,prompt,request_id):
+                    persisted.append(json.loads((self.directory/'run.json').read_text('utf8'))['promptSubmitted'])
+                    return super().submit(prompt,request_id)
+            run_trial(dict(prompt=prompt,output_root=root/'runs',target='owned fixture',revision='v1',reason='transport state',timeout=10),
+                agent=Agent(calls),browser=FakeBrowser(calls),recorder=FakeRecorder(calls),sleep=lambda seconds:None)
+            self.assertEqual(persisted,[True])
+
+    def test_presentation_preflight_never_submits_or_counts_as_completed_trial(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);prompt=root/'prompt.txt';prompt.write_text('Do not submit',encoding='utf8')
+            calls=[]
+            result=run_trial(dict(prompt=prompt,output_root=root/'runs',target='owned fixture',
+                revision='v1',reason='no-model-call preflight',timeout=10,preflight_only=True),
+                agent=FakeAgent(calls),browser=FakeBrowser(calls),recorder=FakeRecorder(calls),
+                sleep=lambda seconds:None)
+            self.assertNotIn('submit',calls)
+            self.assertEqual(result['status'],'preflight-completed')
+            self.assertFalse(result['promptSubmitted'])
+            self.assertIn('record-start',calls)
+            self.assertIn('record-stop',calls)
+
+    def test_final_hold_retains_background_native_events_after_turn_completion(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            prompt=root/'prompt.txt'
+            prompt.write_text('synthetic test',encoding='utf8')
+            calls=[]
+            complete=completed_events()
+            tail=complete+[event(4,'background/completed',jobId='owned-job')]
+            ticks=iter(range(100))
+            result=run_trial(dict(prompt=prompt,output_root=root/'runs',target='owned process',
+                revision='v1',reason='tail capture',timeout=20,final_hold_seconds=5),
+                agent=FakeAgent(calls,[complete,tail]),browser=FakeBrowser(calls),recorder=FakeRecorder(calls),
+                clock=lambda:next(ticks),sleep=lambda seconds:None)
+            events=json.loads((Path(result['directory'])/'native-events.json').read_text('utf8'))
+            self.assertEqual(events[-1]['type'],'background/completed')
+
+    def execute(self, root, *, recorder_options=None, observations=None, snapshots=None, timeout=10,
+                confirmation_mode='capture-then-allow-once'):
         prompt = root / "prompt.txt"
         prompt.write_bytes(b"hello\r\n")
         calls = []
         ticks = iter(range(100))
         result = run_trial(
             {"prompt": prompt, "output_root": root / "runs", "target": "owned test note",
-             "workspace_root": root, "revision": "v1", "reason": "initial trial", "timeout": timeout},
+             "workspace_root": root, "revision": "v1", "reason": "initial trial", "timeout": timeout,
+             "confirmation_mode": confirmation_mode,
+             "approval_guard": lambda item: item.get('tool') == 'pwsh' and item.get('command') == 'Read synthetic-note'},
             agent=FakeAgent(calls, observations), browser=FakeBrowser(calls, snapshots),
             recorder=FakeRecorder(calls, **(recorder_options or {})),
             clock=lambda: next(ticks), sleep=lambda seconds: None)
         return result, calls
+
+    def approval_fixture(self):
+        call = event(2,'tool/call',callId='call-1',name='pwsh',arguments=json.dumps({'command':'Read synthetic-note'}))
+        asked = event(3, 'approval/asked', id='native-1', toolName='pwsh',callId='call-1')
+        waiting = completed_events()[:2] + [call, asked]
+        reply = completed_events()[2]
+        reply['seq'] = 5
+        finished = waiting + [event(4,'approval/decided',id='native-1',outcome='allowed-once'),reply,
+                              event(6,'turn/end',turn=1,reason={'kind':'completed'})]
+        panel = {'key':'approval:1','native':True,'text':'Allow this controlled command?',
+                 'choices':['拒绝','允许一次']}
+        return [waiting, finished], [{'dialogs':[panel]}, {'dialogs':[]}]
+
+    def test_automatic_one_time_choice_follows_saved_capture_and_video_checkpoint(self):
+        with tempfile.TemporaryDirectory() as folder:
+            observations, snapshots = self.approval_fixture()
+            # Keep the request pending while the five-second timer advances.
+            observations = observations[:1]*3 + observations[1:]
+            snapshots = snapshots[:1]*3 + snapshots[1:]
+            result, calls = self.execute(Path(folder), observations=observations, snapshots=snapshots)
+            self.assertIn('choose-once', calls)
+            self.assertLess(calls.index('screenshot'), calls.index('record-panel'))
+            self.assertLess(calls.index('record-panel'), calls.index('choose-once'))
+            saved = json.loads((Path(result['directory'])/'confirmations.json').read_text('utf8'))
+            self.assertEqual(saved[0]['decisionActor'], 'automation')
+            self.assertEqual(saved[0]['choice'], 'allowed-once')
+
+    def test_recorder_checkpoint_failure_never_approves(self):
+        with tempfile.TemporaryDirectory() as folder:
+            observations, snapshots = self.approval_fixture()
+            result, calls = self.execute(Path(folder), observations=observations, snapshots=snapshots,
+                                         recorder_options={'fail_checkpoint':True})
+            self.assertNotIn('choose-once', calls)
+            self.assertEqual(result['status'], 'error')
+
+    def test_manual_confirmation_mode_never_automates_a_choice(self):
+        with tempfile.TemporaryDirectory() as folder:
+            observations, snapshots = self.approval_fixture()
+            _, calls = self.execute(Path(folder), observations=observations, snapshots=snapshots,
+                                    confirmation_mode='manual')
+            self.assertNotIn('choose-once', calls)
 
     def test_recording_precedes_submission_and_stops_after_completion(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -180,6 +312,14 @@ class TrialTests(unittest.TestCase):
             output = Path(result["directory"])
             self.assertEqual((output / "prompt.txt").read_bytes(), b"hello\r\n")
             self.assertEqual((output / "agent-output.txt").read_text("utf8"), "Public reply")
+
+    def test_collection_leaves_analysis_for_a_separate_review_phase(self):
+        with tempfile.TemporaryDirectory() as folder:
+            result, _ = self.execute(Path(folder))
+            output = Path(result['directory'])
+            self.assertFalse((output/'analysis.md').exists())
+            form = json.loads((output/'analysis.json').read_text('utf8'))
+            self.assertEqual(form['targetOutcome'], 'unknown')
 
     def test_recorder_start_failure_never_submits(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -253,6 +393,15 @@ class TrialTests(unittest.TestCase):
 
 
 class ReviewTests(unittest.TestCase):
+    def test_report_identifies_an_automated_decision_actor(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/'analysis.json').write_text(json.dumps(self.review()),encoding='utf8')
+            confirmation = {**self.confirmation(),'decisionActor':'automation','choice':'allowed-once'}
+            (root/'confirmations.json').write_text(json.dumps([confirmation]),encoding='utf8')
+            (root/'run.json').write_text(json.dumps({'runId':'test','status':'completed'}),encoding='utf8')
+            self.assertIn('Decision actor: automation',review_trial(root).read_text('utf8'))
+
     def confirmation(self):
         return {"id": "confirmation-001", "text": "Allow this command?", "captureStatus": "captured"}
 
@@ -287,6 +436,100 @@ class ReviewTests(unittest.TestCase):
 
 
 class CaptureTests(unittest.TestCase):
+    def pending_panel(self, root, calls, clock):
+        (root/'confirmations').mkdir()
+        confirmations = Confirmations(root, FakeBrowser(calls), clock, 0)
+        confirmations.native([event(1,'approval/asked',id='a',toolName='pwsh')])
+        confirmations.capture({'dialogs':[{'key':'approval:1','native':True,'text':'Allow?',
+                                            'choices':['Allow once']}]})
+        return confirmations
+
+    def test_five_second_approval_timer_polls_without_blocking_or_restarting(self):
+        with tempfile.TemporaryDirectory() as folder:
+            calls=[];now=[10.0];root=Path(folder)
+            confirmations=self.pending_panel(root,calls,lambda:now[0])
+            recorder=FakeRecorder(calls)
+            def no_sleep(_):self.fail('Approval scheduling must not block collection')
+            confirmations.auto_decide(recorder,no_sleep,lambda _:True)
+            self.assertIn('record-panel',calls)
+            self.assertNotIn('choose-once',calls)
+            now[0]=14.99
+            confirmations.auto_decide(recorder,no_sleep,lambda _:True)
+            self.assertNotIn('choose-once',calls)
+            now[0]=15
+            confirmations.auto_decide(recorder,no_sleep,lambda _:True)
+            confirmations.auto_decide(recorder,no_sleep,lambda _:True)
+            self.assertEqual(calls.count('choose-once'),1)
+            self.assertEqual(calls.count('record-panel'),1)
+            self.assertEqual(confirmations.items[0]['autoDecisionNotBeforeSeconds'],15)
+
+    def test_late_scope_grant_does_not_add_another_five_second_wait(self):
+        with tempfile.TemporaryDirectory() as folder:
+            calls=[];now=[10.0];root=Path(folder)
+            confirmations=self.pending_panel(root,calls,lambda:now[0])
+            recorder=FakeRecorder(calls)
+            confirmations.auto_decide(recorder,lambda _:None,lambda _:None)
+            self.assertNotIn('choose-once',calls)
+            now[0]=20
+            confirmations.auto_decide(recorder,lambda _:None,lambda _:True)
+            self.assertIn('choose-once',calls)
+            self.assertEqual(confirmations.items[0]['scopeStatus'],'matched-command')
+
+    def test_local_scope_grant_is_bound_to_request_tool_and_exact_command(self):
+        import hashlib
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'grants.json'
+            item = dict(requestId='request-one', tool='pwsh', command='Read synthetic-note')
+            self.assertIsNone(local_scope_guard(path,item))
+            grant = dict(requestId=item['requestId'],tool=item['tool'],
+                         commandSha256=hashlib.sha256(item['command'].encode()).hexdigest())
+            save(path,{'grants':[grant]})
+            self.assertTrue(local_scope_guard(path,item))
+            for changed in (dict(requestId='other'),dict(tool='bash'),dict(command=item['command']+'; extra')):
+                self.assertIsNone(local_scope_guard(path,{**item,**changed}))
+
+    def test_pending_scope_review_waits_without_click_or_failure(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/'confirmations').mkdir()
+            calls = []
+            confirmations = Confirmations(root, FakeBrowser(calls), lambda:1, 0)
+            confirmations.native([event(1,'approval/asked',id='a',toolName='pwsh')])
+            confirmations.capture({'dialogs':[{'key':'approval:1','native':True,'text':'Allow?',
+                                                'choices':['Allow once']}]})
+            confirmations.auto_decide(FakeRecorder(calls), lambda seconds:None, lambda item:None)
+            self.assertNotIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['scopeStatus'], 'pending-review')
+
+    def test_native_panel_without_a_scope_guard_never_receives_automatic_approval(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/'confirmations').mkdir()
+            calls = []
+            confirmations = Confirmations(root,FakeBrowser(calls),lambda:1,0)
+            confirmations.native([event(1,'approval/asked',id='a',toolName='pwsh')])
+            confirmations.capture({'dialogs':[{'key':'approval:1','native':True,'text':'Allow?',
+                                                'choices':['Allow once']}]})
+            with self.assertRaisesRegex(RuntimeError,'allowlist'):
+                confirmations.auto_decide(FakeRecorder(calls),lambda seconds:None)
+            self.assertNotIn('choose-once',calls)
+
+    def test_missing_or_unmatched_capture_never_gets_an_automatic_choice(self):
+        for native, captured in ((True, False), (False, True)):
+            with self.subTest(native=native, captured=captured), tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                (root/'confirmations').mkdir()
+                calls = []
+                browser = FakeBrowser(calls)
+                if not captured:
+                    browser.screenshot = lambda path, key=None: False
+                confirmations = Confirmations(root, browser, lambda: 1, 0)
+                confirmations.native([event(1,'approval/asked',id='a',toolName='pwsh')])
+                confirmations.capture({'dialogs':[{'key':'approval:1','native':native,
+                    'text':'Allow?', 'choices':['Allow once']} ]})
+                confirmations.auto_decide(FakeRecorder(calls), lambda seconds: None)
+                self.assertNotIn('choose-once', calls)
+
     def test_ui_capture_before_history_update_is_one_native_confirmation(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

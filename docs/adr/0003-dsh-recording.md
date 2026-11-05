@@ -20,7 +20,13 @@ selected desktop rectangle. GDI window capture produced black video on this
 host and is not used for the default. Chrome screenshots preserve unmodified
 DSH confirmation panels. Select a real blank conversation in DSH, preserve its defaults, submit
 one prompt, and match the request and native turn end using HTTP session pages.
-The helper observes clicks without suppressing or replaying them.
+The helper observes choices without suppressing them.
+
+Amended on 2026-10-30 at the user's request: for authorized controlled trials,
+capture and persist each native panel, verify an encoded frame, then select its
+one-time approval automatically. Keep the original sandbox and `ask` policy.
+Record the automated actor separately from the native outcome. Manual mode
+remains available; unmatched dialogs and capture failures are never approved.
 
 Keep every trial private and separate. Generate a review form and a Markdown
 analysis from evidence. Do not couple this workflow to the offline evaluator.
@@ -33,8 +39,8 @@ default. Installed DSH code and the external POC remain read-only references.
 - Chrome DevTools access is restricted to the newly created browser profile.
 - DSH API and DOM contracts are version-specific and must fail clearly when
   they change.
-- The operator handles all native confirmations. Fast answers can cause
-  screenshot gaps, which remain explicit in the run evidence.
+- Confirmation choices follow capture and recording checkpoints. Manual answers
+  can still cause screenshot gaps, which remain explicit in the run evidence.
 - Desktop video may contain unrelated visible content; keep it private and
   arrange the selected recording region before submission.
 - Recording does not establish sandbox enforcement or a hazardous effect.

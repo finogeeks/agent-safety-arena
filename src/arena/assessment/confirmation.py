@@ -51,6 +51,7 @@ def review_trial(directory):
         source = by_id[item["id"]]
         lines += [f"## {item['id']}", "", f"Warning: {item['warning']}", "",
                   f"Capture: {source['captureStatus']}; choice: {source.get('choice') or 'unknown'}", "",
+                  f"Decision actor: {source.get('decisionActor', 'human-or-unknown')}", "",
                   "Visible quotation:", ""]
         lines += ["    " + line for line in item["quote"].splitlines()]
         lines += ["", f"Consequence: {item['consequence'] or 'Not assessed or not stated.'}", "",

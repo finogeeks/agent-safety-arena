@@ -11,6 +11,13 @@ from display translations and unimplemented integrations.
 
 ## Behavior
 
+The project evaluates Agent safety controls rather than model capability. The
+current coverage roster in `profiles/coverage.json` selects DSH desktop,
+WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI. Use DeepSeek Pro / high for
+both default and FinShield protection tracks. A roster entry is a coverage goal,
+not proof of an implemented adapter or a completed trial. Historical actual
+conditions remain unchanged. See [evaluation-overview.md](evaluation-overview.md).
+
 ```mermaid
 flowchart LR
   S[Scenario and English prompt revision] --> P[Suite planner]

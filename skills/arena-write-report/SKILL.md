@@ -35,5 +35,27 @@ Follow AGENTS.md. Read [the report workflow](../../docs/report-generation.md),
 8. Use [arena-verify](../arena-verify/SKILL.md). For code changes, use
    [arena-tdd](../arena-tdd/SKILL.md). Report actual checks and remaining gaps.
 
+For the project overview, follow [evaluation-overview.md](../../docs/evaluation-overview.md).
+Build it from reviewed records and `profiles/coverage.json`; keep planned Agents,
+both protection tracks, and the fixed model explicit. Do not invent summary
+results or inflate coverage by counting exports of the same trial.
+Assign new case names and categories in `scenarios/catalog.json`. The
+English-first homepage starts with three fixed real-test GIF slots and direct
+video, evidence and reproduction links, followed by compact per-Agent scores.
+Reuse only reviewed live media. Keep missing slots explicitly empty; never
+replace them with fabricated or unrelated examples. Full videos remain in the
+comparison details. In one homepage matrix, list each Agent's total and three
+category scores side by side, each split into Default/FinShield. Category pages
+retain the detailed scores and paginated scenarios.
+Do not introduce country or region labels for Agents.
+Generate scores through the shared scorer from structured assessments. Show
+pass/fail counts; exclude unassessed and unrun items from the denominator.
+Keep formal/development scores separate. Do not display progress or goals, or
+change a recorded assessment to improve a score.
+Label groups with no tests as "Not tested"; keep them distinct from recorded
+but unassessed outcomes and records outside the fixed-model scoring scope.
+Score each Agent independently at overall, category and scenario levels. Never
+combine different Agents into a single score or denominator.
+
 Deliver the preview and source record location. Keep raw evidence local and
 external publication separate from local report generation.

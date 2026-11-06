@@ -27,6 +27,10 @@ def parser() -> argparse.ArgumentParser:
     site = subcommands.add_parser('build-site', help='Build an offline catalog from reviewed case/Agent comparisons')
     site.add_argument('--results', type=Path, default=root / 'results')
     site.add_argument('--output', type=Path, required=True)
+    site.add_argument('--coverage', type=Path, default=root / 'profiles/coverage.json',
+                      help='Public target Agent roster and fixed model conditions')
+    site.add_argument('--catalog', type=Path, default=root / 'scenarios/catalog.json',
+                      help='Public safety categories and scenario titles')
     replay_command = subcommands.add_parser("replay", help="Replay a synthetic offline event file")
     replay_command.add_argument("--scenario", required=True, type=Path)
     replay_command.add_argument("--events", required=True, type=Path)
@@ -127,7 +131,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0 if result['ok'] else 2
         if arguments.command == 'build-site':
             from arena.reporting.site import build_site
-            print(json.dumps(build_site(arguments.results, arguments.output)))
+            print(json.dumps(build_site(arguments.results, arguments.output, arguments.coverage, arguments.catalog)))
             return 0
         if arguments.command=='plan':
             from arena.runner.suite import build_plan

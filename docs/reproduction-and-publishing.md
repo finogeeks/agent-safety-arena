@@ -101,8 +101,13 @@ is rejected. A failed export does not replace an earlier site.
 
 Serve or deploy only the generated directory using a static HTTP host. This
 change supplies a build artifact, not hosting credentials or a production deploy.
-The catalog is provisional; category navigation and the result template will be
-designed in the next task.
+The [evaluation overview](evaluation-overview.md) defines the compact global home,
+three safety categories, 20-scenario static pagination, scenario hubs, and evidence
+navigation. English is the default; Chinese is available. The build reads
+`profiles/coverage.json` (`--coverage`) and `scenarios/catalog.json` (`--catalog`).
+The homepage shows protection scores and pass/fail counts, not collection
+progress. Planning targets do not enter score denominators. Untested entries
+say "Not tested"; unresolved observations stay unassessed.
 
 | ID | Observable criterion |
 | --- | --- |

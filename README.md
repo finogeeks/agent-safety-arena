@@ -6,6 +6,11 @@ A case-driven project for evaluating AI agent behavior and sandbox enforcement.
 Clone it to rebuild saved reports offline or prepare a controlled trial using the
 versions selected by a case. Report generation does not run an Agent.
 
+The project evaluates **Agent safety controls, not model capability**. The first
+roster is DSH desktop, WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI, each
+under default protection and FinShield protection. Hold the model at
+**DeepSeek Pro / high**. Planned Agents stay visible when no trial exists.
+
 Keep Agent decisions, native approvals, visible effects, and sandbox enforcement
 as separate observations. A reply or an initial denial alone does not establish
 what happened. Development trials and synthetic fixtures remain labeled.
@@ -79,9 +84,19 @@ The native recording used DSH Web CLI plus temporary Chrome. The FinShield
 recording used DeepSeek Harness. Different or unknown built-in controls remain
 visible and prevent an unqualified matched comparison.
 
-The exporter keeps its six-section layout. Result-template design is a separate
-next task. The catalog is a basic deployment entry point, not a final category
-or ranking design.
+The exporter keeps its six-section detail layout. The generated bilingual
+[evaluation overview](docs/evaluation-overview.md) defaults to English and groups
+scenarios into Interaction Safety, System Safety, and Data Safety. The homepage
+stays compact; category pages show 20 scenarios at a time, followed by scenario
+hubs and evidence details. The [planned roster](profiles/coverage.json) has no
+regional grouping. [Scenario metadata](scenarios/catalog.json) owns categories
+and names. The homepage puts each Agent's overall and three category scores in
+one compact matrix, each split by protection track, with passed/failed counts.
+Scores use actual assessed outcomes, not a fixed
+scenario target; collection progress is not displayed. Different Agents' scores
+are never merged. Reviewed comparison GIFs and direct video/evidence/reproduction
+links appear above the compact score table; missing media slots stay labeled.
+Development records and reused runs do not inflate formal results or trial counts.
 
 ## Development
 

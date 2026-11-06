@@ -8,6 +8,17 @@
 分别记录 Agent 决定、原生批准、可见效果和沙箱执行结果。模型回复或第一次拒绝
 不能单独证明实际效果。开发试录和合成测试数据始终保留标识。
 
+## 让 Agent 录制案例
+
+新案例和已有案例重新录制，都使用[录制任务提示模板](templates/recording-task-prompt.md)。
+Agent 按[录制规范](docs/recording-standard.md)检查并复用已有程序，准备缺少的依赖，
+生成被 Git 忽略的本机配置，记录实际环境，完成检查和预检，再采集并交接评审。
+使用者不需要提供上一位操作者的程序路径。
+
+仓库保存可移植的案例要求和各案例指定的版本；Agent 负责当前机器的准备和本机环境记录。
+缺少凭据、安装来源或适配支持时，明确记录缺口。这套规范使用现有工具；bootstrap 本身
+不会发现或安装被测产品。完整流程仍需经过新机器实测，才能宣称已经验证可用。
+
 ## 从 clone 开始
 
 在 Windows 安装 Python 3.12 或更高版本，然后在仓库根目录执行：
@@ -25,8 +36,9 @@ bootstrap；占位内容需要替换。脚本将 Arena 安装到 `.venv`，并�
 首次安装需要从 Python 包索引获取构建后端；Arena 没有第三方运行库依赖。
 也可以在已有 Python 环境中使用 `python -m pip install -e .` 进行可编辑安装。
 
-真实试验前先读[复现指南](docs/reproduction.md)。FinShield、DSH、Node.js、Chrome、
-FFmpeg、桌面工具和模型凭据需要单独准备。**每个案例的具体试验选择自己的 FinShield
+现有命令见[安装与报告指南](docs/reproduction.md)。真实录制时，Agent 按案例要求准备
+FinShield、DSH、Node.js、Chrome、FFmpeg、桌面工具和产品访问条件。
+**每个案例的具体试验选择自己的 FinShield
 版本**，没有全仓库统一版本。[依赖文件](dependencies/README.md)记录运行文件哈希
 和未解决的安装包来源。缺少版本或安装来源时，明确保留准备缺口。
 
@@ -94,4 +106,4 @@ Codex CLI、Claude CLI、OpenCode CLI，分别测试默认防护和 FinShield �
 
 修改前阅读 [AGENTS.md](AGENTS.md) 和匹配的共用技能。新增接口前先写规格，保持中英文
 README 同步。[首个评测草案](docs/first-evaluation.md)和迁移文档保留其历史范围；
-当前安装与运行说明以复现指南为准。
+当前录制流程以录制规范为准，安装和报告命令见安装与报告指南。

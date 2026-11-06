@@ -15,6 +15,22 @@ Keep Agent decisions, native approvals, visible effects, and sandbox enforcement
 as separate observations. A reply or an initial denial alone does not establish
 what happened. Development trials and synthetic fixtures remain labeled.
 
+## Ask an Agent to record a case
+
+Use the [recording task prompt](templates/recording-task-prompt.md) for a new
+case or a new execution of an existing case. The Agent follows the
+[recording standard](docs/recording-standard.md): discover and reuse installed
+programs, prepare missing dependencies, generate ignored local configuration,
+record the actual environment, check and preflight, then collect and hand off
+review. You do not need to supply another operator's executable paths.
+
+The repository owns portable case requirements and per-case versions. The Agent
+owns preparation of the current machine and its private environment record.
+Unavailable credentials, dependency sources and unsupported integrations remain
+explicit gaps. The procedure uses existing tools; bootstrap alone does not
+discover or install evaluated products. Fresh-machine recording validation is
+still required before claiming an end-to-end verified setup.
+
 ## Start from a clone
 
 On Windows, install Python 3.12 or later, then run from the repository root:
@@ -34,9 +50,10 @@ It needs the Python build backend from the package index; Arena has no
 third-party runtime dependency. An editable install,
 `python -m pip install -e .`, also works.
 
-Read [the reproduction guide](docs/reproduction.md) before a live trial.
-FinShield, DSH, Node.js, Chrome, FFmpeg, desktop tools, and model credentials are
-separate setup requirements. **Each case revision selects its FinShield version**;
+Read [the setup and report guide](docs/reproduction.md) for existing commands.
+For live recording, the Agent prepares FinShield, DSH, Node.js, Chrome, FFmpeg,
+desktop tools and product access as required by the selected case.
+**Each case revision selects its FinShield version**;
 there is no global version. [Dependency files](dependencies/README.md) record
 runtime hashes and unresolved installer provenance. A missing version or
 installation source remains an explicit setup gap.
@@ -112,4 +129,5 @@ For offline replay commands and examples, see
 Read [AGENTS.md](AGENTS.md) and the matching canonical skill before a change.
 Specifications precede new interfaces. Keep both README languages in sync.
 The [first evaluation draft](docs/first-evaluation.md) and migration documents
-record their original scope; current setup is in the reproduction guide.
+record their original scope; current recording procedure is in the recording
+standard, with setup commands in the reproduction guide.

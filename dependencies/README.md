@@ -4,6 +4,12 @@
 through their reproduction suites and version-specific dependency files.
 There is no repository-wide FinShield version or `latest` alias.
 
+For new and existing case recordings, the Agent follows the
+[recording standard](../docs/recording-standard.md). Inspect and reuse compatible
+installed programs before acquiring missing dependencies. Record actual paths,
+versions, acquisition/verification commands and gaps privately with the run;
+machine paths do not belong in these portable requirements.
+
 | Dependency file | Use |
 | --- | --- |
 | [FinShield 0.10.9, Windows x64](finshield/0.10.9/windows-x64.json) | Installed-file baseline for the 2026-11-05 window-flood comparison. |

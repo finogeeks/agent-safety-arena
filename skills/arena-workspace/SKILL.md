@@ -22,6 +22,9 @@ for the current project purpose. Select the application stack from its requireme
    the first requirement, and the stack decision before implementation.
 6. Use established local commands. If no application toolchain exists,
    establish and verify it from the specification before writing application code.
+7. For a recording request, use
+   [arena-record-trial](../arena-record-trial/SKILL.md) for both new and existing
+   cases. Discover and prepare this host; do not assume a prior operator's paths.
 
 ## Facts
 

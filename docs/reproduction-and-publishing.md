@@ -27,6 +27,12 @@ flowchart TD
 
 ### Setup and dependency ownership
 
+The [recording standard](recording-standard.md) owns the Agent procedure for
+new and existing cases. The Agent discovers this host's installations, reuses
+compatible programs, prepares missing dependencies, generates ignored local
+configuration and records actual setup facts with the run. Portable case
+requirements do not contain a previous operator's machine paths.
+
 Arena uses Python 3.12 or later. `pyproject.toml` supports an editable installation
 from a clone. `scripts/bootstrap.ps1` creates `.venv`, installs Arena, and copies
 the DSH desktop profile template only when the local destination does not exist.
@@ -58,7 +64,8 @@ vendor-attested installer checksum. It returns JSON with individual checks and
 `trialReady: false`. Exit 0 means the
 requested static checks passed; exit 2 means a check failed. Live presentation,
 authentication, actual settings, the running service image, and recovery still
-require preflight and trial evidence. Installer checks are operator setup steps.
+require preflight and trial evidence. The recording Agent performs documented
+setup/version checks and records any unavailable access or source.
 
 ### Cases, Agents, and results
 

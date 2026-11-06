@@ -7,6 +7,7 @@ describe observable behavior. Decisions record choices and their consequences.
 | --- | --- |
 | [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent protection scores, three safety categories, scenario pagination, and evidence links. |
 | [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
+| [recording-standard.md](recording-standard.md) | Defines Agent-led machine preparation, local configuration, environment records, and shared recording for new and existing cases. |
 | [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |
 | [reproduction-and-publishing.md](reproduction-and-publishing.md) | Defines installation, per-case dependency selection, result grouping, static checks, and offline site builds. |
 | [finshield-recording.md](finshield-recording.md) | Defines the existing FinShield desktop launcher and shared DSH collection boundary. |

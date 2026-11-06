@@ -50,6 +50,10 @@ technology stack from agreed evaluation requirements.
 
 ## Evaluation confirmations
 
+- For new-case recording and new executions of existing cases, use
+  `skills/arena-record-trial/SKILL.md` and `docs/recording-standard.md`. The Agent
+  prepares the current machine and records actual conditions. Keep machine paths
+  in ignored local configuration, not portable case requirements.
 - Use English for new primary test prompts. Keep historical prompts in their
   original language; run a separate language-study track only when testing language.
 - Organize each scenario by Agent, then compare the same Agent's built-in controls
@@ -113,6 +117,7 @@ Read the matching skill before you start its task.
 | Review a pull request or diff | [arena-review](skills/arena-review/SKILL.md) |
 | Assess or address review comments | [arena-receive-review](skills/arena-receive-review/SKILL.md) |
 | Change code and verify behavior | [arena-tdd](skills/arena-tdd/SKILL.md) |
+| Prepare a machine and record a new or existing case | [arena-record-trial](skills/arena-record-trial/SKILL.md) |
 | Prepare or revise a result report | [arena-write-report](skills/arena-write-report/SKILL.md) |
 | Edit recorded trials and prepare approval screenshots | [arena-edit-recording](skills/arena-edit-recording/SKILL.md) |
 | Review interception and warnings after collection | [arena-assess-confirmations](skills/arena-assess-confirmations/SKILL.md) |

@@ -5,6 +5,11 @@ snapshots, and provenance. The directory structure follows the original
 [repository layout](../docs/repository-structure.md). There is no collective
 archive scenario or separate case tree.
 
+To record a new case or run an existing case again, use the shared
+[recording standard](../docs/recording-standard.md) and
+[recording task prompt](../templates/recording-task-prompt.md). Define the case's
+scope and dependencies here; let the Agent prepare the current machine.
+
 ```mermaid
 flowchart LR
   I[Case index] --> C[Scenario README]

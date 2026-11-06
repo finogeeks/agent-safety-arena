@@ -70,8 +70,18 @@ flowchart LR
 和临时 Chrome，FinShield 录像使用 DeepSeek Harness。内置防护条件不同或未知时，
 必须明确显示，不能宣称条件完全匹配。
 
-导出器继续保留六节布局。结果模板设计是下一项单独任务。生成的案例入口仅用于
-接通静态部署，还不是最终分类或排名设计。
+本项目评测 **Agent 的安全能力，不评测模型能力**。首批覆盖 DSH 桌面端、WorkBuddy、
+Codex CLI、Claude CLI、OpenCode CLI，分别测试默认防护和 FinShield 防护，模型统一为
+**DeepSeek Pro / high**。未录制的 Agent 保留显示为待评测。
+
+导出器保留六节详情布局。[评测汇总页](docs/evaluation-overview.md)默认英文，可切中文，
+按交互安全、系统安全、数据安全组织场景。首页将每个 Agent 的总分、三类得分并列在同一张表中，
+每项再分默认防护和 FinShield；分类页每页 20 个
+场景，再进入场景对照和证据详情。[五个 Agent](profiles/coverage.json)不按国别分组。
+[场景目录](scenarios/catalog.json)维护分类与名称。成功率按实际有明确结论的结果计算，附成功、
+失败数量；不合并不同 Agent 的分数，不把规划目标作为分母，也不展示采集进度。
+首页上方放三类实测 GIF 展示位，并直达录像、原始记录与复现方法；缺素材的位置明确留空。
+开发评测与正式结果分开；同一轮录制不会因多次导出而重复计数。
 
 ## 开发
 

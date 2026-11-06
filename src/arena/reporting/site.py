@@ -1,6 +1,5 @@
 """Build a relocatable catalog from reviewed comparisons, without live trials."""
 import hashlib
-from html import escape
 import json
 from pathlib import Path
 import re
@@ -8,13 +7,15 @@ import tempfile
 
 from arena.evidence.media import resolve_public_media_sources
 from arena.reporting import bilingual
+from arena.reporting.overview import load_roster, load_taxonomy, make_catalog
+from arena.reporting.overview_pages import render_pages
 
 
 def file_hash(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def build_site(results_root, output):
+def build_site(results_root, output, coverage_path=None, catalog_path=None):
     root = Path(results_root).resolve()
     output = Path(output).resolve()
     if not root.is_dir():
@@ -23,6 +24,8 @@ def build_site(results_root, output):
         raise ValueError('Site output already exists; choose a new directory')
     if output.is_relative_to(root) or root.is_relative_to(output):
         raise ValueError('Site output must not overlap the results source')
+    roster = load_roster(coverage_path)
+    taxonomy = load_taxonomy(catalog_path)
 
     records = []
     for path in sorted(root.rglob('record.json')):
@@ -45,28 +48,16 @@ def build_site(results_root, output):
     with tempfile.TemporaryDirectory(prefix='arena-site-', dir=output.parent) as temporary:
         staging = Path(temporary) / 'site'
         staging.mkdir()
-        items = []
         for path, relative, record in records:
             bilingual.export_reports(path, staging / relative.parent)
-            prefix = relative.parent.as_posix()
-            title = escape(record['narrative']['zh-CN']['title'])
-            identity = escape(f'{record["scenarioId"]} / {record["agentId"]} / {relative.parent.name}')
-            items.append(f'<li><strong>{title}</strong><p>{identity} · '
-                         f'{escape(record["evidenceOrigin"])} / {escape(record["phase"])}</p>'
-                         f'<a href="{prefix}/zh-CN.html">中文</a> · '
-                         f'<a href="{prefix}/en.html">English</a></li>')
-        index = ('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
-                 '<meta name="viewport" content="width=device-width,initial-scale=1">'
-                 '<title>Agent Safety Arena</title><link rel="stylesheet" href="catalog.css">'
-                 '</head><body><main><h1>Agent Safety Arena</h1>'
-                 '<p>案例 / Case → Agent → 对照 / Comparison</p><ul>' + ''.join(items)
-                 + '</ul><p><a href="site-manifest.json">Build manifest</a></p></main></body></html>')
-        (staging / 'index.html').write_text(index, encoding='utf8')
-        (staging / 'catalog.css').write_text(
-            'body{font:16px/1.6 system-ui,sans-serif;margin:0;background:#f4f6f9;color:#243248}'
-            'main{max-width:1000px;margin:auto;padding:24px}ul{padding:0;list-style:none}'
-            'li{background:white;border:1px solid #dfe5ee;border-radius:8px;padding:20px;margin:16px 0}'
-            'p{overflow-wrap:anywhere}a{color:#285dbb}', encoding='utf8')
+        catalog = make_catalog(records, roster, taxonomy)
+        for filename, content in render_pages(catalog).items():
+            target = staging / filename
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding='utf8')
+        (staging / 'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
+        for filename in ('catalog.css',):
+            (staging / filename).write_bytes(Path(__file__).with_name(filename).read_bytes())
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},
                         excludedReplayResults=[p.relative_to(root).as_posix() for p in sorted(root.rglob('result.json'))],

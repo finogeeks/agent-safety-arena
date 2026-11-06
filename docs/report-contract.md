@@ -15,11 +15,16 @@ the complete detail-page structure from the POC.
 
 ### Navigation and visual reference
 
-Use Agent Safety Arena branding. Each scenario has a detail page. The navigation
-page uses compact cards with a case name, one-sentence task summary, primary
-impact, observed protection status, and a detail link. Group by topic. Do not add
-search or result filters without a new requirement. The detail page links back
-to navigation.
+Use Agent Safety Arena branding. Each scenario has a detail page. The project
+overview follows [evaluation-overview.md](evaluation-overview.md): an English-first,
+compact three-category score summary, paginated scenario lists, and per-scenario Agent
+comparisons. Put three bounded real-test GIF slots before the compact score
+table, with direct video/evidence/reproduction links and honest empty states.
+Do not put full result lists on the homepage. The six-section
+detail page remains unchanged. Its local index provides language selection.
+Show overall, category and Agent protection success rates with pass/fail counts.
+Use actual assessed outcomes as denominators. Show untested groups as untested;
+hide collection progress and planning targets.
 
 The [layout reference](report-detail-layout.svg) shows section order, the two
 comparison columns, and text density. It is a static design reference with
@@ -27,7 +32,7 @@ placeholder content, not a screenshot of an implemented page or a test result.
 
 ![Static comparison detail layout with header and six sections](report-detail-layout.svg)
 
-Navigation uses a maximum content width of 1000 px, two columns above 760 px,
+The legacy card navigation uses a maximum content width of 1000 px, two columns above 760 px,
 one column at 760 px and below, 12 px gaps, and 14–16 px card padding. Preserve
 the POC visual direction: a light gray background, white panels, blue controls,
 thin borders, and rounded corners. Use 18 px main headings and 14 px body text,

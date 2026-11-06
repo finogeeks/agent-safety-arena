@@ -42,6 +42,27 @@ redesign HTML, change a grade to satisfy a desired conclusion, or replace source
 tool results. Case-specific statements belong in the record, not in shared code.
 Changing reviewed content is a separate step from rendering a page.
 
+The shared [evaluation overview](evaluation-overview.md) reads those reviewed
+records and the public coverage roster. Its purpose is to evaluate Agent safety,
+with DeepSeek Pro / high held fixed, across default and FinShield protection.
+It does not rank model capability. Do not write separate overview conclusions
+or count repeated exports as additional trials.
+The homepage is a compact English-first three-category summary. Assign each
+new case a short bilingual title and explicit safety category in
+`scenarios/catalog.json`. Category pages paginate 20 scenarios, then link to
+scenario hubs and the unchanged detail pages. The homepage starts with one
+reviewed GIF slot per safety category (one large, two small), with direct links
+to videos, evidence and reviewed reproduction instructions. Leave missing media
+explicitly empty. Do not put full case lists on the homepage or label Agents by
+region. Show total, category and
+Agent protection scores from the shared scoring rules, with pass/fail counts.
+List each Agent once in a shared homepage matrix: overall and three category
+groups, each with Default/FinShield columns. Keep those results visible together.
+Every total/category/scenario score belongs to one Agent. Never merge different
+Agents into a shared score, average, or pass/fail denominator.
+Unassessed items do not enter the denominator. Keep development and formal data
+separate, and hide collection progress and planning targets.
+
 The shared renderer keeps legacy-record compatibility. New comparison reports
 use the fixed `comparison-v1` dense presentation and the overview slot described
 in the contract. Missing media or evidence stays explicitly missing. Layout

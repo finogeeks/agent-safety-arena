@@ -7,6 +7,36 @@ change prompts or policies, or edit original recordings to repair a report.
 Use skills/arena-write-report/SKILL.md and docs/report-generation.md. Page format
 is fixed: preserve the six sections, column roles, shared styles, and dense
 overview layout. Generate the case content; do not generate a new page design.
+The project evaluates Agent safety controls, not model capability. The current
+coverage roster is profiles/coverage.json: DSH desktop, WorkBuddy, Codex CLI,
+Claude CLI, and OpenCode CLI, each with default and FinShield protection, using
+DeepSeek Pro / high. Record actual conditions; do not rewrite an older record
+to match this target. The overview reads structured assessments from these
+records. Do not author a second set of conclusions or treat a planned roster
+entry as an implemented integration or completed test.
+For the global overview, add the case's short English/Chinese title and explicit
+Interaction Safety, System Safety, or Data Safety category to
+scenarios/catalog.json. Choose the category from the declared scenario scope.
+The homepage defaults to English and stays compact regardless of case count.
+Use paginated category pages and scenario hubs. The shared homepage now reserves
+one real-test GIF slot per safety category, before compact per-Agent scores.
+Provide only the existing reviewed comparison GIF and its original edit note;
+do not create replacement evidence for an empty slot. The renderer provides
+direct video, original-record and reproduction links from reviewed inputs.
+Keep full result lists and national/regional classifications off the homepage.
+Show actual protection scores and passed/failed counts at total, safety-category,
+and Agent levels. Use the shared scoring rules; do not hand-author percentages.
+Planning targets and unassessed/unrun items are not denominators. Keep warning
+adequacy separate from protection pass/fail and formal data separate from
+development data. Do not display collection progress or turn an unknown into a
+pass to fill a score.
+Say "Not tested" when a group has no tests. Keep recorded but unassessed
+outcomes separate, and label fixed-model/effort mismatches outside score scope.
+Overall, category and scenario scores are always per Agent. Never merge
+different Agents' scores or denominators. Display the five Agents independently.
+The homepage lists total and all three category scores together in one matrix,
+one Agent per row, with Default/FinShield subcolumns in each group. Do not hide
+category scores behind navigation or remove them to leave more whitespace.
 
 Inputs supplied by the operator:
 

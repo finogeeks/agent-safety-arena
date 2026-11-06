@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "purpose": "User-requested accelerated GIF previews; existing MP4 display videos remain unchanged.",
+  "sourceDescription": "Derived from the existing shared-exporter overview-v2 edits, not from a new collection.",
+  "trialExecutions": 0,
+  "generator": "FFmpeg 9.0.1",
+  "outputs": [
+    {
+      "group": "native",
+      "sourceRunId": "dsh-20261105T094545-72477eaf",
+      "sourceArtifact": "overview-v2.mp4",
+      "sourceSha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6",
+      "rawRecordingSha256": "88b0cfd32ed568e873781cdaec601ccbd871c7867debec61fda91ef4e38b6839",
+      "output": "media/native-scenario.gif",
+      "outputSha256": "fb521092e304e3b2d77c7532b292bb89872d529c5309ecd1f21980bf1913baa0",
+      "outputBytes": 759086,
+      "width": 800,
+      "height": 450,
+      "durationSeconds": 12.51,
+      "decodedFrames": 100,
+      "loop": "infinite",
+      "crop": null,
+      "fps": 8,
+      "stageMapping": [
+        {
+          "stage": "opening",
+          "rawSourceStartSeconds": 2,
+          "sourcePreviewStartSeconds": 0,
+          "rawSourceDurationSeconds": 5,
+          "speedMultiplier": 4,
+          "outputStartSeconds": 0.0,
+          "outputDurationSeconds": 1.25
+        },
+        {
+          "stage": "effect",
+          "rawSourceStartSeconds": 241,
+          "sourcePreviewStartSeconds": 5,
+          "rawSourceDurationSeconds": 10,
+          "speedMultiplier": 1,
+          "outputStartSeconds": 1.25,
+          "outputDurationSeconds": 10.0
+        },
+        {
+          "stage": "response",
+          "rawSourceStartSeconds": 276,
+          "sourcePreviewStartSeconds": 15,
+          "rawSourceDurationSeconds": 5,
+          "speedMultiplier": 4,
+          "outputStartSeconds": 11.25,
+          "outputDurationSeconds": 1.25
+        }
+      ],
+      "ffmpegFilter": "[0:v]setpts=PTS-STARTPTS,setpts=if(lt(T\\,5)\\,PTS/4\\,if(lt(T\\,15)\\,(1.25+T-5)/TB\\,(11.25+(T-15)/4)/TB)),fps=8,scale=800:450:flags=lanczos,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+      "verification": {
+        "fullDecode": true,
+        "originalMp4HashesUnchanged": true,
+        "noApprovalRecords": true,
+        "inspectedSourceSheet": "Every two seconds",
+        "inspectedOutputFrames": 100,
+        "stageBoundaryFramesVerified": true,
+        "inspectionNotes": "gif-editing-notes-v1.md"
+      },
+      "timingQuantizationSeconds": 0.01
+    },
+    {
+      "group": "finshield",
+      "sourceRunId": "dsh-20261105T124356-75deef93",
+      "sourceArtifact": "overview-v2.mp4",
+      "sourceSha256": "8cda19ad6686a530052c93f69a44682b1f4e21e60ba210ec4fc6f2b03b593333",
+      "rawRecordingSha256": "9a8eb8c38f7eb9f97ed028cc52d2c5b49ce7ee7c8873b49e772049baca6157a1",
+      "output": "media/finshield-scenario.gif",
+      "outputSha256": "f4098f6ec8a3c3093ebe47121c08305d0637a7da396ade78e972c5aa43830978",
+      "outputBytes": 246444,
+      "width": 800,
+      "height": 450,
+      "durationSeconds": 5.01,
+      "decodedFrames": 40,
+      "loop": "infinite",
+      "crop": null,
+      "fps": 8,
+      "stageMapping": [
+        {
+          "stage": "opening",
+          "rawSourceStartSeconds": 2.25,
+          "sourcePreviewStartSeconds": 0,
+          "rawSourceDurationSeconds": 5,
+          "speedMultiplier": 4,
+          "outputStartSeconds": 0.0,
+          "outputDurationSeconds": 1.25
+        },
+        {
+          "stage": "effect",
+          "rawSourceStartSeconds": 60.875,
+          "sourcePreviewStartSeconds": 5,
+          "rawSourceDurationSeconds": 10,
+          "speedMultiplier": 4,
+          "outputStartSeconds": 1.25,
+          "outputDurationSeconds": 2.5
+        },
+        {
+          "stage": "response",
+          "rawSourceStartSeconds": 82.25,
+          "sourcePreviewStartSeconds": 15,
+          "rawSourceDurationSeconds": 5,
+          "speedMultiplier": 4,
+          "outputStartSeconds": 3.75,
+          "outputDurationSeconds": 1.25
+        }
+      ],
+      "ffmpegFilter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=8,scale=800:450:flags=lanczos,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+      "verification": {
+        "fullDecode": true,
+        "originalMp4HashesUnchanged": true,
+        "noApprovalRecords": true,
+        "inspectedSourceSheet": "Every two seconds",
+        "inspectedOutputFrames": 40,
+        "stageBoundaryFramesVerified": true,
+        "inspectionNotes": "gif-editing-notes-v1.md"
+      },
+      "timingQuantizationSeconds": 0.01
+    }
+  ]
+}

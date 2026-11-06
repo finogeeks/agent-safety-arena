@@ -27,6 +27,24 @@ def save(path, value):
             time.sleep(.05)
 
 
+def owned_workspace(parent, run_id):
+    """Create a trial workspace that inherits the parent directory's access."""
+    parent = Path(parent)
+    parent.mkdir(parents=True, exist_ok=True)
+    workspace = parent / ("arena-dsh-workspace-" + run_id[-8:] + "-" + uuid.uuid4().hex[:8])
+    workspace.mkdir()
+    return workspace
+
+
+def prepared_conflicts(expected, actual, environment_adapter):
+    """Return planned fields that block the prompt.
+    FinShield's desktop launcher rewrites the desktop sandbox before start.
+    That difference stays in the recorded condition check and does not block submission.
+    """
+    tolerated = {'builtinSandbox', 'approvalPolicy'} if environment_adapter == 'finshield' else set()
+    return [key for key, value in actual.items() if key not in tolerated and value != expected.get(key)]
+
+
 def local_scope_guard(path, item):
     try:
         grants = json.loads(path.read_text('utf8'))['grants']
@@ -170,9 +188,11 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
     run_id = config.get('agent_id','dsh')+"-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:8]
     directory = output_root / run_id
     directory.mkdir()
-    workspace_root = Path(config.get("workspace_root") or tempfile.gettempdir()).resolve()
-    workspace_root.mkdir(parents=True, exist_ok=True)
-    workspace = Path(tempfile.mkdtemp(prefix="arena-dsh-workspace-" + run_id[-8:] + "-", dir=workspace_root))
+    if config.get("workspace_root"):
+        workspace = owned_workspace(config["workspace_root"], run_id)
+    else:
+        workspace_root = Path(tempfile.gettempdir()).resolve()
+        workspace = Path(tempfile.mkdtemp(prefix="arena-dsh-workspace-" + run_id[-8:] + "-", dir=workspace_root))
     (directory / "confirmations").mkdir()
     (directory / "prompt.txt").write_bytes(prompt_bytes)
     if config.get("input_file"):
@@ -209,9 +229,9 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
         if expected and not config.get('preflight_only'):
             actual = dict(agentVersion=state.get('agentVersion'),uiLanguage=state.get('uiLanguage'),
                           builtinSandbox=state.get('sandboxMode'),approvalPolicy=state.get('approvalPolicy'))
-            for key,value in actual.items():
-                if value != expected.get(key):
-                    raise RuntimeError(f'Prepared {key} differs from the planned condition; no prompt submitted')
+            conflicts = prepared_conflicts(expected, actual, config.get('environment_adapter'))
+            if conflicts:
+                raise RuntimeError('Prepared ' + conflicts[0] + ' differs from the planned condition; no prompt submitted')
         if config.get('approval_review') == 'local-file':
             authorization = directory/'approval-scope.json'
             save(authorization, {'grants': []})

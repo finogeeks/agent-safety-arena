@@ -1,7 +1,7 @@
 """Local comparison pages from the existing reviewed-record contract."""
 from html import escape
-import json
 from pathlib import PurePosixPath
+import re
 
 
 TEXT = {
@@ -10,19 +10,25 @@ TEXT = {
         synthetic='Synthetic evidence', grade='Warning adequacy', reason='Assessment basis',
         grades={'adequate':('A','Adequate'),'partial':('B','Partial'),'insufficient':('C','Insufficient'),'unassessed':('U','Unassessed')},
         fields=['Task','Agent decision','Approval','Visible effect','Enforcement','Completion','Evidence','Recovery'],
-        copy='Copy original', copied='Copied', original='Original', translation='Display translation',
-        no_reply='No public reply was recorded.', evidence_note='Original warnings, conditions and observations',
+        copy='Copy text', copied='Copied', original='Original', translation='Display translation',
+        stored='The submitted original is kept in the evidence file.',
+        no_reply='No public reply was recorded.', evidence_note='Open the shared evidence file',
+        hash_label='Evidence SHA-256', sections_nav='Sections',
         open_image='Open original screenshot', locale='简体中文', locale_path='zh-CN.html',
-        shared='Shared original evidence · local report', detail='View result', scope='This grade evaluates the warning, not action severity or sandbox strength.'),
+        shared='Shared original evidence · local report', detail='View result', scope='This grade evaluates the warning, not action severity or sandbox strength.',
+        chips={'workspace-write':'workspace-write','ask':'ask'}),
     'zh-CN': dict(back='全部案例', evidence='证据', missing='未测试', blank='尚无试验素材或结论。',
         conditions='运行条件', comparison='对比尚未完成', development='开发试录', synthetic='合成证据',
         grade='警示充分度', reason='评级依据',
         grades={'adequate':('A','充分'),'partial':('B','部分'),'insufficient':('C','不足'),'unassessed':('U','未评估')},
         fields=['请求任务','Agent 决定','原生审批','可见效果','沙箱执行','完成状态','证据边界','资源恢复'],
-        copy='复制原文', copied='已复制', original='原文', translation='展示翻译',
-        no_reply='没有记录到公开回复。', evidence_note='原始提示、条件与观测记录',
+        copy='复制本页文字', copied='已复制', original='原文', translation='中文展示',
+        stored='实际提交的原文保存在证据文件中。',
+        no_reply='没有记录到公开回复。', evidence_note='打开共用证据文件',
+        hash_label='证据 SHA-256', sections_nav='章节',
         open_image='打开原始截图', locale='English', locale_path='en.html', shared='共用原始证据 · 本地结果页',
-        detail='查看结果', scope='本等级评价提示是否充分，不代表操作危险程度或沙箱强度。')}
+        detail='查看结果', scope='本等级评价提示是否充分，不代表操作危险程度或沙箱强度。',
+        chips={'workspace-write':'工作区可写','ask':'每次询问'})}
 
 
 CSS = """
@@ -51,9 +57,49 @@ details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cu
 
 JS = """document.addEventListener('click',async event=>{const b=event.target.closest('[data-copy]');if(!b)return;const t=document.getElementById(b.dataset.copy);if(!t)return;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(t.textContent)}else{const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges()}b.textContent=b.dataset.copied}catch{t.focus()}});"""
 
+DENSE_CSS = """
+main,.bar{padding:14px 20px}.bar{padding-top:12px;padding-bottom:12px}
+.hero{padding:0 0 5px}.hero h1{margin:5px 0 6px;font-size:23px}.lead{margin:4px 0 7px}
+.metadata-row{font-size:12px;color:#778397;margin:5px 0;overflow-wrap:anywhere}
+.nav{gap:14px;padding:8px 0;font-size:12px}.panel{padding:15px 18px;margin:11px 0}
+.panel h2{font-size:17px;margin-bottom:9px}.panel p{margin:5px 0}.panel details{margin-top:9px;padding-top:8px}
+.overview-headings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 8px}
+.overview-headings strong{display:block;font-size:16px;color:#172b4a}.overview-headings span{font-size:13px;color:#61718a}
+.overview-media{margin:0}.overview-media img{width:100%;height:auto}.overview-media figcaption{font-size:11px;margin-top:5px}
+.panel figure{margin-bottom:10px}.panel summary{font-size:13px}.panel .group-title{margin-bottom:8px;padding-bottom:7px}
+.panel pre{margin:8px 0}footer{padding:12px 0;font-size:11px}
+.configuration-note{display:inline-block;position:relative;border:0!important;margin:0 0 0 5px!important;padding:0!important}
+.configuration-note summary{display:inline;list-style:none;font-size:13px;cursor:pointer}.configuration-note summary::-webkit-details-marker{display:none}
+.configuration-note p{position:absolute;right:0;top:16px;z-index:20;min-width:170px;padding:8px 10px!important;background:white;border:1px solid #dfe5ee;border-radius:6px;box-shadow:0 3px 12px #24324818;font-size:12px}
+@media(max-width:760px){main,.bar{padding-left:12px;padding-right:12px}.panel{padding:13px}.overview-headings strong{font-size:14px}.overview-headings span{font-size:12px}}
+"""
+
 
 def e(value):
     return escape(str(value), quote=True)
+
+
+def header_metadata(record, language):
+    """Use reviewed dates and actual group conditions for both report formats."""
+    presentation=record['presentation'];groups=record['groups'];ui=TEXT[language]
+    missing='Not recorded' if language=='en' else '未记录'
+    def shared_value(value_for):
+        values=[(presentation['groups'][name]['title'][language],value_for(group))
+                for name,group in groups.items() if group]
+        if not values:return missing
+        if len({value for _,value in values})==1:return values[0][1]
+        return ' / '.join(f'{name}: {value}' for name,value in values)
+    agent_version=shared_value(lambda group:group['conditions'].get('agentVersion') or missing)
+    model=shared_value(lambda group:' · '.join(group['conditions'].get(key) or missing
+                                            for key in ('model','reasoningEffort')))
+    tested=presentation.get('testedOn')
+    tested_label=f'{tested["date"]} ({tested["timezone"]})' if tested else missing
+    fs_version=(groups.get('finshield') or {}).get('environmentVersion') or missing
+    fs_version=re.sub(r'^(?:FinShield|FinSAFE)\s+', '',fs_version,flags=re.I)
+    phase=ui['development'] if record['phase']!='formal' else record['phase']
+    labels=(['Test date',record['agentId'].upper()+' version','Model','FinShield version','Track']
+            if language=='en' else ['测试时间',record['agentId'].upper()+' 版本','模型','FinShield 版本','试验类型'])
+    return list(zip(labels,[tested_label,agent_version,model,fs_version,phase]))
 
 
 def grade(group, language):
@@ -63,36 +109,72 @@ def grade(group, language):
     return f'<span class="grade" data-warning-level="{assessment["level"]}">{letter} · {label}</span>'
 
 
-def shell(title, language, body):
+def assessment_markup(group, language):
+    ui=TEXT[language]
+    action=(group or {}).get('interceptionAssessment')
+    warning=f'<div class="grade-row"><span>{ui["grade"]}</span>{grade(group,language)}</div><p class="grade-reason">{e((group or {}).get("warningAssessment",{}).get("reason",{}).get(language,""))}</p>'
+    if not action:return warning
+    labels=({'blocked':'Blocked','not-blocked':'Not blocked','unknown':'Unverified'} if language=='en'
+            else {'blocked':'已拦截','not-blocked':'未拦截','unknown':'待核实'})
+    title='Interception' if language=='en' else '拦截结果'
+    status=labels[action['status']]
+    if action['basis']=='verified-postcondition':
+        title='Protection result' if language=='en' else '防护结果'
+        effect=action['postcondition']['effect'][language]
+        status='Prevented: '+effect if language=='en' else '已阻止'+effect
+    body=f'<div data-interception-state="{action["status"]}"><strong>{title}：{e(status)}</strong><p>{e(action["reason"][language])}</p></div>'
+    if action['status']=='not-blocked':body+=warning
+    elif action['status']=='blocked':body+='<p class="fine">'+('Warning not required' if language=='en' else '无需预警')+'</p>'
+    return body
+
+
+def shell(title, language, body, dense=False):
     ui=TEXT[language]
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\'; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
-        f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css"></head><body>'
+        f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css">'
+        +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
         f'<header><div class="bar"><a class="brand" href="index.html">Agent Safety Arena</a><small>{ui["shared"]}</small>'
         f'<a href="{ui["locale_path"]}" lang="{"en" if language=="zh-CN" else "zh-CN"}">{ui["locale"]}</a></div></header>'
         '<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
 
+def display_text(record, language, original, original_language, translation):
+    """Show this page's language. Keep the other language out of the page body."""
+    if language=='zh-CN' and original_language!='zh-CN' and translation:
+        return translation, False
+    if language=='en' and original_language not in {'en','en-US'} and translation:
+        return translation, False
+    return original, True
+
+
 def render_index(record):
-    text=record['narrative']['zh-CN'];ui=TEXT['zh-CN']
-    return shell('案例结果','zh-CN',f'<div class="hero"><div class="eyebrow">EVALUATION RESULTS</div><h1>案例结果</h1></div>'
-        f'<a class="case-card" href="zh-CN.html"><span class="chip">{ui["development"] if record["phase"]!="formal" else e(record["phase"])}</span>'
-        f'<h2>{e(text["title"])}</h2><p>{e(text["purpose"])}</p>{grade(record["groups"]["native"],"zh-CN")}'
-        f'<p>{ui["detail"]} →</p></a>')
+    cards=[]
+    for language in ('en','zh-CN'):
+        text=record['narrative'][language];ui=TEXT[language]
+        phase=ui['development'] if record['phase']!='formal' else record['phase']
+        cards.append(f'<a class="case-card" href="{language}.html" lang="{language}"><span class="chip">{e(phase)}</span>'
+            f'<h2>{e(text["title"])}</h2><p>{e(text["purpose"])}</p>{assessment_markup(record["groups"]["native"],language)}'
+            f'<p>{ui["detail"]} →</p></a>')
+    return shell('Results','en','<div class="hero"><h1>Results</h1></div><div class="pair">'+''.join(cards)+'</div>')
 
 
 def render_detail(record, language, evidence_hash, pair, words, outcomes):
     ui=TEXT[language];text=record['narrative'][language];groups=record['groups'];native=groups['native']
+    presentation=record.get('presentation');compact=bool(presentation)
+    dense=bool((presentation or {}).get('dense'));overview=(presentation or {}).get('overview')
     condition=(native or {}).get('conditions',{})
-    names={'native':words['native'],'finshield':words['finshield']}
+    names={name:presentation['groups'][name]['title'][language] if compact else words[name] for name in groups}
     def empty():return f'<div class="empty" data-state="not-run"><strong>{ui["missing"]}</strong><span>{ui["blank"]}</span></div>'
     def section(index, body):return f'<section class="panel" id="section-{index}" data-section="{index}"><h2>{e(words["sections"][index-1])}</h2>{body}</section>'
     def copy_button(identifier):return f'<button class="copy" data-copy="{identifier}" data-copied="{ui["copied"]}">{ui["copy"]}</button>'
     def original(identifier, content):return f'<pre id="{identifier}" tabindex="0">{e(content)}</pre>'
-    def media(name):
+    def disclosure(title,content):return f'<details><summary>{title}</summary>{content}</details>'
+    def media(name, preview=False):
         if groups[name] is None:return empty()
-        items=[m for m in record['publicMedia'] if m['group']==name]
+        items=[m for m in record['publicMedia'] if m['group']==name
+               and (not compact or (m['path'].lower().endswith('.gif') == preview))]
         posters={str(PurePosixPath(m['path']).with_suffix('.png')) for m in items if m['kind']=='video'}
         images={m['path'] for m in items if m['kind']=='image'}
         output=[]
@@ -106,26 +188,92 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes):
                 kind=''
             else:
                 element=f'<a href="{e(path)}" target="_blank" rel="noopener" aria-label="{ui["open_image"]}"><img src="{e(path)}" alt="{e(caption)}" loading="lazy"></a>'
-                kind=' class="still"'
-            output.append(f'<figure{kind}>{element}<figcaption>{e(caption)}</figcaption></figure>')
+                kind='' if path.lower().endswith('.gif') else ' class="still"'
+            caption_html=(disclosure('Video notes' if language=='en' else '视频说明',f'<p>{e(caption)}</p>')
+                          if dense and item['kind']=='video' else f'<figcaption>{e(caption)}</figcaption>')
+            output.append(f'<figure{kind}>{element}{caption_html}</figure>')
+        if dense and not preview:
+            videos=[item for item in output if '<video ' in item]
+            stills=[item for item in output if '<video ' not in item]
+            return ''.join(videos)+(disclosure('Original screenshots' if language=='en' else '原始截图',''.join(stills)) if stills else '')
         return ''.join(output)
-    body=f'<a class="fine" href="index.html">← {ui["back"]}</a><div class="hero"><div class="eyebrow">{e(record["agentId"])} / {e(record["scenarioId"])}</div><h1>{e(text["title"])}</h1><p class="lead">{e(text["purpose"])}</p><div class="chips">'
-    chips=[ui['development'] if record['phase']!='formal' else record['phase']]
+    body=('' if dense else f'<a class="fine" href="index.html">← {ui["back"]}</a>')+'<div class="hero">'
+    if not dense:body+=f'<div class="eyebrow">{e(record["agentId"])} / {e(record["scenarioId"])}</div>'
+    body+=f'<h1>{e(text["title"])}</h1><p class="lead">{e(text["purpose"])}</p>'
+    phase=ui['development'] if record['phase']!='formal' else record['phase']
+    if compact:
+        chips=[f'{label}：{value}' for label,value in header_metadata(record,language)]
+    else:
+        chips=[phase,condition.get('agentVersion',''),condition.get('model','')]
     if record['evidenceOrigin']=='synthetic':chips.append(ui['synthetic'])
-    chips += [condition.get('agentVersion',''),condition.get('model',''),condition.get('builtinSandbox',''),condition.get('approvalPolicy','')]
-    body+=''.join(f'<span class="chip">{e(v)}</span>' for v in chips if v)+'</div></div>'
-    body+='<nav class="nav" aria-label="Sections">'+''.join(f'<a href="#section-{i+1}">{e(label)}</a>' for i,label in enumerate(words['sections']))+'</nav>'
-    body+=section(1,f'<p>{e(text["scenario"])}</p><p class="muted">{e(text["impact"])}</p>')
+    if dense:
+        metadata=header_metadata(record,language)
+        short_model=metadata[2][1]
+        if ' / ' not in short_model:short_model=short_model.split(' · ')[0].rsplit('/',1)[-1]
+        body+='<p class="metadata-row">'+e(' · '.join([
+            metadata[0][1].split(' (')[0],f'{record["agentId"].upper()} {metadata[1][1]}',
+            short_model,f'FinShield {metadata[3][1]}']))+'</p></div>'
+    else:
+        body+='<div class="chips">'+''.join(f'<span class="chip">{e(ui.get("chips",{}).get(v,v))}</span>' for v in chips if v)+'</div></div>'
+    body+='<nav class="nav" aria-label="'+e(ui['sections_nav'])+'">'+''.join(f'<a href="#section-{i+1}">{e(label)}</a>' for i,label in enumerate(words['sections']))+'</nav>'
+    if compact and overview:
+        item=next(m for m in record['publicMedia'] if m['group']=='comparison' and m['path']==overview['media'])
+        scenario=f'<p>{e(text["impact"])}</p><div class="overview-headings">'+''.join(
+            f'<div><strong>{e(names[name])}</strong><span>{e(overview["results"][name][language])}</span></div>' for name in groups)+'</div>'
+        scenario+=f'<figure class="overview-media"><a href="{e(item["path"])}" target="_blank" rel="noopener"><img src="{e(item["path"])}" alt="{e(item["caption"][language])}"></a></figure>'
+        note=f'<p>{e(text["scenario"])}</p><p>{e(text.get("observedImpact",""))}</p><p>{e(item["caption"][language])}</p>'
+        scenario+=disclosure('Preview notes' if language=='en' else '预览说明',note)
+    elif compact:
+        labels=(['Possible impact','Test scope','Recorded observation'] if language=='en'
+                else ['可能影响','测试范围','本次观察'])
+        scenario=(f'<p><strong>{labels[0]}：</strong>{e(text["impact"])}</p>'
+                  f'<p><strong>{labels[1]}：</strong>{e(text["scenario"])}</p>')
+        if text.get('observedImpact'):
+            scenario+=f'<p class="muted"><strong>{labels[2]}：</strong>{e(text["observedImpact"])}</p>'
+    else:
+        scenario=f'<p>{e(text["scenario"])}</p><p class="muted">{e(text["impact"])}</p>'
+    if compact and not overview:
+        scenario+='<div class="pair">'+''.join(
+            f'<div class="group"><div class="group-title">{e(names[name])}</div>'
+            f'<p class="fine">{e(presentation["agentLabel"][language])} · '
+            f'{e(" · ".join(presentation["groups"][name]["configuration"]))}</p>{media(name,True)}</div>'
+            for name in groups)+'</div>'
+    body+=section(1,scenario)
     grading=[]
     for name,group in groups.items():
-        content=empty() if group is None else f'<div class="grade-row"><span>{ui["grade"]}</span>{grade(group,language)}</div><p class="grade-reason">{e(group.get("warningAssessment",{}).get("reason",{}).get(language,""))}</p>'
-        grading.append(f'<div class="group"><div class="group-title">{names[name]}</div>{content}</div>')
-    table='<table><thead><tr><th></th>'+''.join(f'<th>{name}</th>' for name in names.values())+'</tr></thead><tbody>'
-    for key in ('agentDecision','enforcement','approval','effect','completion'):
-        table+=f'<tr><td>{ui["fields"][outcomes.index(key)]}</td>'+''.join(f'<td>{e(text.get("outcomeTranslations",{}).get(name,{}).get(key,group["outcomes"][key])) if group else "—"}</td>' for name,group in groups.items())+'</tr>'
+        content=empty() if group is None else assessment_markup(group,language)
+        grading.append(f'<div class="group"><div class="group-title">{e(names[name])}</div>{content}</div>')
+    table='<table><thead><tr><th></th>'+''.join(f'<th>{e(name)}</th>' for name in names.values())+'</tr></thead><tbody>'
+    if compact:
+        for key,label in [('configuration','Configuration' if language=='en' else '配置'),
+                          ('effect','Picture' if language=='en' else '画面'),
+                          ('toolSummary','Tool' if language=='en' else '工具')]:
+            table+=f'<tr><td>{label}</td>'
+            for name,group in groups.items():
+                display=presentation['groups'][name]
+                value=(' · '.join(display['configuration']) if key=='configuration'
+                       else display['toolSummary'][language] if key=='toolSummary'
+                       else text.get('outcomeTranslations',{}).get(name,{}).get(key,group['outcomes'][key])) if group else '—'
+                note=''
+                if key=='configuration' and display.get('configurationNote'):
+                    label='Configuration note' if language=='en' else '配置说明'
+                    note=f'<details class="configuration-note"><summary aria-label="{label}">ⓘ</summary><p>{e(display["configurationNote"][language])}</p></details>'
+                table+=f'<td>{e(value)}{note}</td>'
+            table+='</tr>'
+    else:
+        for key in ('agentDecision','enforcement','approval','effect','completion'):
+            table+=f'<tr><td>{ui["fields"][outcomes.index(key)]}</td>'+''.join(f'<td>{e(text.get("outcomeTranslations",{}).get(name,{}).get(key,group["outcomes"][key])) if group else "—"}</td>' for name,group in groups.items())+'</tr>'
     table+='</tbody></table>'
-    body+=section(2,'<div class="pair">'+''.join(grading)+'</div><p class="fine">'+ui['scope']+'</p>'+table+f'<details><summary>{words["limits"]}</summary><ul>'+''.join(f'<li>{e(v)}</li>' for v in text['limitations'])+'</ul></details>')
-    body+=section(3,'<div class="pair">'+''.join(f'<div class="group"><div class="group-title">{names[name]}</div>{media(name)}</div>' for name in groups)+'</div>')
+    limitations=f'<details><summary>{words["limits"]}</summary><ul>'+''.join(f'<li>{e(v)}</li>' for v in text['limitations'])+'</ul></details>'
+    scope=ui['scope']
+    if any(group and group.get('interceptionAssessment') for group in groups.values()):
+        scope='Assess interception first; assess warnings if the effect was not blocked.' if language=='en' else '先看是否拦截，未拦截再评预警。'
+    comparison_body='<div class="pair">'+''.join(grading)+'</div><p class="fine">'+scope+'</p>'+table+('' if compact else limitations)
+    if dense:
+        metadata='<p class="fine">'+e(' · '.join(f'{k}: {v}' for k,v in header_metadata(record,language)))+'</p>'
+        comparison_body=disclosure('Execution, warnings and configuration' if language=='en' else '执行、提醒与配置',metadata+comparison_body)
+    body+=section(2,comparison_body)
+    body+=section(3,'<div class="pair">'+''.join(f'<div class="group"><div class="group-title">{e(names[name])}</div>{media(name)}</div>' for name in groups)+'</div>')
     prompts=[]
     for name,group in groups.items():
         if group is None:continue
@@ -135,21 +283,37 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes):
     prompt_body=''
     for name,prompt in prompts or [('native',record['prompt'])]:
         identifier='prompt-'+name
-        prompt_body+=f'<div class="tools"><span class="fine">{ui["original"]} · {e(prompt["language"])} · {e(prompt["revision"])}</span>{copy_button(identifier)}</div>'+original(identifier,prompt['text'])+f'<p class="fine">SHA-256: {e(prompt["sha256"])}</p>'
-    if text.get('promptTranslation'):prompt_body+=f'<details><summary>{ui["translation"]}</summary><p>{e(text["promptTranslation"])}</p></details>'
-    body+=section(4,prompt_body)
+        shown,is_original=(prompt['text'],True) if compact else display_text(record,language,prompt['text'],prompt.get('language'),text.get('promptTranslation'))
+        label=ui['original'] if is_original else ui['translation']
+        prompt_body+=f'<div class="tools"><span class="fine">{label} · {e(prompt["revision"])}</span>{copy_button(identifier)}</div>'+original(identifier,shown)
+        if not is_original:prompt_body+=f'<p class="fine">{ui["stored"]}</p>'
+        prompt_body+=f'<p class="fine">SHA-256: {e(prompt["sha256"])}</p>'
+    body+=section(4,disclosure('Original submitted prompt' if language=='en' else '查看原始提示词',prompt_body) if dense else prompt_body)
     replies=[]
     for name,group in groups.items():
         content=empty()
         if group:
-            identifier='reply-'+name;reply=group['reply']['text']
-            content=f'<div class="tools"><span class="fine">{ui["original"]} · {e(group["reply"]["language"])}</span>{copy_button(identifier)}</div>'+f'<pre class="reply" id="{identifier}">{e(reply) if reply.strip() else ui["no_reply"]}</pre>'
-            translation=text.get('replyTranslations',{}).get(name)
-            if translation:content+=f'<details><summary>{ui["translation"]}</summary><p>{e(translation)}</p></details>'
+            identifier='reply-'+name
+            shown,is_original=(group['reply']['text'],True) if compact else display_text(record,language,group['reply']['text'],group['reply'].get('language'),text.get('replyTranslations',{}).get(name))
+            label=ui['original'] if is_original else ui['translation']
+            visible=shown if shown.strip() else ui['no_reply']
+            content=f'<div class="tools"><span class="fine">{label}</span>{copy_button(identifier)}</div>'+f'<pre class="reply" id="{identifier}">{e(visible)}</pre>'
+            if not is_original:content+=f'<p class="fine">{ui["stored"]}</p>'
             for supplement in group['supplementaryReplies']:content+=f'<details><summary>{words["supplement"]}</summary><pre>{e(supplement["text"])}</pre></details>'
-        replies.append(f'<div class="group"><div class="group-title">{names[name]}</div>{content}</div>')
+            if 'toolLog' in group:
+                tool_title='Full tool log' if language=='en' else '完整工具日志'
+                content+=f'<details><summary>{tool_title}</summary><p><a href="{name}-tools.txt" download>{tool_title} (.txt)</a></p><pre tabindex="0">{e(group["toolLog"]["text"])}</pre></details>'
+        if dense:content=disclosure('Original reply and tool log' if language=='en' else '查看原始回复与工具日志',content)
+        replies.append(f'<div class="group"><div class="group-title">{e(names[name])}</div>{content}</div>')
     body+=section(5,'<div class="pair">'+''.join(replies)+'</div>')
-    evidence=dict(comparison=pair,groups=groups)
-    body+=section(6,f'<p>{e(text["summary"])}</p><details><summary>{ui["evidence_note"]}</summary><pre>{e(json.dumps(evidence,ensure_ascii=False,indent=2))}</pre><a href="evidence.json">evidence.json</a></details>')
-    body+=f'<footer>{ui["shared"]}<br>Evidence SHA-256: {e(evidence_hash)}</footer>'
-    return shell(text['title'],language,body)
+    conclusion=f'<p>{e(text["summary"])}</p>'
+    evidence_body=(disclosure('Findings and limits' if language=='en' else '结论与证据说明',conclusion) if dense else conclusion)+(limitations if compact else '')
+    if compact and 'reproduction' in presentation:
+        title='Reproduction steps' if language=='en' else '复现方法'
+        evidence_body+=f'<details><summary>{title}</summary><pre tabindex="0">{e(presentation["reproduction"][language])}</pre></details>'
+    evidence_body+=f'<p><a href="evidence.json">{ui["evidence_note"]}</a></p>'
+    if compact:
+        evidence_body+=''.join(f'<p><a href="{e(name)}">{e(name)}</a></p>' for name in presentation.get('evidenceFiles',[]))
+    body+=section(6,evidence_body)
+    body+=f'<footer>{ui["shared"]}<br>{ui["hash_label"]}: {e(evidence_hash)}</footer>'
+    return shell(text['title'],language,body,dense)

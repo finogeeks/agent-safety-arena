@@ -40,9 +40,12 @@ Recognize the installed English and Simplified Chinese sidebar controls. Page
 readiness requires the sidebar shell; the composer is required only after the
 owned workspace's new-session control is selected. Do not change the user's
 language to make a trial start.
-Workspace preparation returns the selected sidebar session identity. Match it
-to a new blank session in the owned workspace; multiple newly created blank
-sessions must not make the recorder guess which conversation is visible.
+Workspace preparation returns the selected sidebar session inside the owned
+workspace group. Match it to that blank session, including a blank session the
+workspace create step already opened. Do not reuse a session that already has
+a turn, and do not treat a selected row in another workspace as the new
+conversation. Multiple newly created blank sessions must not make the recorder
+guess which conversation is visible.
 
 When an operator places the owned browser on another Windows virtual desktop,
 use viewport recording and background window layout. Background layout must
@@ -109,7 +112,7 @@ Atomic evidence replacement retries temporary Windows reader locks for at most
 ### Operator workflow
 
 Run commands from the repository root. Use the
-[README quickstart](../README.md#record-dsh) to launch the controlled note trial.
+[reproduction guide](reproduction.md#prepare-a-new-controlled-trial) before preparing a controlled trial.
 Configure the model through DSH's normal setup before a trial. Do not store
 credentials in this repository.
 

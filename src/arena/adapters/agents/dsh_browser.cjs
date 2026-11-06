@@ -113,15 +113,36 @@ async function dispatch(request) {
       await until(`!!document.querySelector(${JSON.stringify(sidebar)})`,
                   'DSH page did not load');
       await evaluate(`document.querySelector(${JSON.stringify(openSidebar)})?.click()`);
-      const selectedRow = '[data-row-key^="session:"][aria-selected="true"]';
-      const previous = await evaluate(`document.querySelector(${JSON.stringify(selectedRow)})?.getAttribute('data-row-key')`);
       const labels = JSON.stringify(['New session in ' + request.workspace, '在“' + request.workspace + '”中新建会话']);
+      const ownedSession = `(()=>{
+        const button=[...document.querySelectorAll('button')].find(b=>${labels}.includes(b.getAttribute('aria-label')));
+        if(!button)return '';
+        const workspace=button.closest('[data-row-key^="workspace:"]');
+        if(!workspace){
+          const row=document.querySelector('[data-row-key^="session:"][aria-selected="true"]');
+          return row?row.getAttribute('data-row-key').slice('session:'.length):'';
+        }
+        const group=workspace.getAttribute('data-row-key').slice('workspace:'.length);
+        const overflow=document.querySelector('[data-row-key="overflow:'+group+'"][aria-expanded="false"]');
+        if(overflow)overflow.click();
+        const rows=[...document.querySelectorAll('[data-row-key^="workspace:"],[data-row-key^="session:"]')];
+        for(let i=rows.indexOf(workspace)+1;i<rows.length;i++){
+          const key=rows[i].getAttribute('data-row-key');
+          if(key.startsWith('workspace:'))break;
+          if(rows[i].getAttribute('aria-selected')==='true')return key.slice('session:'.length);
+        }
+        return '';
+      })()`;
       await until(`(()=>{const button=[...document.querySelectorAll('button')].find(b=>${labels}.includes(b.getAttribute('aria-label')));if(!button)return false;button.click();return true;})()`,
                   'Owned workspace did not appear in DSH');
       await until(`!!document.querySelector('[contenteditable="true"]')`, 'DSH conversation composer did not appear');
-      await until(`(()=>{const row=document.querySelector(${JSON.stringify(selectedRow)});return row&&row.getAttribute('data-row-key')!==${JSON.stringify(previous ?? null)};})()`,
-                  'The selected DSH session did not appear in the sidebar');
-      const selected = await evaluate(`document.querySelector(${JSON.stringify(selectedRow)}).getAttribute('data-row-key').slice('session:'.length)`);
+      try {
+        await until(ownedSession, 'The selected DSH session did not appear in the sidebar');
+      } catch (error) {
+        const detail = await evaluate(`JSON.stringify([...document.querySelectorAll('[data-row-key]')].slice(0, 24).map(el => el.getAttribute('data-row-key') + '=' + el.getAttribute('aria-selected')))`);
+        throw Error(error.message + ' rows ' + detail);
+      }
+      const selected = await evaluate(ownedSession);
       await evaluate(`document.querySelector(${JSON.stringify(collapseSidebar)})?.click()`);
       await evaluate('(' + snapshotInPage.toString() + ')()');
       return selected;

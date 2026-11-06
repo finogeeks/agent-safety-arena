@@ -13,6 +13,11 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
 
 @unittest.skipUnless(sys.platform=='win32','Windows process boundary')
 class WindowsJobTests(unittest.TestCase):
+    # Windows venv python.exe redirects to the base interpreter. These fixtures
+    # assert exact process identities and use only the standard library, so
+    # start the interpreter itself rather than adding a launcher process.
+    fixture_python = str(Path(sys.base_prefix) / 'python.exe')
+
     def test_observer_records_only_the_owned_native_window(self):
         from arena.adapters.environments.windows_job import WindowsJob
         with tempfile.TemporaryDirectory() as folder:
@@ -27,7 +32,7 @@ class WindowsJobTests(unittest.TestCase):
                     'h=u.CreateWindowExW(0,"STATIC","Arena owned hidden fixture",0x00CF0000,20,20,240,160,None,None,None,None); '
                     'assert h; time.sleep(30)')
             job = WindowsJob()
-            parent = subprocess.Popen([sys.executable,'-c',code],creationflags=subprocess.CREATE_NO_WINDOW)
+            parent = subprocess.Popen([self.fixture_python,'-c',code],creationflags=subprocess.CREATE_NO_WINDOW)
             try:
                 job.assign(parent,root)
                 gate.touch()
@@ -53,7 +58,7 @@ class WindowsJobTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             job = WindowsJob()
-            parent = subprocess.Popen([sys.executable,'-c',
+            parent = subprocess.Popen([self.fixture_python,'-c',
                 'import subprocess,sys,time; time.sleep(.5); '
                 'subprocess.Popen([sys.executable,"-c","import time; time.sleep(30)"]); time.sleep(30)'],
                 creationflags=subprocess.CREATE_NO_WINDOW)

@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "purpose": "One side-by-side display GIF made from existing accelerated scenario excerpts.",
+  "output": {
+    "path": "media/comparison-scenario-v1.gif",
+    "sha256": "ad5422f5edacd8fcd289ea9a44f190da6aa52d0740488fb869e116edc5b12cac",
+    "bytes": 928866,
+    "width": 1600,
+    "height": 450,
+    "durationSeconds": 12.51,
+    "decodedFrames": 100,
+    "firstFrameSeconds": 0.0,
+    "lastFrameSeconds": 12.38,
+    "loop": "infinite"
+  },
+  "panes": [
+    {
+      "position": "left",
+      "group": "native",
+      "source": "media/native-scenario.gif",
+      "sourceSha256": "fb521092e304e3b2d77c7532b292bb89872d529c5309ecd1f21980bf1913baa0",
+      "width": 800,
+      "height": 450,
+      "sourceDurationSeconds": 12.51,
+      "sourceDecodedFrames": 100,
+      "timing": "Original GIF timestamps retained exactly",
+      "sourceStageSpeeds": [
+        4,
+        1,
+        4
+      ]
+    },
+    {
+      "position": "right",
+      "group": "finshield",
+      "source": "media/finshield-scenario.gif",
+      "sourceSha256": "f4098f6ec8a3c3093ebe47121c08305d0637a7da396ade78e972c5aa43830978",
+      "width": 800,
+      "height": 450,
+      "sourceDurationSeconds": 5.01,
+      "sourceDecodedFrames": 40,
+      "timing": "Play once, then hold final frame until left completes",
+      "lastSourceFrameStartSeconds": 4.88,
+      "sourceStageSpeeds": [
+        4,
+        4,
+        4
+      ],
+      "extraFinalHoldStartSeconds": 5.01,
+      "extraFinalHoldDurationSeconds": 7.5,
+      "sourceLoopIgnored": true
+    }
+  ],
+  "transformation": {
+    "filter": "[0:v][1:v]hstack=inputs=2:shortest=0,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+    "crop": null,
+    "overlays": false,
+    "frameInterpolation": false,
+    "palette": "256 colors, Bayer dithering",
+    "sourceLoopsIgnored": true
+  },
+  "verification": {
+    "fullDecode": true,
+    "leftFrameTimestampsUnchanged": true,
+    "rightFinalPanePixelHashesIdenticalFromFrame39": true,
+    "protectedFiles": [
+      {
+        "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/finshield-full-20s-v1.mp4",
+        "sha256": "db5a0bc526a76debe2b4c3be770b3c618b128682ef27a4b2ab815f14efcb0c27"
+      },
+      {
+        "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/finshield-preview.mp4",
+        "sha256": "8cda19ad6686a530052c93f69a44682b1f4e21e60ba210ec4fc6f2b03b593333"
+      },
+      {
+        "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/native-preview.mp4",
+        "sha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6"
+      },
+      {
+        "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/finshield-scenario.gif",
+        "sha256": "f4098f6ec8a3c3093ebe47121c08305d0637a7da396ade78e972c5aa43830978"
+      },
+      {
+        "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/native-scenario.gif",
+        "sha256": "fb521092e304e3b2d77c7532b292bb89872d529c5309ecd1f21980bf1913baa0"
+      },
+      {
+        "path": "artifacts/runs/dsh-20261105T094545-72477eaf/overview-v1.mp4",
+        "sha256": "ae8304f5e6cd7367a2792b415a80e1606050fe674b7430bfbc6b2bb20a3ee4a5"
+      },
+      {
+        "path": "artifacts/runs/dsh-20261105T094545-72477eaf/overview-v2.mp4",
+        "sha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6"
+      },
+      {
+        "path": "artifacts/runs/dsh-20261105T094545-72477eaf/recording.mp4",
+        "sha256": "88b0cfd32ed568e873781cdaec601ccbd871c7867debec61fda91ef4e38b6839"
+      },
+      {
+        "path": "artifacts/runs/dsh-20261105T124356-75deef93/overview-v1.mp4",
+        "sha256": "cb393e98c1204160e3ed42ed39200143bc7b5b4303d8afb586544b14da04ce67"
+      },
+      {
+        "path": "artifacts/runs/dsh-20261105T124356-75deef93/overview-v2.mp4",
+        "sha256": "8cda19ad6686a530052c93f69a44682b1f4e21e60ba210ec4fc6f2b03b593333"
+      },
+      {
+        "path": "artifacts/runs/dsh-20261105T124356-75deef93/recording.mp4",
+        "sha256": "9a8eb8c38f7eb9f97ed028cc52d2c5b49ce7ee7c8873b49e772049baca6157a1"
+      }
+    ],
+    "contactSheetEveryNthFrame": 4,
+    "representativeFrameSeconds": 7.5,
+    "notes": "comparison-gif-notes-v1.md"
+  },
+  "limitations": [
+    "Two separately recorded, selected, accelerated excerpt sequences; not synchronized.",
+    "This GIF is not an uncut recording.",
+    "The right pane final image is held after its one playback, not additional captured activity."
+  ]
+}

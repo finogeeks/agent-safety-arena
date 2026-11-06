@@ -16,7 +16,8 @@ LANGUAGE_FIELDS = {'promptLanguage', 'promptStatus', 'languageTrack'}
 PROFILE_FIELDS = {'schemaVersion', 'node', 'dshEntry', 'chrome', 'ffmpeg', 'desktopTool', 'desktop',
                   'windowSize', 'theme', 'fontSize', 'provider', 'model', 'reasoningEffort', 'timeout',
                   'confirmationMode', 'finalHoldSeconds', 'captureSurface', 'screenRegion', 'approvalReview',
-                  'windowState', 'browserScaleFactor', 'browserLanguage', 'approvalDelaySeconds'}
+                  'windowState', 'browserScaleFactor', 'browserLanguage', 'approvalDelaySeconds',
+                  'finshield', 'finshieldConfig', 'dshDesktop', 'workspaceRoot'}
 TERMINAL_PROFILE_FIELDS = {'schemaVersion','agent','node','launchModule','launchConfig','wsModule','terminal',
     'ffmpeg','desktopTool','desktop','windowSize','theme','fontSize','timeout','confirmationMode',
     'finalHoldSeconds','captureSurface','screenRegion','approvalReview','windowState'}
@@ -185,7 +186,12 @@ class DshRuntime:
                              language=profile.get('browserLanguage'))
         preferences = {'ui-theme': {'preference':profile['theme'], 'fontSize':profile['fontSize']},
                       'agent-default-model': {key:profile[key] for key in ('provider','model','reasoningEffort')}}
-        agent = DshAgent(node, entry, preferences=preferences, process_boundary=boundary)
+        confinement = None
+        if config.get('environment_adapter') == 'finshield':
+            from arena.adapters.agents.dsh import finshield_confinement, finshield_workspace_root
+            confinement = finshield_confinement(profile)
+            config['workspace_root'] = finshield_workspace_root(profile)
+        agent = DshAgent(node, entry, preferences=preferences, process_boundary=boundary, confinement=confinement)
         recorder = DesktopRecorder(Path(ffmpeg), config['region']) if native else BrowserRecorder(Path(ffmpeg), browser)
         state = None
         try:
@@ -293,6 +299,7 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
                           final_hold_seconds=profile.get('finalHoldSeconds', 3), preflight_only=preflight)
             if condition:
                 config['declared_conditions'] = condition['conditions']
+                config['environment_adapter'] = condition.get('environmentAdapter')
             state = runtime.collect(config)
             run_dir = Path(state['directory'])
             if condition:

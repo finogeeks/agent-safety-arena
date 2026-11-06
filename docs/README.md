@@ -5,6 +5,10 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
+| [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
+| [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |
+| [reproduction-and-publishing.md](reproduction-and-publishing.md) | Defines installation, per-case dependency selection, result grouping, static checks, and offline site builds. |
+| [finshield-recording.md](finshield-recording.md) | Defines the existing FinShield desktop launcher and shared DSH collection boundary. |
 | [codex-terminal-recording.md](codex-terminal-recording.md) | Defines real Codex CLI terminal collection through the shared lifecycle, native defaults, evidence, and one-time approvals. |
 | [deepseek-cli-setup.md](deepseek-cli-setup.md) | Defines a model-only Codex profile, local Claude Code setup, credential handling, and bounded DeepSeek connectivity checks. |
 | [multi-agent-evaluation.md](multi-agent-evaluation.md) | Defines Agent/environment planning, English primary tests, no-prompt preflight, condition checks, and shared bilingual evidence exports. |

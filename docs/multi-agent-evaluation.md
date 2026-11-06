@@ -49,7 +49,9 @@ browser or OS. Unknown or differing observed UI language is a condition gap.
 ### Planning and shared collection
 
 `python -m arena plan --suite <suite.json> --output <plan.json>` performs no
-model calls. A suite declares `schemaVersion: 1`, `id`, `phase` (`development`,
+model calls. Case-owned suites live under `scenarios/<id>/reproduction/`;
+shared multi-case suites live under `profiles/suites/`. A suite declares
+`schemaVersion: 1`, `id`, `phase` (`development`,
 `formal`, or `language-study`), repository-relative `cases`, `agents`,
 `environments`, positive `repetitions`, and `reportLanguages`. English and Chinese
 report languages do not multiply trial entries. Each Agent has a built-in group
@@ -64,9 +66,20 @@ from machine executable paths. They contain no credentials or shell launch text.
 
 Plans retain each entry's conditions, prompt/case fingerprints, readiness reasons,
 and baseline-pair identity. Missing settings and unsupported adapters are explicit.
-At present only the DSH Web and built-in-environment live route is implemented.
-Codex CLI presence alone is not an adapter, and an environment label never
+The paired suite route supports DSH Web with the native environment and the
+installed FinShield desktop launcher. Other Agent/environment suite entries
+retain explicit blockers. The separate Codex terminal batch workflow does not
+make a Codex entry in this planner ready. An environment label alone never
 activates FinShield.
+
+FinShield profiles are versioned under
+`profiles/environments/finshield/<version>/evaluation.json`. Each case revision
+selects one of them in its suite and links its version-specific dependency file.
+There is no global selected FinShield version. The 2026-11-05 window-flood suite
+selects 0.10.9; another case or revision can select a different version.
+See [reproduction](reproduction.md) for static installed-file checks.
+`preserveBuiltinControls: true` instructs the collector not to edit policy; it
+does not prove that a product launcher preserved matching observed settings.
 
 `arena preflight --plan <plan> --entry <id> --profile <machine-profile>` uses the
 same adapter and lifecycle to record a prepared presentation without submitting

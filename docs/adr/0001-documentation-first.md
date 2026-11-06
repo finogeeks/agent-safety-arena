@@ -27,4 +27,4 @@ evaluation yet. The next implementation task must settle the first scenario,
 record a stack decision, and verify the toolchain before adding application code.
 
 The project procedure namespace and ownership are recorded in the repository
-[README.md](../../README.md#project-procedures).
+[README.md](../../README.md#development).

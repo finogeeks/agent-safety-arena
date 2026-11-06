@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "promptSha256": "14d035e8daa94ce2a65ebb7e87782fc6fdeddf656533d9805e18ab7dcf69f034",
+  "nativeVideo": {
+    "runId": "dsh-20261105T094545-72477eaf",
+    "source": "recording.mp4",
+    "sourceSha256": "88b0cfd32ed568e873781cdaec601ccbd871c7867debec61fda91ef4e38b6839",
+    "sourceInfo": {
+      "duration": 303.125,
+      "width": 3840,
+      "height": 2160
+    },
+    "output": "media/native-preview.mp4",
+    "outputSha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6",
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "selectedIntervals": [
+      {
+        "stage": "opening",
+        "startSeconds": 2,
+        "durationSeconds": 5
+      },
+      {
+        "stage": "effect",
+        "startSeconds": 241,
+        "durationSeconds": 10
+      },
+      {
+        "stage": "response",
+        "startSeconds": 276,
+        "durationSeconds": 5
+      }
+    ],
+    "uncut": false
+  },
+  "finshieldVideo": {
+    "schemaVersion": 1,
+    "trialExecutions": 0,
+    "purpose": "Complete captured FinShield video accelerated continuously to 20 seconds.",
+    "source": {
+      "runId": "dsh-20261105T124356-75deef93",
+      "artifact": "recording.mp4",
+      "sha256": "9a8eb8c38f7eb9f97ed028cc52d2c5b49ce7ee7c8873b49e772049baca6157a1",
+      "durationSeconds": 113.0,
+      "width": 3840,
+      "height": 2160,
+      "decodedFrames": 902,
+      "firstFrameSeconds": 0.0,
+      "lastFrameSeconds": 112.875,
+      "missingNominalEightFpsTimestamps": [
+        62.75,
+        63.0
+      ],
+      "audioStreams": 0
+    },
+    "output": {
+      "path": "media/finshield-full-20s-v1.mp4",
+      "sha256": "db5a0bc526a76debe2b4c3be770b3c618b128682ef27a4b2ab815f14efcb0c27",
+      "bytes": 1259131,
+      "durationSeconds": 20.0,
+      "width": 1920,
+      "height": 1080,
+      "decodedFrames": 1000,
+      "fps": 50,
+      "firstFrameSeconds": 0.0,
+      "lastFrameSeconds": 19.98
+    },
+    "transform": {
+      "speedMultiplier": 5.65,
+      "sourceIntervalSeconds": [
+        0,
+        113.0
+      ],
+      "trim": false,
+      "concatenation": false,
+      "insertedImagesOrText": false,
+      "crop": null,
+      "filter": "settb=AVTB,setpts=(PTS-STARTPTS)*20/113,fps=50:round=near,scale=1920:1080:flags=lanczos",
+      "frameResampling": "50 fps nearest-time resampling; only duplicate existing source images, no interpolation.",
+      "fpsFilterStatistics": [
+        "902 frames in, 1000 frames out; 0 frames dropped, 98 frames duplicated."
+      ],
+      "encoder": "libx264",
+      "crf": 20,
+      "preset": "fast"
+    },
+    "verification": {
+      "fullDecode": true,
+      "originalMediaHashesUnchanged": true,
+      "originalMedia": [
+        {
+          "path": "artifacts/runs/dsh-20261105T094545-72477eaf/recording.mp4",
+          "sha256": "88b0cfd32ed568e873781cdaec601ccbd871c7867debec61fda91ef4e38b6839"
+        },
+        {
+          "path": "artifacts/runs/dsh-20261105T094545-72477eaf/overview-v1.mp4",
+          "sha256": "ae8304f5e6cd7367a2792b415a80e1606050fe674b7430bfbc6b2bb20a3ee4a5"
+        },
+        {
+          "path": "artifacts/runs/dsh-20261105T094545-72477eaf/overview-v2.mp4",
+          "sha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6"
+        },
+        {
+          "path": "artifacts/runs/dsh-20261105T124356-75deef93/recording.mp4",
+          "sha256": "9a8eb8c38f7eb9f97ed028cc52d2c5b49ce7ee7c8873b49e772049baca6157a1"
+        },
+        {
+          "path": "artifacts/runs/dsh-20261105T124356-75deef93/overview-v1.mp4",
+          "sha256": "cb393e98c1204160e3ed42ed39200143bc7b5b4303d8afb586544b14da04ce67"
+        },
+        {
+          "path": "artifacts/runs/dsh-20261105T124356-75deef93/overview-v2.mp4",
+          "sha256": "8cda19ad6686a530052c93f69a44682b1f4e21e60ba210ec4fc6f2b03b593333"
+        },
+        {
+          "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/finshield-preview.mp4",
+          "sha256": "8cda19ad6686a530052c93f69a44682b1f4e21e60ba210ec4fc6f2b03b593333"
+        },
+        {
+          "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/finshield-scenario.gif",
+          "sha256": "f4098f6ec8a3c3093ebe47121c08305d0637a7da396ade78e972c5aa43830978"
+        },
+        {
+          "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/native-preview.mp4",
+          "sha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6"
+        },
+        {
+          "path": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/native-scenario.gif",
+          "sha256": "fb521092e304e3b2d77c7532b292bb89872d529c5309ecd1f21980bf1913baa0"
+        }
+      ],
+      "inspectedOutputFrameSeconds": [
+        0,
+        10,
+        19.98
+      ],
+      "matchingSourceFrameSeconds": [
+        0,
+        56.5,
+        112.875
+      ],
+      "contactSheetIntervalSeconds": 0.5,
+      "contactSheetFrames": 40,
+      "notes": "finshield-full-video-notes-v1.md"
+    },
+    "limitations": [
+      "Complete captured timeline only; no claim about activity outside the capture region or recording period.",
+      "Two missing timestamps already exist in the original recording. Resampling does not repair them.",
+      "The left comparison video remains its existing 20-second excerpt and is not uncut."
+    ]
+  },
+  "gifPreviews": {
+    "schemaVersion": 1,
+    "purpose": "User-requested accelerated GIF previews; existing MP4 display videos remain unchanged.",
+    "sourceDescription": "Derived from the existing shared-exporter overview-v2 edits, not from a new collection.",
+    "trialExecutions": 0,
+    "generator": "FFmpeg 9.0.1",
+    "outputs": [
+      {
+        "group": "native",
+        "sourceRunId": "dsh-20261105T094545-72477eaf",
+        "sourceArtifact": "overview-v2.mp4",
+        "sourceSha256": "9f5b5bf04627ef32e5263d2b7bf6a1aeb2f0ad32a2420bfeeabdad91002520b6",
+        "rawRecordingSha256": "88b0cfd32ed568e873781cdaec601ccbd871c7867debec61fda91ef4e38b6839",
+        "output": "media/native-scenario.gif",
+        "outputSha256": "fb521092e304e3b2d77c7532b292bb89872d529c5309ecd1f21980bf1913baa0",
+        "outputBytes": 759086,
+        "width": 800,
+        "height": 450,
+        "durationSeconds": 12.51,
+        "decodedFrames": 100,
+        "loop": "infinite",
+        "crop": null,
+        "fps": 8,
+        "stageMapping": [
+          {
+            "stage": "opening",
+            "rawSourceStartSeconds": 2,
+            "sourcePreviewStartSeconds": 0,
+            "rawSourceDurationSeconds": 5,
+            "speedMultiplier": 4,
+            "outputStartSeconds": 0.0,
+            "outputDurationSeconds": 1.25
+          },
+          {
+            "stage": "effect",
+            "rawSourceStartSeconds": 241,
+            "sourcePreviewStartSeconds": 5,
+            "rawSourceDurationSeconds": 10,
+            "speedMultiplier": 1,
+            "outputStartSeconds": 1.25,
+            "outputDurationSeconds": 10.0
+          },
+          {
+            "stage": "response",
+            "rawSourceStartSeconds": 276,
+            "sourcePreviewStartSeconds": 15,
+            "rawSourceDurationSeconds": 5,
+            "speedMultiplier": 4,
+            "outputStartSeconds": 11.25,
+            "outputDurationSeconds": 1.25
+          }
+        ],
+        "ffmpegFilter": "[0:v]setpts=PTS-STARTPTS,setpts=if(lt(T\\,5)\\,PTS/4\\,if(lt(T\\,15)\\,(1.25+T-5)/TB\\,(11.25+(T-15)/4)/TB)),fps=8,scale=800:450:flags=lanczos,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+        "verification": {
+          "fullDecode": true,
+          "originalMp4HashesUnchanged": true,
+          "noApprovalRecords": true,
+          "inspectedSourceSheet": "Every two seconds",
+          "inspectedOutputFrames": 100,
+          "stageBoundaryFramesVerified": true,
+          "inspectionNotes": "gif-editing-notes-v1.md"
+        },
+        "timingQuantizationSeconds": 0.01
+      },
+      {
+        "group": "finshield",
+        "sourceRunId": "dsh-20261105T124356-75deef93",
+        "sourceArtifact": "overview-v2.mp4",
+        "sourceSha256": "8cda19ad6686a530052c93f69a44682b1f4e21e60ba210ec4fc6f2b03b593333",
+        "rawRecordingSha256": "9a8eb8c38f7eb9f97ed028cc52d2c5b49ce7ee7c8873b49e772049baca6157a1",
+        "output": "media/finshield-scenario.gif",
+        "outputSha256": "f4098f6ec8a3c3093ebe47121c08305d0637a7da396ade78e972c5aa43830978",
+        "outputBytes": 246444,
+        "width": 800,
+        "height": 450,
+        "durationSeconds": 5.01,
+        "decodedFrames": 40,
+        "loop": "infinite",
+        "crop": null,
+        "fps": 8,
+        "stageMapping": [
+          {
+            "stage": "opening",
+            "rawSourceStartSeconds": 2.25,
+            "sourcePreviewStartSeconds": 0,
+            "rawSourceDurationSeconds": 5,
+            "speedMultiplier": 4,
+            "outputStartSeconds": 0.0,
+            "outputDurationSeconds": 1.25
+          },
+          {
+            "stage": "effect",
+            "rawSourceStartSeconds": 60.875,
+            "sourcePreviewStartSeconds": 5,
+            "rawSourceDurationSeconds": 10,
+            "speedMultiplier": 4,
+            "outputStartSeconds": 1.25,
+            "outputDurationSeconds": 2.5
+          },
+          {
+            "stage": "response",
+            "rawSourceStartSeconds": 82.25,
+            "sourcePreviewStartSeconds": 15,
+            "rawSourceDurationSeconds": 5,
+            "speedMultiplier": 4,
+            "outputStartSeconds": 3.75,
+            "outputDurationSeconds": 1.25
+          }
+        ],
+        "ffmpegFilter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=8,scale=800:450:flags=lanczos,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+        "verification": {
+          "fullDecode": true,
+          "originalMp4HashesUnchanged": true,
+          "noApprovalRecords": true,
+          "inspectedSourceSheet": "Every two seconds",
+          "inspectedOutputFrames": 40,
+          "stageBoundaryFramesVerified": true,
+          "inspectionNotes": "gif-editing-notes-v1.md"
+        },
+        "timingQuantizationSeconds": 0.01
+      }
+    ]
+  },
+  "toolLogs": {
+    "native": {
+      "runId": "dsh-20261105T094545-72477eaf",
+      "source": "native-events.json",
+      "sourceSha256": "abc9f45860167e75b8fdb9e83ef559b7c746f1235ab3b2a4467bfcce9a975ac8",
+      "eventTypes": [
+        "job/registered",
+        "job/settled",
+        "tool/call",
+        "tool/result"
+      ],
+      "eventCount": 28,
+      "sequenceNumbers": [
+        17,
+        18,
+        23,
+        24,
+        25,
+        29,
+        32,
+        33,
+        40,
+        41,
+        42,
+        43,
+        48,
+        49,
+        54,
+        55,
+        56,
+        57,
+        62,
+        63,
+        64,
+        65,
+        70,
+        71,
+        72,
+        77,
+        78,
+        79
+      ],
+      "replySha256": "a3bcc60ad781b73620548a68d40db2ae210d09ffa0a9106a42893f48af9b195a"
+    },
+    "finshield": {
+      "runId": "dsh-20261105T124356-75deef93",
+      "source": "native-events.json",
+      "sourceSha256": "e5730c580a183ee12b4cd7eb7bcf3d891985f5ddbb6cd77ea67fe6f99d6008f6",
+      "eventTypes": [
+        "job/registered",
+        "job/settled",
+        "tool/call",
+        "tool/result"
+      ],
+      "eventCount": 8,
+      "sequenceNumbers": [
+        14,
+        15,
+        20,
+        21,
+        22,
+        27,
+        28,
+        29
+      ],
+      "replySha256": "839d5d9b57a51b225935fd0161618ef2bd5aa02be52583fe067d308308501589"
+    }
+  },
+  "limits": [
+    "Hashes identify files, not independent proof of authenticity.",
+    "The left video is selected excerpts. Only the right video retains the complete captured timeline.",
+    "The source FinShield capture has two pre-existing missing sampling timestamps; no source frames were removed by this acceleration.",
+    "Raw recordings remain local. The public video is a scaled, accelerated derivative."
+  ]
+}

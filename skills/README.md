@@ -11,6 +11,7 @@ Task procedures for developers and agents. Session rules live in
 | [arena-review](arena-review/SKILL.md) | Review a pull request or diff |
 | [arena-receive-review](arena-receive-review/SKILL.md) | Assess or address review comments |
 | [arena-tdd](arena-tdd/SKILL.md) | Change code and verify observable behavior |
+| [arena-write-report](arena-write-report/SKILL.md) | Generate reviewed case content and render the shared fixed page layout |
 | [arena-edit-recording](arena-edit-recording/SKILL.md) | Edit recorded trials through a subagent and prepare original approval screenshots |
-| [arena-assess-confirmations](arena-assess-confirmations/SKILL.md) | Review confirmation screenshots and assign concise warning adequacy grades |
+| [arena-assess-confirmations](arena-assess-confirmations/SKILL.md) | Review interception, then warning adequacy for observed unblocked effects |
 | [arena-verify](arena-verify/SKILL.md) | Check the instruction tree and report evidence |

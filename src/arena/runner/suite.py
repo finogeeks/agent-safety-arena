@@ -88,7 +88,10 @@ def build_plan(suite_path, root):
                 base_blockers.append('Language-study cases require an explicit language-study suite')
             for environment in environments:
                 blockers=list(base_blockers)
-                if environment['id']!='native' or environment['adapter']!='builtin-only':
+                connected = (environment['id']=='native' and environment['adapter']=='builtin-only') or (
+                    environment['id']=='finshield' and environment['adapter']=='finshield'
+                    and agent['adapter']=='dsh-web' and agent['id']=='dsh')
+                if not connected:
                     blockers.append('Live environment adapter is not connected')
                 if not environment['version']:
                     blockers.append('Configure environment version')
@@ -143,10 +146,11 @@ def collect_entry(plan_path, entry_id, root, profile_path, output_root, *, prefl
 def record_conditions(state, entry, profile):
     observed=dict(entry['conditions'])
     model=state.get('model') or {}
+    permissions=state.get('permissions') or {}
     observed.update(agentVersion=state.get('agentVersion'),
         model=(model.get('provider','')+'/'+model.get('model','')).strip('/') or None,
         reasoningEffort=model.get('reasoningEffort'),
-        builtinSandbox=state.get('sandboxMode') or state.get('permissions',{}).get('currentValue'),
+        builtinSandbox=state.get('sandboxMode') or permissions.get('currentValue'),
         approvalPolicy=state.get('approvalPolicy'),uiLanguage=state.get('uiLanguage','und'),
         promptSha256=state.get('actualPromptSha256'),promptLanguage=state.get('promptLanguage','und'),
         confirmationMode=state.get('confirmationMode'),os=platform.platform())

@@ -56,8 +56,11 @@ class SuiteTests(unittest.TestCase):
             self.assertEqual(plan['reportLanguages'],['en','zh-CN'])
             self.assertEqual(len({entry['conditions']['promptSha256'] for entry in plan['entries']}),1)
             native=next(row for row in plan['entries'] if row['agentId']=='dsh' and row['environmentId']=='native')
+            protected=next(row for row in plan['entries'] if row['agentId']=='dsh' and row['environmentId']=='finshield')
             self.assertEqual(native['readiness'],'preflight-required')
-            self.assertTrue(all(row['blockers'] for row in plan['entries'] if row is not native))
+            self.assertEqual(protected['readiness'],'preflight-required')
+            self.assertEqual(protected['blockers'],[])
+            self.assertTrue(all(row['blockers'] for row in plan['entries'] if row not in (native, protected)))
 
     def test_condition_comparison_keeps_unknown_and_mismatch_explicit(self):
         # The CLI check is first so RED identifies missing behavior, not a dependency.
@@ -71,6 +74,40 @@ class SuiteTests(unittest.TestCase):
             self.assertEqual(result['status'],'incomplete')
             self.assertIn('promptLanguage',result['differences'])
             self.assertIn('uiLanguage',result['unknown'])
+
+    def test_null_permission_projection_still_records_conditions(self):
+        from arena.runner.suite import record_conditions
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            state = {"directory": str(directory), "status": "preflight-completed",
+                     "model": {"lastUsed": None, "next": None}, "permissions": None,
+                     "sandboxMode": None, "approvalPolicy": None, "uiLanguage": "en",
+                     "agentVersion": "0.2.1-rc.2", "actualPromptSha256": "abc",
+                     "promptLanguage": "en", "confirmationMode": "capture-then-allow-once"}
+            entry = {"id": "entry", "pairId": "pair", "environmentId": "finshield",
+                     "environmentVersion": "fixture", "conditions": {"phase": "development",
+                     "uiLanguage": "en", "agentVersion": "0.2.1-rc.2"}}
+            record_conditions(state, entry, {})
+            saved = json.loads((directory / "run.json").read_text("utf8"))
+            self.assertEqual(saved["status"], "preflight-completed")
+            self.assertEqual(saved["observedConditions"]["uiLanguage"], "en")
+
+    def test_null_permission_projection_still_records_conditions(self):
+        from arena.runner.suite import record_conditions
+        with tempfile.TemporaryDirectory() as folder:
+            directory = Path(folder)
+            state = {"directory": str(directory), "status": "preflight-completed",
+                     "model": {"lastUsed": None, "next": None}, "permissions": None,
+                     "sandboxMode": None, "approvalPolicy": None, "uiLanguage": "en",
+                     "agentVersion": "0.2.1-rc.2", "actualPromptSha256": "abc",
+                     "promptLanguage": "en", "confirmationMode": "capture-then-allow-once"}
+            entry = {"id": "entry", "pairId": "pair", "environmentId": "finshield",
+                     "environmentVersion": "fixture", "conditions": {"phase": "development",
+                     "uiLanguage": "en", "agentVersion": "0.2.1-rc.2"}}
+            record_conditions(state, entry, {})
+            saved = json.loads((directory / "run.json").read_text("utf8"))
+            self.assertEqual(saved["status"], "preflight-completed")
+            self.assertEqual(saved["observedConditions"]["uiLanguage"], "en")
 
     def test_unsupported_route_fails_before_resource_or_runtime_creation(self):
         with tempfile.TemporaryDirectory() as folder:

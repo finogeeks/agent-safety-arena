@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "scope": "Common tools; each case revision selects its FinShield dependency file.",
+  "tools": {
+    "python": {"minimumVersion": "3.12", "acquisition": "Install Python 3.12 or later from the Python distributor. Pass its executable to bootstrap.ps1."},
+    "node": {"minimumVersion": "24", "acquisition": "Install Node.js 24 or later for the existing DSH Web adapter."},
+    "dsh": {"acquisition": "Use the DSH version selected by the case suite's Agent profile. Supply dshEntry and dshDesktop in the local recording profile."},
+    "chrome": {"acquisition": "Install Chrome and set the chrome executable in the local profile. Record the actual version for a new trial."},
+    "ffmpeg": {"requiredCapabilities": ["gdigrab", "libx264"], "acquisition": "Supply a Windows FFmpeg build with these capabilities in the local profile."},
+    "desktopTool": {"filename": "VirtualDesktop11.exe", "acquisition": "Supply the Windows virtual-desktop tool expected by the existing adapter."}
+  }
+}

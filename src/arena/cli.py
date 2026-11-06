@@ -19,6 +19,14 @@ def parser() -> argparse.ArgumentParser:
     root = Path(__file__).resolve().parents[2]
     command = argparse.ArgumentParser(prog="arena")
     subcommands = command.add_subparsers(dest="command", required=True)
+    doctor = subcommands.add_parser('doctor', help='Check repository and local profile files without starting products')
+    doctor.add_argument('--root', type=Path, default=root)
+    doctor.add_argument('--profile', type=Path)
+    doctor.add_argument('--environment', choices=('native', 'finshield'), default='native')
+    doctor.add_argument('--lock', type=Path, help='Version-specific FinShield dependency file selected by the case')
+    site = subcommands.add_parser('build-site', help='Build an offline catalog from reviewed case/Agent comparisons')
+    site.add_argument('--results', type=Path, default=root / 'results')
+    site.add_argument('--output', type=Path, required=True)
     replay_command = subcommands.add_parser("replay", help="Replay a synthetic offline event file")
     replay_command.add_argument("--scenario", required=True, type=Path)
     replay_command.add_argument("--events", required=True, type=Path)
@@ -112,6 +120,15 @@ def live_dependencies(arguments):
 def main(argv: Sequence[str] | None = None) -> int:
     arguments = parser().parse_args(argv)
     try:
+        if arguments.command == 'doctor':
+            from arena.setup import check_repository
+            result = check_repository(arguments.root, arguments.profile, arguments.environment, arguments.lock)
+            print(json.dumps(result))
+            return 0 if result['ok'] else 2
+        if arguments.command == 'build-site':
+            from arena.reporting.site import build_site
+            print(json.dumps(build_site(arguments.results, arguments.output)))
+            return 0
         if arguments.command=='plan':
             from arena.runner.suite import build_plan
             from arena.runner.trial import save

@@ -8,6 +8,7 @@ import tempfile
 import threading
 import time
 import unittest
+import uuid
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
@@ -65,6 +66,15 @@ class CompletionTests(unittest.TestCase):
                 for name in ("automatic-blank", "selected-in-ui")]
         selected = new_blank_sessions(rows, Path.cwd(), {"automatic-blank"})
         self.assertEqual([item["sessionId"] for item in selected], ["selected-in-ui"])
+
+    def test_visible_blank_session_opened_with_the_workspace_is_owned(self):
+        rows = [{"sessionId": "opened-with-workspace", "cwd": str(Path.cwd()),
+                 "blank": True, "running": False}]
+        selected = new_blank_sessions(rows, Path.cwd(), {"opened-with-workspace"},
+                                      "opened-with-workspace")
+        self.assertEqual([item["sessionId"] for item in selected], ["opened-with-workspace"])
+        self.assertEqual(new_blank_sessions(rows, Path.cwd(), {"opened-with-workspace"},
+                                            "different-visible-session"), [])
     def test_recording_source_selects_the_owned_dsh_window(self):
         recorder = BrowserRecorder("ffmpeg.exe", FakeBrowser([]))
         recorder.select_window("Arena owned-test")
@@ -74,6 +84,75 @@ class CompletionTests(unittest.TestCase):
         self.assertIn("dsh-run", parser().format_help())
         self.assertIn("dsh-review", parser().format_help())
         self.assertIn("dsh-preview", parser().format_help())
+
+    def test_finshield_launches_dsh_desktop_without_changing_the_native_command(self):
+        from arena.adapters.agents.dsh import dsh_web_command
+        native=dsh_web_command('node','bin.js')
+        self.assertEqual(native,['node','bin.js','web','--host','127.0.0.1','--port','0','--no-open'])
+        wrapped=dsh_web_command('node','bin.js',confinement={'executable':'finsafe.exe','config':'effective.yaml','desktop':'DeepSeek Harness.exe'})
+        self.assertEqual(wrapped,[
+            'finsafe.exe','app','launch','dsh-desktop','--yaml-path','effective.yaml','--integration-id','dsh','--',
+            'DeepSeek Harness.exe'])
+        self.assertNotIn('self-confine',wrapped)
+        self.assertNotIn('bin.js',wrapped)
+
+    def test_finshield_profile_points_at_the_desktop_executable(self):
+        from arena.adapters.agents.dsh import finshield_confinement
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            executable, config, desktop = root/'finsafe.exe', root/'effective.yaml', root/'DeepSeek Harness.exe'
+            for path in (executable, config, desktop):
+                path.write_text('fixture', encoding='utf8')
+            confinement = finshield_confinement({'finshield': str(executable), 'finshieldConfig': str(config),
+                                                 'dshDesktop': str(desktop)})
+            self.assertEqual(Path(confinement['desktop']).name, 'DeepSeek Harness.exe')
+            self.assertTrue(Path(confinement['executable']).is_file())
+
+    def test_finshield_workspace_keeps_inherited_directory_access(self):
+        if sys.platform != "win32":
+            self.skipTest("inherited directory ACL is a Windows behavior")
+        import shutil
+        import subprocess
+        from arena.runner.trial import owned_workspace
+        parent = Path(tempfile.gettempdir()) / ("arena-inherit-parent-" + uuid.uuid4().hex[:8])
+        parent.mkdir()
+        private = Path(tempfile.mkdtemp(prefix="arena-private-workspace-"))
+        try:
+            workspace = owned_workspace(parent, "dsh-20261105T000000-aabbccdd")
+            listed = subprocess.check_output(["icacls", str(workspace)], text=True, errors="replace")
+            hidden = subprocess.check_output(["icacls", str(private)], text=True, errors="replace")
+            self.assertIn("(I)", listed)
+            self.assertNotIn("(I)", hidden)
+            self.assertTrue(workspace.is_dir())
+            self.assertTrue(str(workspace).startswith(str(parent)))
+        finally:
+            shutil.rmtree(parent, ignore_errors=True)
+            shutil.rmtree(private, ignore_errors=True)
+
+    def test_finshield_workspace_stays_inside_the_allowed_root(self):
+        from arena.adapters.agents.dsh import finshield_workspace_root
+        with tempfile.TemporaryDirectory() as directory:
+            self.assertEqual(finshield_workspace_root({"workspaceRoot": directory}), str(Path(directory).resolve()))
+        with self.assertRaises(ValueError):
+            finshield_workspace_root({})
+
+    def test_finshield_sandbox_difference_is_recorded_without_blocking_submission(self):
+        from arena.runner.trial import prepared_conflicts
+        expected = dict(agentVersion='0.2.1-rc.2', uiLanguage='en',
+                        builtinSandbox='workspace-write', approvalPolicy='ask')
+        actual = dict(expected, builtinSandbox='danger-full-access')
+        self.assertEqual(prepared_conflicts(expected, actual, 'finshield'), [])
+        self.assertEqual(prepared_conflicts(expected, actual, 'builtin-only'), ['builtinSandbox'])
+        self.assertEqual(prepared_conflicts(expected, dict(actual, uiLanguage='zh-CN'), 'finshield'), ['uiLanguage'])
+
+    def test_desktop_host_buffer_yields_one_loopback_url(self):
+        from arena.adapters.agents.dsh import loopback_url_in
+        url = "http://127.0.0.1:58023/?token=syntheticTokenValue001"
+        self.assertEqual(loopback_url_in(b"dsh web: " + url.encode("ascii") + b"\n"), url)
+        self.assertEqual(loopback_url_in(url.encode("utf-16-le")), url)
+        self.assertIsNone(loopback_url_in(b'{"main_pid":1,"hook_ready":true}\n'))
+        self.assertIsNone(loopback_url_in(b"http://127.0.0.1:1/?token=short\n"))
+        self.assertIsNone(loopback_url_in(url.encode("ascii") + b"\n" + b"http://127.0.0.1:9/?token=syntheticTokenValue002\n"))
 
     def test_diagnostic_redaction_does_not_store_authentication_token(self):
         text = scrub("http://127.0.0.1:1234/?token=synthetic-test-token Bearer synthetic-bearer")

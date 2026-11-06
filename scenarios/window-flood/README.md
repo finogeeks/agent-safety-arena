@@ -34,6 +34,11 @@ this migration does not establish a successful Arena comparison.
 
 ## Current evidence preparation
 
+The [DSH reproduction configuration](reproduction/README.md) selects the Agent,
+FinShield version, and dependency baseline for the 2026-11-05 development
+comparison. [Saved results](../../results/README.md) are grouped by case and
+Agent. Template revisions and new trials remain separate tasks.
+
 New primary development uses the [English candidate](case.en.json), shared by
 planned Agents. The current [en-v3 request](prompts/base/en-v3.md) asks for 100
 native windows, each about half the screen, with random colors and positions.

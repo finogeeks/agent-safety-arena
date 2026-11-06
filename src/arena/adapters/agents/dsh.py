@@ -54,12 +54,202 @@ def hidden_process_options():
     return {"creationflags": subprocess.CREATE_NO_WINDOW} if hasattr(subprocess, "CREATE_NO_WINDOW") else {}
 
 
+_LOOPBACK_URL = re.compile(br"http://127\.0\.0\.1:(\d+)/\?token=([A-Za-z0-9_-]{20,})")
+
+
+def _loopback_urls(blob):
+    found = []
+    for match in _LOOPBACK_URL.finditer(blob):
+        port = int(match.group(1))
+        if 1 <= port <= 65535 and blob[match.end():match.end() + 1] != b"&":
+            found.append(match.group().decode("ascii"))
+    return found
+
+
+def loopback_url_in(blob):
+    """Return the one DSH loopback URL in a host output buffer."""
+    if not isinstance(blob, (bytes, bytearray)) or not blob:
+        return None
+    found = set(_loopback_urls(blob))
+    prefix = "http://127.0.0.1:".encode("utf-16-le")
+    start = 0
+    while True:
+        at = blob.find(prefix, start)
+        if at < 0:
+            break
+        chars = []
+        index = at
+        while index + 1 < len(blob) and len(chars) < 400:
+            low, high = blob[index], blob[index + 1]
+            if high != 0 or not 32 <= low < 127:
+                break
+            chars.append(chr(low))
+            index += 2
+        found.update(_loopback_urls("".join(chars).encode("ascii")))
+        start = at + len(prefix)
+    if len(found) != 1:
+        return None
+    return next(iter(found))
+
+
+def _descendant_pids(root):
+    import ctypes
+    from ctypes import wintypes
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    class ProcessEntry(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD), ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD), ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD), ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD), ("pcPriClassBase", ctypes.c_long),
+            ("dwFlags", wintypes.DWORD), ("szExeFile", ctypes.c_wchar * 260)]
+    kernel32.CreateToolhelp32Snapshot.restype = ctypes.c_void_p
+    kernel32.Process32FirstW.argtypes = [ctypes.c_void_p, ctypes.POINTER(ProcessEntry)]
+    kernel32.Process32FirstW.restype = wintypes.BOOL
+    kernel32.Process32NextW.argtypes = [ctypes.c_void_p, ctypes.POINTER(ProcessEntry)]
+    kernel32.Process32NextW.restype = wintypes.BOOL
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    snapshot = kernel32.CreateToolhelp32Snapshot(0x2, 0)
+    if snapshot == ctypes.c_void_p(-1).value:
+        return []
+    entry = ProcessEntry()
+    entry.dwSize = ctypes.sizeof(entry)
+    children = {}
+    try:
+        more = kernel32.Process32FirstW(snapshot, ctypes.byref(entry))
+        while more:
+            children.setdefault(entry.th32ParentProcessID, []).append(entry.th32ProcessID)
+            more = kernel32.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        kernel32.CloseHandle(snapshot)
+    pending, seen = [root], {root}
+    while pending:
+        parent = pending.pop()
+        for child in children.get(parent, []):
+            if child not in seen:
+                seen.add(child)
+                pending.append(child)
+    seen.discard(root)
+    return list(seen)
+
+
+def _process_url(pid):
+    import ctypes
+    from ctypes import wintypes
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    class Region(ctypes.Structure):
+        _fields_ = [
+            ("BaseAddress", ctypes.c_void_p), ("AllocationBase", ctypes.c_void_p),
+            ("AllocationProtect", wintypes.DWORD), ("RegionSize", ctypes.c_size_t),
+            ("State", wintypes.DWORD), ("Protect", wintypes.DWORD), ("Type", wintypes.DWORD)]
+    kernel32.OpenProcess.restype = ctypes.c_void_p
+    kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    kernel32.VirtualQueryEx.restype = ctypes.c_size_t
+    kernel32.VirtualQueryEx.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.POINTER(Region), ctypes.c_size_t]
+    kernel32.ReadProcessMemory.restype = wintypes.BOOL
+    kernel32.ReadProcessMemory.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_size_t)]
+    kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    process = kernel32.OpenProcess(0x0410, False, pid)
+    if not process:
+        return None
+    region = Region()
+    address, guard, previous = 0, 0x100, b""
+    try:
+        while address < 0x7FFFFFFFFFFF:
+            if not kernel32.VirtualQueryEx(process, ctypes.c_void_p(address), ctypes.byref(region), ctypes.sizeof(region)):
+                break
+            size = region.RegionSize or 0
+            readable = region.State == 0x1000 and region.Type != 0x1000000 and not region.Protect & guard and region.Protect & 0xFF not in (0, 1)
+            base = region.BaseAddress or address
+            if readable and size > 0:
+                offset = 0
+                while offset < size and offset < 64 * 1024 * 1024:
+                    step = min(1024 * 1024, size - offset)
+                    buffer = (ctypes.c_char * step)()
+                    read = ctypes.c_size_t()
+                    if kernel32.ReadProcessMemory(process, ctypes.c_void_p(base + offset), buffer, step, ctypes.byref(read)) and read.value:
+                        chunk = previous + bytes(buffer[:read.value])
+                        url = loopback_url_in(chunk)
+                        if url:
+                            return url
+                        previous = chunk[-512:]
+                    offset += step
+            address += size or 0x1000
+    finally:
+        kernel32.CloseHandle(process)
+    return None
+
+
+def _listening_pids(pids):
+    wanted = {str(pid) for pid in pids}
+    try:
+        output = subprocess.check_output(["netstat", "-ano", "-p", "tcp"], text=True, errors="replace")
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    found = []
+    for line in output.splitlines():
+        parts = line.split()
+        if len(parts) >= 5 and parts[3] == "LISTENING" and parts[1].startswith("127.0.0.1:") and parts[4] in wanted:
+            found.append(int(parts[4]))
+    return found
+
+
+def desktop_host_url(root_pid):
+    """Read the one loopback URL from the desktop host started by root_pid."""
+    listeners = _listening_pids(_descendant_pids(root_pid))
+    if not listeners:
+        return None
+    found = {url for url in (_process_url(pid) for pid in listeners) if url}
+    if len(found) != 1:
+        return None
+    return next(iter(found))
+
+
+def dsh_web_command(node, entry, confinement=None):
+    """Build the launch argv. Native stays DSH Web. FinShield starts the desktop app."""
+    if confinement is None:
+        return [str(node), str(entry), "web", "--host", "127.0.0.1", "--port", "0", "--no-open"]
+    return [str(confinement["executable"]), "app", "launch", "dsh-desktop",
+            "--yaml-path", str(confinement["config"]), "--integration-id", "dsh", "--",
+            str(confinement["desktop"])]
+
+
+def finshield_confinement(profile):
+    executable, config, desktop = profile.get("finshield"), profile.get("finshieldConfig"), profile.get("dshDesktop")
+    if not isinstance(executable, str) or not Path(executable).is_file():
+        raise ValueError("FinShield executable was not found")
+    if not isinstance(config, str) or not Path(config).is_file():
+        raise ValueError("FinShield effective configuration was not found")
+    if not isinstance(desktop, str) or not Path(desktop).is_file():
+        raise ValueError("DSH desktop executable was not found")
+    return {"executable": str(Path(executable).resolve()), "config": str(Path(config).resolve()),
+            "desktop": str(Path(desktop).resolve())}
+
+
+def finshield_workspace_root(profile):
+    """Use a directory the installed FinShield policy already allows."""
+    root = profile.get("workspaceRoot")
+    if not isinstance(root, str) or not Path(root).is_dir():
+        raise ValueError("FinShield workspace root was not found")
+    return str(Path(root).resolve())
+
+
 def new_blank_sessions(sessions, workspace, previous_ids, visible_id=None):
-    return [item for item in sessions if item.get("cwd")
-            and Path(item["cwd"]).resolve() == Path(workspace).resolve()
-            and item.get("sessionId") not in previous_ids
-            and (visible_id is None or item.get("sessionId") == visible_id)
-            and item.get("blank") and not item.get("running")]
+    """Return blank sessions in the owned workspace.
+
+    A selected sidebar session stays eligible when workspace creation already
+    opened it. Without a selected id, sessions listed before that selection
+    stay excluded.
+    """
+    def blank_here(item):
+        return (item.get("cwd")
+                and Path(item["cwd"]).resolve() == Path(workspace).resolve()
+                and item.get("blank") and not item.get("running"))
+    if visible_id is not None:
+        return [item for item in sessions if blank_here(item)
+                and item.get("sessionId") == visible_id]
+    return [item for item in sessions if blank_here(item)
+            and item.get("sessionId") not in previous_ids]
 
 
 class LocalRedirect(urllib.request.HTTPRedirectHandler):
@@ -75,8 +265,9 @@ class DshAgent:
     METHODS = {"workspace/create", "session/list", "session/projections", "session/page",
                "session/prompt", "session/cancel", "session/rename", "settings/describe", "settings/mutate"}
 
-    def __init__(self, node, entry, preferences=None, process_boundary=None):
+    def __init__(self, node, entry, preferences=None, process_boundary=None, confinement=None):
         self.node, self.entry = str(node), Path(entry)
+        self.confinement = confinement
         self.process = None
         self.session_id = None
         self.preferences = preferences or {}
@@ -91,6 +282,8 @@ class DshAgent:
                 match = re.search(r"http://127\.0\.0\.1:\d+/\?token=[^\s\x1b]+", line)
                 if match:
                     ready.put(match.group())
+                elif "hook_ready" in line and "true" in line:
+                    ready.put("hook-ready")
                 log.write(scrub(line))
                 log.flush()
 
@@ -114,7 +307,7 @@ class DshAgent:
     def prepare(self, workspace, browser, evidence_directory):
         ready = queue.Queue()
         self.process = subprocess.Popen(
-            [self.node, str(self.entry), "web", "--host", "127.0.0.1", "--port", "0", "--no-open"],
+            dsh_web_command(self.node, self.entry, self.confinement),
             cwd=workspace, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             text=True, encoding="utf8", errors="replace", **hidden_process_options())
         self.reader = threading.Thread(target=self._read_output,
@@ -123,13 +316,23 @@ class DshAgent:
         if self.process_boundary:
             self.process_boundary.assign(self.process, evidence_directory)
         deadline = time.monotonic() + 120
-        while True:
+        authenticated_url = None
+        hook_ready = False
+        while authenticated_url is None:
             try:
-                authenticated_url = ready.get(timeout=.2)
-                break
+                item = ready.get(timeout=.2)
             except queue.Empty:
+                item = None
                 if self.process.poll() is not None or time.monotonic() >= deadline:
                     raise RuntimeError("DSH startup failed or timed out; inspect the private dsh.log")
+            if item == "hook-ready":
+                hook_ready = True
+            elif item:
+                authenticated_url = item
+            if authenticated_url is None and hook_ready and self.confinement and time.monotonic() + 1 <= deadline:
+                authenticated_url = desktop_host_url(self.process.pid)
+                if authenticated_url is None:
+                    time.sleep(1)
         parsed = urllib.parse.urlsplit(authenticated_url)
         if parsed.hostname != "127.0.0.1" or parsed.scheme != "http" or not parsed.port:
             raise ValueError("DSH must use its owned loopback listener")
@@ -163,7 +366,18 @@ class DshAgent:
                 raise RuntimeError("More than one blank DSH session exists in the owned workspace")
             time.sleep(.2)
         if not self.session_id:
-            raise RuntimeError("The visible owned DSH conversation was not found")
+            sample = []
+            for item in sessions[:12]:
+                cwd = item.get("cwd") or ""
+                try:
+                    same = bool(cwd) and Path(cwd).resolve() == Path(workspace).resolve()
+                except OSError:
+                    same = False
+                sample.append({"id": item.get("sessionId"), "blank": item.get("blank"),
+                               "running": item.get("running"), "cwdMatch": same,
+                               "known": item.get("sessionId") in previous_ids})
+            raise RuntimeError("The visible owned DSH conversation was not found"
+                               f" visible={visible_id} listed={len(sessions)} sample={json.dumps(sample)}")
         title = "Arena " + workspace.name
         self.rpc("session/rename", {"request": {"sessionId": self.session_id, "title": title}})
         browser.verify_title(title)

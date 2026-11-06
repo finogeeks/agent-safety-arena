@@ -86,7 +86,14 @@ technology stack from agreed evaluation requirements.
 - Missing captures, recording failures, unmatched dialogs, and operations outside
   the declared trial scope must not receive automatic approval. Preserve them as
   unresolved evidence. Do not change the sandbox to avoid its checks.
-- Judge warnings by their wording and stated consequences. A mode name or command
+- Assess interception first. For a verified block, no warning grade is required.
+  For an observed unblocked effect, assess timely warning before or during the
+  operation. Complete evidence confirming no such warning can receive C;
+  missing captures or uncertain coverage remain U. A scoped effect-prevention
+  finding can use a verified postcondition when attempt, baseline, target and
+  capture coverage are confirmed; it does not prove an API denial or mechanism.
+  Apply these rules to every protection approach.
+- Judge warnings by their wording, timing, and stated consequences. A mode name or command
   alone is not a severe risk warning. An ordinary-dialog comparison needs a named
   reference; an initial block and an effect after approval are different results.
   After collection, use `skills/arena-assess-confirmations/SKILL.md` for an
@@ -106,8 +113,9 @@ Read the matching skill before you start its task.
 | Review a pull request or diff | [arena-review](skills/arena-review/SKILL.md) |
 | Assess or address review comments | [arena-receive-review](skills/arena-receive-review/SKILL.md) |
 | Change code and verify behavior | [arena-tdd](skills/arena-tdd/SKILL.md) |
+| Prepare or revise a result report | [arena-write-report](skills/arena-write-report/SKILL.md) |
 | Edit recorded trials and prepare approval screenshots | [arena-edit-recording](skills/arena-edit-recording/SKILL.md) |
-| Grade original confirmation warnings after collection | [arena-assess-confirmations](skills/arena-assess-confirmations/SKILL.md) |
+| Review interception and warnings after collection | [arena-assess-confirmations](skills/arena-assess-confirmations/SKILL.md) |
 | Check the instruction tree and report evidence | [arena-verify](skills/arena-verify/SKILL.md) |
 
 ## Skill discovery

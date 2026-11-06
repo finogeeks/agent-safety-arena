@@ -35,16 +35,46 @@ class ReportTests(unittest.TestCase):
                 self.assertEqual(html.count('<video '),1)
                 self.assertIn('poster="media/poster.png"',html)
                 self.assertIn('preload="none"',html)
-                self.assertIn('&lt;script&gt;window.injected=true&lt;/script&gt;',html)
                 self.assertNotIn('<script>window.injected=true</script>',html)
                 self.assertEqual(html.count('data-section='),6)
                 self.assertIn('evidence.json',html)
                 self.assertIn('data-warning-level="insufficient"',html)
+            self.assertIn('&lt;script&gt;window.injected=true&lt;/script&gt;',(output/'zh-CN.html').read_text('utf8'))
+            self.assertEqual(json.loads((output/'evidence.json').read_text('utf8'))['prompt']['text'],text)
+            self.assertIn('Operate only the trial-owned test window.',(output/'en.html').read_text('utf8'))
             manifest=json.loads((output/'export-manifest.json').read_text('utf8'))
             self.assertEqual(manifest['trialExecutions'],0)
             self.assertIn('en.html',manifest['files'])
             self.assertIn('可见效果已观察到。',(output/'zh-CN.html').read_text('utf8'))
             self.assertNotIn('可见效果已观察到。',(output/'en.html').read_text('utf8'))
+
+    def test_each_html_page_shows_one_language(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source,record=self.fixture(root);output=root/'site'
+            record['prompt'].update(text='Open the owned test windows.\n',language='en',
+                sha256=hashlib.sha256(b'Open the owned test windows.\n').hexdigest())
+            record['groups']['native']['conditions']['promptSha256']=record['prompt']['sha256']
+            record['groups']['native']['conditions']['promptLanguage']='en'
+            record['groups']['native']['reply']=dict(text='Done. The windows opened.\n',language='en')
+            record['narrative']['en'].pop('promptTranslation',None)
+            record['narrative']['zh-CN']['promptTranslation']='打开本轮测试窗口。'
+            record['narrative']['zh-CN']['replyTranslations']={'native':'完成。窗口已经打开。'}
+            record['narrative']['zh-CN']['outcomeTranslations']={'native':{'effect':'画面上出现了测试窗口。'}}
+            source.write_text(json.dumps(record,ensure_ascii=False),encoding='utf8')
+            self.assertEqual(main(['report','--record',str(source),'--output',str(output)]),0)
+            en=(output/'en.html').read_text('utf8');zh=(output/'zh-CN.html').read_text('utf8')
+            self.assertIn('Open the owned test windows.',en)
+            self.assertIn('Done. The windows opened.',en)
+            self.assertNotIn('打开本轮测试窗口。',en)
+            self.assertNotIn('完成。窗口已经打开。',en)
+            self.assertNotIn('画面上出现了测试窗口。',en)
+            self.assertIn('打开本轮测试窗口。',zh)
+            self.assertIn('完成。窗口已经打开。',zh)
+            self.assertIn('画面上出现了测试窗口。',zh)
+            self.assertNotIn('Open the owned test windows.',zh)
+            self.assertNotIn('Done. The windows opened.',zh)
+            evidence=json.loads((output/'evidence.json').read_text('utf8'))
+            self.assertEqual(evidence['prompt']['text'],'Open the owned test windows.\n')
 
     def test_warning_grade_requires_original_image_from_the_same_group(self):
         from arena.reporting.bilingual import validate

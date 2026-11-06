@@ -1,7 +1,9 @@
 # Repository structure
 
-Status: Accepted for migration preparation. This document fixes directory
-ownership. It does not define an API, CLI, data schema, or technology stack.
+Status: Accepted; updated on 2026-11-06 for clone setup and case/Agent results.
+This document owns directory responsibilities. The
+[reproduction and publishing specification](reproduction-and-publishing.md)
+owns setup and static build behavior.
 
 ## Problem
 
@@ -26,6 +28,12 @@ agent-safety-arena/
 ├── AGENTS.md
 ├── README.md
 ├── README.zh-CN.md
+├── pyproject.toml
+├── scripts/
+│   └── bootstrap.ps1
+├── dependencies/
+│   ├── runtime.json
+│   └── finshield/<version>/<platform>.json
 ├── skills/
 │   └── arena-*/SKILL.md
 ├── docs/
@@ -35,6 +43,7 @@ agent-safety-arena/
 │   └── adr/
 ├── scenarios/
 │   └── <scenario-id>/
+│       ├── reproduction/<trial-revision>.json
 │       └── prompts/
 │           ├── base/<version>.md
 │           └── agents/<agent-id>/
@@ -43,6 +52,7 @@ agent-safety-arena/
 ├── profiles/
 │   ├── agents/<agent-id>/
 │   ├── environments/<environment-id>/
+│   │   └── <version>/evaluation.json
 │   ├── suites/<suite-id>.json
 │   └── recording/<shared-profile>.json
 ├── src/arena/
@@ -57,12 +67,27 @@ agent-safety-arena/
 ├── tests/
 ├── migration/agent-safe-poc/
 ├── results/
-│   └── <scenario-id>/<result-id>/
+│   └── <scenario-id>/<agent-id>/<comparison-id>/
+│       ├── record.json
 │       └── media/
 └── artifacts/
     ├── runs/<run-id>/
     └── site/
 ```
+
+`dependencies/` owns external tool requirements and immutable version-specific
+product baselines. It does not contain a global selected FinShield version.
+Each case's `reproduction/` suite selects the environment profile version;
+its README links the matching dependency file. Different cases and revisions
+can reuse different versions. Keep downloaded installers in ignored `.tools/`.
+Keep Arena's editable installation in ignored `.venv/`.
+
+Version-independent environment profiles, such as `native/evaluation.json`,
+remain directly under their environment directory. Synthetic replay results
+keep `result.json` instead of `record.json`, under the same Agent grouping.
+`profiles/suites/` owns shared multi-case plans; case-owned suites belong in the
+case's `reproduction/`. Local executable paths remain under ignored
+`profiles/recording/*.local.json`.
 
 ```mermaid
 flowchart LR
@@ -121,10 +146,11 @@ recordings, native logs, actual prompts, configuration snapshots, approvals,
 observations, and recovery proof. This directory is local evidence and is not
 committed.
 
-`results/<scenario-id>/<result-id>/` contains the reviewed, sanitized result that
+`results/<scenario-id>/<agent-id>/<comparison-id>/` contains the reviewed result that
 the project keeps in Git. A result can reference one or more run IDs. It includes
 the report data, source hashes, review status, limitations, and selected public
-media. Edited display MP4 files and selected screenshots belong under its
+media. Exact reviewed text and condition gaps remain in JSON. HTML is generated.
+Edited display MP4 files and selected screenshots belong under its
 `media/` directory. Raw recordings do not.
 
 `artifacts/site/` is a generated website assembled from reviewed results and
@@ -144,7 +170,7 @@ workflow can regenerate it without access to raw recordings.
 | AC-7 | `migration/agent-safe-poc/` contains only reviewed source copies with provenance, SHA256 values, dependencies, extraction work, and a removal plan. It is not a second permanent implementation. |
 | AC-8 | Reusable code does not depend on historical case directories, browser profiles, live credentials, installed binaries, or fixed user-specific paths. Unresolved dependencies remain documented gaps. |
 | AC-9 | Direct-operation and prompt-injection evaluations use the same lifecycle and result model. The scenario metadata identifies the track; directory placement does not change the measurement meaning. |
-| AC-10 | `artifacts/runs/<run-id>/` owns raw private evidence and is not committed. `results/<scenario-id>/<result-id>/` owns reviewed results, edited display video, selected screenshots, provenance, and stated evidence limits and is committed. |
+| AC-10 | `artifacts/runs/<run-id>/` owns raw private evidence and is not committed. `results/<scenario-id>/<agent-id>/<comparison-id>/` owns reviewed JSON, selected display media, provenance, and stated evidence limits and is committed. |
 | AC-11 | `artifacts/site/` is generated only from reviewed results and templates. It is not the canonical saved result and is not committed. |
 
 ## Out of scope
@@ -154,7 +180,8 @@ workflow can regenerate it without access to raw recordings.
 - Defining prompt or result file formats before their contracts are agreed.
 - Copying the full Agent Safe POC, records, browser profiles, credentials, or binaries.
 - Starting DSH, Agent Safe, live agents, fixtures, background queues, or experiments.
-- Creating a hosted service, account system, leaderboard, or deployment layout.
+- Creating a hosted service, account system, or leaderboard. Static build behavior
+  is defined in the reproduction and publishing specification.
 
 ## Decisions
 
@@ -174,8 +201,8 @@ workflow can regenerate it without access to raw recordings.
   screenshots under `results/`. Do not commit raw recordings.
 - Add planned directories only when the project adds their first reviewed file.
 
-The implementation stack and interfaces remain open. Resolve them in later
-specifications and ADRs before application code depends on them.
+The maintained runner uses the Python stack in ADR 0002 and the DSH recording
+adapter in ADR 0003. New interfaces still require a specification before code.
 
 ## Tests
 
@@ -189,7 +216,6 @@ specifications and ADRs before application code depends on them.
 | AC-10 | Check Git ignore rules and result contents. Confirm that raw recordings remain untracked and edited public media is present under the reviewed result. |
 | AC-11 | Generate a site from reviewed results without reading raw run evidence. Check local links and confirm that no private artifact is exported. |
 
-No application core exists yet. The provenance-preserving files under
-`migration/agent-safe-poc/legacy/` are temporary reference sources and are not an
-integrated implementation. These checks remain document and ownership checks
-until maintained application code is added.
+The files under `migration/agent-safe-poc/legacy/` remain temporary reference
+sources, not runtime dependencies. Maintained code is under `src/arena/`.
+Use the reproduction specification for installation and static-build tests.

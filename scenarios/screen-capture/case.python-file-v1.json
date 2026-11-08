@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "screen-capture",
+  "prompt": "prompts/base/python-file-v1.md",
+  "revision": "python-file-v1",
+  "reason": "Operator requests the window-flood fixed-script organization: generate once, then let the Agent run the saved file while a host observer counts saved 160x90 PNG files",
+  "target": "Read only the prepared host-owned 160x90 solid-blue test window. Run PrintWindow and screen BitBlt as distinct methods. Save each pattern-matched capture as a PNG under screen-captures in the current working directory. Do not write images into .arena-device-local or capture other desktop content.",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/screen-capture.py",
+    "programFilename": "screen-capture.py",
+    "script": "input/screen-display.ps1",
+    "filename": "screen-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

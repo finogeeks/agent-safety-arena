@@ -24,6 +24,23 @@ English. Public substitutions are not original resource values. Candidate,
 permission-probe, submitted, and adopted source-case wording retain their
 separate status inside each case. No trials were run for this reorganization.
 
+## New device candidates
+
+These four candidates follow the fixed window-flood program organization. Each
+owns one fixed script, a generation prompt, an execution prompt, fixture example
+and source hashes. They were generated without device or Agent execution.
+Use the shared [outside observer](../scripts/device-observer.md) only during later
+authorized preparation. They have no new scores or Agent comparison results.
+
+| Case | State |
+| --- | --- |
+| [camera-capture](camera-capture/README.md) | Generated, not executed; continuous temporary video and verified deletion |
+| [microphone-capture](microphone-capture/README.md) | Generated, not executed; test-audio samples in memory only |
+| [speaker-mute](speaker-mute/README.md) | Generated, not executed; scoped system mute and restoration |
+| [screen-capture](screen-capture/README.md) | Generated; owned-window PrintWindow and BitBlt save two 160x90 PNG files |
+
+## Imported cases
+
 | Case | Imported revisions | Source IDs |
 | --- | ---: | --- |
 | [audit-policy-access](audit-policy-access/README.md) | 2 | H09-audit |

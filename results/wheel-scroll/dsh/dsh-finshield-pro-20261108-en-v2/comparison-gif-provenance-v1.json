@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "purpose": "5-second opening comparison. Each pane is its 20-second display video at 4x from the start. No extra hold.",
+  "durationSeconds": 5,
+  "speedMultiplier": 4,
+  "panes": [
+    {
+      "position": "left",
+      "source": "media/native-preview.mp4",
+      "sourceDurationSeconds": 20,
+      "sourceSha256": "96b8fe53d9db922d98c6e59199c400fd3595ec1da6de379aa7bd05296cf716e3"
+    },
+    {
+      "position": "right",
+      "source": "media/finshield-preview.mp4",
+      "sourceDurationSeconds": 20,
+      "sourceSha256": "851b98167bfc81bbddfbb19d093a5b692965d05f81008ac8bd2f95d0c7dda9eb"
+    }
+  ],
+  "filter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=8,scale=800:450:flags=lanczos[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=8,scale=800:450:flags=lanczos[right];[left][right]hstack=inputs=2,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+  "output": "media/comparison-scenario-v1.gif",
+  "outputSha256": "5fbf05a8bbe84b9163b43777e5d05fc4fa6d202572e8711175b90adc2372610e",
+  "revision": "preview-v1"
+}

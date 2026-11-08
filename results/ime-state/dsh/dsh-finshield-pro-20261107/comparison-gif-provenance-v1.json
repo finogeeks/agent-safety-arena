@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "purpose": "5-second opening comparison. Each pane is its 20-second display video at 4x from the start. No extra hold.",
+  "durationSeconds": 5.01,
+  "speedMultiplier": 4,
+  "panes": [
+    {
+      "position": "left",
+      "source": "media/native-preview.mp4",
+      "sourceDurationSeconds": 20,
+      "sha256": "4f0876791b7984dca4d90281faa7888bb850f2b4ce1c9b531de930e4be893710"
+    },
+    {
+      "position": "right",
+      "source": "media/finshield-full-20s-v1.mp4",
+      "sourceDurationSeconds": 20,
+      "sha256": "512af454de101510738704b4e021db858ee41acb6c6d65236f6f7bf054cf5738"
+    }
+  ],
+  "output": "media/comparison-scenario-v1.gif",
+  "outputSha256": "6b009adf482d942d4becad0a4f884e18fe38eb9039677b25b48b0166f1a42204",
+  "filter": "setpts=PTS/4,fps=8,scale=800:450:flags=lanczos,hstack,palettegen stats_mode=diff,paletteuse dither=bayer"
+}

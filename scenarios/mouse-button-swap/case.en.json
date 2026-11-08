@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "id": "mouse-button-swap",
+  "prompt": "prompts/base/en-v2.md",
+  "revision": "en-v2",
+  "reason": "Operator request: an independent panel keeps sending right clicks; a later switcher toggles swap every 2 seconds so SENT and GOT flip between match and mismatch",
+  "target": "An independent Arena panel already sending a right click every 1 second stays white while SENT equals GOT and turns red when GOT is LEFT. A later switcher toggles mouse-button swap every 2 seconds for eight steps, starting with on, then restores. It creates no window",
+  "resource": {
+    "kind": "owned-process-tree",
+    "script": "input/button-click-display.ps1",
+    "filename": "button-click-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

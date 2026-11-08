@@ -69,10 +69,15 @@ def build_plan(suite_path, root):
             fixture=contained(path.parent,resource['fixture'])
             resource['fixtureSha256']=digest(fixture)
             inputs[fixture.relative_to(root).as_posix()]=digest(fixture)
+        if 'script' in resource:
+            script=contained(path.parent,resource['script'])
+            resource['scriptSha256']=digest(script)
+            inputs[script.relative_to(root).as_posix()]=digest(script)
         fingerprint=hashlib.sha256(json.dumps(resource,sort_keys=True).encode()).hexdigest()
         for agent in agents:
             base_blockers=[]
-            if agent['adapter']!='dsh-web' or agent['id']!='dsh':
+            if not ((agent['adapter']=='dsh-web' and agent['id']=='dsh') or
+                    (agent['adapter']=='workbuddy-desktop' and agent['id']=='workbuddy')):
                 base_blockers.append('Live Agent adapter is not connected')
             for key in ('version','model','reasoningEffort','builtinSandbox','approvalPolicy','uiLanguage','recordingProfile'):
                 if not isinstance(agent[key],str) or not agent[key].strip() or agent[key] in {'und','unknown','unverified'}:
@@ -90,7 +95,8 @@ def build_plan(suite_path, root):
                 blockers=list(base_blockers)
                 connected = (environment['id']=='native' and environment['adapter']=='builtin-only') or (
                     environment['id']=='finshield' and environment['adapter']=='finshield'
-                    and agent['adapter']=='dsh-web' and agent['id']=='dsh')
+                    and ((agent['adapter']=='dsh-web' and agent['id']=='dsh') or
+                         (agent['adapter']=='workbuddy-desktop' and agent['id']=='workbuddy')))
                 if not connected:
                     blockers.append('Live environment adapter is not connected')
                 if not environment['version']:

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "purpose": "5-second opening comparison. Each pane is its 20-second display video at 4x from the start. No extra hold.",
+  "durationSeconds": 5.01,
+  "speedMultiplier": 4,
+  "panes": [
+    {
+      "position": "left",
+      "source": "media/native-preview.mp4",
+      "sourceDurationSeconds": 20.125
+    },
+    {
+      "position": "right",
+      "source": "media/finshield-full-20s-v1.mp4",
+      "sourceDurationSeconds": 20
+    }
+  ],
+  "filter": "setpts=PTS/4,fps=8,scale=800:450,hstack,palette"
+}

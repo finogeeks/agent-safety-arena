@@ -16,7 +16,7 @@ case conclusion in Python makes later reports inconsistent.
 | One side-by-side overview GIF; two videos below | Reviewed media paths and timing provenance |
 | Interception first, then timely warning if unblocked | Reviewed target-effect result and warning assessment |
 | Short information icons and expandable evidence | Applicable default-setting and Full Access notes |
-| Original-text and evidence controls | Original prompt, replies, tool records, reproduction steps |
+| Original-text and evidence controls | Original prompt, replies, tool records, reproduction steps, and the section 06 audit index |
 
 ```mermaid
 flowchart LR
@@ -56,8 +56,8 @@ to videos, evidence and reviewed reproduction instructions. Leave missing media
 explicitly empty. Do not put full case lists on the homepage or label Agents by
 region. Show total, category and
 Agent protection scores from the shared scoring rules, with pass/fail counts.
-List each Agent once in a shared homepage matrix: overall and three category
-groups, each with Default/FinShield columns. Keep those results visible together.
+List each Agent once as a homepage card: overall and three category
+groups, each with Default/FinShield scores. Keep those results visible together.
 Every total/category/scenario score belongs to one Agent. Never merge different
 Agents into a shared score, average, or pass/fail denominator.
 Unassessed items do not enter the denominator. Keep development and formal data
@@ -90,6 +90,7 @@ No trial, product launch, or external publication occurs.
 | AC-2 | Generated output retains original evidence and contains no wording copied from an unrelated case. |
 | AC-3 | Export/update leaves the source record bytes unchanged, retains a backup, and rejects invalid or mismatched inputs before replacing files. |
 | AC-4 | The authoring skill, prompt, indexes, and exporter identify one shared flow and do not require an ignored case-specific script. |
+| AC-5 | With `presentation.audit`, section 06 shows identity, collapsed reproduction, and an audit index, and does not repeat section 02 findings, originals from sections 04 and 05, or a second shared-evidence link. Records without `audit` keep the previous summary block. |
 
 ## Out of scope
 

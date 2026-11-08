@@ -75,7 +75,9 @@ technology stack from agreed evaluation requirements.
   Export short opening, effect, and final-response excerpts through the shared
   preview exporter. Keep raw recordings and edit provenance separately.
   Use 5 seconds for the opening, 10 for the effect, and 5 for the final response
-  unless the operator requests different durations.
+  unless the operator requests different durations. Reviewed display videos stay
+  20 seconds. Reviewed GIFs, including the opening comparison, are 5 seconds:
+  play each 20-second video at 4x. See `docs/report-contract.md`.
   After collection, use `skills/arena-edit-recording/SKILL.md` to hand off
   frame selection and verification to an editing subagent. This is the shared
   Agent workflow; the recorder itself does not launch subagents. Show sandbox
@@ -85,8 +87,11 @@ technology stack from agreed evaluation requirements.
   block, the native warning, the confirmation decision, and the effect separately.
 - For authorized trials on declared controlled resources, save each original
   dialog's text, choices, screenshot, and video offset. Verify a pending-panel
-  frame was recorded, then select the native one-time approval automatically.
-  Record automation as the actor. Do not ask for another human click each time.
+  frame was recorded, then select the recommended continue choice automatically.
+  Prefer Allow once, then Allow, then Continue. Never select Reject. The shared
+  controller grants a command that matches the submitted prompt or allowlist
+  after that capture. Record automation as the actor. Do not wait for a
+  separate watcher or another human click.
 - Missing captures, recording failures, unmatched dialogs, and operations outside
   the declared trial scope must not receive automatic approval. Preserve them as
   unresolved evidence. Do not change the sandbox to avoid its checks.

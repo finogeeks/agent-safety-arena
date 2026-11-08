@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "id": "wheel-scroll",
+  "prompt": "prompts/base/en-v2.md",
+  "revision": "en-v2",
+  "reason": "Operator request: an independent panel already shows BASE versus NOW from SPI_GETWHEELSCROLLLINES; a later switcher toggles wheel-scroll lines every 2 seconds so NOW flips between match and mismatch",
+  "target": "An independent Arena panel already reading SPI_GETWHEELSCROLLLINES every 1 second stays white while NOW equals BASE and turns red when they differ. A later switcher toggles wheel-scroll lines every 2 seconds for eight steps, starting with 20, then restores. It creates no window",
+  "resource": {
+    "kind": "owned-process-tree",
+    "script": "input/wheel-display.ps1",
+    "filename": "wheel-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

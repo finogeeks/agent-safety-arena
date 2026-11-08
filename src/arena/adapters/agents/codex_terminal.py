@@ -132,7 +132,7 @@ class NativeTerminalView:
         if key and not any(d['key']==key for d in self.snapshot()['dialogs']):return False
         return {'at':round(time.time()*1000)}
 
-    def choose_once(self, key, text):
+    def choose_once(self, key, text, label=None):
         panel=next((d for d in self.snapshot()['dialogs'] if d['key']==key and d['text']==text),None)
         if panel is None:raise RuntimeError('The captured native CLI approval changed; no choice made')
         at=round(time.time()*1000)

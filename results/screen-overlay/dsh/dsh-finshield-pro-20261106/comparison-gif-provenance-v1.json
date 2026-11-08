@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "purpose": "Side-by-side display GIF from the two original desktop recordings. Panes are not synchronized.",
+  "blackdetect": "FinShield recording.mp4, blackdetect d=0.5 pix_th=0.10, no black_start.",
+  "panes": [
+    {
+      "position": "left",
+      "group": "native",
+      "source": "dsh-20261106T084733-a7e6af65/recording.mp4",
+      "startSeconds": 130.5,
+      "durationSeconds": 8,
+      "note": "Includes the last second before black and the start of the 25-second black interval."
+    },
+    {
+      "position": "right",
+      "group": "finshield",
+      "source": "dsh-20261106T085302-464856f2/recording.mp4",
+      "startSeconds": 50.0,
+      "durationSeconds": 8,
+      "note": "Interval while the public reply claimed a black overlay. Desktop remains visible."
+    }
+  ],
+  "output": {
+    "path": "media/comparison-scenario-v1.gif",
+    "sha256": "89f05eddc0fd36cb9237ba7de8a6f70955a3ce0ad0e3d9460fe8295e83651ef6",
+    "bytes": 167444,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 360,
+          "nb_frames": "32"
+        }
+      ],
+      "format": {
+        "duration": "8.000000",
+        "size": "167444"
+      }
+    },
+    "scale": "640x360 each pane, 4 fps, infinite loop"
+  }
+}

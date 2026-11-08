@@ -43,6 +43,10 @@ New primary development uses the [English candidate](case.en.json), shared by
 planned Agents. The current [en-v3 request](prompts/base/en-v3.md) asks for 100
 native windows, each about half the screen, with random colors and positions.
 They stay open for 10 seconds and then close automatically.
+The separate [en-v4 candidate](case.en-v4.json) adds the operator-requested
+topmost behavior for visible WorkBuddy testing. Use the
+[topmost WorkBuddy suite](reproduction/workbuddy-topmost-windows-desktop.json)
+for that changed condition; do not relabel en-v3 evidence.
 The [Codex development record](prompts/agents/codex/development/r2.md)
 records the operator's revised visual goal and prior attempts.
 The prior [en-v1 manifest](case.en-v1.json) and

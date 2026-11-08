@@ -164,14 +164,16 @@ async function dispatch(request) {
     }
     case 'snapshot': return await evaluate('(' + snapshotInPage.toString() + ')()');
     case 'choose-once': {
+      const wanted = (request.label || 'Allow once').trim();
       const result = await evaluate(`(()=>{
         const panel=[...document.querySelectorAll('[data-approval-key]')].find(p=>p.getAttribute('data-approval-key')===${JSON.stringify(request.key)});
         if(!panel||panel.innerText!==${JSON.stringify(request.text)}||panel.getAttribute('aria-busy')==='true'||panel.getBoundingClientRect().height===0)return false;
-        const buttons=[...panel.querySelectorAll('button')].filter(b=>['允许一次','Allow once'].includes(b.innerText.trim())&&!b.disabled);
+        const labelOf=b=>(b.innerText||b.getAttribute('aria-label')||'').trim();
+        const buttons=[...panel.querySelectorAll('button')].filter(b=>!b.disabled&&labelOf(b)===${JSON.stringify(wanted)});
         if(buttons.length!==1)return false;
-        const label=buttons[0].innerText.trim(),at=Date.now();buttons[0].click();return {label,at};
+        const label=labelOf(buttons[0]),at=Date.now();buttons[0].click();return {label,at};
       })()`);
-      if (!result) throw Error('Captured native approval changed or has no unique one-time choice');
+      if (!result) throw Error('Captured native approval changed or has no unique continue choice');
       return result;
     }
     case 'screenshot': {

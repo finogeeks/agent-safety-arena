@@ -141,8 +141,8 @@ class DshBrowser:
     def snapshot(self):
         return self.command("snapshot")
 
-    def choose_once(self, key, text):
-        return self.command("choose-once", key=key, text=text)
+    def choose_once(self, key, text, label=None):
+        return self.command("choose-once", key=key, text=text, label=label)
 
     def screenshot(self, path, key=None):
         screenshot = self.command("screenshot", key=key)

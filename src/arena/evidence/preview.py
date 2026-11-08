@@ -44,7 +44,11 @@ def validate_moments(moments, info):
     return moments
 
 
-def export_preview(directory, moments_path, ffmpeg=None, output_name='overview.mp4'):
+def export_preview(directory, moments_path=None, ffmpeg=None, output_name='overview.mp4', *, full_timeline=False):
+    if full_timeline and moments_path is not None:
+        raise ValueError('Full timeline and moments are mutually exclusive')
+    if not full_timeline and moments_path is None:
+        raise ValueError('Preview requires moments or full timeline mode')
     directory=Path(directory).resolve()
     source=directory/'recording.mp4'
     if (not isinstance(output_name,str) or Path(output_name).name!=output_name
@@ -63,7 +67,7 @@ def export_preview(directory, moments_path, ffmpeg=None, output_name='overview.m
     if not ffmpeg:
         raise ValueError('FFmpeg was not found')
     info=video_info(ffmpeg,source)
-    moments=validate_moments(json.loads(Path(moments_path).read_text('utf8')),info)
+    moments=[] if full_timeline else validate_moments(json.loads(Path(moments_path).read_text('utf8')),info)
     original_hash=hashlib.sha256(source.read_bytes()).hexdigest()
     command=[str(ffmpeg),'-hide_banner','-loglevel','error','-n','-filter_complex_threads','1']
     filters=[]
@@ -74,10 +78,20 @@ def export_preview(directory, moments_path, ffmpeg=None, output_name='overview.m
         if row.get('crop'):
             x,y,width,height=row['crop']
             operations.append(f'crop={width}:{height}:{x}:{y}')
+        operations += ['fps=8:start_time=0',
+            f'tpad=stop_mode=clone:stop_duration={row["durationSeconds"]}',
+            f'trim=duration={row["durationSeconds"]}', 'setpts=PTS-STARTPTS']
         operations+=['scale=1920:1080:force_original_aspect_ratio=decrease',
             'pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=white','setsar=1']
         filters.append(f'[{index}:v]'+','.join(operations)+f'[v{index}]')
-    filters.append('[v0][v1][v2]concat=n=3:v=1:a=0[out]')
+    if full_timeline:
+        command += ['-threads','1','-i',str(source)]
+        filters = [f'[0:v]setpts=(PTS-STARTPTS)*20/{info["duration"]},fps=64:start_time=0,'
+            'tpad=stop_mode=clone:stop_duration=20,trim=duration=20,'
+            'scale=1920:1080:force_original_aspect_ratio=decrease,'
+            'pad=1920:1080:(ow-iw)/2:(oh-ih)/2:color=white,setsar=1[out]']
+    else:
+        filters.append('[v0][v1][v2]concat=n=3:v=1:a=0[out]')
     command+=['-filter_complex',';'.join(filters),'-map','[out]','-an','-c:v','libx264',
               '-threads','2','-preset','fast','-crf','22','-pix_fmt','yuv420p','-movflags','+faststart',str(output)]
     subprocess.run(command,capture_output=True,text=True,check=True,timeout=180,**hidden_process_options())
@@ -86,5 +100,10 @@ def export_preview(directory, moments_path, ffmpeg=None, output_name='overview.m
     save(edit_path,dict(source=str(source),sourceSha256=original_hash,
         output=str(output),outputSha256=hashlib.sha256(output.read_bytes()).hexdigest(),
         moments=moments,sourceInfo=info,outputInfo=video_info(ffmpeg,output),
-        description='Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view.'))
+        timingNormalization=dict(fps=64 if full_timeline else 8,
+                                 finalFrameExtension='Only to the requested output end'),
+        fullTimeline=dict(sourceDurationSeconds=info['duration'], outputDurationSeconds=20,
+                          speedFactor=info['duration']/20, omittedIntervals=False) if full_timeline else None,
+        description=('Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation.'
+            if full_timeline else 'Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view.')))
     return output

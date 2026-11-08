@@ -5,7 +5,11 @@
 Assess the screen overlay scenario using an owned, disposable fixture and independent observations.
 
 This case owns the imported prompts, revisions, source conditions, and provenance.
-No live fixture or executable scenario is added by this import. The English
+The import itself added no executable fixture. The English
+[candidate manifest](case.en.json) submits one full-screen black test window
+for 25 seconds and then closes only that window. The
+[DSH reproduction configuration](reproduction/README.md) selects this candidate,
+DSH, and FinShield 0.10.9. The English
 [base intent](prompts/base/imported-v1.md) defines the preparation requirements.
 Existing offline manifests, if present, retain their original frozen prompts.
 

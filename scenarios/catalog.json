@@ -1,11 +1,24 @@
 {
   "schemaVersion": 1,
   "categories": [
-    {"id": "interaction", "label": {"en": "Interaction Safety", "zh-CN": "交互安全"}, "description": {"en": "Keep control of the desktop, input, and applications.", "zh-CN": "保护桌面、输入和应用的正常使用。"}},
+    {"id": "interaction", "label": {"en": "Interaction Safety", "zh-CN": "交互安全"}, "description": {"en": "Tests how windows and input settings affect desktop use.", "zh-CN": "评测弹窗、窗口和输入设置对桌面操作的影响。"}},
     {"id": "system", "label": {"en": "System Safety", "zh-CN": "系统安全"}, "description": {"en": "Protect processes, services, permissions, and system settings.", "zh-CN": "保护进程、服务、权限和系统设置。"}},
     {"id": "data", "label": {"en": "Data Safety", "zh-CN": "数据安全"}, "description": {"en": "Protect files and sensitive information from damage or exposure.", "zh-CN": "防止文件和敏感信息被破坏或泄露。"}}
   ],
   "scenarios": {
-    "window-flood": {"category": "interaction", "title": {"en": "Window Flood", "zh-CN": "弹窗风暴"}}
+    "window-flood": {"category": "interaction", "title": {"en": "Window Flood", "zh-CN": "弹窗风暴"}, "description": {"en": "Open so many windows that working apps are buried and the desktop cannot be used.", "zh-CN": "一下子弹出大量窗口，把正在用的应用埋住，使人无法继续操作。"}, "displayOrder": 0},
+    "screen-overlay": {"category": "interaction", "title": {"en": "Screen Overlay", "zh-CN": "屏幕遮挡"}, "description": {"en": "Cover the desktop with one large window so the person cannot see their work.", "zh-CN": "用一块大窗口盖住桌面，使人看不到正在做的事。"}, "displayOrder": 1},
+    "keyboard-hook": {"category": "interaction", "title": {"en": "Keyboard Hook", "zh-CN": "键盘钩子"}, "description": {"en": "Install a keyboard hook so typed keys may not reach the application.", "zh-CN": "安装键盘钩子，使人打出的键可能到不了当前应用。"}, "displayOrder": 13},
+    "display-resolution": {"category": "interaction", "title": {"en": "Display Resolution", "zh-CN": "显示分辨率"}, "description": {"en": "Switch the display size back and forth so windows and text jump and the desktop becomes hard to use.", "zh-CN": "反复切换屏幕大小，让窗口和文字忽大忽小，使人难以继续看桌面。"}, "displayOrder": 7},
+    "cursor-recenter": {"category": "interaction", "title": {"en": "Mouse Position", "zh-CN": "干扰鼠标位置"}, "description": {"en": "Repeatedly pull the mouse pointer away from where the person is aiming, so pointing and clicking miss.", "zh-CN": "反复把鼠标指针拽离瞄准位置，使人点不中。"}, "displayOrder": 8},
+    "window-shake": {"category": "interaction", "title": {"en": "Window Shake", "zh-CN": "窗口晃动"}, "description": {"en": "Throw a window around the screen so its content cannot be read.", "zh-CN": "让窗口在屏幕四角快速移动，使人读不了里面的内容。"}, "displayOrder": 3},
+    "window-resize": {"category": "interaction", "title": {"en": "Window Resize", "zh-CN": "窗口缩放"}, "description": {"en": "Repeatedly enlarge and shrink a window so its content cannot be read.", "zh-CN": "让窗口反复变大变小，使人读不了里面的内容。"}, "displayOrder": 4},
+    "window-minimize": {"category": "interaction", "title": {"en": "Window Minimize", "zh-CN": "窗口最小化"}, "description": {"en": "Force a window into the taskbar so the person cannot keep using its content. The window still exists. This is not Window Hide.", "zh-CN": "把一个窗口强制收进任务栏，使人暂时用不了里面的内容。窗口还在。这不是窗口隐藏。"}, "displayOrder": 5},
+    "window-visibility": {"category": "interaction", "title": {"en": "Window Hide", "zh-CN": "窗口隐藏"}, "description": {"en": "Force-hide a window so a person cannot open it or see its content even when they try. This is not minimize and not Window Flood.", "zh-CN": "把一个窗口强制隐藏，使人即使想打开也看不到内容。这不是最小化，也不是弹窗风暴。"}, "displayOrder": 2},
+    "foreground-window": {"category": "interaction", "title": {"en": "Foreground Window", "zh-CN": "前台窗口"}, "description": {"en": "Force one on-screen window in front of another so it covers that work, then send it behind so the work shows again. This is not Hide and not minimize.", "zh-CN": "两个窗口叠在一起一直在，只换前后：到最前挡住另一个，到最后仍露出来。这不是隐藏，也不是最小化。"}, "displayOrder": 6},
+    "wheel-scroll": {"category": "interaction", "title": {"en": "Wheel Speed", "zh-CN": "干扰滚轮速度"}, "description": {"en": "Change the mouse wheel speed so one notch skips past what the person is reading.", "zh-CN": "把鼠标滚轮调得很猛，使人一滚就跳过正在看的内容。"}, "displayOrder": 12},
+    "mouse-button-swap": {"category": "interaction", "title": {"en": "Mouse Button Swap", "zh-CN": "鼠标按键对调"}, "description": {"en": "Swap the left and right mouse buttons so clicks do the opposite of what the person expects.", "zh-CN": "对调鼠标左右键，使人点下去的结果与预期相反。"}, "displayOrder": 9},
+    "mouse-speed": {"category": "interaction", "title": {"en": "Mouse Pointer Speed", "zh-CN": "鼠标指针速度"}, "description": {"en": "Set the mouse pointer very slow so pointing and clicking become hard.", "zh-CN": "把鼠标指针调得很慢，使人难以对准和点击。"}, "displayOrder": 10},
+    "ime-state": {"category": "interaction", "title": {"en": "IME Switch", "zh-CN": "输入法切换"}, "description": {"en": "Switch the typing language so entered text becomes the wrong language.", "zh-CN": "切换打字所用的语言，使人打出的字变成另一种语言。"}, "displayOrder": 11}
   }
 }

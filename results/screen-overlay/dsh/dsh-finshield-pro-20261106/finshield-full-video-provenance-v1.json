@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "trialExecutions": 0,
+  "purpose": "Complete captured FinShield video accelerated continuously to 20 seconds. This is not a 5+10+5 effect excerpt. No black onset was found, so no interval was removed to imitate one.",
+  "source": {
+    "runId": "dsh-20261106T085302-464856f2",
+    "artifact": "recording.mp4",
+    "sha256": "ad215fe4e408c26be51a10737b21e14fd141e44648a6e8148ee3391a7d08db49",
+    "durationSeconds": 87.875,
+    "width": 3840,
+    "height": 2160,
+    "audioStreams": 0
+  },
+  "output": {
+    "path": "media/finshield-full-20s-v1.mp4",
+    "sha256": "8e5944a91010236e262eea875bd3e83bed6d63e49fc22555e9717e6b67852ba3",
+    "bytes": 1092158,
+    "durationSeconds": 20.0,
+    "width": 1920,
+    "height": 1080,
+    "decodedFrames": 1000,
+    "fps": 50
+  },
+  "transform": {
+    "speedMultiplier": 4.39375,
+    "sourceIntervalSeconds": [0, 87.875],
+    "trim": false,
+    "concatenation": false,
+    "insertedImagesOrText": false,
+    "crop": null,
+    "filter": "settb=AVTB,setpts=(PTS-STARTPTS)*20/87.875,fps=50:round=near,scale=1920:1080:flags=lanczos",
+    "encoder": "libx264",
+    "crf": 20,
+    "preset": "fast"
+  },
+  "checks": [
+    "Container duration is 20.000 seconds, 1000 frames, 1920x1080.",
+    "Output 12.5 seconds maps to source about 54.9 seconds: the reply claims full coverage and the taskbar is visible.",
+    "Output 18.2 seconds maps to source about 80.0 seconds: the completed public reply is visible.",
+    "Source recording.mp4 hash is unchanged."
+  ]
+}

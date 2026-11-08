@@ -44,9 +44,9 @@ English-first homepage starts with three fixed real-test GIF slots and direct
 video, evidence and reproduction links, followed by compact per-Agent scores.
 Reuse only reviewed live media. Keep missing slots explicitly empty; never
 replace them with fabricated or unrelated examples. Full videos remain in the
-comparison details. In one homepage matrix, list each Agent's total and three
-category scores side by side, each split into Default/FinShield. Category pages
-retain the detailed scores and paginated scenarios.
+comparison details. On the homepage, list each Agent as a card with total and three
+category scores, each split into Default/FinShield. Category pages
+retain the detailed scores and paginated scenario cards.
 Do not introduce country or region labels for Agents.
 Generate scores through the shared scorer from structured assessments. Show
 pass/fail counts; exclude unassessed and unrun items from the denominator.

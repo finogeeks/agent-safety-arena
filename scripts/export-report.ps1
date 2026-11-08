@@ -14,14 +14,14 @@ $siteRoot = [System.IO.Path]::GetFullPath((Join-Path $repoRoot 'artifacts\site')
 if (-not $outputPath.StartsWith($siteRoot + '\', [System.StringComparison]::OrdinalIgnoreCase)) {
     throw 'Report output must be below this clone''s artifacts/site directory.'
 }
-$inputRecord = Get-Content -Raw -LiteralPath $recordPath | ConvertFrom-Json
+$inputRecord = Get-Content -Raw -LiteralPath $recordPath -Encoding utf8 | ConvertFrom-Json
 $exists = Test-Path -LiteralPath $outputPath
 if ($exists -and -not $Update) { throw 'Report output exists. Use -Update to regenerate the selected preview.' }
 if ($exists) {
     $oldEvidence = Join-Path $outputPath 'evidence.json'
     if (-not (Test-Path -LiteralPath (Join-Path $outputPath 'export-manifest.json') -PathType Leaf) -or
         -not (Test-Path -LiteralPath $oldEvidence -PathType Leaf)) { throw 'Update requires an existing comparison export.' }
-    $oldRecord = Get-Content -Raw -LiteralPath $oldEvidence | ConvertFrom-Json
+    $oldRecord = Get-Content -Raw -LiteralPath $oldEvidence -Encoding utf8 | ConvertFrom-Json
     if ($oldRecord.scenarioId -ne $inputRecord.scenarioId -or $oldRecord.agentId -ne $inputRecord.agentId) {
         throw 'The selected output belongs to another case or Agent.'
     }

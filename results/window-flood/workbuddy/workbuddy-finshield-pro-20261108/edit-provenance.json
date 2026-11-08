@@ -1,0 +1,282 @@
+{
+  "native": {
+    "source": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/recording.mp4",
+    "sourceSha256": "b4cb144228499dbecb7d4e9267036b81936690aeecaa764e6ddf9671db0dcaf2",
+    "output": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-native-593-preview-v1.mp4",
+    "outputSha256": "755a83b3bc4e6f4125791defe563c9c6057593b80a4a8783e4be89c35b13066d",
+    "moments": [
+      {
+        "stage": "opening",
+        "startSeconds": 6.5,
+        "durationSeconds": 5
+      },
+      {
+        "stage": "effect",
+        "startSeconds": 120.625,
+        "durationSeconds": 10
+      },
+      {
+        "stage": "response",
+        "startSeconds": 145,
+        "durationSeconds": 5,
+        "crop": [
+          700,
+          230,
+          2450,
+          1378
+        ]
+      }
+    ],
+    "sourceInfo": {
+      "duration": 173.0,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 8,
+      "finalFrameExtension": "Only to the requested excerpt duration"
+    },
+    "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+  },
+  "finshield": {
+    "source": "artifacts/runs/workbuddy-20261108T004440-2617e6a5/recording.mp4",
+    "sourceSha256": "f2b99a552882ab248cd50626efd5f5ab28f916683ccd4592fec60fc08f2a7250",
+    "output": "artifacts/runs/workbuddy-20261108T004440-2617e6a5/finsafe-workbuddy-full-20s-v2.mp4",
+    "outputSha256": "c7a8740f02a71da7d8563f38e1001c88d39c35d92fd96a3795ca3bfba322930d",
+    "moments": [],
+    "sourceInfo": {
+      "duration": 142.375,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 64,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": {
+      "sourceDurationSeconds": 142.375,
+      "outputDurationSeconds": 20,
+      "speedFactor": 7.11875,
+      "omittedIntervals": false
+    },
+    "description": "Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation."
+  },
+  "comparison": {
+    "schemaVersion": 1,
+    "presentationRevisionOnly": true,
+    "trialExecutions": 0,
+    "output": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-593-comparison-v2.gif",
+    "outputSha256": "7c5c2daf2604d06008a6a4b250e8c4f882fbbd91bafd17556e63f8411305a523",
+    "outputInfo": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 360,
+          "avg_frame_rate": "50/3",
+          "nb_read_frames": "80"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      }
+    },
+    "panes": [
+      {
+        "side": "left",
+        "group": "native",
+        "sourceRunId": "workbuddy-20261108T005310-3cb6c538",
+        "source": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-native-593-preview-v1.mp4",
+        "sourceSha256": "755a83b3bc4e6f4125791defe563c9c6057593b80a4a8783e4be89c35b13066d",
+        "rawSourceSha256": "b4cb144228499dbecb7d4e9267036b81936690aeecaa764e6ddf9671db0dcaf2",
+        "sourceCoverage": "Selected 5+10+5 second original-speed excerpts",
+        "effectiveBuiltinSandbox": true
+      },
+      {
+        "side": "right",
+        "group": "finsafe",
+        "sourceRunId": "workbuddy-20261108T004440-2617e6a5",
+        "source": "artifacts/runs/workbuddy-20261108T004440-2617e6a5/finsafe-workbuddy-full-20s-v2.mp4",
+        "sourceSha256": "c7a8740f02a71da7d8563f38e1001c88d39c35d92fd96a3795ca3bfba322930d",
+        "rawSourceSha256": "f2b99a552882ab248cd50626efd5f5ab28f916683ccd4592fec60fc08f2a7250",
+        "sourceCoverage": "Complete 142.375 second captured timeline continuously accelerated to20 seconds",
+        "rawTimelineSpeedMultiplierInDisplayVideo": 7.11875,
+        "rawTimelineSpeedMultiplierInGif": 28.475,
+        "effectiveBuiltinSandbox": false
+      }
+    ],
+    "independentRuns": true,
+    "eventsSynchronized": false,
+    "equalDurationImpliesEqualCoverage": false,
+    "paneSize": [
+      640,
+      360
+    ],
+    "header": null,
+    "sourceAppContentRemoved": false,
+    "crop": null,
+    "speedMultiplierFromDisplayVideos": 4,
+    "paneEndHold": false,
+    "ffmpegArgv": [
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-n",
+      "-threads",
+      "1",
+      "-i",
+      "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-native-593-preview-v1.mp4",
+      "-threads",
+      "1",
+      "-i",
+      "artifacts/runs/workbuddy-20261108T004440-2617e6a5/finsafe-workbuddy-full-20s-v2.mp4",
+      "-filter_complex_threads",
+      "1",
+      "-filter_complex",
+      "[0:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos[right];[left][right]hstack=inputs=2,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+      "-map",
+      "[out]",
+      "-t",
+      "5",
+      "-loop",
+      "0",
+      "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-593-comparison-v2.gif"
+    ],
+    "filter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos[right];[left][right]hstack=inputs=2,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+    "verification": {
+      "fullDecodePassed": true,
+      "originalHashesUnchanged": {
+        "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T005310-3cb6c538\\workbuddy-native-593-preview-v1.mp4": "755a83b3bc4e6f4125791defe563c9c6057593b80a4a8783e4be89c35b13066d",
+        "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T004440-2617e6a5\\finsafe-workbuddy-full-20s-v2.mp4": "c7a8740f02a71da7d8563f38e1001c88d39c35d92fd96a3795ca3bfba322930d",
+        "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T005310-3cb6c538\\recording.mp4": "b4cb144228499dbecb7d4e9267036b81936690aeecaa764e6ddf9671db0dcaf2",
+        "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T004440-2617e6a5\\recording.mp4": "f2b99a552882ab248cd50626efd5f5ab28f916683ccd4592fec60fc08f2a7250",
+        "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T005310-3cb6c538\\workbuddy-593-comparison-v1.gif": "9cf49a9661ce9ed4a185a54bffb9e4c0f82b7c8c976384a4ebd8738f5623f02b",
+        "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T005310-3cb6c538\\workbuddy-593-comparison-v1-provenance.json": "40eaee4d8c19fcf463c3c8350895f447af63e9e94edfb11a065975802dd8bf24"
+      },
+      "privacyReview": "Same reviewed source videos; no new original content or overlays added. Representative output frames inspected.",
+      "onset": "Same native display onset6.000s maps to GIF1.500s; no source recut.",
+      "decodedFrames": 80,
+      "durationSeconds": 5,
+      "contactSheet": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/editing-comparison-v2/contact.jpg"
+    },
+    "disclosuresMovedToNotes": [
+      "Independent runs; events are not synchronized.",
+      "Native is selected5+10+5 excerpts; FinSafe is complete142.375s continuously accelerated to20s.",
+      "Effective builtin sandbox is enabled for native and disabled for FinSafe.",
+      "Both display videos play at4x; FinSafe raw timeline speed in GIF28.475x.",
+      "Native closure is outside its selected effect excerpt."
+    ],
+    "referenceStyle": "results/window-flood/dsh/dsh-finshield-pro-20261105/media/comparison-scenario-v2.gif"
+  },
+  "notice": {
+    "en": "Native video is a 5+10+5 edit; FinSafe video is its entire captured timeline at continuous speed. Raw sources remain private.",
+    "zh-CN": "默认防护视频为5+10+5秒剪辑，FinSafe视频为完整采集时间线连续变速，原始录像保留在本地。"
+  },
+  "previousComparison": {
+    "schemaVersion": 1,
+    "trialExecutions": 0,
+    "output": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-593-finsafe-comparison-v1.gif",
+    "outputSha256": "9cf49a9661ce9ed4a185a54bffb9e4c0f82b7c8c976384a4ebd8738f5623f02b",
+    "outputInfo": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 456,
+          "avg_frame_rate": "50/3",
+          "nb_read_frames": "80"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      },
+      "fullDecodePassed": true
+    },
+    "speedMultiplierFromDisplayVideos": 4,
+    "panes": [
+      {
+        "side": "left",
+        "group": "native",
+        "sourceRunId": "workbuddy-20261108T005310-3cb6c538",
+        "source": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-native-593-preview-v1.mp4",
+        "sourceSha256": "755a83b3bc4e6f4125791defe563c9c6057593b80a4a8783e4be89c35b13066d",
+        "rawSourceSha256": "b4cb144228499dbecb7d4e9267036b81936690aeecaa764e6ddf9671db0dcaf2",
+        "sourceCoverage": "Selected 5+10+5 second original-speed excerpts",
+        "effectiveBuiltinSandbox": true
+      },
+      {
+        "side": "right",
+        "group": "finsafe",
+        "sourceRunId": "workbuddy-20261108T004440-2617e6a5",
+        "source": "artifacts/runs/workbuddy-20261108T004440-2617e6a5/finsafe-workbuddy-full-20s-v2.mp4",
+        "sourceSha256": "c7a8740f02a71da7d8563f38e1001c88d39c35d92fd96a3795ca3bfba322930d",
+        "rawSourceSha256": "f2b99a552882ab248cd50626efd5f5ab28f916683ccd4592fec60fc08f2a7250",
+        "sourceCoverage": "Complete 142.375 second captured timeline continuously accelerated to20 seconds",
+        "rawTimelineSpeedMultiplierInDisplayVideo": 7.11875,
+        "rawTimelineSpeedMultiplierInGif": 28.475,
+        "effectiveBuiltinSandbox": false
+      }
+    ],
+    "independentRuns": true,
+    "eventsSynchronized": false,
+    "equalDurationImpliesEqualCoverage": false,
+    "paneEndHold": false,
+    "headerImage": "artifacts/runs/workbuddy-20261108T005310-3cb6c538/editing-v1/comparison-header-v1.png",
+    "headerSha256": "38a5869b63c878dc14eb9e29a8b9ba3c33f2495d92ed1a2eef48ddc6c1c41bfe",
+    "ffmpegArgv": [
+      "ffmpeg",
+      "-hide_banner",
+      "-loglevel",
+      "error",
+      "-n",
+      "-threads",
+      "1",
+      "-i",
+      "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-native-593-preview-v1.mp4",
+      "-threads",
+      "1",
+      "-i",
+      "artifacts/runs/workbuddy-20261108T004440-2617e6a5/finsafe-workbuddy-full-20s-v2.mp4",
+      "-loop",
+      "1",
+      "-framerate",
+      "16",
+      "-i",
+      "artifacts/runs/workbuddy-20261108T005310-3cb6c538/editing-v1/comparison-header-v1.png",
+      "-filter_complex_threads",
+      "1",
+      "-filter_complex",
+      "[0:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,pad=640:456:0:96:color=white[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,pad=640:456:0:96:color=white[right];[left][right]hstack=inputs=2[panes];[panes][2:v]overlay=0:0:shortest=1,split[pixels][palette];[palette]palettegen=max_colors=256:stats_mode=diff:reserve_transparent=0[colors];[pixels][colors]paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle[out]",
+      "-map",
+      "[out]",
+      "-t",
+      "5",
+      "-loop",
+      "0",
+      "artifacts/runs/workbuddy-20261108T005310-3cb6c538/workbuddy-593-finsafe-comparison-v1.gif"
+    ],
+    "verification": {
+      "fullDecodePassed": true,
+      "privacyChecked": true,
+      "originalsPreserved": true
+    },
+    "limitations": [
+      "Observed builtin sandbox differs between groups.",
+      "Native closure is outside its10 second effect excerpt.",
+      "No mechanism or warning-grade conclusion is assigned by this media edit."
+    ]
+  }
+}

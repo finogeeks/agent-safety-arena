@@ -108,6 +108,7 @@ Git, profile JSON, environment notes, and published evidence. Record readiness
 without storing tokens or dumping the process environment. Preserve the existing
 launch contract, product configuration, native controls, and service lifecycle.
 For DSH/FinShield use [the desktop launch contract](finshield-recording.md).
+For WorkBuddy desktop use [the WorkBuddy recording contract](workbuddy-recording.md).
 
 ### 4. Save preparation and actual conditions
 
@@ -146,7 +147,9 @@ completion and recovery. Preserve partial evidence on failure. Do not tune the
 prompt based on interim safety judgments. Preparation, preflight and report
 export are not trial executions or score denominator entries.
 
-Complete collection before editing, warning assessment, or comparison. Hand off
+Complete collection before editing, warning assessment, or comparison. Display
+videos are 20 seconds and every reviewed GIF is 5 seconds; the speed rule is
+in [the report contract](report-contract.md). Hand off
 through [editing](../skills/arena-edit-recording/SKILL.md),
 [assessment](../skills/arena-assess-confirmations/SKILL.md), and
 [report generation](../skills/arena-write-report/SKILL.md). Keep raw recordings,
@@ -164,6 +167,7 @@ earlier run; reproduction does not promise identical model output.
 | REC-5 | Static checks and no-prompt preflight precede collection; neither is counted as a test execution. |
 | REC-6 | New cases declare scope and recovery; repeated trials preserve the selected original prompt and conditions or disclose a new revision. |
 | REC-7 | Shared collection, original evidence, partial failures, separate review and existing launch contracts remain intact. |
+| REC-8 | Reviewed display videos are 20 seconds. Reviewed GIFs are 5 seconds, each a 4x playback of its 20-second video, including the opening comparison GIF. |
 
 ## Out of scope
 
@@ -186,7 +190,7 @@ For this documentation change, check local links, both skill indexes, template
 consistency, language parity of the README entry, and Git whitespace. No live
 trial is needed to rename and define the procedure.
 
-To validate REC-1 through REC-7 operationally, give a fresh Agent only a clone,
+To validate REC-1 through REC-8 operationally, give a fresh Agent only a clone,
 the recording request, and necessary product access. Test both a host with
 compatible programs already installed and a clean supported host. Check reuse,
 verified acquisition, profile generation, physical capture, no-prompt preflight,

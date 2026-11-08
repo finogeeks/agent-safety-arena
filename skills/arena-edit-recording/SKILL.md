@@ -86,9 +86,11 @@ description also mentions capabilities that may not have been used in this edit.
 | `effect` | 10 seconds | Locate the first visible effect, then start about 1 second before it. Keep the interval continuous at original speed, so the buildup is visible. Cover the ending when it fits; otherwise record what is omitted. |
 | `response` | 5 seconds | Show the final matched public reply and completion. Retain readable final text; do not select an unrelated background reply or a blank terminal after shutdown. |
 
-These durations total **20 seconds**, as confirmed by the operator. Use different
-durations only when the operator changes them. Do not replace the onset with a
-later frame that merely looks more dramatic.
+These durations total **20 seconds**. The opening comparison GIF is 5 seconds:
+play each 20-second display video at 4x, as specified in
+[the report contract](../../docs/report-contract.md). Use different durations
+only when the operator changes them. Do not replace the onset with a later
+frame that merely looks more dramatic.
 
 Exclude native sandbox confirmation panels from the edited video. If a one-second
 lead-in overlaps such a panel, start at the first clean execution frame after

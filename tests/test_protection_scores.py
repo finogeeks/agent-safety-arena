@@ -14,21 +14,23 @@ ROOT = fixtures.ROOT
 
 class ScoreMatrix(HTMLParser):
     def __init__(self):
-        super().__init__();self.agent=None;self.cell=None;self.values={}
+        super().__init__();self.agent=None;self.cell=None;self.depth=0;self.values={}
 
     def handle_starttag(self,tag,attrs):
         attrs=dict(attrs)
-        if tag=='tr' and 'data-score-agent' in attrs:self.agent=attrs['data-score-agent']
-        if tag=='td' and self.agent and 'data-score-scope' in attrs:
+        if 'data-score-agent' in attrs:self.agent=attrs['data-score-agent']
+        if self.agent and 'data-score-scope' in attrs:
             self.cell=(self.agent,attrs['data-score-scope'],attrs['data-score-protection'])
-            self.values[self.cell]=''
+            self.values[self.cell]='';self.depth=0
+        elif self.cell is not None:self.depth+=1
 
     def handle_data(self,value):
         if self.cell:self.values[self.cell]+=value
 
     def handle_endtag(self,tag):
-        if tag=='td':self.cell=None
-        if tag=='tr':self.agent=None
+        if self.cell is None:return
+        if self.depth:self.depth-=1
+        else:self.cell=None
 
 
 class ProtectionScoreTests(unittest.TestCase):
@@ -162,7 +164,15 @@ class ProtectionScoreTests(unittest.TestCase):
                     self.assertIn('Not tested' if language=='en' else '未测试',parsed.values[('sample-agent','data',group)])
                 self.assertIn('0%',parsed.values[('other-agent','overall','native')])
                 self.assertIn('100%',parsed.values[('other-agent','overall','finshield')])
-                self.assertEqual(html.count('colspan="2"'),4)
+                self.assertIn('class="agent-card-grid"',html)
+                self.assertEqual(html.count('data-score-agent='),2)
+                self.assertNotIn('score-matrix',html)
+                self.assertNotIn('matrix-hint',html)
+                category=(root/'site/interaction.html').read_text('utf8')
+                self.assertIn('class="scenario-card-grid"',category)
+                self.assertIn('class="scenario-card"',category)
+                self.assertIn('data-case="interaction-case"',category)
+                self.assertNotIn('scenario-table',category)
 
 
 if __name__=='__main__':

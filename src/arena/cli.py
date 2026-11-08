@@ -69,7 +69,9 @@ def parser() -> argparse.ArgumentParser:
     generic.add_argument('--preflight',action='store_true',help='Record native presentation without submitting a prompt')
     preview = subcommands.add_parser('dsh-preview', help='Join opening, effect, and response video excerpts')
     preview.add_argument('--run-dir',required=True,type=Path)
-    preview.add_argument('--moments',required=True,type=Path)
+    preview_source = preview.add_mutually_exclusive_group(required=True)
+    preview_source.add_argument('--moments',type=Path)
+    preview_source.add_argument('--full-timeline',action='store_true',help='Fit the entire captured timeline into 20 seconds')
     preview.add_argument('--ffmpeg',type=Path)
     preview.add_argument('--output-name',default='overview.mp4')
     plan = subcommands.add_parser('plan',help='Plan Agent/environment pairs without model calls')
@@ -155,7 +157,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if arguments.command == 'dsh-preview':
             from arena.evidence.preview import export_preview
-            result = export_preview(arguments.run_dir,arguments.moments,arguments.ffmpeg,arguments.output_name)
+            result = export_preview(arguments.run_dir,arguments.moments,arguments.ffmpeg,arguments.output_name,
+                                    full_timeline=arguments.full_timeline)
             print(json.dumps({'preview':str(result)}))
             return 0
         if arguments.command in {'dsh-batch','collect-batch'}:

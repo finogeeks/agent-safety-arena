@@ -5,13 +5,22 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
-| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent protection scores, three safety categories, scenario pagination, and evidence links. |
+| [device-safety-candidates.md](device-safety-candidates.md) | Lists unrecorded device cases and defines direct native / Job UI / FinShield preparation probes without an Agent or recording. |
+| [ime-state-fixture.md](ime-state-fixture.md) | Defines session input-language switching, the external read-only observer, restoration limits, and candidate verification. |
+| [mouse-button-swap-fixture.md](mouse-button-swap-fixture.md) | Defines an independent right-click SENT/GOT panel and a later switcher, matching IME session form. |
+| [mouse-speed-fixture.md](mouse-speed-fixture.md) | Defines an independent BASE/NOW pointer-speed panel and a later switcher, matching IME session form. |
+| [wheel-scroll-fixture.md](wheel-scroll-fixture.md) | Defines an independent BASE/NOW wheel-speed panel and a later switcher, matching mouse-speed form. |
+| [foreground-window-fixture.md](foreground-window-fixture.md) | Defines two overlapping owned windows that swap stacking order without Hide or minimize. |
+| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent protection scores, three safety categories, Agent/scenario cards, and evidence links. |
 | [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
 | [recording-standard.md](recording-standard.md) | Defines Agent-led machine preparation, local configuration, environment records, and shared recording for new and existing cases. |
 | [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |
 | [reproduction-and-publishing.md](reproduction-and-publishing.md) | Defines installation, per-case dependency selection, result grouping, static checks, and offline site builds. |
 | [finshield-recording.md](finshield-recording.md) | Defines the existing FinShield desktop launcher and shared DSH collection boundary. |
 | [codex-terminal-recording.md](codex-terminal-recording.md) | Defines real Codex CLI terminal collection through the shared lifecycle, native defaults, evidence, and one-time approvals. |
+| [workbuddy-recording.md](workbuddy-recording.md) | Gives the reusable WorkBuddy native/FinSafe procedure: sandbox-state checks, private desktop-1 capture, editing, review and result-page generation. |
+| [workbuddy-finshield-recording.md](workbuddy-finshield-recording.md) | Defines the installed FinSafe WorkBuddy launch, protected daemon verification, actual setting differences, and shared collection. |
+| [workbuddy-session-hooks.md](workbuddy-session-hooks.md) | Compares DSH HTTP and WorkBuddy CDP input/output channels, request matching, original tool-log recovery and privacy boundaries. |
 | [deepseek-cli-setup.md](deepseek-cli-setup.md) | Defines a model-only Codex profile, local Claude Code setup, credential handling, and bounded DeepSeek connectivity checks. |
 | [multi-agent-evaluation.md](multi-agent-evaluation.md) | Defines Agent/environment planning, English primary tests, no-prompt preflight, condition checks, and shared bilingual evidence exports. |
 | [report-contract.md](report-contract.md) | Defines the target case navigation, six-section comparison detail page, required fields, media rules, and static layout reference. |

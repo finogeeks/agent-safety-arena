@@ -38,21 +38,21 @@ Homepage order:
    links to its scenario/score page. Use one representative live reviewed GIF per
    category, not a list of all cases. Put the first available representative in
    the large slot; keep deterministic category order when no media exists.
-3. One compact five-Agent matrix combining overall and all three category scores.
-   Each Agent occupies one row. Overall, Interaction, System and Data each have
-   Default/FinShield subcolumns. Keep pass/fail counts and explicit untested
-   states in the cells. Do not combine different Agents or turn empty cells into
-   zero scores. Follow the matrix with methodology, source, and data links.
+3. One small card per Agent combining overall and all three category scores.
+   Each Agent occupies one card. Overall, Interaction, System and Data each have
+   Default/FinShield scores on that card. Keep pass/fail counts and explicit
+   untested states. Do not combine different Agents or turn empty cells into
+   zero scores. Follow the cards with methodology, source, and data links.
 
-The homepage matrix reads the existing per-Agent total/category score objects;
-it does not calculate a different grade. Use grouped column headers and a sticky
-Agent column. On small screens, allow horizontal scrolling with a short hint;
-do not hide category results or force navigation to see them. Category pages
-retain their own detailed score tables and scenario lists.
+The homepage Agent cards read the existing per-Agent total/category score
+objects; they do not calculate a different grade. Keep both protection tracks
+and all three categories visible on each card. Stack the cards on small
+screens. Do not hide category results behind navigation. Category pages
+retain a compact category score summary and a scenario card grid.
 
 The showcase precedes scores, so a new reader sees actual testing immediately.
 Reuse each selected record's existing reviewed combined GIF without re-editing
-or rerunning. Show case name, Agent, source phase, native/FinShield pane labels,
+or rerunning. Show case name, Agent, native/FinShield pane labels,
 and an expandable original edit note. Do not call an edited GIF a full recording.
 Link the GIF and a Video action directly to section 03 of the original report;
 link Records to its evidence.json and Reproduce to section 06 only when reviewed
@@ -67,16 +67,83 @@ for live evidence. `reports.hasReproduction` records whether reviewed bilingual
 instructions exist; it does not add another copy of reproduction text.
 
 Do not put full case result lists, logs, or long method text on the homepage.
-Adding scenarios must not add homepage rows or more than three GIF slots. Stack
-the showcase on phones and keep both protection tracks visible in the score table.
+Adding scenarios must not add homepage GIF slots beyond the three category
+cards. Stack the showcase on phones and keep both protection tracks visible
+on each Agent card.
 
-Category pages group reports by scenario and contain at most 20 scenario rows.
+Category pages group reports by scenario and contain at most 20 scenario cards.
+Each card has its localized name, one sentence describing the action and its
+effect, two compact rows of Agent outcome counts, and a localized detail link.
+Use four columns at desktop widths above 1100px, three from 901px to 1100px,
+two from 601px to 900px, and one at phone widths. Use the heading size for
+card titles and 16px desktop card padding with 10px grid gaps. Use 22px rounded
+corners and a subtle shadow. Reserve three lines for
+each description, with an ellipsis for longer text and the full text in its
+title and scenario hub. Put the two protection tracks side by side below the
+description. Reserve at least three count lines for aligned statistics. Place
+the detail action 8px after the statistics, without automatic spacer growth.
+Count Agents separately for default and FinShield as passed, failed, unassessed,
+untested, or outside score scope. Count each roster Agent once per track using
+the same phase-specific combined result as its hub. Show nonzero counts with
+clear labels; never treat an untested or unresolved Agent as a failure. Do not
+show scenario IDs, Agent name lists, or percentages on these cards. Show the
+category score table directly above the cards without requiring expansion.
+Keep the category introduction to a title and one short description of its
+scope. Omit model and effort metadata from this introduction. Do not place a
+development/formal phase badge beside homepage or category scores. Keep phase
+metadata in the records and explain phase selection in methodology. Use compact table rows, card padding, and
+section spacing so the first card row fits in a 1280x900 desktop view.
+Order cards by authored display priority, then scenario ID, before
+pagination. Priority reflects visible impact and ease of understanding; it does
+not change scores. Category and scenario hub pages use one font stack and only
+two text sizes, 14px and 20px, at desktop and phone widths. Use weight, spacing,
+and color for other hierarchy. Remove spaces at Chinese/Latin text boundaries
+in these generated pages without changing original evidence.
 Generate previous/next and numbered static page links. Each scenario links to a
 hub with the five Agents and two protection tracks. Prefer a paired report for
 an Agent's displayed row; retain every other report as an expandable link. Do
 not synthesize a comparison by joining groups from unrelated reports. Empty
 categories stay visible and state that no reviewed recordings exist. Methodology,
 archive links, and synthetic examples move to a separate page.
+
+The scenario hub starts with the same name and description as its card. It
+shows one row per roster Agent: default protection, FinShield, and a link to
+the original report. Each Agent/protection track is one item in this scenario,
+so show only its combined result: Blocked, Not blocked, Unverified, Not tested,
+or Outside score scope. Omit percentages and redundant pass/fail counts from
+this table. Derive states from the same phase-specific combined scores. Keep
+percentages and counts in category and overall summaries.
+At phone widths, stack each Agent row with visible protection labels so both
+tracks and the evidence link remain visible without horizontal scrolling.
+Keep only the report link in the report column. Put phase metadata, scoped
+effect descriptions, and condition differences in source data and evidence
+details, not in the hub introduction, table, or archive list.
+Keep other reports accessible. Do not join evidence from separate reports.
+
+Score eligibility must not hide a recorded outcome. If a protection cell has
+only records outside the fixed model/effort scope, display the selected linked
+report's original interception assessment and warning result, with a short
+localized note that it is outside scoring. For a matching model with unexposed
+reasoning effort, say that the reasoning effort is not exposed. Keep unknown
+outcomes unknown. This display fallback does not change score counts, the
+denominator, actual conditions or source assessments. Prefer in-scope combined
+results whenever they exist; do not mix warnings from excluded reports into them.
+
+Each recorded protection cell also shows warning presence and adequacy from
+existing reviewed assessments. Keep this separate from interception and scores.
+A verified block says warning review is not required. An untested group has
+no warning result. Missing or unassessed warning evidence has no warning label.
+Use the same two-level labels as the comparison details in
+[report-contract.md](report-contract.md#warning-adequacy-grades): a primary
+Blocked / Not blocked result and a short secondary warning label. Do not show
+the A/B/C/U letters in status labels. A verified block shows Warning review not
+required. For `confirmed-no-warning`, show No warning. Never infer absence
+from an ordinary C grade or from missing data. Retain `warningBasis` alongside
+`warningLevel` in catalog assessments; do not regrade or change source records.
+Use only the source reports of that phase/model-scoped score item. Across
+repeat runs, a known C remains C; otherwise an unknown review yields U, then
+use the least adequate known grade. Mixed presence states use a general
+warning-adequacy label instead of claiming all runs had, or lacked, warnings.
 
 ### Public metadata
 
@@ -88,7 +155,10 @@ identities without rewriting evidence. There are no region fields.
 
 `scenarios/catalog.json` has `schemaVersion: 1`, exactly three `categories`
 (`id`, bilingual `label` and `description`), and `scenarios`. Each scenario entry
-has `category` and bilingual `title`. Category IDs are `interaction`, `system`,
+has `category` and bilingual `title`, with optional bilingual `description` and
+nonnegative integer `displayOrder` (lower values appear first). Missing
+descriptions fall back to the original report purpose; missing priorities sort
+after authored priorities. Category IDs are `interaction`, `system`,
 and `data`. Membership is explicit authored metadata, never guessed from a
 filename or model reply. New cases must receive a category when authored.
 Unmapped recorded scenarios remain accessible through a small unclassified link;
@@ -131,7 +201,8 @@ outcome is unassessed. A recorded result excluded for model/effort mismatch says
 Use live records with matching fixed model and reasoning effort. Exclude
 synthetic and language-study data from these scores. Score formal and development
 records separately. Show formal scores if eligible formal records exist;
-otherwise label the page Development scores. Use one phase across all summary
+otherwise show development scores, without a phase badge beside public summary
+headings. Use one phase across all summary
 cells, without filling empty formal cells from development results.
 
 Ignore archived duplicate reports. Deduplicate by original run identity, Agent,
@@ -145,9 +216,10 @@ Never merge different Agents into one protection score or average their rates.
 Each Agent's overall score uses only that Agent's assessed scenarios. Category
 scores use only that Agent's scenarios in the category. A scenario score remains
 separate for each Agent. The homepage shows the five Agents independently in
-one homepage matrix, with overall and three category groups next to each other.
-There is no combined all-Agent score. Category pages retain the detailed tables.
-Category and per-scenario pages show scores too. Scores describe the recorded
+one card each, with overall and three category scores on that card.
+There is no combined all-Agent score. Category pages retain the Agent score summary.
+Category pages and per-scenario hubs show scores and the corresponding result
+states. Scores describe the recorded
 scoped effects; they do not establish API denial, general safety, or isolated
 FinShield causality when the compared conditions differ.
 
@@ -169,7 +241,8 @@ scenario, Agent, origin and phase shares its exact run ID, conditions, and promp
 `reports`, and adds `scenarioGoal`, `categories`, and `cases`. Reports retain
 actual identities, bilingual titles/purpose, origin, phase, date, archive/paired
 flags, conditions, versions/models, and structured assessments, plus `categoryId`.
-Cases contain a unique scenario ID, title, category, and report paths. Category
+Cases contain a unique scenario ID, title, description, display order, category,
+and report paths. Category
 counts contain distinct live scenarios and recorded Agents per protection track.
 The build manifest hashes these pages, data, and assets. Original record JSON
 remains the evidence source; no raw recordings or local profile is needed.
@@ -186,6 +259,10 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-8 | Total, category and Agent scores use actual assessed items, preserve counts and source links, and exclude planning targets, unknowns and duplicates. |
 | AC-9 | Empty samples have no score; warnings do not change pass/fail; development and formal phases are not mixed. |
 | AC-10 | The homepage shows a reviewed live GIF before scores, direct video/record/reproduction links, and honest empty slots when media is missing. Synthetic media cannot replace live evidence. |
+| AC-11 | Localized cards show a name, purpose, two-track Agent outcome counts, and detail link without individual Agent scores or visible IDs; authored priority applies before pagination. Category scores are visible on entry. |
+| AC-12 | Scenario hubs show five Agent rows with combined result states and source links, without redundant single-case percentages or counts. Keep phase metadata, scoped effects and condition caveats in evidence details. Category/overall scores retain percentages and counts. |
+| AC-13 | Desktop and phone category/hub pages use only 14px and 20px text with one font stack and no added Chinese/Latin boundary spaces. |
+| AC-14 | Category introductions omit model/effort metadata. At 1280x900 the score table is at most 245px high and the first card row is fully visible. |
 
 ## Out of scope
 

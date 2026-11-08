@@ -15,6 +15,24 @@ def file_hash(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def report_navigation(catalog, relative, record):
+    """Use the same authored identities as the site's category and case pages."""
+    case = next(case for case in catalog['cases'] if case['id'] == record['scenarioId'])
+    category = next((item for item in catalog['categories'] if item['id'] == case['categoryId']),
+                    dict(label={'en': 'Unclassified records', 'zh-CN': '待分类记录'}))
+    agent = next((item for item in catalog['coverage'] if record['agentId'] in item['recordAgentIds']), None)
+    agent_label = agent['label'] if agent else record.get('presentation', {}).get('agentLabel',
+                    {language: record['agentId'] for language in ('en', 'zh-CN')})
+    prefix = '../' * len(relative.parent.parts)
+    return {language: dict(categoryLabel=category['label'][language],
+        categoryHref=prefix + case['categoryId'] + ('.zh-CN' if language == 'zh-CN' else '') + '.html',
+        caseLabel=case['title'][language],
+        caseHref=prefix + 'cases/' + case['id'] + ('/zh-CN.html' if language == 'zh-CN' else '/index.html'),
+        agentLabel=agent_label[language],
+        homeHref=prefix + ('zh-CN.html' if language == 'zh-CN' else 'index.html'))
+        for language in ('en', 'zh-CN')}
+
+
 def build_site(results_root, output, coverage_path=None, catalog_path=None):
     root = Path(results_root).resolve()
     output = Path(output).resolve()
@@ -48,9 +66,9 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
     with tempfile.TemporaryDirectory(prefix='arena-site-', dir=output.parent) as temporary:
         staging = Path(temporary) / 'site'
         staging.mkdir()
-        for path, relative, record in records:
-            bilingual.export_reports(path, staging / relative.parent)
         catalog = make_catalog(records, roster, taxonomy)
+        for path, relative, record in records:
+            bilingual.export_reports(path, staging / relative.parent, report_navigation(catalog, relative, record))
         for filename, content in render_pages(catalog).items():
             target = staging / filename
             target.parent.mkdir(parents=True, exist_ok=True)

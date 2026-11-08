@@ -34,8 +34,8 @@ Say "Not tested" when a group has no tests. Keep recorded but unassessed
 outcomes separate, and label fixed-model/effort mismatches outside score scope.
 Overall, category and scenario scores are always per Agent. Never merge
 different Agents' scores or denominators. Display the five Agents independently.
-The homepage lists total and all three category scores together in one matrix,
-one Agent per row, with Default/FinShield subcolumns in each group. Do not hide
+The homepage lists total and all three category scores together on one card
+per Agent, with Default/FinShield scores in each group. Do not hide
 category scores behind navigation or remove them to leave more whitespace.
 
 Inputs supplied by the operator:
@@ -101,7 +101,16 @@ promotional language. Put detailed evidence limits in the later evidence section
 Prepare English and Chinese narratives from the same evidence. Do not rerun for
 translation. Maintain the existing six sections, selected CSS, full tool logs,
 reproduction instructions, and provenance links unless the operator requests a
-change. Validate and export with the shared arena report command to a new
+change.
+
+For section 06, write `presentation.audit` when the operator asks for the
+reproduce-and-audit layout. Keep `identity` to Agent, prompt revision, phase,
+and date. Put suite commands in `reproduction`. List auxiliary scripts with
+repository-relative paths. Name raw run directories in `index` with location
+`raw`. Do not repeat section 02 findings or paste logs. Records without `audit`
+keep the previous summary block.
+
+Validate and export with the shared arena report command to a new
 staging directory, then update the requested existing site after checking it.
 
 Verify metadata, labels, original text, links, media hashes, and desktop/mobile

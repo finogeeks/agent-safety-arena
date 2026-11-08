@@ -21,6 +21,9 @@ PROFILE_FIELDS = {'schemaVersion', 'node', 'dshEntry', 'chrome', 'ffmpeg', 'desk
 TERMINAL_PROFILE_FIELDS = {'schemaVersion','agent','node','launchModule','launchConfig','wsModule','terminal',
     'ffmpeg','desktopTool','desktop','windowSize','theme','fontSize','timeout','confirmationMode',
     'finalHoldSeconds','captureSurface','screenRegion','approvalReview','windowState'}
+WORKBUDDY_PROFILE_FIELDS = {'schemaVersion','agent','node','workbuddyEntry','debugPort','ffmpeg','desktopTool',
+    'desktop','windowSize','theme','fontSize','timeout','confirmationMode','finalHoldSeconds',
+    'captureSurface','screenRegion','approvalReview','windowState','workspaceRoot'}
 
 
 def contained(root, relative):
@@ -47,7 +50,17 @@ def load_case(path):
         if not isinstance(case[name], str) or not case[name].strip():
             raise ValueError('Case text fields must be nonempty')
     resource = case['resource']
-    if resource == {'kind':'owned-process-tree'}:
+    if isinstance(resource, dict) and resource.get('kind') == 'owned-process-tree':
+        fields = set(resource)
+        if fields not in ({'kind'}, {'kind', 'script', 'filename'}):
+            raise ValueError('Unsupported owned-process-tree resource')
+        if 'filename' in resource:
+            filename = resource['filename']
+            if Path(filename).name != filename or not filename or filename.lower() in {'agents.md', 'claude.md'}:
+                raise ValueError('Input script filename must be a plain filename')
+            script = contained(path.parent, resource['script'])
+            if script.name != filename:
+                raise ValueError('Input script filename must match the shared file name')
         contained(path.parent, case['prompt'])
         if case['allowedCommands'] != []:
             raise ValueError('Generated process commands require explicit local scope review')
@@ -66,8 +79,17 @@ def load_case(path):
 
 def load_profile(path):
     profile = json.loads(Path(path).read_text('utf8'))
-    terminal=profile.get('schemaVersion')==2 and profile.get('agent')=='codex-cli'
-    if (not terminal and (set(profile)-PROFILE_FIELDS or profile.get('schemaVersion')!=1)) or (terminal and set(profile)-{'approvalDelaySeconds'}!=TERMINAL_PROFILE_FIELDS):
+    kind = profile.get('agent') if profile.get('schemaVersion') == 2 else None
+    if kind == 'codex-cli':
+        if set(profile) - {'approvalDelaySeconds'} != TERMINAL_PROFILE_FIELDS:
+            raise ValueError('Unsupported recording profile; credentials do not belong here')
+    elif kind == 'workbuddy':
+        if set(profile) - {'modelId','finshield','finshieldConfig'} != WORKBUDDY_PROFILE_FIELDS:
+            raise ValueError('Unsupported recording profile; credentials do not belong here')
+        port = profile.get('debugPort')
+        if type(port) is not int or not 1 <= port <= 65535:
+            raise ValueError('WorkBuddy debug port must be 1 to 65535')
+    elif set(profile) - PROFILE_FIELDS or profile.get('schemaVersion') != 1:
         raise ValueError('Unsupported recording profile; credentials do not belong here')
     delay=profile.get('approvalDelaySeconds',5)
     if type(delay) not in (int,float) or not 0 <= delay <= 60:
@@ -105,13 +127,23 @@ def prepare_case(case, source, output_root, resource_root=None):
     language = dict(prompt_language=case.get('promptLanguage','und'),
                     prompt_status=case.get('promptStatus','legacy-unspecified'),
                     language_track=case.get('languageTrack','legacy-unspecified'))
-    if case['resource'] == {'kind':'owned-process-tree'}:
+    if case['resource'].get('kind') == 'owned-process-tree':
         prompt = setup/'prompt.txt'
         shutil.copyfile(contained(source.parent, case['prompt']), prompt)
         save(setup/'case.json', case)
-        return dict(prompt=prompt, input_file=None, target=case['target'], revision=case['revision'],
-                    reason=case['reason'], case_id=case['id'], output_root=output_root, region=None,
-                    process_resource=True, **language), dict(kind='owned-process-tree'), setup
+        script = None
+        recorded = dict(kind='owned-process-tree')
+        if 'script' in case['resource']:
+            script = contained(source.parent, case['resource']['script'])
+            shutil.copyfile(script, setup/'fixture')
+            recorded.update(filename=case['resource']['filename'],
+                            initialSha256=hashlib.sha256(script.read_bytes()).hexdigest())
+        config = dict(prompt=prompt, input_file=None, target=case['target'], revision=case['revision'],
+                      reason=case['reason'], case_id=case['id'], output_root=output_root, region=None,
+                      process_resource=True, **language)
+        if script is not None:
+            config['side_script'] = script
+        return config, recorded, setup
     fixture = contained(source.parent, case['resource']['fixture'])
     filename = case['resource']['filename']
     external = case['resource']['placement'] == 'external'
@@ -279,6 +311,82 @@ class CodexRuntime:
         return state
 
 
+class WorkBuddyRuntime:
+    def __init__(self, profile):
+        self.profile = profile
+
+    def collect(self, config):
+        from arena.adapters.agents.workbuddy import WorkBuddyAgent, WorkBuddyDesktopGuard, workbuddy_confinement
+        from arena.adapters.agents.workbuddy_view import WorkBuddyView
+        from arena.adapters.environments.windows_desktop import WindowsDesktop
+        from arena.adapters.environments.windows_job import WindowsJob
+        from arena.evidence.recording import DesktopRecorder
+        profile = self.profile
+        config['approval_delay_seconds'] = profile.get('approvalDelaySeconds', 5)
+        expected = config.get('declared_conditions')
+        if expected and expected.get('confirmationMode') != profile['confirmationMode']:
+            raise ValueError('Machine profile differs from the frozen intervention conditions')
+        node = shutil.which(profile['node'])
+        if not node:
+            raise ValueError('Recording profile Node executable was not found')
+        entry = Path(profile['workbuddyEntry']) if profile.get('workbuddyEntry') else None
+        if entry is None or not entry.is_file():
+            raise ValueError('Recording profile WorkBuddy executable was not found')
+        ffmpeg = shutil.which(profile['ffmpeg']) or (str(Path(profile['ffmpeg'])) if Path(profile['ffmpeg']).is_file() else None)
+        if not ffmpeg:
+            raise ValueError('Recording profile FFmpeg executable was not found')
+        desktop_tool = shutil.which(profile['desktopTool']) or (
+            str(Path(profile['desktopTool'])) if Path(profile['desktopTool']).is_file() else None)
+        if not desktop_tool:
+            raise ValueError('Recording profile virtual desktop tool was not found')
+        workspace_root = profile.get('workspaceRoot')
+        if not isinstance(workspace_root, str) or not Path(workspace_root).is_dir():
+            raise ValueError('WorkBuddy trials require an existing workspaceRoot directory')
+        if profile.get('captureSurface') != 'desktop' or profile.get('approvalReview') != 'local-file':
+            raise ValueError('WorkBuddy trials require desktop recording and local scope review')
+        region = profile.get('screenRegion')
+        if not isinstance(region, list) or len(region) != 4 or any(type(v) is not int for v in region):
+            raise ValueError('Native recording requires a declared screen rectangle')
+        desktop = WindowsDesktop(desktop_tool, profile['desktop'])
+        original = desktop.current()
+        boundary = WindowsJob()
+        browser = WorkBuddyView(node, desktop=desktop, window_size=tuple(profile['windowSize']),
+                                window_state=profile.get('windowState', 'maximized'))
+        confinement = workbuddy_confinement(profile) if config.get('environment_adapter') == 'finshield' else None
+        agent = WorkBuddyAgent(profile, process_boundary=boundary, confinement=confinement)
+        recorder = DesktopRecorder(Path(ffmpeg), region)
+        guard = WorkBuddyDesktopGuard(desktop, recorder, agent)
+        config.update(agent_id='workbuddy', region=region, approval_review='local-file',
+                      environment_check=guard.check, workspace_root=workspace_root)
+        state = None
+        try:
+            desktop.switch(profile['desktop'])
+            desktop.operator_desktop = profile['desktop']
+            state = run_trial(config, agent=agent, browser=browser, recorder=recorder)
+        finally:
+            try:
+                recovery = boundary.close()
+                if state:
+                    save(Path(state['directory']) / 'process-recovery.json', recovery)
+                    state['addedProtection'] = bool(confinement)
+                    state['recoveryBoundary'] = 'Owned process Job; FinSafe daemon policy' if confinement else 'Owned process Job; no added security policy'
+                    if not recovery.get('recovered') or recovery.get('observerError'):
+                        state['status'] = 'error'
+                        state['errors'].append('Process recovery or observation failed')
+            finally:
+                desktop.switch(original)
+        state['operatorDesktopBefore'] = original
+        state['operatorDesktopAfter'] = desktop.current()
+        interruptions = Path(state['directory'])/'recording-interruptions.json'
+        if interruptions.exists():
+            state['recordingInterruptions'] = json.loads(interruptions.read_text(encoding='utf8'))
+            state['evidenceGaps'].append('Recording paused after a desktop switch; observation coverage is incomplete')
+            if state['status'] == 'completed':
+                state['status'] = 'incomplete'
+        save(Path(state['directory']) / 'run.json', state)
+        return state
+
+
 def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_root=None, condition=None, preflight=False):
     cases = [load_case(path) for path in case_paths]
     output_root = Path(output_root).resolve()
@@ -290,7 +398,10 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
     batch['operation'] = 'preflight' if preflight else 'collection'
     save(directory/'profile.json', profile)
     save(directory/'batch.json', batch)
-    runtime = runtime or (CodexRuntime(profile) if profile.get('agent')=='codex-cli' else DshRuntime(profile))
+    runtime = runtime or (
+        CodexRuntime(profile) if profile.get('agent') == 'codex-cli'
+        else WorkBuddyRuntime(profile) if profile.get('agent') == 'workbuddy'
+        else DshRuntime(profile))
     for case, source in cases:
         setup = None
         try:

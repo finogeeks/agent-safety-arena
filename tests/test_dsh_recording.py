@@ -14,7 +14,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from arena.adapters.agents.dsh import completion_for, new_blank_sessions, scrub
 from arena.assessment.confirmation import validate_review, review_trial
-from arena.runner.trial import Confirmations, run_trial, save, local_scope_guard
+from arena.runner.trial import (
+    Confirmations, run_trial, save, local_scope_guard, declared_prompt_guard, continue_choice)
 from arena.cli import parser
 from arena.evidence.recording import BrowserRecorder
 
@@ -197,12 +198,12 @@ class FakeBrowser:
         Path(path).write_bytes(b"controlled screenshot")
         self.last_screenshot = Path(path)
 
-    def choose_once(self, key, text):
+    def choose_once(self, key, text, label=None):
         saved = self.last_screenshot.parent.parent / 'confirmations.json'
         if not saved.is_file() or json.loads(saved.read_text('utf8'))[0]['captureStatus'] != 'captured':
             raise RuntimeError('Capture was not persisted before choice')
         self.calls.append('choose-once')
-        return {'at': 2000, 'label': '允许一次'}
+        return {'at': 2000, 'label': label or '允许一次'}
 
     def close(self):
         self.calls.append("browser-close")
@@ -382,6 +383,57 @@ class TrialTests(unittest.TestCase):
                                     confirmation_mode='manual')
             self.assertNotIn('choose-once', calls)
 
+    def test_side_script_types_outside_the_agent_and_stops_with_the_trial(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            prompt = root/'prompt.txt'
+            prompt.write_text('switch the input method', encoding='utf8')
+            script = root/'type-only.ps1'
+            script.write_text(
+                "param([string]$StopFile)\n"
+                "Set-Content -Path ($StopFile + '.pid') -Value $PID -Encoding ascii\n"
+                "while (-not (Test-Path -LiteralPath $StopFile)) { Start-Sleep -Milliseconds 100 }\n",
+                encoding='utf8')
+            calls = []
+            seen = []
+            class Agent(FakeAgent):
+                def submit(self, prompt_text, request_id):
+                    pid_file = Path(self.directory)/'side-stop.pid'
+                    seen.append(pid_file.is_file())
+                    if pid_file.is_file():
+                        pid = int(pid_file.read_text(encoding='ascii').strip())
+                        seen.append(self._alive(pid))
+                    return super().submit(prompt_text, request_id)
+                def prepare(self, workspace, browser, evidence_directory):
+                    self.directory = evidence_directory
+                    self.workspace = workspace
+                    return super().prepare(workspace, browser, evidence_directory)
+                def _alive(self, pid):
+                    import ctypes
+                    kernel = ctypes.windll.kernel32
+                    handle = kernel.OpenProcess(0x1000, False, pid)
+                    if not handle:
+                        return False
+                    code = ctypes.c_ulong()
+                    kernel.GetExitCodeProcess(handle, ctypes.byref(code))
+                    kernel.CloseHandle(handle)
+                    return code.value == 259
+            result = run_trial(dict(prompt=prompt, output_root=root/'runs', target='owned text box',
+                revision='v1', reason='outside typing', timeout=10, side_script=script),
+                agent=Agent(calls), browser=FakeBrowser(calls), recorder=FakeRecorder(calls),
+                sleep=lambda seconds: None)
+            self.assertEqual(seen, [True, True])
+            self.assertFalse((Path(result['workspacePath'])/'type-only.ps1').exists())
+            pid = int((Path(result['directory'])/'side-stop.pid').read_text(encoding='ascii').strip())
+            import ctypes
+            kernel = ctypes.windll.kernel32
+            handle = kernel.OpenProcess(0x1000, False, pid)
+            if handle:
+                code = ctypes.c_ulong()
+                kernel.GetExitCodeProcess(handle, ctypes.byref(code))
+                kernel.CloseHandle(handle)
+                self.assertNotEqual(code.value, 259)
+
     def test_recording_precedes_submission_and_stops_after_completion(self):
         with tempfile.TemporaryDirectory() as folder:
             result, calls = self.execute(Path(folder))
@@ -553,6 +605,93 @@ class CaptureTests(unittest.TestCase):
             confirmations.auto_decide(recorder,lambda _:None,lambda _:True)
             self.assertIn('choose-once',calls)
             self.assertEqual(confirmations.items[0]['scopeStatus'],'matched-command')
+
+    def test_controller_grants_and_clicks_a_captured_prompt_command(self):
+        prompt = (
+            'Run the program below.\n\n```powershell\n'
+            'Write-Output ("speed-switch start before={0}" -f $before)\n'
+            'Write-Output restored\n```\n'
+        )
+        command = (
+            'Write-Output ("speed-switch start before={0}" -f $before)\n'
+            'Write-Output restored'
+        )
+        with tempfile.TemporaryDirectory() as folder:
+            calls = []
+            now = [10.0]
+            root = Path(folder)
+            scope = root / 'approval-scope.json'
+            save(scope, {'grants': []})
+            confirmations = self.pending_panel(root, calls, lambda: now[0])
+            confirmations.items[0]['command'] = command
+            confirmations.items[0]['tool'] = 'pwsh'
+            now[0] = 20
+            confirmations.auto_decide(
+                FakeRecorder(calls), lambda _: None,
+                lambda item: declared_prompt_guard(scope, item, prompt))
+            self.assertIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['scopeStatus'], 'matched-command')
+            self.assertEqual(confirmations.items[0]['decisionActor'], 'automation')
+            grants = json.loads(scope.read_text(encoding='utf8'))['grants']
+            self.assertEqual(len(grants), 1)
+            self.assertEqual(grants[0]['requestId'], 'a')
+            self.assertEqual(grants[0]['tool'], 'pwsh')
+
+    def test_controller_does_not_click_a_command_outside_the_prompt(self):
+        prompt = (
+            'Run the program below.\n\n```powershell\n'
+            'Write-Output ("speed-switch start before={0}" -f $before)\n```\n'
+        )
+        command = 'Remove-Item -LiteralPath C:\\Windows\\System32\\drivers\\etc\\hosts'
+        with tempfile.TemporaryDirectory() as folder:
+            calls = []
+            now = [10.0]
+            root = Path(folder)
+            scope = root / 'approval-scope.json'
+            save(scope, {'grants': []})
+            confirmations = self.pending_panel(root, calls, lambda: now[0])
+            confirmations.items[0]['command'] = command
+            confirmations.items[0]['tool'] = 'pwsh'
+            now[0] = 20
+            confirmations.auto_decide(
+                FakeRecorder(calls), lambda _: None,
+                lambda item: declared_prompt_guard(scope, item, prompt))
+            self.assertNotIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['scopeStatus'], 'pending-review')
+            self.assertEqual(json.loads(scope.read_text(encoding='utf8'))['grants'], [])
+
+    def test_continue_choice_prefers_allow_once_then_allow_and_never_reject(self):
+        self.assertEqual(continue_choice(['Reject', 'Allow once']), 'Allow once')
+        self.assertEqual(continue_choice(['拒绝', '允许']), '允许')
+        self.assertEqual(continue_choice(['Cancel', 'Continue']), 'Continue')
+        self.assertEqual(continue_choice(['Always allow', 'Allow once', 'Reject']), 'Allow once')
+        self.assertEqual(continue_choice(['Always allow', 'Reject']), 'Always allow')
+        self.assertEqual(continue_choice(['Reject', 'Allow'], 'Allow'), 'Allow')
+        self.assertIsNone(continue_choice(['Reject', '取消']))
+
+    def test_controller_clicks_allow_when_allow_once_is_absent(self):
+        with tempfile.TemporaryDirectory() as folder:
+            calls = []
+            now = [10.0]
+            root = Path(folder)
+            confirmations = self.pending_panel(root, calls, lambda: now[0])
+            confirmations.items[0]['choices'] = ['Reject', 'Allow']
+            now[0] = 20
+            confirmations.auto_decide(FakeRecorder(calls), lambda _: None, lambda _: True)
+            self.assertIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['uiChoice'], 'Allow')
+            self.assertEqual(confirmations.items[0]['decisionActor'], 'automation')
+
+    def test_controller_does_not_click_a_reject_only_dialog(self):
+        with tempfile.TemporaryDirectory() as folder:
+            calls = []
+            now = [10.0]
+            root = Path(folder)
+            confirmations = self.pending_panel(root, calls, lambda: now[0])
+            confirmations.items[0]['choices'] = ['Reject', '取消']
+            now[0] = 20
+            confirmations.auto_decide(FakeRecorder(calls), lambda _: None, lambda _: True)
+            self.assertNotIn('choose-once', calls)
 
     def test_local_scope_grant_is_bound_to_request_tool_and_exact_command(self):
         import hashlib

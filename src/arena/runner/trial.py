@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import tempfile
 import time
 import uuid
@@ -27,6 +28,47 @@ def save(path, value):
             time.sleep(.05)
 
 
+def start_side_script(script, directory):
+    stop = directory / 'side-stop'
+    log_handle = (directory / 'side-script.log').open('w', encoding='utf-8')
+    process = subprocess.Popen(
+        ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(script),
+         '-StopFile', str(stop)],
+        stdin=subprocess.DEVNULL, stdout=log_handle, stderr=subprocess.STDOUT,
+        creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP)
+    process.side_log = log_handle
+    ready = Path(str(stop) + '.pid')
+    deadline = time.time() + 20
+    while not ready.is_file():
+        if process.poll() is not None:
+            log_handle.close()
+            raise RuntimeError('Typing process exited before the text box was ready')
+        if time.time() >= deadline:
+            process.kill()
+            log_handle.close()
+            raise RuntimeError('Typing process did not show the text box')
+        time.sleep(0.1)
+    return process, stop
+
+
+def stop_side_script(process, stop):
+    if process is None:
+        return
+    try:
+        stop.write_text('stop', encoding='utf-8')
+    except OSError:
+        pass
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=5)
+    finally:
+        log_handle = getattr(process, 'side_log', None)
+        if log_handle is not None and not log_handle.closed:
+            log_handle.close()
+
+
 def owned_workspace(parent, run_id):
     """Create a trial workspace that inherits the parent directory's access."""
     parent = Path(parent)
@@ -45,6 +87,31 @@ def prepared_conflicts(expected, actual, environment_adapter):
     return [key for key, value in actual.items() if key not in tolerated and value != expected.get(key)]
 
 
+REJECT_CHOICES = frozenset({'reject', '拒绝', 'deny', 'cancel', '取消', 'no', '否'})
+CONTINUE_CHOICES = (
+    ('allow once', '允许一次'),
+    ('allow', '允许'),
+    ('continue', '继续'),
+    ('yes, proceed (y)', '1. yes, proceed (y)', 'yes', '是'),
+    ('always allow', '始终允许', 'allow always', 'always'),
+)
+
+
+def continue_choice(choices, recommended=None):
+    labels = [str(label).strip() for label in (choices or []) if str(label).strip()]
+    folded = {label.casefold(): label for label in labels}
+    reject = {name.casefold() for name in REJECT_CHOICES}
+    if recommended:
+        rec = str(recommended).strip()
+        if rec and rec.casefold() not in reject and rec.casefold() in folded:
+            return folded[rec.casefold()]
+    for group in CONTINUE_CHOICES:
+        for name in group:
+            if name in folded:
+                return folded[name]
+    return None
+
+
 def local_scope_guard(path, item):
     try:
         grants = json.loads(path.read_text('utf8'))['grants']
@@ -56,6 +123,50 @@ def local_scope_guard(path, item):
     expected = dict(requestId=item['requestId'], tool=item['tool'],
         commandSha256=hashlib.sha256(command.encode('utf8')).hexdigest())
     return True if isinstance(grants,list) and expected in grants else None
+
+
+def folded_text(text):
+    return ' '.join(str(text).replace('\r\n', '\n').split())
+
+
+def command_in_declared_prompt(command, prompt):
+    if not isinstance(command, str) or not isinstance(prompt, str):
+        return False
+    folded_command = folded_text(command)
+    if len(folded_command) < 24:
+        return False
+    if folded_command in folded_text(prompt):
+        return True
+    if '```powershell' not in prompt:
+        return False
+    block = prompt.split('```powershell', 1)[1].split('```', 1)[0]
+    folded_block = folded_text(block)
+    return len(folded_block) >= 24 and folded_block in folded_text(command)
+
+
+def record_scope_grant(path, item):
+    command = item.get('command')
+    if not isinstance(command, str) or not item.get('requestId') or not item.get('tool'):
+        return
+    grant = dict(requestId=item['requestId'], tool=item['tool'],
+                 commandSha256=hashlib.sha256(command.encode('utf8')).hexdigest())
+    try:
+        current = json.loads(path.read_text('utf8'))
+        grants = list(current.get('grants') or [])
+    except (OSError, ValueError, KeyError, TypeError):
+        grants = []
+    if grant not in grants:
+        grants.append(grant)
+        save(path, {'grants': grants})
+
+
+def declared_prompt_guard(path, item, prompt):
+    if local_scope_guard(path, item) is True:
+        return True
+    if not command_in_declared_prompt(item.get('command'), prompt):
+        return None
+    record_scope_grant(path, item)
+    return True
 
 
 class Confirmations:
@@ -134,11 +245,11 @@ class Confirmations:
 
     def auto_decide(self, recorder, sleep, guard=None):
         for item in self.items:
+            selected = continue_choice(item.get("choices"), item.get("oneTimeChoice") or item.get("recommendedChoice"))
             if (item.get("choice") or item.get("autoDecisionAttempted") or not item.get("uiNative")
                     or not item.get("requestId") or item.get("captureStatus") != "captured"
                     or not (self.directory / item.get("screenshot", "")).is_file()
-                    or not ({"允许一次", "Allow once"}.intersection(item.get("choices", []))
-                            or item.get('oneTimeChoice') in item.get('choices',[]))):
+                    or not selected):
                 continue
             if 'recordedPanelAt' not in item:
                 self.persist()
@@ -162,10 +273,11 @@ class Confirmations:
             recorder.check()
             item["autoDecisionAttempted"] = True
             self.persist()
-            decision = self.browser.choose_once(item["uiKey"], item["text"])
-            item.update(decisionActor="automation", uiChoice=decision["label"], choiceAtMs=decision["at"])
+            decision = self.browser.choose_once(item["uiKey"], item["text"], selected)
+            item.update(decisionActor="automation", uiChoice=decision["label"], choiceAtMs=decision["at"],
+                        continueChoice=selected)
             self.persist()
-            print(f"Selected one-time approval after capture: {item['id']}", flush=True)
+            print(f"Selected continue choice after capture: {item['id']} {decision['label']}", flush=True)
 
 
 def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
@@ -223,6 +335,8 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
     events = []
     submitted = False
     recorder_attempted = False
+    side_process = None
+    side_stop = None
     try:
         state.update(agent.prepare(workspace, browser, directory))
         expected = config.get('declared_conditions')
@@ -235,7 +349,13 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
         if config.get('approval_review') == 'local-file':
             authorization = directory/'approval-scope.json'
             save(authorization, {'grants': []})
-            config['approval_guard'] = lambda item: local_scope_guard(authorization, item)
+            prior = config.get('approval_guard')
+            def approval_guard(item):
+                if prior and prior(item) is True:
+                    record_scope_grant(authorization, item)
+                    return True
+                return declared_prompt_guard(authorization, item, prompt)
+            config['approval_guard'] = approval_guard
         if getattr(browser, 'desktop', None):
             state.update(browser.verify_presentation() if hasattr(browser,'verify_presentation') else browser.desktop.verify(browser.chrome_process.pid))
         if not config.get("region"):
@@ -261,6 +381,8 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
             recorder.check()
             state['status'] = 'preflight-completed'
             return state
+        if config.get('side_script'):
+            side_process, side_stop = start_side_script(Path(config['side_script']), directory)
         # Mark attempted admission before the call: a transport error can follow acceptance.
         submitted = True
         state['promptSubmitted'] = True
@@ -323,6 +445,11 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
         state["status"] = "error"
         state["errors"].append(scrub(error))
     finally:
+        try:
+            stop_side_script(side_process, side_stop)
+        except Exception as error:
+            state["errors"].append("Typing process shutdown: " + scrub(error))
+            state["status"] = "error"
         if submitted and state["status"] != "completed":
             try:
                 agent.cancel()

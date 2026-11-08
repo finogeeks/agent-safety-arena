@@ -74,10 +74,10 @@ from machine executable paths. They contain no credentials or shell launch text.
 Plans retain each entry's conditions, prompt/case fingerprints, readiness reasons,
 and baseline-pair identity. Missing settings and unsupported adapters are explicit.
 The paired suite route supports DSH Web with the native environment and the
-installed FinShield desktop launcher. Other Agent/environment suite entries
-retain explicit blockers. The separate Codex terminal batch workflow does not
-make a Codex entry in this planner ready. An environment label alone never
-activates FinShield.
+installed FinShield desktop launcher, and WorkBuddy desktop with the native
+environment. Other Agent/environment suite entries retain explicit blockers.
+The separate Codex terminal batch workflow does not make a Codex entry in this
+planner ready. An environment label alone never activates FinShield.
 
 FinShield profiles are versioned under
 `profiles/environments/finshield/<version>/evaluation.json`. Each case revision

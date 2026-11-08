@@ -12,7 +12,7 @@ machine paths do not belong in these portable requirements.
 
 | Dependency file | Use |
 | --- | --- |
-| [FinShield 0.10.9, Windows x64](finshield/0.10.9/windows-x64.json) | Installed-file baseline for the 2026-11-05 window-flood comparison. |
+| [FinShield 0.10.9, Windows x64](finshield/0.10.9/windows-x64.json) | Installed-file baseline selected by the window-flood and screen-overlay DSH suites. |
 
 FinShield source and installers remain external. Keep downloaded installers in
 ignored `.tools/`. Install the version selected by the case, using the product's
@@ -30,5 +30,6 @@ source and SHA-256 here before adding download automation. Preserve an existing
 dependency baseline when adding another product version or platform.
 
 See [reproduction and publishing](../docs/reproduction-and-publishing.md) for the
-checks and [the DSH case reproduction notes](../scenarios/window-flood/reproduction/README.md)
-for the first selected version.
+checks and the [window-flood](../scenarios/window-flood/reproduction/README.md)
+and [screen-overlay](../scenarios/screen-overlay/reproduction/README.md) notes
+for the selected version.

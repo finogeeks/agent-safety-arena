@@ -16,16 +16,19 @@ from arena.runner.trial import save
 OUTCOMES=('task','agentDecision','approval','effect','enforcement','completion','evidence','recovery')
 TOP_FIELDS={'schemaVersion','reviewStatus','evidenceOrigin','scenarioId','agentId','phase','prompt','groups','narrative','publicMedia'}
 GROUP_FIELDS={'runId','environmentVersion','conditions','outcomes','reply','supplementaryReplies','evidenceReferences'}
+PRESENTATION_KEYS={'layout','agentLabel','groups','reproduction','evidenceFiles','testedOn','dense','overview','audit'}
+SCRIPT_PATH=re.compile(r'^[a-z0-9][a-z0-9./_-]*\.(ps1|py|js|cjs)$')
+INDEX_FILE=re.compile(r'^[A-Za-z0-9][A-Za-z0-9._/-]*$')
 WORDS={
  'en':dict(sections=['01 Scenario and impact','02 Observed comparison and limits','03 Reviewed media',
-                    '04 Submitted prompts','05 Verified public replies','06 Summary and evidence'],
+                    '04 Submitted prompts','05 Verified public replies','06 Reproduce and audit'],
            native='Built-in controls',finshield='Built-in controls + FinShield',missing='Not run; no replacement evidence.',
            translation='Display translation — not the submitted text',original='Original',reply='Matched-turn public reply',
            supplement='Separate supplementary reply',limits='Limitations',synthetic='SYNTHETIC — not a live Agent or OS test',
            development='Development / exploratory evidence; excluded from formal counts',
            evidence='Evidence and conditions',shared='Both report languages share the same original evidence and media.'),
  'zh-CN':dict(sections=['01 场景与影响','02 观察对比与限制','03 已评审展示媒体','04 实际提交的提示词',
-                       '05 核对后的公开回复','06 总结与证据'],native='内置控制',finshield='内置控制＋FinShield',
+                       '05 核对后的公开回复','06 复现与审计'],native='内置控制',finshield='内置控制＋FinShield',
            missing='未运行；没有替代证据。',translation='展示翻译——不是实际提交的原文',original='原文',
            reply='匹配原始请求的公开回复',supplement='单独列出的补充回复',limits='限制',synthetic='合成数据——不是真实 Agent 或系统试验',
            development='开发／探索性证据，不计入正式试验分母',evidence='证据与条件',shared='中英文报告共用同一份原始证据和展示媒体。')}
@@ -69,6 +72,36 @@ def private_values(value, public_paths=()):
             raise ValueError('Private paths or authentication material require review and substitution before export')
 
 
+def valid_audit(audit, bilingual):
+    if not isinstance(audit, dict) or 'identity' not in audit or set(audit)-{'identity','scripts','index','recording','limits'}:
+        raise ValueError('Audit block requires a bilingual identity sentence')
+    if not bilingual(audit['identity']):
+        raise ValueError('Audit identity requires bilingual text')
+    if 'recording' in audit and not bilingual(audit['recording']):
+        raise ValueError('Audit recording note requires bilingual text')
+    scripts=audit.get('scripts',[])
+    if not isinstance(scripts,list):
+        raise ValueError('Audit scripts must be a list')
+    for item in scripts:
+        if (not isinstance(item,dict) or set(item)!={'path','role'}
+                or not isinstance(item['path'],str) or '..' in item['path']
+                or not SCRIPT_PATH.fullmatch(item['path']) or not bilingual(item['role'])):
+            raise ValueError('Audit scripts require a repository-relative path and a bilingual role')
+    rows=audit.get('index',[])
+    if not isinstance(rows,list):
+        raise ValueError('Audit index must be a list')
+    for item in rows:
+        if (not isinstance(item,dict) or set(item)!={'file','proves','location'}
+                or not isinstance(item['file'],str) or '..' in item['file']
+                or not INDEX_FILE.fullmatch(item['file'])
+                or item.get('location') not in {'page','raw','repo'}
+                or not bilingual(item['proves'])):
+            raise ValueError('Audit index rows require a file, a location, and bilingual purpose text')
+    limits=audit.get('limits',[])
+    if not isinstance(limits,list) or any(not bilingual(item) for item in limits):
+        raise ValueError('Audit limits require bilingual sentences')
+
+
 def validate(record):
     if (not isinstance(record,dict) or not TOP_FIELDS.issubset(record)
             or set(record)-TOP_FIELDS-{'presentation','reviewedPublicPaths'} or record.get('schemaVersion')!=1):
@@ -93,7 +126,7 @@ def validate(record):
         bilingual = lambda value: (isinstance(value, dict) and set(value)=={'en','zh-CN'}
             and all(isinstance(v,str) and v.strip() for v in value.values()))
         if (not isinstance(presentation, dict) or not {'layout','agentLabel','groups'}.issubset(presentation)
-                or set(presentation)-{'layout','agentLabel','groups','reproduction','evidenceFiles','testedOn','dense','overview'}
+                or set(presentation)-PRESENTATION_KEYS
                 or presentation['layout']!='comparison-v1' or not bilingual(presentation['agentLabel'])
                 or not isinstance(presentation['groups'],dict) or set(presentation['groups'])!={'native','finshield'}):
             raise ValueError('Invalid compact comparison presentation')
@@ -130,6 +163,8 @@ def validate(record):
             raise ValueError('Evidence files require plain reviewed JSON or Markdown filenames')
         if {'evidence.json','export-manifest.json','en.md','zh-CN.md'}.intersection(attachments):
             raise ValueError('Evidence files must not replace generated report files')
+        if 'audit' in presentation:
+            valid_audit(presentation['audit'], bilingual)
     valid_prompt(record['prompt'])
     if not isinstance(record['groups'],dict) or set(record['groups'])!={'native','finshield'}:
         raise ValueError('Declare native and finshield groups; use null for an unrun group')
@@ -302,9 +337,11 @@ def render(record,language,evidence_hash):
             lines.append(f'![{caption}]({path})' if media['kind']=='image' else f'[{caption}]({path})')
         lines.append('')
     lines += ['','## '+words['sections'][3],'']
+    from arena.reporting.detail import PROMPT_CODE_NOTE, prompt_has_code
     prompts=[(name,group.get('prompt',record['prompt'])) for name,group in groups.items() if group]
     if not prompts:prompts=[('native',record['prompt'])]
     if len({p['sha256'] for _,p in prompts})==1:prompts=prompts[:1]
+    if prompt_has_code(prompts):lines += [*PROMPT_CODE_NOTE[language],'']
     for name,prompt in prompts:
         if len(prompts)>1:lines += ['### '+words[name],'']
         lines += [f"{words['original']} · {prompt['language']} · {plain(prompt['revision'])}",'',block(prompt['text']),
@@ -326,14 +363,45 @@ def render(record,language,evidence_hash):
         if 'toolLog' in group:
             lines += ['<details><summary>'+('Full tool log' if language=='en' else '完整工具日志')+'</summary>',
                       '',block(group['toolLog']['text']),'','</details>','']
-    lines += ['## '+words['sections'][5],'',plain(text['summary']),'',
-        '<details><summary>'+words['evidence']+'</summary>','',
-        block(json.dumps(dict(comparison=pair,groups=groups),ensure_ascii=False,indent=2)),'',
-        f"Evidence SHA256: `{evidence_hash}`",'','[evidence.json](evidence.json)','','</details>','']
+    lines += ['## '+words['sections'][5],'']
+    audit=(record.get('presentation') or {}).get('audit')
+    if audit:
+        from arena.reporting.detail import audit_condition_rows, merged_audit_index, audit_location_label
+        lines += [plain(audit['identity'][language]),'']
+        lines += ['### '+('How to reproduce' if language=='en' else '如何复现'),'']
+        lines += [f"|  | {words['native']} | {words['finshield']} |",'| --- | --- | --- |']
+        for label,left,right in audit_condition_rows(record,language):
+            lines.append('| '+plain(label)+' | '+plain(left)+' | '+plain(right)+' |')
+        lines.append('')
+        scripts=audit.get('scripts') or []
+        if scripts:
+            for item in scripts:
+                lines.append('- `'+item['path']+'`: '+plain(item['role'][language]))
+            lines.append('')
+        else:
+            lines += [('No side script. The Agent tool produced the visible effect.' if language=='en'
+                       else '无侧栏脚本。可见效果由 Agent 工具产生。'),'']
+        if 'reproduction' in record['presentation']:
+            lines += [block(record['presentation']['reproduction'][language]),'']
+        if 'recording' in audit:
+            lines += [plain(audit['recording'][language]),'']
+        lines += ['### '+('Audit index' if language=='en' else '审计清单'),'']
+        lines += [('The prompt, public replies, and tool logs are in sections 04 and 05. Pictures are in sections 01 and 03.' if language=='en' else '提示词、公开回复和工具日志在第 04、05 节。画面在第 01、03 节。'),'']
+        lines += ['| File | Purpose | Where |','| --- | --- | --- |'] if language=='en' else ['| 文件 | 用来核什么 | 位置 |','| --- | --- | --- |']
+        for item in merged_audit_index(record,audit):
+            lines.append('| `'+item['file']+'` | '+plain(item['proves'][language])+' | '+plain(audit_location_label(item['location'],language))+' |')
+        lines.append('')
+        if audit.get('limits'):
+            lines += ['- '+plain(item[language]) for item in audit['limits']]+['']
+    else:
+        lines += [plain(text['summary']),'',
+            '<details><summary>'+words['evidence']+'</summary>','',
+            block(json.dumps(dict(comparison=pair,groups=groups),ensure_ascii=False,indent=2)),'',
+            f"Evidence SHA256: `{evidence_hash}`",'','[evidence.json](evidence.json)','','</details>','']
     return '\n'.join(lines)
 
 
-def export_reports(record_path, output):
+def export_reports(record_path, output, navigation=None):
     record_path=Path(record_path).resolve();record=json.loads(record_path.read_text('utf8'));validate(record)
     sources=resolve_public_media_sources(record['publicMedia'],record_path.parent)
     attachments=[]
@@ -363,7 +431,8 @@ def export_reports(record_path, output):
     if record.get('presentation',{}).get('dense'):
         (output/'detail-compact.css').write_text(DENSE_CSS,encoding='utf8')
     for language in WORDS:
-        (output/(language+'.html')).write_text(render_detail(record,language,evidence_hash,comparison(record),WORDS[language],OUTCOMES),encoding='utf8')
+        (output/(language+'.html')).write_text(render_detail(record,language,evidence_hash,comparison(record),WORDS[language],OUTCOMES,
+            navigation.get(language) if navigation else None),encoding='utf8')
     for name,group in record['groups'].items():
         if group:
             (output/(name+'-reply.txt')).write_bytes(group['reply']['text'].encode('utf8'))

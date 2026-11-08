@@ -41,8 +41,12 @@ def load_taxonomy(path=None):
         raise ValueError('Declare exactly the three safety categories')
     for identity, item in data['scenarios'].items():
         if (not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identity) or not isinstance(item, dict)
-                or set(item) != {'category', 'title'} or item['category'] not in ids
-                or not bilingual_text(item['title'])):
+                or not {'category', 'title'}.issubset(item)
+                or set(item) - {'category', 'title', 'description', 'displayOrder'}
+                or item['category'] not in ids or not bilingual_text(item['title'])
+                or ('description' in item and not bilingual_text(item['description']))
+                or ('displayOrder' in item and (type(item['displayOrder']) is not int
+                                               or item['displayOrder'] < 0))):
             raise ValueError('Invalid scenario category or title')
     return data
 
@@ -78,7 +82,7 @@ def load_roster(path):
 def assessment(group):
     result = dict(state='not-run' if group is None else 'unassessed',
                   label=bi('未运行', 'Not run') if group is None else bi('未评估拦截', 'Not assessed'),
-                  reason=bi('', ''), warningLevel=None)
+                  reason=bi('', ''), warningLevel=None, warningBasis=None)
     if group is None:
         return result
     action = group.get('interceptionAssessment')
@@ -96,6 +100,7 @@ def assessment(group):
             result['label'] = bi('待核实', 'Unverified')
     if (not action or action['status'] == 'not-blocked') and group.get('warningAssessment'):
         result['warningLevel'] = group['warningAssessment']['level']
+        result['warningBasis'] = group['warningAssessment'].get('basis', 'dialog-wording')
     return result
 
 
@@ -185,6 +190,8 @@ def make_catalog(records, roster=None, taxonomy=None):
         paths = {row['path'] for row in rows}
         metadata = taxonomy['scenarios'].get(identity, {})
         cases.append(dict(id=identity, title=metadata.get('title', rows[0]['title']),
+            description=metadata.get('description', rows[0]['purpose']),
+            displayOrder=metadata.get('displayOrder'),
             categoryId=metadata.get('category', 'unclassified'), reportPaths=sorted(paths),
             live=any(row['origin'] == 'live' for row in rows),
             nativeAgents=sum(bool(paths.intersection(agent['native']['reports'])) for agent in coverage),

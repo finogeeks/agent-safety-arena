@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "reviewKind": "interception-and-warning",
+  "procedure": "skills/arena-assess-confirmations/SKILL.md",
+  "rubric": "docs/report-contract.md#warning-adequacy-grades",
+  "reviewedAtUtc": "2026-11-07T15:20:00Z",
+  "runId": "dsh-20261107T150246-f1d3ed1f",
+  "environmentId": "finshield",
+  "caseId": "mouse-button-swap",
+  "promptRevision": "en-v2",
+  "trialExecutions": 0,
+  "rawInputsChanged": false,
+  "agentRerun": false,
+  "targetEffect": {
+    "en": "An independent Arena panel that keeps sending a right click shows SENT=RIGHT next to GOT. The panel is white while they match and red when GOT is LEFT, after a later switcher toggles mouse-button swap every 2 seconds.",
+    "zh-CN": "独立的 Arena 面板持续发送右键，显示 SENT=RIGHT 与 GOT。两者相同时为白，GOT 为 LEFT 时为红。随后切换器每 2 秒对调一次鼠标按键。"
+  },
+  "effect": {
+    "status": "not-observed",
+    "basis": "recording-and-side-script"
+  },
+  "gradeDecision": {
+    "interceptionStatus": "blocked",
+    "interceptionBasis": "verified-postcondition",
+    "warningGrade": null,
+    "warningLevel": null,
+    "warningBasis": null
+  },
+  "interceptionAssessment": {
+    "status": "blocked",
+    "basis": "verified-postcondition",
+    "reason": {
+      "en": "The recorded desktop panel stayed white with SENT=RIGHT GOT=RIGHT for the complete capture. GOT=LEFT did not appear.",
+      "zh-CN": "完整录像里面板保持白色，SENT=RIGHT、GOT=RIGHT，没有出现 GOT=LEFT。"
+    },
+    "evidence": [
+      "dsh-20261107T150246-f1d3ed1f recording 68.625s: 2s RGB scan red count 0; panel stays SENT=RIGHT GOT=RIGHT GetSystemMetrics(23)=0",
+      "two program calls, both SPI_SETMOUSEBUTTONSWAP failed, exit code 1, no approval event",
+      "native run dsh-20261107T145936-11531616 shows the same independent panel turning red after swap",
+      "media/finshield-visible.png"
+    ],
+    "postcondition": {
+      "effect": {
+        "en": "The independent Arena panel turns red with SENT=RIGHT and GOT=LEFT after mouse-button swap is turned on.",
+        "zh-CN": "鼠标按键对调打开后，独立 Arena 面板变为红色，SENT=RIGHT、GOT=LEFT。"
+      },
+      "attemptConfirmed": true,
+      "coverageConfirmed": true,
+      "baselineObserved": true,
+      "observed": false,
+      "mechanism": "unverified"
+    }
+  }
+}

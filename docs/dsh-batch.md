@@ -14,7 +14,9 @@ cross-case comparison belong after the complete collection phase.
 controller and the existing `run_trial` lifecycle for every case. `--profile`
 selects common machine and presentation settings. By default, use
 `profiles/recording/windows-pro.local.json` when present, otherwise the committed
-`windows-pro.json`. Machine paths and credentials do not belong in case files.
+`windows-pro.json`. A schema 2 profile with `agent: "workbuddy"` selects the
+WorkBuddy desktop runtime; see [the WorkBuddy recording contract](workbuddy-recording.md).
+Machine paths and credentials do not belong in case files.
 
 ```mermaid
 flowchart LR
@@ -68,25 +70,37 @@ before submission, records that screen, stops if the active desktop changes,
 and restores the original desktop after cleanup. This is an explicit temporary
 switch; hidden-browser recordings cannot show native popup effects.
 
+The same case uses one input script for both protection arms. Declare it with
+`script` and `filename` on this resource. The controller starts that file as
+its own process after recording begins and before the prompt. It does not copy
+the file into the Agent workspace. The script is a separate process from DSH.
+It does not launch DSH or change the desktop, and it does not choose the
+measured action. The case directory keeps that script so the demonstration
+steps can be audited. The prompt remains the Agent's action. Native and FinShield keep the same
+prompt, the same script, and the same collection steps. The only difference
+is the DSH launch command.
+
 Before submission, put the owned DSH server in a Windows Job Object with
 kill-on-close and no breakaway permission. Observe only windows whose processes
 belong to that job. Save periodic window counts, handles, bounds, and process
 identities. Close the job at recovery and verify its active process count is zero.
 This boundary is additional recovery protection, not evidence of DSH enforcement.
 
-For generated commands, the same controller may wait for a local scope check.
+For generated commands, the same controller performs the local scope check.
 Set `approvalReview: "local-file"` in the profile. It writes a private
-`approval-scope.json` with an initially empty `grants` list. A scope reviewer may
-add an exact `{requestId, tool, commandSha256}` grant after checking the command,
-referenced workspace scripts, and declared resource. The recording controller
-then performs the existing screenshot/frame/one-time-click sequence. A missing
-or mismatched grant never clicks. This operational scope check does not classify
-the warning and does not modify the prompt. The grants remain part of the evidence.
+`approval-scope.json` with an initially empty `grants` list. After the original
+dialog screenshot and a pending-panel frame exist, the controller grants a
+command that matches the submitted prompt or the case allowlist, then selects
+the recommended continue choice. Prefer Allow once, then Allow, then Continue.
+Never select Reject. An external watcher or a second human click is
+not required. A missing capture or a command outside that scope stays pending
+and is never clicked. This operational scope check does not classify the
+warning and does not modify the prompt. The grants remain part of the evidence.
 
 | ID | Observable criterion |
 | --- | --- |
 | N-1 | Process-tree cases retain the exact prompt bytes and need no placeholder file. |
-| N-2 | Missing or stale scope grants keep the native approval pending; an exact request, tool, and command hash permits only that request. |
+| N-2 | After capture and a pending-panel frame, a command that matches the submitted prompt or allowlist is granted. The controller then clicks the recommended continue choice (Allow once, Allow, or Continue), never Reject. Missing captures and commands outside that scope stay pending and are never clicked. |
 | N-3 | Native collection uses the selected desktop, detects desktop changes, and restores the original desktop in a finally block. |
 | N-4 | Only job-owned processes/windows are observed and recovered; child-process cleanup is verified independently. |
 
@@ -143,9 +157,23 @@ excerpts into 1920 by 1080 with white padding, preserve aspect ratio, and join
 them in stage order. Missing stages, invalid bounds, and excerpts past the source
 end fail explicitly. Keep the original video unchanged. Save the edit recipe,
 source/output hashes, selected offsets, crops, and output path beside the export.
+Use wall-clock excerpt lengths when source frames have variable intervals.
+Normalize each excerpt to 8 fps and extend its final frame only as needed to
+reach the requested end before joining. This keeps stage boundaries at 5 and
+15 seconds without changing the source or accelerating the effect. Record this
+presentation normalization in the export provenance.
 The default output is `overview.mp4`. Use `--output-name <revision>.mp4` for a
 revised edit. Output names must be plain MP4 filenames inside the run directory,
 must not name `recording.mp4`, and must not overwrite an existing export.
+
+For a report group with no visible effect, use `arena dsh-preview --run-dir
+<run> --full-timeline --output-name <revision>.mp4` instead of `--moments`.
+These two modes are mutually exclusive. This mode fits the entire original
+captured timeline into 20 seconds with a single continuous timestamp scale,
+retains the full frame, resamples to 64 fps and records the source duration and
+speed factor in provenance. It does not select excerpts or concatenate stages.
+Inspect the entire source for privacy before this export. This is the existing
+no-visible-effect report exception, not a second recording controller.
 
 | ID | Observable criterion |
 | --- | --- |

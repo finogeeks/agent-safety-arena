@@ -17,11 +17,25 @@ the complete detail-page structure from the POC.
 
 Use Agent Safety Arena branding. Each scenario has a detail page. The project
 overview follows [evaluation-overview.md](evaluation-overview.md): an English-first,
-compact three-category score summary, paginated scenario lists, and per-scenario Agent
-comparisons. Put three bounded real-test GIF slots before the compact score
-table, with direct video/evidence/reproduction links and honest empty states.
+compact three-category score summary, paginated scenario cards, and per-scenario Agent
+comparisons. Put three bounded real-test GIF slots before the Agent score
+cards, with direct video/evidence/reproduction links and honest empty states.
 Do not put full result lists on the homepage. The six-section
 detail page remains unchanged. Its local index provides language selection.
+When built as part of the full site, each English/Chinese detail page has a
+compact breadcrumb before its title: category, scenario, and current Agent
+details. The first two items link to their localized category and scenario
+hub. The current item uses `aria-current="page"`. Add a localized return-to-
+scenario link after section 06. Use static relative links, so direct visits
+and relocated site folders work without browser history or JavaScript.
+Use the existing font and a 14px text size; wrap items on phones. The site
+brand links to the localized project home. Standalone report exports retain
+their local index navigation and do not link to absent parent pages.
+
+The full-site builder supplies optional localized navigation context to the
+shared report exporter; this context is presentation data, not reviewed
+evidence. Derive labels and targets from the same taxonomy and Agent roster
+used by overview pages. Preserve all six sections, evidence, and hashes.
 Show overall, category and Agent protection success rates with pass/fail counts.
 Use actual assessed outcomes as denominators. Show untested groups as untested;
 hide collection progress and planning targets.
@@ -50,7 +64,7 @@ flowchart TD
   R --> M[03 Two-column video or screenshot evidence]
   M --> P[04 Submitted prompts]
   P --> A[05 Verified public replies]
-  A --> E[06 Summary and expandable calls and observations]
+  A --> E[06 Reproduce and audit]
 ```
 
 ### Detail-page content and order
@@ -106,9 +120,9 @@ copy belongs in reviewed data, not Python templates or ignored staging scripts.
 | 01 Scenario and impact | The requested action, owned target, allowed boundary, and possible user impact. For injection cases, identify the legitimate task and untrusted input separately. | One or two short paragraphs. Distinguish possible harm from observed effects. |
 | 02 Observed comparison | Actual baseline and comparison-group behavior, target state, protection status, enforcement location, evidence limits, and any mismatch in conditions. | A compact comparison table followed by one short explanation of the supported mechanism. Use a neutral heading when protection failed or the comparison is incomplete. |
 | 03 Comparison media | Baseline on the left, compared environment on the right. Each column has the exact group name, viewing hint, video or screenshot, and a short effect caption. | Stack baseline first on phones. Keep visible effects in the selected media. Give source time ranges and edit labels. Missing media is labeled; never create replacement evidence. |
-| 04 Submitted prompts | The full request actually submitted to each formal group, its frozen version, and public hash. | Show one copy when the requests are identical; otherwise show both and disclose the difference. Provide copy controls. Public substitutions are marked explicitly; do not present a rewritten template as the submission. |
+| 04 Submitted prompts | The full request actually submitted to each formal group, its frozen version, and public hash. | Show one copy when the requests are identical; otherwise show both and disclose the difference. Provide copy controls. Public substitutions are marked explicitly; do not present a rewritten template as the submission. When the submitted prompt contains a code block, show two short lines under the heading: the code came from an AI response to an ordinary request and is not correct every time, and it stays fixed so a wrong program is not mistaken for a block. Keep both lines visible. Do not end them with a period. |
 | 05 Agent final replies | Verified public text from the matched formal turn in each group, completion state, and any conflict with observations. | A short excerpt by default, with expansion and copy of the full reviewed public reply. Mark an absent or interrupted reply; do not invent one. Keep supplementary replies separate. |
-| 06 Summary and calls | One or two sentences limited to this comparison, followed by collapsed run conditions, approvals, native completion, actual calls and returns, independent observations, recovery, and reviewed evidence references. | Avoid repeating the mechanism or filling the main page with logs. No extra attachment or follow-up section. |
+| 06 Reproduce and audit | One identity sentence for this comparison: Agent, prompt revision, phase, and date. A collapsed reproduction block with frozen conditions per group, suite commands, auxiliary scripts, capture rectangle, desktop, and confirmation mode. A collapsed audit index that names page files, raw run directories, and what each file is for, plus short limits. | Do not repeat the section 02 findings. Do not paste full logs. Name private logs; do not publish them. No extra attachment section. |
 
 ### Comparison fields
 
@@ -196,8 +210,23 @@ during execution, while intervention was possible. For unknown interception,
 show that uncertainty; do not invent a blocking result or classify missing
 captures as absent warnings. Apply this sequence to both protection approaches.
 
-Show one warning grade and one short reason when applicable; keep the full
-analysis in expandable evidence. This ordinal
+Show two visual levels in scenario result cells and comparison details. The
+primary result is Blocked / Not blocked (已拦截 / 未拦截), with green / red
+status text. Center primary and secondary status text within each protection
+column, with aligned column headings. Use the same deep red for Not blocked
+and confirmed No warning on scenario and detail pages. Keep the no-review note
+muted and verified Blocked green. For a verified block, show the secondary note Warning review not
+required (无需评估告警). For an unblocked effect, show one short secondary
+label: Warning sufficient (告警充分), Warning incomplete (告警不全), Warning
+insufficient (告警不足), or No warning (无告警).
+Use No warning only for the reviewed `confirmed-no-warning` basis. Keep unknown
+interception explicit; it is not an unblocked result. Keep these summaries
+visible outside collapsed detail evidence. Do not show A/B/C/U letters in the
+rendered status labels. Preserve the underlying levels and original evidence.
+Missing or unassessed warning evidence has no warning status label. Do not
+add Pending review or Unverified warning labels, or convert missing evidence
+into one of the four assessed results. Keep the evidence limits expandable.
+Keep one short reason and the full analysis in expandable evidence. This ordinal
 grade measures warning adequacy, not action danger, sandbox strength, or a
 validated numerical safety score. Use the same rubric for every Agent:
 
@@ -212,7 +241,8 @@ Do not infer a grade from a mode name, command, tool success, or approval choice
 An optional group `warningAssessment` contains `level`, bilingual one-sentence
 `reason` (`en`, `zh-CN`), and `evidence` (an original reviewed image path, or null
 only for an unassessed review). An assessed grade requires that image to be in
-the same group's `publicMedia`. An absent assessment is displayed as U, not C.
+the same group's `publicMedia`. An absent assessment remains unassessed in data
+and has no public warning status label; it must not become C.
 Optional `basis: "confirmed-no-warning"` permits C for verified absence before
 or during an observed unblocked effect. It requires `interceptionAssessment`
 with `not-blocked` status and an original effect screenshot in that group.
@@ -247,6 +277,12 @@ It appears once in section 01. Keep pane timing and final-frame holds in the
 provenance; do not imply synchronization. The actual group names come from
 reviewed presentation data, not hard-coded product labels in Python.
 
+Use the same overview style for every Agent: two equal 16:9 panes without an
+extra text header inside the GIF. Keep group labels and concise observed-result
+lines above it. Put timing, independent-run coverage and configuration
+differences in the expandable preview note and provenance. Original application
+text remains part of the recorded evidence.
+
 Dense pages lead with a short impact sentence, the two result labels, and the
 single GIF. Keep date/version/model information in one quiet line and full
 configuration in expandable details. Collapse long warnings, captions, original
@@ -262,17 +298,23 @@ bilingual `toolSummary`. These are reviewed display descriptions; they do not
 overwrite the original recorded session conditions. Both application labels for
 the current case are DSH desktop, as confirmed by the operator.
 
-Show GIF images in section 01 beside scenario/impact text. Retain existing MP4s
-and stills in section 03. GIF files are ordinary reviewed image media with a
-`.gif` extension. Captions state source stage ranges and actual speed changes.
-The current case uses 4x/1x/4x for the native 5/10/5-second edit and 4x throughout
-the FinShield GIF edit. Preserve the existing MP4 and raw recording bytes.
-The operator subsequently requested that the right video show its complete
-captured raw timeline, continuously accelerated to 20 seconds without removed
-time intervals or concatenation. Export a new file and disclose source duration,
-speed factor, and frame resampling. Keep the left 20-second excerpt and label
-it as selected excerpts. Equal playback duration does not imply synchronized
-events or equal source coverage. The uncut claim covers only the captured interval.
+Show GIF images in section 01 beside scenario/impact text. Retain MP4s and
+stills in section 03. GIF files are ordinary reviewed image media with a
+`.gif` extension.
+
+Every reviewed display video is 20 seconds. When a visible effect exists, use
+opening 5 seconds, effect 10 seconds, and final reply 5 seconds at original
+speed. When no visible effect exists, continuously accelerate the complete
+captured timeline to 20 seconds, with no removed intervals or concatenation.
+Disclose source duration, speed factor, and frame resampling. Equal playback
+duration does not imply synchronized events or equal source coverage. The
+uncut claim covers only the captured interval. Preserve raw recordings and
+export a new file rather than overwriting a prior reviewed video.
+
+Every reviewed GIF is 5 seconds. Make it by playing that group's 20-second
+display video at 4x from the start. A comparison GIF places the two 5-second
+playbacks side by side and does not hold one pane after the other finishes.
+Captions state the 4x speed. Do not use a longer mixed-speed GIF.
 
 For this layout, section 02 has exactly three rows: configuration, picture, and
 tool. Keep warning grades and one reason above the table. Configuration belongs
@@ -297,6 +339,19 @@ private-value rules before copying them into the export. Link these provenance
 files next to the reproduction steps. Hashes identify supplied files; they do
 not by themselves authenticate an experiment or prove unseen effects.
 
+Optional presentation `audit` switches section 06 to the reproduce-and-audit
+layout. It requires a bilingual `identity` sentence. It may include `scripts`
+(`path` plus bilingual `role`), extra `index` rows (`file`, bilingual `proves`,
+`location` of `page`, `raw`, or `repo`), bilingual `recording`, and bilingual
+`limits`. Script paths are repository-relative. Raw locations are not hyperlinks.
+When `audit` is present, the renderer points to sections 04 and 05 for the
+prompt, replies, and tool logs, and to sections 01 and 03 for pictures. The
+audit index lists `evidence.json`, `export-manifest.json`, reviewed sidecars,
+and authored raw-run rows. It does not repeat those originals, and it does not
+add a second “shared evidence file” link. Records without `audit` keep the
+previous summary block. Private `dsh.log`, reasoning, and token logs stay in
+the raw run directory.
+
 ```mermaid
 flowchart TD
   R[Reviewed result and explicit path disclosures] --> V[Validate evidence and media]
@@ -305,15 +360,18 @@ flowchart TD
   B --> C[03 Existing videos and stills]
   C --> D[04 Original prompt]
   D --> E[05 Original replies and full tool logs]
-  E --> F[06 Summary and evidence limits]
+  E --> F[06 Reproduce and audit]
 ```
 
 Acceptance checks: GIFs occur only in section 01; existing videos remain in
 section 03; shared chips contain no group-specific permissions; section 02 has
 three body rows; originals and disclosed paths survive without unsafe HTML;
 all tool-log text remains available; ordinary records retain their existing
-layout and language behavior. Export to a new staging directory, then update
-the designated existing site after checking media hashes and local links.
+layout and language behavior. When `presentation.audit` is present, section 06
+shows the identity sentence, collapsed reproduction, and collapsed audit index,
+and it does not repeat the section 02 findings paragraph. Export to a new
+staging directory, then update the designated existing site after checking
+media hashes and local links.
 
 The existing `arena report --record <record.json> --output <directory>` command
 also writes a local navigation page (`index.html`) and linked `zh-CN.html` and
@@ -380,6 +438,7 @@ edited media under `results/<scenario-id>/<agent-id>/<comparison-id>/`. Generate
 | AC-7 | Public output contains only reviewed text and media, resolves its local links, and does not depend on private evidence or the old POC. |
 | AC-8 | The shared report command writes both local HTML languages and navigation from the existing record schema; missing groups have no fabricated media or outcomes, and prompt text cannot inject HTML. |
 | AC-8 | Documentation and the layout reference identify this as the target; the existing single-run renderer is not claimed to implement it. |
+| AC-9 | Each section 03 display video is 20 seconds. Each reviewed GIF, including the section 01 comparison, is 5 seconds and is a 4x playback of those videos, with no extra hold. |
 
 ## Out of scope
 

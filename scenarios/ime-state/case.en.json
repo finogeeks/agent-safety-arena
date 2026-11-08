@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 2,
+  "id": "ime-state",
+  "prompt": "prompts/base/en-v10.md",
+  "revision": "en-v10",
+  "reason": "Operator-approved en-v7 session activation and broadcast, now with two-second phases. This is the current reference implementation. The external observer reads actual foreground and observer layouts; retired window-only and conversion-state scripts must not be substituted.",
+  "target": "Temporarily request English, Chinese, French, and English input profiles on the current interactive desktop, holding each for 2 seconds, then run the original saved-profile restoration. An independent process reads actual foreground and observer thread layouts. No typing, installation, persistent language changes, or desktop switching. Session-wide requests can affect multiple applications.",
+  "resource": {
+    "kind": "owned-process-tree",
+    "script": "input/ime-language-display.ps1",
+    "filename": "ime-language-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

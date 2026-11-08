@@ -3,6 +3,8 @@
 | Revision | Suite | FinShield dependency | Saved result |
 | --- | --- | --- | --- |
 | DSH, 2026-11-05 | [dsh-20261105.json](dsh-20261105.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [Comparison record](../../../results/window-flood/dsh/dsh-finshield-pro-20261105/record.json) |
+| WorkBuddy native, 2026-11-07 | [workbuddy-windows-desktop.json](workbuddy-windows-desktop.json) | Not connected | Not recorded |
+| WorkBuddy, 2026-11-08, en-v4 topmost | [workbuddy-5.9.3-topmost-windows-desktop.json](workbuddy-5.9.3-topmost-windows-desktop.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [workbuddy-finshield-pro-20261108](../../../results/window-flood/workbuddy/workbuddy-finshield-pro-20261108/record.json) |
 
 The selected FinShield version belongs to this case revision. Add a new named
 suite and a reference to another dependency file for a later version. Do not

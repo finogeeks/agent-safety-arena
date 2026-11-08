@@ -44,14 +44,24 @@ h1{font-size:24px;line-height:1.35;margin:12px 0 10px;color:#172b4a}h2{font-size
 .pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}.group{min-width:0}.group-title{padding:0 0 10px;border-bottom:1px solid #e7ebf1;margin-bottom:12px;font-weight:600}
 .empty{background:#fafbfd;border:1px dashed #dce2eb;border-radius:8px;min-height:230px;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#8a97a9;padding:26px;text-align:center}.empty strong{color:#7a899e;font-weight:500}
 .grade-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}.grade{display:inline-flex;align-items:center;gap:8px;padding:4px 11px;border-radius:6px;font-weight:650;border:1px solid #e3e7ee;background:#f3f5f8;color:#55657b}
+.assessment-status{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:10px}
+.assessment-pair>.group>.group-title,.assessment-evidence>summary{text-align:center}
+.interception-badge{display:inline-flex;padding:4px 11px;border-radius:6px;font-weight:650;background:#f3f5f8;color:#55657b;border:1px solid #e3e7ee}
+.interception-badge.blocked{background:#eaf5ee;color:#316746;border-color:#c6e1cf}.interception-badge.not-blocked{background:#fff0f0;color:#9f2424;border-color:#ecc4c4}
+.assessment-status .grade{padding:0;border:0;background:transparent;font-weight:500}.assessment-note{color:#78869a}.assessment-evidence{margin:8px 0 14px;padding-top:8px}
 .grade[data-warning-level="insufficient"]{background:#fff3e8;border-color:#f3d6ba;color:#97511c}.grade[data-warning-level="adequate"]{background:#eaf5ee;border-color:#c6e1cf;color:#316746}.grade[data-warning-level="partial"]{background:#fff8df;border-color:#eadba4;color:#806113}
+.assessment-status .warning-absent{background:transparent;color:#9f2424;font-weight:600}
 .grade-reason{font-size:14px;color:#475c74;margin-bottom:12px}.fine{font-size:12px;color:#78869a;overflow-wrap:anywhere}
 table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed}th,td{padding:10px 11px;border-bottom:1px solid #e9edf2;vertical-align:top;overflow-wrap:anywhere}th{color:#65758c;font-weight:500;background:#f8fafc}th:first-child{width:18%}.facts td:first-child{color:#64748b;width:26%}.facts td{padding-left:0}
 figure{margin:0 0 22px}video,img{display:block;width:100%;max-width:100%;border-radius:7px;border:1px solid #e3e8ef}video{aspect-ratio:16/9;background:#e9edf3}figcaption{font-size:12px;line-height:1.5;margin-top:8px;white-space:pre-line}.still img{max-height:420px;object-fit:contain;background:#f8fafc}
 pre{font-family:'Cascadia Code',Consolas,monospace;font-size:12px;background:#f7f9fc;border:1px solid #e6ebf2;border-radius:7px;padding:15px;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0;line-height:1.7}.reply{font-family:inherit;font-size:14px;background:transparent;border:0;padding:0}
 .tools{display:flex;justify-content:space-between;align-items:center;gap:8px}.copy{font:inherit;font-size:12px;background:white;border:1px solid #dbe2ec;border-radius:5px;padding:4px 10px;color:#3e5c82;cursor:pointer}
+.prompt-code-note{margin:0 0 14px;font-size:12px;line-height:1.7;color:#78869a}
 details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cursor:pointer;color:#315e9a}li{margin:5px 0}footer{padding:20px 0 35px;color:#8a96a7;font-size:12px;overflow-wrap:anywhere}
 :focus-visible{outline:3px solid #92b8f4;outline-offset:3px}.case-card{display:block;background:white;border:1px solid #dfe5ee;border-radius:9px;padding:20px;max-width:480px}.case-card h2{margin:10px 0}.case-card p{color:#63768e}
+.report-breadcrumb{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 8px;margin:0 0 10px;font-size:14px;overflow-wrap:anywhere}
+.report-breadcrumb [aria-hidden],.report-breadcrumb [aria-current]{color:#78869a}
+.report-return{display:inline-block;margin:12px 0 0;font-size:14px}
 @media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar{padding-left:16px;padding-right:16px}.panel{padding:16px}h1{font-size:21px}.bar small{display:none}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
 """
 
@@ -67,7 +77,7 @@ main,.bar{padding:14px 20px}.bar{padding-top:12px;padding-bottom:12px}
 .overview-headings strong{display:block;font-size:16px;color:#172b4a}.overview-headings span{font-size:13px;color:#61718a}
 .overview-media{margin:0}.overview-media img{width:100%;height:auto}.overview-media figcaption{font-size:11px;margin-top:5px}
 .panel figure{margin-bottom:10px}.panel summary{font-size:13px}.panel .group-title{margin-bottom:8px;padding-bottom:7px}
-.panel pre{margin:8px 0}footer{padding:12px 0;font-size:11px}
+.panel pre{margin:8px 0}.panel code{font-family:'Cascadia Code',Consolas,monospace;font-size:12px}footer{padding:12px 0;font-size:11px}
 .configuration-note{display:inline-block;position:relative;border:0!important;margin:0 0 0 5px!important;padding:0!important}
 .configuration-note summary{display:inline;list-style:none;font-size:13px;cursor:pointer}.configuration-note summary::-webkit-details-marker{display:none}
 .configuration-note p{position:absolute;right:0;top:16px;z-index:20;min-width:170px;padding:8px 10px!important;background:white;border:1px solid #dfe5ee;border-radius:6px;box-shadow:0 3px 12px #24324818;font-size:12px}
@@ -77,6 +87,27 @@ main,.bar{padding:14px 20px}.bar{padding-top:12px;padding-bottom:12px}
 
 def e(value):
     return escape(str(value), quote=True)
+
+
+PROMPT_CODE_NOTE={
+    'en':(
+        'The code in the prompt was generated by an AI from an ordinary request, but it is not written correctly every time',
+        'We keep this code fixed to test the Agent\'s safety controls, so a wrong program is not mistaken for a block',
+    ),
+    'zh-CN':(
+        '提示词中的代码由 AI 根据普通请求生成，但未必每次都能写对',
+        '我们固定这些代码，是为了评测 Agent 的安全管控能力，避免把“没写对”误判为“防住了”',
+    ),
+}
+
+
+def prompt_has_code(prompts):
+    return any('```' in prompt['text'] for _,prompt in prompts)
+
+
+def prompt_code_note(language, prompts):
+    if not prompt_has_code(prompts):return ''
+    return '<p class="prompt-code-note">'+'<br>'.join(e(line) for line in PROMPT_CODE_NOTE[language])+'</p>'
 
 
 def header_metadata(record, language):
@@ -102,40 +133,161 @@ def header_metadata(record, language):
     return list(zip(labels,[tested_label,agent_version,model,fs_version,phase]))
 
 
-def grade(group, language):
-    ui=TEXT[language]
-    assessment=(group or {}).get('warningAssessment') or {'level':'unassessed','reason':{language:''}}
-    letter,label=ui['grades'][assessment['level']]
-    return f'<span class="grade" data-warning-level="{assessment["level"]}">{letter} · {label}</span>'
+AUDIT_CONDITION_LABELS={
+    'en':[('runId','Run ID'),('revision','Prompt revision'),('sha','Prompt SHA-256'),
+          ('agentVersion','Agent version'),('model','Model'),('reasoning','Reasoning'),
+          ('sandbox','Built-in sandbox'),('approval','Approval policy'),
+          ('confirmation','Confirmation'),('os','OS'),('environment','Environment version')],
+    'zh-CN':[('runId','运行 ID'),('revision','提示词修订'),('sha','提示词 SHA-256'),
+             ('agentVersion','Agent 版本'),('model','模型'),('reasoning','推理强度'),
+             ('sandbox','内置沙箱'),('approval','批准策略'),
+             ('confirmation','确认方式'),('os','操作系统'),('environment','环境版本')]}
+AUDIT_LOCATION={'page':('This page','本页'),'raw':('Raw run, not copied','原始运行，未复制到本页'),
+                'repo':('Repository','仓库')}
 
 
-def assessment_markup(group, language):
-    ui=TEXT[language]
-    action=(group or {}).get('interceptionAssessment')
-    warning=f'<div class="grade-row"><span>{ui["grade"]}</span>{grade(group,language)}</div><p class="grade-reason">{e((group or {}).get("warningAssessment",{}).get("reason",{}).get(language,""))}</p>'
-    if not action:return warning
-    labels=({'blocked':'Blocked','not-blocked':'Not blocked','unknown':'Unverified'} if language=='en'
-            else {'blocked':'已拦截','not-blocked':'未拦截','unknown':'待核实'})
-    title='Interception' if language=='en' else '拦截结果'
-    status=labels[action['status']]
-    if action['basis']=='verified-postcondition':
-        title='Protection result' if language=='en' else '防护结果'
-        effect=action['postcondition']['effect'][language]
-        status='Prevented: '+effect if language=='en' else '已阻止'+effect
-    body=f'<div data-interception-state="{action["status"]}"><strong>{title}：{e(status)}</strong><p>{e(action["reason"][language])}</p></div>'
-    if action['status']=='not-blocked':body+=warning
-    elif action['status']=='blocked':body+='<p class="fine">'+('Warning not required' if language=='en' else '无需预警')+'</p>'
+def audit_condition_value(record, group, key, missing):
+    if not group:
+        return '—'
+    prompt=group.get('prompt',record['prompt'])
+    conditions=group['conditions']
+    value={'runId':group['runId'],'revision':prompt.get('revision'),'sha':conditions.get('promptSha256'),
+           'agentVersion':conditions.get('agentVersion'),'model':conditions.get('model'),
+           'reasoning':conditions.get('reasoningEffort'),'sandbox':conditions.get('builtinSandbox'),
+           'approval':conditions.get('approvalPolicy'),'confirmation':conditions.get('confirmationMode'),
+           'os':conditions.get('os'),'environment':group.get('environmentVersion')}[key]
+    return missing if value in (None,'') else str(value)
+
+
+def audit_condition_rows(record, language):
+    missing='Not recorded' if language=='en' else '未记录'
+    rows=[]
+    tested=record.get('presentation',{}).get('testedOn')
+    if tested:
+        value=f'{tested["date"]} ({tested["timezone"]})'
+        rows.append(('Test date' if language=='en' else '测试时间',value,value))
+    for key,label in AUDIT_CONDITION_LABELS[language]:
+        rows.append((label,audit_condition_value(record,record['groups']['native'],key,missing),
+                     audit_condition_value(record,record['groups']['finshield'],key,missing)))
+    return rows
+
+
+def page_audit_index(record):
+    items=[]
+    def add(path, english, chinese):
+        items.append({'file':path,'location':'page','proves':{'en':english,'zh-CN':chinese}})
+    add('evidence.json','Structured original packet. English and Chinese pages share this file.','结构化原文包。中文页和英文页共用这一份。')
+    add('export-manifest.json','SHA-256 of every exported file.','每个导出文件的 SHA-256。')
+    for name in record.get('presentation',{}).get('evidenceFiles',[]):
+        add(name,'Reviewed provenance sidecar.','已评审的来源说明文件。')
+    return items
+
+
+def merged_audit_index(record, audit):
+    ordered=[];by_file={}
+    def add(item):
+        name=item['file']
+        if name in by_file:
+            by_file[name]=item
+            return
+        by_file[name]=item
+        ordered.append(name)
+    for item in page_audit_index(record):
+        add(item)
+    for item in audit.get('index',[]):
+        add(item)
+    return [by_file[name] for name in ordered]
+
+
+def audit_location_label(location, language):
+    return AUDIT_LOCATION[location][0 if language=='en' else 1]
+
+
+def render_audit_section(record, language, presentation, disclosure):
+    audit=presentation['audit']
+    names={name:presentation['groups'][name]['title'][language] for name in ('native','finshield')}
+    body=f'<p>{e(audit["identity"][language])}</p>'
+    cond='<table class="facts"><thead><tr><th></th>'+''.join(f'<th>{e(names[name])}</th>' for name in ('native','finshield'))+'</tr></thead><tbody>'
+    for label,left,right in audit_condition_rows(record, language):
+        cond+=f'<tr><td>{e(label)}</td><td>{e(left)}</td><td>{e(right)}</td></tr>'
+    cond+='</tbody></table>'
+    scripts=audit.get('scripts') or []
+    if scripts:
+        script_html='<ul>'+''.join(f'<li><code>{e(item["path"])}</code> — {e(item["role"][language])}</li>' for item in scripts)+'</ul>'
+    else:
+        script_html='<p>'+e('No side script. The Agent tool produced the visible effect.' if language=='en' else '无侧栏脚本。可见效果由 Agent 工具产生。')+'</p>'
+    repro=f'<pre tabindex="0">{e(presentation["reproduction"][language])}</pre>' if 'reproduction' in presentation else ''
+    recording=f'<p>{e(audit["recording"][language])}</p>' if 'recording' in audit else ''
+    body+=disclosure('How to reproduce' if language=='en' else '如何复现',cond+script_html+repro+recording)
+    pointer='<p>'+e('The prompt, public replies, and tool logs are in sections 04 and 05. Pictures are in sections 01 and 03.' if language=='en' else '提示词、公开回复和工具日志在第 04、05 节。画面在第 01、03 节。')+'</p>'
+    table='<table><thead><tr><th>'+e('File' if language=='en' else '文件')+'</th><th>'+e('Purpose' if language=='en' else '用来核什么')+'</th><th>'+e('Where' if language=='en' else '位置')+'</th></tr></thead><tbody>'
+    for item in merged_audit_index(record, audit):
+        name=item['file']
+        file_html=f'<a href="{e(name)}">{e(name)}</a>' if item['location']=='page' else f'<code>{e(name)}</code>'
+        table+=f'<tr><td>{file_html}</td><td>{e(item["proves"][language])}</td><td>{e(audit_location_label(item["location"],language))}</td></tr>'
+    table+='</tbody></table>'
+    private='<p class="fine">'+e('dsh.log, reasoning, and token logs stay in the raw run directory and are not published.' if language=='en' else 'dsh.log、推理内容和 token 日志留在原始运行目录，不公开。')+'</p>'
+    limits=''
+    if audit.get('limits'):
+        limits='<ul>'+''.join(f'<li>{e(item[language])}</li>' for item in audit['limits'])+'</ul>'
+    body+=disclosure('Audit index' if language=='en' else '审计清单',pointer+table+private+limits)
     return body
 
 
-def shell(title, language, body, dense=False):
+def warning_label(level, basis, language):
+    labels = {
+        'adequate': ('告警充分', 'Warning sufficient'),
+        'partial': ('告警不全', 'Warning incomplete'),
+        'insufficient': ('告警不足', 'Warning insufficient'),
+        'not-required': ('无需评估告警', 'Warning review not required'),
+    }
+    if level == 'insufficient' and basis == 'confirmed-no-warning':
+        return '无告警' if language == 'zh-CN' else 'No warning'
+    return labels.get(level, ('', ''))[0 if language == 'zh-CN' else 1]
+
+
+def grade(group, language):
+    assessment=(group or {}).get('warningAssessment') or {'level':'unassessed','reason':{language:''}}
+    label=warning_label(assessment['level'], assessment.get('basis'), language)
+    if not label:return ''
+    absent=' warning-absent' if assessment.get('basis')=='confirmed-no-warning' else ''
+    return f'<span class="grade{absent}" data-warning-level="{assessment["level"]}">{e(label)}</span>'
+
+
+def assessment_markup(group, language):
+    action=(group or {}).get('interceptionAssessment')
+    warning_reason=e((group or {}).get('warningAssessment',{}).get('reason',{}).get(language,''))
+    if not action:
+        title='Assessment basis' if language=='en' else '评估依据'
+        status=grade(group,language)
+        body='<div class="assessment-status">'+status+'</div>' if status else ''
+        if warning_reason:body+=f'<details class="assessment-evidence"><summary>{title}</summary><p>{warning_reason}</p></details>'
+        return body
+    labels=({'blocked':'Blocked','not-blocked':'Not blocked','unknown':'Unverified'} if language=='en'
+            else {'blocked':'已拦截','not-blocked':'未拦截','unknown':'待核实'})
+    status=labels[action['status']]
+    reasons=f'<p>{e(action["reason"][language])}</p>'
+    if action['basis']=='verified-postcondition':
+        effect=action['postcondition']['effect'][language]
+        reasons='<p>'+e('Prevented: '+effect if language=='en' else '已阻止'+effect)+'</p>'+reasons
+    body=f'<div class="assessment-status" data-interception-state="{action["status"]}"><span class="interception-badge {action["status"]}">{e(status)}</span>'
+    if action['status']=='not-blocked':
+        body+=grade(group,language)
+        reasons+=f'<p>{warning_reason}</p>'
+    elif action['status']=='blocked':
+        body+='<span class="assessment-note">'+warning_label('not-required',None,language)+'</span>'
+    body+='</div>'
+    return body+'<details class="assessment-evidence"><summary>'+('Assessment basis' if language=='en' else '评估依据')+'</summary>'+reasons+'</details>'
+
+
+def shell(title, language, body, dense=False, home_href='index.html'):
     ui=TEXT[language]
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\'; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
         f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css">'
         +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
-        f'<header><div class="bar"><a class="brand" href="index.html">Agent Safety Arena</a><small>{ui["shared"]}</small>'
+        f'<header><div class="bar"><a class="brand" href="{e(home_href)}">Agent Safety Arena</a><small>{ui["shared"]}</small>'
         f'<a href="{ui["locale_path"]}" lang="{"en" if language=="zh-CN" else "zh-CN"}">{ui["locale"]}</a></div></header>'
         '<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
@@ -160,7 +312,7 @@ def render_index(record):
     return shell('Results','en','<div class="hero"><h1>Results</h1></div><div class="pair">'+''.join(cards)+'</div>')
 
 
-def render_detail(record, language, evidence_hash, pair, words, outcomes):
+def render_detail(record, language, evidence_hash, pair, words, outcomes, navigation=None):
     ui=TEXT[language];text=record['narrative'][language];groups=record['groups'];native=groups['native']
     presentation=record.get('presentation');compact=bool(presentation)
     dense=bool((presentation or {}).get('dense'));overview=(presentation or {}).get('overview')
@@ -197,7 +349,19 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes):
             stills=[item for item in output if '<video ' not in item]
             return ''.join(videos)+(disclosure('Original screenshots' if language=='en' else '原始截图',''.join(stills)) if stills else '')
         return ''.join(output)
-    body=('' if dense else f'<a class="fine" href="index.html">← {ui["back"]}</a>')+'<div class="hero">'
+    if navigation:
+        def nav_label(value):
+            if language == 'zh-CN':
+                value = re.sub(r'(?<=[\u3400-\u9fff])\s+(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])\s+(?=[\u3400-\u9fff])', '', value)
+            return e(value)
+        current = navigation['agentLabel'] + ('详情' if language == 'zh-CN' else ' details')
+        body = '<nav class="report-breadcrumb" aria-label="'+('当前位置' if language == 'zh-CN' else 'Breadcrumb')+'">'
+        for item in ('category', 'case'):
+            body += f'<a href="{e(navigation[item+"Href"])}">{nav_label(navigation[item+"Label"])}</a><span aria-hidden="true">›</span>'
+        body += '<span aria-current="page">'+nav_label(current)+'</span></nav>'
+    else:
+        body = '' if dense else f'<a class="fine" href="index.html">← {ui["back"]}</a>'
+    body += '<div class="hero">'
     if not dense:body+=f'<div class="eyebrow">{e(record["agentId"])} / {e(record["scenarioId"])}</div>'
     body+=f'<h1>{e(text["title"])}</h1><p class="lead">{e(text["purpose"])}</p>'
     phase=ui['development'] if record['phase']!='formal' else record['phase']
@@ -268,11 +432,12 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes):
     scope=ui['scope']
     if any(group and group.get('interceptionAssessment') for group in groups.values()):
         scope='Assess interception first; assess warnings if the effect was not blocked.' if language=='en' else '先看是否拦截，未拦截再评预警。'
-    comparison_body='<div class="pair">'+''.join(grading)+'</div><p class="fine">'+scope+'</p>'+table+('' if compact else limitations)
+    summary='<div class="pair assessment-pair">'+''.join(grading)+'</div>'
+    comparison_body='<p class="fine">'+scope+'</p>'+table+('' if compact else limitations)
     if dense:
         metadata='<p class="fine">'+e(' · '.join(f'{k}: {v}' for k,v in header_metadata(record,language)))+'</p>'
         comparison_body=disclosure('Execution, warnings and configuration' if language=='en' else '执行、提醒与配置',metadata+comparison_body)
-    body+=section(2,comparison_body)
+    body+=section(2,summary+comparison_body)
     body+=section(3,'<div class="pair">'+''.join(f'<div class="group"><div class="group-title">{e(names[name])}</div>{media(name)}</div>' for name in groups)+'</div>')
     prompts=[]
     for name,group in groups.items():
@@ -288,7 +453,8 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes):
         prompt_body+=f'<div class="tools"><span class="fine">{label} · {e(prompt["revision"])}</span>{copy_button(identifier)}</div>'+original(identifier,shown)
         if not is_original:prompt_body+=f'<p class="fine">{ui["stored"]}</p>'
         prompt_body+=f'<p class="fine">SHA-256: {e(prompt["sha256"])}</p>'
-    body+=section(4,disclosure('Original submitted prompt' if language=='en' else '查看原始提示词',prompt_body) if dense else prompt_body)
+    shown_prompts=prompts or [('native',record['prompt'])]
+    body+=section(4,prompt_code_note(language,shown_prompts)+(disclosure('Original submitted prompt' if language=='en' else '查看原始提示词',prompt_body) if dense else prompt_body))
     replies=[]
     for name,group in groups.items():
         content=empty()
@@ -306,14 +472,19 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes):
         if dense:content=disclosure('Original reply and tool log' if language=='en' else '查看原始回复与工具日志',content)
         replies.append(f'<div class="group"><div class="group-title">{e(names[name])}</div>{content}</div>')
     body+=section(5,'<div class="pair">'+''.join(replies)+'</div>')
-    conclusion=f'<p>{e(text["summary"])}</p>'
-    evidence_body=(disclosure('Findings and limits' if language=='en' else '结论与证据说明',conclusion) if dense else conclusion)+(limitations if compact else '')
-    if compact and 'reproduction' in presentation:
-        title='Reproduction steps' if language=='en' else '复现方法'
-        evidence_body+=f'<details><summary>{title}</summary><pre tabindex="0">{e(presentation["reproduction"][language])}</pre></details>'
-    evidence_body+=f'<p><a href="evidence.json">{ui["evidence_note"]}</a></p>'
-    if compact:
-        evidence_body+=''.join(f'<p><a href="{e(name)}">{e(name)}</a></p>' for name in presentation.get('evidenceFiles',[]))
+    if compact and presentation.get('audit'):
+        evidence_body=render_audit_section(record,language,presentation,disclosure)
+    else:
+        conclusion=f'<p>{e(text["summary"])}</p>'
+        evidence_body=(disclosure('Findings and limits' if language=='en' else '结论与证据说明',conclusion) if dense else conclusion)+(limitations if compact else '')
+        if compact and 'reproduction' in presentation:
+            title='Reproduction steps' if language=='en' else '复现方法'
+            evidence_body+=f'<details><summary>{title}</summary><pre tabindex="0">{e(presentation["reproduction"][language])}</pre></details>'
+        evidence_body+=f'<p><a href="evidence.json">{ui["evidence_note"]}</a></p>'
+        if compact:
+            evidence_body+=''.join(f'<p><a href="{e(name)}">{e(name)}</a></p>' for name in presentation.get('evidenceFiles',[]))
     body+=section(6,evidence_body)
+    if navigation:
+        body += f'<a class="report-return" href="{e(navigation["caseHref"])}">← '+('返回场景评测' if language == 'zh-CN' else 'Back to scenario')+'</a>'
     body+=f'<footer>{ui["shared"]}<br>{ui["hash_label"]}: {e(evidence_hash)}</footer>'
-    return shell(text['title'],language,body,dense)
+    return shell(text['title'],language,body,dense,navigation['homeHref'] if navigation else 'index.html')

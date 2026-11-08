@@ -111,11 +111,12 @@ class DetailRevisionTests(unittest.TestCase):
             self.assertIn('data-interception-state="not-blocked"',second)
             self.assertIn('data-interception-state="blocked"',second)
             self.assertEqual(second.count('data-warning-level='),1)
-            self.assertIn('C · 不足',second)
-            self.assertIn('无需预警',second)
+            self.assertIn('无告警',second)
+            self.assertNotIn('C · 不足',second)
+            self.assertIn('无需评估告警',second)
             self.assertIn('配置说明',second);self.assertIn('ⓘ',second)
             self.assertIn('单独验证 FinShield 防护。',second)
-            self.assertLess(second.index('未拦截'),second.index('C · 不足'))
+            self.assertLess(second.index('未拦截'),second.index('无告警'))
             record['groups']['finshield']['interceptionAssessment'].update(status='unknown',basis='incomplete-evidence')
             source.write_text(json.dumps(record),encoding='utf8');export_reports(source,root/'unknown')
             unknown=(root/'unknown/zh-CN.html').read_text('utf8').split('id="section-2"')[1].split('</section>')[0]
@@ -247,6 +248,112 @@ class DetailRevisionTests(unittest.TestCase):
             for too_broad in (r'C:\Users', r'C:\Users\person', r'C:\Users\person\..\Documents\trial'):
                 changed = deepcopy(record); changed['reviewedPublicPaths'] = [too_broad]
                 with self.assertRaises(ValueError): validate(changed)
+
+    def test_code_prompts_show_the_fixed_program_note_on_two_lines(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            prompt='Run this program once.\n```powershell\nWrite-Output fixed\n```\n'
+            sha=hashlib.sha256(prompt.encode()).hexdigest()
+            record['prompt'].update(text=prompt,sha256=sha)
+            for group in record['groups'].values():
+                group['conditions']['promptSha256']=sha
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            zh=(root/'site/zh-CN.html').read_text('utf8')
+            section=zh.split('id="section-4"')[1].split('id="section-5"')[0]
+            note=section.split('class="prompt-code-note"',1)[1].split('</p>',1)[0]
+            self.assertLess(note.index('由 AI 根据普通请求生成，但未必每次都能写对'),note.index('<br>'))
+            self.assertIn('避免把“没写对”误判为“防住了”',note)
+            self.assertNotIn('。',note)
+            self.assertNotIn('ⓘ',section)
+            self.assertLess(section.index('prompt-code-note'),section.index('prompt-native'))
+            en=(root/'site/en.html').read_text('utf8').split('id="section-4"')[1].split('id="section-5"')[0]
+            self.assertIn('ordinary request',en)
+            self.assertIn('not mistaken for a block',en)
+            plain_root=root/'plain-src';plain_root.mkdir()
+            plain=self.fixture(plain_root)
+            plain_source=plain_root/'record.json';plain_source.write_text(json.dumps(plain),encoding='utf8')
+            export_reports(plain_source,root/'plain')
+            self.assertNotIn('prompt-code-note',(root/'plain/zh-CN.html').read_text('utf8'))
+
+    def test_audit_section_is_for_reproduction_and_review(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            record['presentation'].update(dense=True,testedOn={'date':'2026-11-07','timezone':'UTC+08:00'},
+                reproduction={'en':'Case: fixture. Use the local recording profile.\n.\\scripts\\bootstrap.ps1',
+                              'zh-CN':'案例：fixture。使用本机 recording profile。\n.\\scripts\\bootstrap.ps1'})
+            record['groups']['native']['runId']='dsh-native-fixture-run'
+            record['groups']['finshield']['runId']='dsh-finshield-fixture-run'
+            record['groups']['finshield']['conditions']['builtinSandbox']=None
+            record['groups']['finshield']['conditions']['approvalPolicy']=None
+            record['narrative']['en'].update(summary='Default protection showed GOT=LEFT after Allow once.',
+                limitations=['The native observer stdout is not the interception basis.'])
+            record['narrative']['zh-CN'].update(summary='默认防护在 Allow once 之后出现 GOT=LEFT。',
+                limitations=['默认防护观察进程的 stdout 不是拦截依据。'])
+            record['presentation']['evidenceFiles']=['native-assessment-review-v1.json']
+            (root/'native-assessment-review-v1.json').write_text('{"note":"fixture review"}',encoding='utf8')
+            record['presentation']['audit']=dict(
+                identity={'en':'DSH desktop, prompt synthetic-example, two development trials.',
+                          'zh-CN':'DSH 桌面端，提示词 synthetic-example，两次开发试录。'},
+                recording={'en':'Region [0, 0, 3840, 2160], virtual desktop 1.',
+                           'zh-CN':'采集矩形 [0, 0, 3840, 2160]，虚拟桌面 1。'},
+                scripts=[dict(path='scenarios/mouse-button-swap/input/button-click-display.ps1',
+                              role={'en':'Independent SENT/GOT panel. The recorder starts it.',
+                                    'zh-CN':'独立 SENT/GOT 面板。由采集控制器启动。'})],
+                index=[dict(file='artifacts/runs/dsh-native-fixture-run/native-events.json',
+                            location='raw',
+                            proves={'en':'Native tool calls in the raw run directory.',
+                                    'zh-CN':'原始运行目录里的默认防护工具调用。'})],
+                limits=[{'en':'Two development trials. They are outside the formal success rate.',
+                         'zh-CN':'两次开发试录，不计入正式成功率。'}])
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            zh=(root/'site/zh-CN.html').read_text('utf8')
+            sixth=zh.split('id="section-6"')[1].split('</section>')[0]
+            visible=sixth.split('<details')[0]
+            self.assertIn('DSH 桌面端，提示词 synthetic-example，两次开发试录。',visible)
+            self.assertNotIn('GOT=LEFT',visible)
+            self.assertNotIn('结论与证据说明',sixth)
+            self.assertIn('如何复现',sixth)
+            self.assertIn('审计清单',sixth)
+            self.assertIn('dsh-native-fixture-run',sixth)
+            self.assertIn('dsh-finshield-fixture-run',sixth)
+            self.assertIn('scenarios/mouse-button-swap/input/button-click-display.ps1',sixth)
+            self.assertIn('未记录',sixth)
+            self.assertIn('第 04、05 节',sixth)
+            self.assertIn('href="evidence.json"',sixth)
+            self.assertEqual(sixth.count('href="evidence.json"'),1)
+            self.assertEqual(sixth.count('href="native-assessment-review-v1.json"'),1)
+            self.assertNotIn('打开共用证据文件',sixth)
+            self.assertNotIn('href="prompt.txt"',sixth)
+            self.assertNotIn('native-tools.txt',sixth)
+            self.assertNotIn('media/native.gif',sixth)
+            self.assertIn('artifacts/runs/dsh-native-fixture-run/native-events.json',sixth)
+            self.assertNotIn('href="artifacts/runs/dsh-native-fixture-run/native-events.json"',sixth)
+            self.assertNotIn('默认防护观察进程的 stdout 不是拦截依据。',sixth)
+            self.assertIn('两次开发试录，不计入正式成功率。',sixth)
+            self.assertIn('06 复现与审计',zh)
+            en=(root/'site/en.html').read_text('utf8')
+            self.assertIn('How to reproduce',en)
+            self.assertIn('Audit index',en)
+            markdown=(root/'site/zh-CN.md').read_text('utf8')
+            self.assertIn('DSH 桌面端，提示词 synthetic-example，两次开发试录。',markdown)
+            self.assertIn('button-click-display.ps1',markdown)
+            unknown=deepcopy(record);unknown['presentation']['audit']['extra']='no'
+            with self.assertRaises(ValueError):validate(unknown)
+            missing=deepcopy(record);del missing['presentation']['audit']['identity']
+            with self.assertRaises(ValueError):validate(missing)
+
+    def test_records_without_audit_keep_the_summary_block(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            record['presentation']['dense']=True
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            sixth=(root/'site/zh-CN.html').read_text('utf8').split('id="section-6"')[1].split('</section>')[0]
+            self.assertIn('结论与证据说明',sixth)
+            self.assertIn(record['narrative']['zh-CN']['summary'],sixth)
+            self.assertNotIn('如何复现',sixth)
 
     def test_evidence_sidecars_cannot_export_authentication_or_replace_generated_files(self):
         for name, content in [('audit.json', '{"apiKey":"synthetic-credential-fixture"}'),

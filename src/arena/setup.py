@@ -25,21 +25,30 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
 
     if profile_path is not None:
         profile = load_profile(profile_path)
-        for key in ('node', 'dshEntry', 'chrome', 'ffmpeg', 'desktopTool'):
+        keys = ('node', 'workbuddyEntry', 'ffmpeg', 'desktopTool') if profile.get('agent') == 'workbuddy' else (
+            'node', 'dshEntry', 'chrome', 'ffmpeg', 'desktopTool')
+        for key in keys:
             value = profile.get(key)
             resolved = None
             if isinstance(value, str) and value:
                 resolved = str(Path(value).resolve()) if Path(value).is_file() else shutil.which(value)
             check(key, bool(resolved and Path(resolved).is_file()),
                   resolved or 'Set an existing file or PATH command in the local profile')
-        check('platform', sys.platform == 'win32', 'Live DSH recording requires Windows')
+        check('platform', sys.platform == 'win32', 'Live recording requires Windows')
+        if profile.get('agent') == 'workbuddy':
+            workspace = profile.get('workspaceRoot')
+            check('workspaceRoot', isinstance(workspace, str) and Path(workspace).is_dir(),
+                  'Use an existing directory already allowed by the installed policy')
+            port = profile.get('debugPort')
+            check('debugPort', type(port) is int and 1 <= port <= 65535, 'Set a loopback CDP port')
         region = profile.get('screenRegion')
         valid_region = (isinstance(region, list) and len(region) == 4
                         and all(type(v) is int for v in region)
                         and region[2] >= 2 and region[3] >= 2)
         check('screenRegion', valid_region, 'Declare the actual physical capture rectangle [x,y,width,height]')
         if environment == 'finshield':
-            for key in ('finshield', 'finshieldConfig', 'dshDesktop'):
+            launch_files = ('finshield', 'finshieldConfig') if profile.get('agent') == 'workbuddy' else ('finshield', 'finshieldConfig', 'dshDesktop')
+            for key in launch_files:
                 value = profile.get(key)
                 check(key, isinstance(value, str) and Path(value).is_file(),
                       'Set an existing file in the local profile')

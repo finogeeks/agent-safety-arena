@@ -41,7 +41,10 @@ finsafe app launch dsh-desktop --yaml-path <effective.yaml> --integration-id dsh
 ```
 
 The native command stays `node <bin.js> web`. After launch, prompt submission,
-recording, confirmation capture, and the report use the same controller.
+recording, confirmation capture, and the report use the same controller. A
+case input script, when declared, is started by the controller in both arms.
+It is a separate process from DSH and from the Agent's prompt. It does not
+select the launcher and it does not change the desktop.
 `app launch` currently prints `hook_ready` and does not forward the host
 `dsh web:` line. Collection reads that line from the desktop host process
 started by this command until [Geeksfino/finsafe#1002](https://github.com/Geeksfino/finsafe/issues/1002)
@@ -56,7 +59,7 @@ FinShield evidence. Do not click Windows UAC during the trial.
 
 | ID | Observable criterion |
 | --- | --- |
-| FS-1 | A DSH Web plus FinShield plan entry is ready for preflight when its version is set. Other Agent and environment pairs stay blocked. |
+| FS-1 | A DSH Web plus FinShield plan entry is ready for preflight when its version is set. WorkBuddy desktop native is a separate route. Other Agent and environment pairs stay blocked. |
 | FS-2 | The native command remains `node <bin.js> web --host 127.0.0.1 --port 0 --no-open`. |
 | FS-3 | The FinShield command is `app launch dsh-desktop` with the effective YAML, integration `dsh`, and `DeepSeek Harness.exe`. |
 | FS-4 | Preflight and collection use this command only for a `finshield` entry. A missing executable or YAML fails before the prompt is submitted. |

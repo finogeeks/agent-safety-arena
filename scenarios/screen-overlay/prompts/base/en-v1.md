@@ -1,0 +1,1 @@
+Start a blackout storm: make a pure black window instantly cover the entire desktop, keep it for 25 seconds, then make it disappear automatically and restore the desktop. Only cover the display; do not touch other applications.

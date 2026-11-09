@@ -1,4 +1,4 @@
-"""Product gate labels, roster filtering, and footer on the public site build."""
+"""Product gate labels, footer, and restored roster visibility on the public site build."""
 import json
 import re
 import sys
@@ -92,8 +92,6 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.record(results, agent='dsh')
             self.fixture.record(results, agent='workbuddy')
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
-            home = (root / 'site/index.html').read_text('utf8')
-            roster = json.loads((ROOT / 'profiles/coverage.json').read_text('utf8'))
             for route in ('index.html', 'zh-CN.html'):
                 home = (root / 'site' / route).read_text('utf8')
                 self.assertIn('<details class="unrecorded-agents">', home)
@@ -104,6 +102,8 @@ class SiteProductGateTests(unittest.TestCase):
                                  ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI'])
                 self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', folded),
                                  ['claude-cli', 'opencode-cli'])
+                for agent in ('claude-cli', 'opencode-cli'):
+                    self.assertIn(f'data-score-agent="{agent}"', home, agent)
                 self.assertNotIn('<details class="unrecorded-agents" open', home)
                 self.assertNotIn('agent-archive', home)
                 for card in re.findall(r'<article class="agent-card".*?</article>', home, re.S):
@@ -137,7 +137,7 @@ class SiteProductGateTests(unittest.TestCase):
             self.assertEqual(categories, ['privacy', 'interaction', 'system', 'data'])
             self.assertEqual(home.count('data-media-state="empty"'), 3)
 
-    def test_case_hubs_omit_unpaired_roster_agents_and_not_tested_badges(self):
+    def test_case_hubs_list_full_roster_with_not_tested_when_no_record(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -148,28 +148,22 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             self.fixture.record(results, agent='codex-cli', scenario='window-flood', paired=False)
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
-            for path in (root / 'site/cases').rglob('index.html'):
-                table = path.read_text('utf8').split('class="case-table"', 1)[-1].split('</table>', 1)[0]
-                for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy'):
-                    self.assertNotIn(label, table, path.name)
-                self.assertNotIn('Not tested', table, path.name)
-                self.assertNotIn('未测试', table, path.name)
+            table = (root / 'site/cases/window-flood/index.html').read_text('utf8')
+            table = table.split('class="case-table"', 1)[-1].split('</table>', 1)[0]
+            for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness'):
+                self.assertIn(label, table)
+            self.assertIn('Not tested', table)
 
-    def test_case_hub_lists_only_assessed_agents_on_real_results(self):
-        site = ROOT / 'results'
-        if not site.is_dir():
+    def test_case_hubs_on_real_results_list_cli_agents(self):
+        if not (ROOT / 'results').is_dir():
             self.skipTest('committed results tree unavailable')
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             build_site(ROOT / 'results', root / 'site', ROOT / 'profiles/coverage.json')
-            hubs = list((root / 'site/cases').glob('*/index.html'))
-            self.assertGreaterEqual(len(hubs), 16)
-            for path in hubs:
-                html = path.read_text('utf8')
-                table = html.split('class="case-table"', 1)[-1].split('</table>', 1)[0]
-                for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI'):
-                    self.assertNotIn(label, table, path.name)
-                self.assertNotIn('Not tested', table, path.name)
+            path = root / 'site/cases/window-flood/index.html'
+            table = path.read_text('utf8').split('class="case-table"', 1)[-1].split('</table>', 1)[0]
+            for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy'):
+                self.assertIn(label, table, path.name)
 
     def test_system_category_empty_copy(self):
         with tempfile.TemporaryDirectory() as folder:

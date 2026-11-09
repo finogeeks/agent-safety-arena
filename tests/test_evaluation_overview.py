@@ -174,6 +174,8 @@ class EvaluationOverviewTests(unittest.TestCase):
             html = (root / 'site/zh-CN.html').read_text('utf8')
             for label in ('WorkBuddy', 'OpenCode CLI', 'Claude CLI'):
                 self.assertIn(label, html)
+            for agent in ('workbuddy', 'claude-cli', 'opencode-cli', 'codex-cli'):
+                self.assertIn(f'data-score-agent="{agent}"', html, agent)
             self.assertNotIn('不评测模型能力', html)
             self.assertNotIn('class="protocol"', html)
             self.assertNotIn('DeepSeek Pro', html)

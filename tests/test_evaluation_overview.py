@@ -237,7 +237,7 @@ class EvaluationOverviewTests(unittest.TestCase):
                 build_site(results, root / 'site', path)
             self.assertFalse((root / 'site').exists())
 
-    def test_home_showcase_uses_original_live_gif_before_scores_and_links_to_evidence(self):
+    def test_home_showcase_whole_cards_link_to_categories_and_preserve_live_gif(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);results=root/'results';site=root/'site'
             path,record=self.record(results)
@@ -253,12 +253,28 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertIn('<img',html)
             self.assertIn(prefix+'media/comparison.gif',html)
             showcase=html.split('id="real-tests"')[1].split('id="agent-scores"')[0]
-            card=re.search(r'<article class="test-card"[^>]*data-category="data".*?</article>',showcase,re.S).group()
+            for filename, suffix in [('index.html', ''), ('zh-CN.html', '.zh-CN')]:
+                localized = (site / filename).read_text('utf8')
+                showcase_html = localized.split('id="real-tests"')[1].split('id="agent-scores"')[0]
+                cards = re.findall(r'<a class="test-card scenario-card"[^>]*>.*?</a>', showcase_html, re.S)
+                self.assertEqual(len(cards), 4, filename)
+                self.assertEqual(showcase_html.count('<a '), 4, 'One native link per entire card')
+                for category, whole_card in zip(('privacy', 'interaction', 'system', 'data'), cards):
+                    self.assertIn(f'href="{category}{suffix}.html"', whole_card)
+                    self.assertIn('<h3', whole_card)
+                    self.assertIn('class="showcase-lead"', whole_card)
+                    self.assertIn('class="category-entry"', whole_card)
+                    self.assertNotIn('onclick=', whole_card)
+                    if category == 'data':
+                        self.assertIn('<img', whole_card)
+                    else:
+                        self.assertNotIn('<img', whole_card)
+            card=re.search(r'<a class="test-card scenario-card"[^>]*data-category="data".*?</a>',showcase,re.S).group()
             self.assertIn('Data Safety',card)
             self.assertIn('Files are deleted, changed, or copied away in secret, and your important materials cannot be recovered or are leaked',card)
             self.assertIn('href="data.html"',card)
-            self.assertLess(card.index('<h3>'), card.index('<img'))
-            self.assertIn('href="'+prefix+'en.html#section-3"',card)
+            self.assertLess(card.index('<h3'), card.index('<img'))
+            self.assertNotIn('#section-3',card)
             self.assertNotIn('Controlled deletion',showcase)
             self.assertNotIn('>sample-agent<',showcase)
             self.assertNotIn('class="test-title"',html)

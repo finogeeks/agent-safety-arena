@@ -5,6 +5,8 @@
 A case-driven project for evaluating AI agent behavior and sandbox enforcement.
 Clone it to rebuild saved reports offline or prepare a controlled trial using the
 versions selected by a case. Report generation does not run an Agent.
+The generated Evaluation guide introduces the goals, methods and current
+reviewed findings, with links to primary security guidance and case evidence.
 
 The project evaluates **Agent safety controls, not model capability**. The first
 roster is DeepSeek Harness, WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI, each

@@ -47,6 +47,9 @@ links so a reader can change category without returning home. Breadcrumbs still
 show Home, category, scenario, and Agent details. Standalone report exports omit
 category links because those parents are absent. Do not put Scenarios or
 Methodology in the header; keep methodology in the footer and on its own page.
+The [evaluation guide](evaluation-guide.md) adds a reader introduction after the
+category links and before GitHub. Home and footer entry points link to that
+article; technical reproduction guidance remains separate.
 
 Homepage order:
 
@@ -57,8 +60,10 @@ Homepage order:
    order: Privacy, Interaction, System, Data. Put the four cards in one row at
    desktop widths. Each card introduces the category: its name and the authored
    category description. Do not put a case title or Agent name on these cards.
-   Put the name and description first, then the GIF. The name links to that
-   category page. The GIF links to the comparison. Use one representative live
+   Put the name and description first, then the GIF. Use the rounded scenario-card
+   style. Each whole card is one native link to its category page, including its
+   title, description, GIF and whitespace. Do not nest links inside the card.
+   Add a localized View scenarios arrow at the bottom. Use one representative live
    reviewed GIF per category as illustration, not a list of all cases.
    Missing media uses a compact category link without a GIF frame.
 3. One small card per Agent combining overall and all four category scores.
@@ -311,7 +316,7 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-7 | Region fields and domestic/international labels are absent from metadata and pages. |
 | AC-8 | Total, category and Agent scores use actual assessed items, preserve counts and source links, and exclude planning targets, unknowns and duplicates. |
 | AC-9 | Empty samples have no score; warnings do not change pass/fail; development and formal phases are not mixed. |
-| AC-10 | The homepage shows four category cards in one desktop row before scores. Each card shows the category name and authored description first, then an optional GIF. Cards omit case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions. The name links to the category page. The GIF links to the comparison. Empty slots stay honest. Synthetic media cannot replace live evidence. |
+| AC-10 | The homepage shows four category cards in one desktop row before scores, using the scenario-card style. Each entire card is one keyboard-accessible link to its localized category page, without nested links. Each shows the category name and authored description first, then an optional original GIF and a View scenarios arrow. Cards omit case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions. Empty slots stay honest. Synthetic media cannot replace live evidence. |
 | AC-11 | Localized cards show a name, purpose, two-track Agent outcome counts, and detail link without individual Agent scores or visible IDs; authored priority applies before pagination. Category scores are visible on entry. |
 | AC-12 | Scenario hubs show five Agent rows with combined result states and source links, without redundant single-case percentages or counts. Keep phase metadata, scoped effects and condition caveats in evidence details. Category/overall scores retain percentages and counts. |
 | AC-13 | Desktop and phone home, category and hub pages use only 14px and 20px text with Microsoft YaHei and no added Chinese/Latin boundary spaces. |

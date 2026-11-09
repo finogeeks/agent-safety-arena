@@ -5,6 +5,7 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
+| [evaluation-guide.md](evaluation-guide.md) | Defines the bilingual evaluation blog, key takeaways, site styling, search metadata and evidence links. |
 | [public-result-presentation.md](public-result-presentation.md) | Defines shared publication eligibility, compact GIF cards and synchronized public summaries without changing original evidence. |
 | [screen-recording-case.md](screen-recording-case.md) | Defines the 20-second workspace screen-video case, camera-style host validation, English Off/On panel and evidence limits. |
 | [primary-screen-capture-program.md](primary-screen-capture-program.md) | Defines literal full-primary-screen PNG screenshots, the saved-image-count observation, and the WorkBuddy recording suite. |

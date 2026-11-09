@@ -3,6 +3,7 @@ from html import escape
 from math import ceil
 import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
+from arena.reporting.guide import guide_head, load_guide, render_guide
 
 PAGE_SIZE = 20
 
@@ -68,23 +69,25 @@ class Pages:
     def trail(self, crumbs, current):
         return breadcrumb_markup(self.language, crumbs, current)
 
-    def document(self, title, body, opposite, prefix='', page_class='', current_category=''):
+    def document(self, title, body, opposite, prefix='', page_class='', current_category='', extra_head=''):
         t = self.t; e = self.e
         categories = [dict(id=item['id'], href=prefix + self.route(item['id']),
                            label=item['label'][self.language])
                       for item in self.data['categories'] if item['id'] != 'unclassified']
         header = site_header_markup(self.language, prefix + self.home_path, opposite,
                                     t('English', '中文'), categories=categories,
-                                    current_category=current_category, brand_mark=True)
+                                    current_category=current_category, brand_mark=True,
+                                    guide_href=prefix + self.route('guide'), current_guide='guide-page' in page_class)
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
         t = self.t
         return (f'<footer><span>Agent Safety Arena · <a href="https://finaios.ai">FinAI OS</a></span><div>'
+                f'<a href="{prefix}{self.route("guide")}">{t("测评说明","Evaluation guide")}</a>'
                 f'<a href="{prefix}{self.method_path}">{t("方法与复现","Method & reproduction")}</a>'
                 f'<a href="https://github.com/finogeeks/agent-safety-arena">GitHub</a>'
                 f'<a href="{prefix}catalog.json">{t("汇总数据","Data")}</a>'
@@ -166,23 +169,23 @@ class Pages:
             row=chosen[category['id']]
             state='ready' if row else 'empty'
             href=self.route(category['id'])
-            body+=f'<article class="test-card" data-category="{category["id"]}" data-media-state="{state}">'
-            body+=f'<h3><a class="showcase-category" href="{href}">{e(category["label"][self.language])}</a></h3>'
+            body+=f'<a class="test-card scenario-card" href="{href}" data-category="{category["id"]}" data-media-state="{state}">'
+            body+=f'<h3 class="showcase-category">{e(category["label"][self.language])}</h3>'
             body+=f'<p class="showcase-lead">{e(category["description"][self.language])}</p>'
             if row:
                 loading='eager' if index==0 else 'lazy'
                 body+='<div class="gif-labels"><span>'+t('Agent内置沙箱','Agent built-in sandbox')+'</span><span>FinShield</span></div>'
-                body+=f'<a class="test-gif" href="{self.report_path(row)}#section-3" aria-label="{t("打开对照录像","Open the recording comparison")}"><img src="{e(row["preview"]["path"])}" alt="{e(row["preview"]["caption"][self.language])}" loading="{loading}" decoding="async"></a>'
-            else:
-                body+=f'<a class="category-entry" href="{href}">'+t('查看分类','View category')+' <span aria-hidden="true">→</span></a>'
-            body+='</article>'
+                body+=f'<div class="test-gif"><img src="{e(row["preview"]["path"])}" alt="{e(row["preview"]["caption"][self.language])}" loading="{loading}" decoding="async"></div>'
+            body+='<span class="category-entry">'+t('查看场景','View scenarios')+' <span aria-hidden="true">→</span></span>'
+            body+='</a>'
         return body+'</div></section>'
 
     def home(self):
         t=self.t; e=self.e
         body=('<section class="intro"><div>'
             f'<h1>{t("Agent安全测评","Agent Safety Evaluation")}</h1>'
-            '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Agent built-in sandbox')+'</span><span>vs</span><span>FinShield</span></p></div></section>')
+            '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Agent built-in sandbox')+'</span><span>vs</span><span>FinShield</span></p>'
+            f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a></div></section>')
         body+=self.showcase()
         body+='<section id="agent-scores" class="agent-scores"><div class="section-heading"><h2>'+t('测评结果','Evaluation results')+'</h2></div>'
         body+=self.home_agent_cards()+'<p class="footnote">'
@@ -192,6 +195,24 @@ class Pages:
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
         return self.document(t('Agent安全测评','Agent Safety Evaluation'),body,'index.html' if self.zh else 'zh-CN.html',
                              page_class='refined-page')
+
+    def guide(self):
+        content = load_guide()
+        agents = [agent for agent in self.data['coverage'] if self.has_live_records(agent)]
+        results = ('<div class="guide-results panel table-scroll">'
+                   + self.agent_table(self.scores['agents'], agents=agents) + '</div>') if agents else ''
+        examples = [case for case in self.data['cases']
+                    if case['live'] and case['id'] in ('camera-capture', 'screen-capture', 'window-flood')]
+        links = ''.join(f'<a href="{self.case_path(case["id"])}">{self.e(case["title"][self.language])} →</a>'
+                        for case in examples)
+        evidence = '<div class="guide-examples">' + links + '</div>' if links else ''
+        evidence += ('<p class="guide-method-link"><a href="' + self.method_path + '">'
+                     + self.t('查看详细方法与复现条件', 'Read the detailed methodology and reproduction conditions') + ' →</a></p>')
+        body = self.trail([(self.home_path, self.t('首页', 'Home'))], self.t('测评说明', 'Evaluation guide'))
+        body += render_guide(content, self.language, results, evidence)
+        return self.document(content.get('metadata', {}).get('seoTitle', content['title'])[self.language], body,
+                             'guide.html' if self.zh else 'guide.zh-CN.html',
+                             page_class='refined-page guide-page', extra_head=guide_head(content, self.language))
 
     def category(self, category, cases, page):
         t = self.t; e = self.e
@@ -409,6 +430,7 @@ def render_pages(catalog):
         output[renderer.home_path] = renderer.home()
         if language == 'en': output['en.html'] = output['index.html']
         output[renderer.method_path] = renderer.methodology()
+        output[renderer.route('guide')] = renderer.guide()
         categories = list(catalog['categories'])
         if any(case['categoryId'] == 'unclassified' for case in catalog['cases']):
             categories.append(dict(id='unclassified', label={'en':'Unclassified records','zh-CN':'待分类记录'},

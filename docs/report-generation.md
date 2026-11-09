@@ -12,7 +12,7 @@ case conclusion in Python makes later reports inconsistent.
 | Fixed in shared code and procedure | Generated from each case's evidence |
 | --- | --- |
 | Six sections and their order | Case explanation and possible user impact |
-| Default protection / FinShield protection columns | Actual versions, settings, dates, and one-line observations |
+| Agent built-in sandbox / FinShield protection columns | Actual versions, settings, dates, and one-line observations |
 | One side-by-side overview GIF; two videos below | Reviewed media paths and timing provenance |
 | Interception first, then timely warning if unblocked | Reviewed target-effect result and warning assessment |
 | Short information icons and expandable evidence | Applicable default-setting and Full Access notes |
@@ -34,7 +34,8 @@ Use [arena-write-report](../skills/arena-write-report/SKILL.md) and the
 content and assessment rules in [report-contract.md](report-contract.md).
 Define the target effect and observation boundary before new collection. If a
 criterion changes after collection, identify the revision and retain the earlier
-review. Do not relabel development evidence as a formal result.
+review. Use the maintainer-confirmed publication phase. This classification must
+not change observations, original run snapshots, or assessment grades.
 
 The Agent writes content into the reviewed `record.json`. It must preserve the
 configured layout, column roles, section order, and shared CSS. It may not

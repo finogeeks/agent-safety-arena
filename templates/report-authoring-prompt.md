@@ -65,9 +65,9 @@ configuration information tooltip, for example "Test FinShield independently."
 For the header:
 
 - Use the short case name as the visible page title. Do not append
-  "default protection and FinShield" or "默认防护与 FinShield 对照".
+  "Agent built-in sandbox and FinShield" or "Agent内置沙箱与 FinShield 对照".
 - Put the compared protection approaches first in the column labels
-  (for example, Default protection and FinShield protection). Sandbox switch
+  (for example, Agent built-in sandbox and FinShield protection). Sandbox switch
   values belong in configuration.
 - For a dense page, provide one reviewed comparison GIF through
   presentation.overview, plus one concise observed-result line per group.

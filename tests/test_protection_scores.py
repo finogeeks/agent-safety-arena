@@ -81,7 +81,7 @@ class ProtectionScoreTests(unittest.TestCase):
             self.assertTrue(all(item['reports'] for item in scores['items']))
             self.assertTrue(all('synthetic-agent' not in item['agentId'] for item in scores['items']))
             home=(root/'site/index.html').read_text('utf8')
-            for text in ('Overall &amp; category scores by Agent','50%','100%','passed','failed','Development results (not formal)'):
+            for text in ('Overall &amp; category scores by Agent','50%','100%','passed','failed','unassessed','Not tested'):
                 self.assertIn(text,home)
             catalog_scores = data['scores']['development']['agents']['unknown-agent']['native']
             self.assertEqual(catalog_scores['unassessed'], 1)
@@ -130,8 +130,7 @@ class ProtectionScoreTests(unittest.TestCase):
             self.assertEqual(scores['agents']['codex-cli']['native']['failed'],1)
             self.assertIsNone(scores['agents']['codex-cli']['finshield']['rate'])
             self.assertEqual(scores['agents']['codex-cli']['finshield']['excluded'],1)
-            case = (root/'site/cases/controlled-delete/index.html').read_text('utf8')
-            self.assertIn('Reasoning effort differs', case)
+            self.assertIn('Outside score scope', (root/'site/index.html').read_text('utf8'))
             self.assertIsNone(scores['agents']['dsh']['native']['rate'])
             self.assertEqual(data['scores']['development']['agents']['dsh']['finshield']['passed'],1)
             roster=json.loads((ROOT/'profiles/coverage.json').read_text('utf8'))
@@ -159,11 +158,15 @@ class ProtectionScoreTests(unittest.TestCase):
             build_site(results,root/'site',catalog_path=path)
             for language,file in [('en','index.html'),('zh-CN','zh-CN.html')]:
                 html=(root/'site'/file).read_text('utf8');parsed=ScoreMatrix();parsed.feed(html)
-                self.assertEqual(len(parsed.values),10)
+                self.assertEqual(len(parsed.values),20)
                 for scope,pair in [('overall',('50%','50%')),('interaction',('0%','100%')),('system',('100%','0%'))]:
                     for group,expected in zip(('native','finshield'),pair):
                         self.assertIn(expected,parsed.values[('sample-agent',scope,group)])
-                self.assertNotIn(('sample-agent','privacy','native'), parsed.values)
+                for group in ('native','finshield'):
+                    untested='Not tested' if language=='en' else '未测试'
+                    self.assertIn(untested,parsed.values[('sample-agent','privacy',group)])
+                    self.assertIn(untested,parsed.values[('sample-agent','data',group)])
+                self.assertLess(html.index('data-score-scope="privacy"'), html.index('data-score-scope="interaction"'))
                 self.assertIn('0%',parsed.values[('other-agent','overall','native')])
                 self.assertIn('100%',parsed.values[('other-agent','overall','finshield')])
                 self.assertIn('class="agent-card-grid"',html)

@@ -7,7 +7,7 @@ Clone it to rebuild saved reports offline or prepare a controlled trial using th
 versions selected by a case. Report generation does not run an Agent.
 
 The project evaluates **Agent safety controls, not model capability**. The first
-roster is DSH desktop, WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI, each
+roster is DeepSeek Harness, WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI, each
 under default protection and FinShield protection. Hold the model at
 **DeepSeek Pro / high**. Planned Agents stay visible when no trial exists.
 
@@ -122,6 +122,9 @@ Scores use actual assessed outcomes, not a fixed
 scenario target; collection progress is not displayed. Different Agents' scores
 are never merged. Reviewed comparison GIFs appear above the compact score table;
 missing media slots stay labeled.
+Agents with live records stay visible; Agents without records are folded below
+the score cards. The committed live reports are formal published results, as
+confirmed by the maintainer on 2026-11-09. Summary pages omit phase badges.
 Development records and reused runs do not inflate formal results or trial counts.
 
 ## Development

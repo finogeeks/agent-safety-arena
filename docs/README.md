@@ -16,7 +16,7 @@ describe observable behavior. Decisions record choices and their consequences.
 | [mouse-speed-fixture.md](mouse-speed-fixture.md) | Defines an independent BASE/NOW pointer-speed panel and a later switcher, matching IME session form. |
 | [wheel-scroll-fixture.md](wheel-scroll-fixture.md) | Defines an independent BASE/NOW wheel-speed panel and a later switcher, matching mouse-speed form. |
 | [foreground-window-fixture.md](foreground-window-fixture.md) | Defines two overlapping owned windows that swap stacking order without Hide or minimize. |
-| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent protection scores, four safety categories with Privacy first, Agent/scenario cards, and evidence links. |
+| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent scores, four safety categories, folded unrecorded Agents, formal published results, and evidence links. |
 | [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
 | [recording-standard.md](recording-standard.md) | Defines host-verified saved programs, short execution prompts, machine preparation, and shared recording. |
 | [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |

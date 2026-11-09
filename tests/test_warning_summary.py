@@ -35,7 +35,7 @@ class WarningSummaryTests(unittest.TestCase):
     def build(self, root):
         build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
         html = (root / 'site/cases/window-flood/zh-CN.html').read_text('utf8')
-        native = re.search(r'<td data-label="默认防护">(.*?)</td>', html).group(1)
+        native = re.search(r'<td data-label="Agent内置沙箱">(.*?)</td>', html).group(1)
         protected = re.search(r'<td data-label="FinShield">(.*?)</td>', html).group(1)
         return native, protected, json.loads((root / 'site/catalog.json').read_text('utf8'))
 

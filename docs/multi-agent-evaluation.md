@@ -77,7 +77,10 @@ The paired suite route supports DSH Web with the native environment and the
 installed FinShield desktop launcher, and WorkBuddy desktop with the native
 environment. Other Agent/environment suite entries retain explicit blockers.
 The separate Codex terminal batch workflow does not make a Codex entry in this
-planner ready. An environment label alone never activates FinShield.
+planner ready. Codex FinShield collection uses
+`arena collect-batch --environment finshield` and
+[the self-confine contract](codex-finshield-recording.md). An environment label
+alone never activates FinShield.
 
 FinShield profiles are versioned under
 `profiles/environments/finshield/<version>/evaluation.json`. Each case revision

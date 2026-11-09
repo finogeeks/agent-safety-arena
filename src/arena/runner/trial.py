@@ -18,14 +18,14 @@ def save(path, value):
     temporary.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf8")
     # Windows readers can briefly hold the previous evidence file open.
     # Retain atomic replacement and report a persistent denial to the caller.
-    for attempt in range(6):
+    for attempt in range(20):
         try:
             temporary.replace(path)
             break
         except PermissionError:
-            if attempt == 5:
+            if attempt == 19:
                 raise
-            time.sleep(.05)
+            time.sleep(.1)
 
 
 def start_side_script(script, directory):
@@ -288,11 +288,17 @@ class Confirmations:
             if self.environment_check:
                 self.environment_check()
             recorder.check()
+            try:
+                decision = self.browser.choose_once(item["uiKey"], item["text"], selected)
+            except RuntimeError as error:
+                item['clickError'] = scrub(error)
+                self.persist()
+                continue
             item["autoDecisionAttempted"] = True
-            self.persist()
-            decision = self.browser.choose_once(item["uiKey"], item["text"], selected)
             item.update(decisionActor="automation", uiChoice=decision["label"], choiceAtMs=decision["at"],
                         continueChoice=selected)
+            if not item.get("choice"):
+                item["choice"] = decision["label"]
             self.persist()
             print(f"Selected continue choice after capture: {item['id']} {decision['label']}", flush=True)
 

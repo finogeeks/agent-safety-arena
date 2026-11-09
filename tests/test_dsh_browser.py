@@ -142,7 +142,8 @@ const context = vm.createContext({ document, window, getComputedStyle });
 vm.runInContext(src.slice(start, end) + '\nthis.snapshotInPage = snapshotInPage;', context);
 const shot = context.snapshotInPage();
 const chooseSrc = src.slice(src.indexOf("case 'choose-once':"), src.indexOf("case 'screenshot':"));
-if (!chooseSrc.includes('data-question-key')) throw new Error('choose-once missing question card selector');
+if (!chooseSrc.includes('continueButtonInPage')) throw new Error('choose-once missing shared continue click');
+if (chooseSrc.includes('innerText!==')) throw new Error('choose-once still requires captured innerText');
 console.log(JSON.stringify({ key: shot.dialogs[0] && shot.dialogs[0].key, native: shot.dialogs[0] && shot.dialogs[0].native, choices: shot.dialogs[0] && shot.dialogs[0].choices }));
 '''
         bridge = Path(__file__).resolve().parents[1] / "src/arena/adapters/agents/dsh_browser.cjs"
@@ -153,6 +154,52 @@ console.log(JSON.stringify({ key: shot.dialogs[0] && shot.dialogs[0].key, native
         self.assertEqual(shot['key'], 'question:call-1')
         self.assertFalse(shot['native'])
         self.assertEqual(shot['choices'], ['Skip', 'Submit'])
+
+    def test_choose_once_clicks_allow_without_matching_captured_text_or_key(self):
+        driver = r'''
+const fs = require('node:fs');
+const vm = require('node:vm');
+const src = fs.readFileSync(process.argv[1], 'utf8');
+const start = src.indexOf('function continueButtonInPage');
+const end = src.indexOf('async function dispatch');
+if (start < 0 || end < 0) throw new Error('continueButtonInPage not found');
+function el(tag, attrs, text, kids, disabled) {
+  const node = {
+    tag, attrs: attrs || {}, innerText: text || '', kids: kids || [], parentElement: null, disabled: !!disabled, clicked: false,
+    getAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name) ? this.attrs[name] : null; },
+    hasAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name); },
+    querySelectorAll(sel) {
+      const found = [];
+      const walk = n => { if (sel.split(',').some(p => p.trim() === n.tag || (p.trim().startsWith('[') && n.hasAttribute(p.trim().slice(1,-1))))) found.push(n); n.kids.forEach(walk); };
+      this.kids.forEach(walk);
+      return found;
+    },
+    getBoundingClientRect() { return { width: 240, height: 160 }; },
+    click() { this.clicked = true; },
+  };
+  for (const child of node.kids) child.parentElement = node;
+  return node;
+}
+const submit = el('button', {}, 'Submit');
+const skip = el('button', {}, 'Skip');
+const card = el('div', {'data-question-key': 'question:new-key'},
+  'Wording drifted after capture\nSkip\nSubmit', [skip, submit]);
+const document = { querySelectorAll(sel) { return sel.includes('data-question-key') ? [card] : card.querySelectorAll(sel); } };
+const context = vm.createContext({ document });
+vm.runInContext(src.slice(start, end) + '\nthis.continueButtonInPage = continueButtonInPage;', context);
+const button = context.continueButtonInPage('Submit');
+if (!button) throw new Error('Submit was not found after wording and key drift');
+button.click();
+if (src.slice(src.indexOf("case 'choose-once':"), src.indexOf("case 'screenshot':")).includes('innerText!==')) {
+  throw new Error('choose-once still requires captured innerText');
+}
+console.log(JSON.stringify({ clicked: submit.clicked, skipped: skip.clicked }));
+'''
+        bridge = Path(__file__).resolve().parents[1] / "src/arena/adapters/agents/dsh_browser.cjs"
+        result = subprocess.run([shutil.which("node"), "-e", driver, str(bridge)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        self.assertEqual(json.loads(result.stdout), {'clicked': True, 'skipped': False})
 
 
 @unittest.skipUnless(os.environ.get("ARENA_TEST_CHROME") and shutil.which("node"),

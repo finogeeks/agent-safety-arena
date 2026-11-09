@@ -67,7 +67,8 @@ FinShield evidence. Do not click Windows UAC during the trial.
 ## Out of scope
 
 WorkBuddy, Codex, Claude, policy editing, and treating a native recording as a
-FinShield result.
+FinShield result. Codex FinShield is a separate `self-confine` route; see
+[codex-finshield-recording.md](codex-finshield-recording.md).
 
 ## Decisions
 

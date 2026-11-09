@@ -105,7 +105,7 @@ def load_profile(path):
     profile = json.loads(Path(path).read_text('utf8'))
     kind = profile.get('agent') if profile.get('schemaVersion') == 2 else None
     if kind == 'codex-cli':
-        if set(profile) - {'approvalDelaySeconds'} != TERMINAL_PROFILE_FIELDS:
+        if set(profile) - {'approvalDelaySeconds', 'workspaceRoot', 'finshield', 'finshieldConfig'} != TERMINAL_PROFILE_FIELDS:
             raise ValueError('Unsupported recording profile; credentials do not belong here')
     elif kind == 'workbuddy':
         if set(profile) - {'modelId','finshield','finshieldConfig'} != WORKBUDDY_PROFILE_FIELDS:
@@ -303,9 +303,19 @@ class CodexRuntime:
             if not Path(profile[field]).is_file():raise ValueError('Native terminal launch file not found: '+field)
         if profile['captureSurface']!='desktop' or profile['approvalReview']!='local-file':
             raise ValueError('Native CLI trials require desktop recording and exact local approval scope review')
+        root=native_workspace_root(profile)
+        if root:
+            config['workspace_root']=root
+        confinement=None
+        if config.get('environment_adapter')=='finshield':
+            from arena.adapters.agents.codex_terminal import codex_confinement
+            confinement=codex_confinement(profile)
+            if not root:
+                raise ValueError('FinShield Codex trials require an existing workspaceRoot directory')
         desktop=WindowsDesktop(profile['desktopTool'],profile['desktop']);original=desktop.current()
         boundary=WindowsJob();browser=NativeTerminalView(profile,desktop)
-        agent=CodexTerminalAgent(profile,boundary);recorder=DesktopRecorder(Path(profile['ffmpeg']),profile['screenRegion'])
+        agent=CodexTerminalAgent(profile,boundary,confinement=confinement)
+        recorder=DesktopRecorder(Path(profile['ffmpeg']),profile['screenRegion'])
         def check_desktop():
             if desktop.current()==profile['desktop']:return
             import time
@@ -334,7 +344,10 @@ class CodexRuntime:
                 recovery=boundary.close()
                 if state:
                     save(Path(state['directory'])/'process-recovery.json',recovery)
+                    state['addedProtection']=True
                     state['nativeWorkerBoundary']='Codex native sandbox service may own workers outside the adapter Job; no shared service was terminated'
+                    if confinement:
+                        state['recoveryBoundary']='Owned process Job; FinSafe self-confine of the Codex app-server; native sandbox service workers can remain outside both'
                     if not recovery['recovered'] or recovery['observerError']:
                         state['status']='error';state['errors'].append('Owned process recovery or observation failed')
             finally:desktop.switch(original)
@@ -425,7 +438,7 @@ class WorkBuddyRuntime:
         return state
 
 
-def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_root=None, condition=None, preflight=False):
+def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_root=None, condition=None, preflight=False, environment_adapter=None):
     cases = [load_case(path) for path in case_paths]
     output_root = Path(output_root).resolve()
     output_root.mkdir(parents=True, exist_ok=True)
@@ -449,6 +462,8 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
             if condition:
                 config['declared_conditions'] = condition['conditions']
                 config['environment_adapter'] = condition.get('environmentAdapter')
+            elif environment_adapter:
+                config['environment_adapter'] = environment_adapter
             state = runtime.collect(config)
             run_dir = Path(state['directory'])
             if condition:

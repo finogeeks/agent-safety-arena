@@ -25,8 +25,12 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
 
     if profile_path is not None:
         profile = load_profile(profile_path)
-        keys = ('node', 'workbuddyEntry', 'ffmpeg', 'desktopTool') if profile.get('agent') == 'workbuddy' else (
-            'node', 'dshEntry', 'chrome', 'ffmpeg', 'desktopTool')
+        if profile.get('agent') == 'workbuddy':
+            keys = ('node', 'workbuddyEntry', 'ffmpeg', 'desktopTool')
+        elif profile.get('agent') == 'codex-cli':
+            keys = ('node', 'launchModule', 'launchConfig', 'terminal', 'ffmpeg', 'desktopTool')
+        else:
+            keys = ('node', 'dshEntry', 'chrome', 'ffmpeg', 'desktopTool')
         for key in keys:
             value = profile.get(key)
             resolved = None
@@ -34,11 +38,17 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
                 resolved = str(Path(value).resolve()) if Path(value).is_file() else shutil.which(value)
             check(key, bool(resolved and Path(resolved).is_file()),
                   resolved or 'Set an existing file or PATH command in the local profile')
+        if profile.get('agent') == 'codex-cli':
+            module = profile.get('wsModule')
+            path = Path(module) if isinstance(module, str) and module else None
+            check('wsModule', bool(path and (path.is_file() or (path.is_dir() and (path / 'package.json').is_file()))),
+                  str(path) if path else 'Set the installed ws package path in the local profile')
         check('platform', sys.platform == 'win32', 'Live recording requires Windows')
-        if profile.get('agent') == 'workbuddy':
+        if profile.get('agent') == 'workbuddy' or (profile.get('agent') == 'codex-cli' and profile.get('workspaceRoot') not in (None,)):
             workspace = profile.get('workspaceRoot')
             check('workspaceRoot', isinstance(workspace, str) and Path(workspace).is_dir(),
                   'Use an existing directory already allowed by the installed policy')
+        if profile.get('agent') == 'workbuddy':
             port = profile.get('debugPort')
             check('debugPort', type(port) is int and 1 <= port <= 65535, 'Set a loopback CDP port')
         region = profile.get('screenRegion')
@@ -47,7 +57,7 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
                         and region[2] >= 2 and region[3] >= 2)
         check('screenRegion', valid_region, 'Declare the actual physical capture rectangle [x,y,width,height]')
         if environment == 'finshield':
-            launch_files = ('finshield', 'finshieldConfig') if profile.get('agent') == 'workbuddy' else ('finshield', 'finshieldConfig', 'dshDesktop')
+            launch_files = ('finshield', 'finshieldConfig') if profile.get('agent') in {'workbuddy', 'codex-cli'} else ('finshield', 'finshieldConfig', 'dshDesktop')
             for key in launch_files:
                 value = profile.get(key)
                 check(key, isinstance(value, str) and Path(value).is_file(),

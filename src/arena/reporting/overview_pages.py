@@ -77,6 +77,21 @@ class Pages:
                 archived.append(agent)
         return archived
 
+    def case_has_paired_assessed_score(self, case_id, agent_id):
+        by_group = {}
+        for item in self.scores['items']:
+            if item['scenarioId'] != case_id or item['agentId'] != agent_id:
+                continue
+            if item['status'] == 'excluded':
+                continue
+            by_group[item['group']] = item['status']
+        return (by_group.get('native') in ('passed', 'failed')
+                and by_group.get('finshield') in ('passed', 'failed'))
+
+    def case_hub_agents(self, case_id):
+        return [agent for agent in self.data['coverage']
+                if self.case_has_paired_assessed_score(case_id, agent['id'])]
+
     def score(self, value, compact=False):
         rate = value['rate']
         label = '—' if rate is None else f'{rate:g}%'
@@ -270,7 +285,12 @@ class Pages:
                 body += '</div></section>'
         selected = cases[(page-1)*PAGE_SIZE:page*PAGE_SIZE]
         if not selected:
-            body += '<div class="empty panel"><h2>'+t('暂无已审阅录像','No reviewed recordings yet')+'</h2><p>'+t('新场景完成录制与审阅后会出现在这里。','Scenarios appear here after collection and review.')+'</p></div>'
+            if category['id'] in ('system', 'data'):
+                body += ('<div class="empty panel"><h2>'
+                         + t('本分类场景收录中', 'Scenarios in this category are being collected')
+                         + '</h2></div>')
+            else:
+                body += '<div class="empty panel"><h2>'+t('暂无已审阅录像','No reviewed recordings yet')+'</h2><p>'+t('新场景完成录制与审阅后会出现在这里。','Scenarios appear here after collection and review.')+'</p></div>'
         else:
             body += '<div class="section-heading"><h2>'+t('场景评测','Scenario evaluations')+'</h2></div>'
             body += '<div class="scenario-card-grid">'
@@ -336,10 +356,12 @@ class Pages:
                           case['title'][self.language])
         body += '<section class="page-intro">'
         body += f'<h1>{e(case["title"][self.language])}</h1><p class="lead">{e(case["description"][self.language])}</p></section>'
-        body += '<div class="section-heading"><h2>'+t('各智能体的防护结果','Results by Agent')+'</h2></div>'
+        body += ('<div class="section-heading"><h2>'+t('各智能体的防护结果','Results by Agent')+'</h2>'
+                 + self.phase_label_markup() + '</div>')
+        hub_agents = self.case_hub_agents(case['id'])
         body += '<div class="panel table-scroll"><table class="case-table"><thead><tr><th>'+t('智能体','Agent')+'</th><th>'+t('默认防护','Default protection')+'</th><th>FinShield</th><th>'+t('评测记录','Report')+'</th></tr></thead><tbody>'
         displayed = set()
-        for agent in self.data['coverage']:
+        for agent in hub_agents:
             candidates = [row for row in rows if row['agentId'] in agent['recordAgentIds'] and not row['archived'] and row['origin'] == 'live']
             candidates.sort(key=lambda row: row['phase'] != self.phase)
             active = [row for row in candidates if row['phase'] == self.phase]

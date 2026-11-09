@@ -88,6 +88,63 @@ class SiteProductGateTests(unittest.TestCase):
             categories = re.findall(r'data-category="([^"]+)"', home)
             self.assertEqual(categories, ['privacy'])
 
+    def test_case_hubs_omit_unpaired_roster_agents_and_not_tested_badges(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            results = root / 'results'
+            path, record = self.fixture.record(results, scenario='window-flood', agent='dsh')
+            for group in record['groups'].values():
+                if group:
+                    group['conditions'].update(model='deepseek-v4-pro', reasoningEffort='high')
+            self.fixture.save(path, record)
+            self.fixture.record(results, agent='codex-cli', scenario='window-flood', paired=False)
+            build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
+            for path in (root / 'site/cases').rglob('index.html'):
+                table = path.read_text('utf8').split('class="case-table"', 1)[-1].split('</table>', 1)[0]
+                for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy'):
+                    self.assertNotIn(label, table, path.name)
+                self.assertNotIn('Not tested', table, path.name)
+                self.assertNotIn('未测试', table, path.name)
+
+    def test_case_hub_lists_only_assessed_agents_on_real_results(self):
+        site = ROOT / 'results'
+        if not site.is_dir():
+            self.skipTest('committed results tree unavailable')
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            build_site(ROOT / 'results', root / 'site', ROOT / 'profiles/coverage.json')
+            hubs = list((root / 'site/cases').glob('*/index.html'))
+            self.assertGreaterEqual(len(hubs), 16)
+            for path in hubs:
+                html = path.read_text('utf8')
+                table = html.split('class="case-table"', 1)[-1].split('</table>', 1)[0]
+                for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI'):
+                    self.assertNotIn(label, table, path.name)
+                self.assertNotIn('Not tested', table, path.name)
+
+    def test_system_category_empty_copy(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            results = root / 'results'
+            self.fixture.record(results)
+            build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
+            self.assertIn('Scenarios in this category are being collected',
+                          (root / 'site/system.html').read_text('utf8'))
+            self.assertIn('本分类场景收录中', (root / 'site/system.zh-CN.html').read_text('utf8'))
+
+    def test_detail_shows_development_phase_beside_track(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            results = root / 'results'
+            path, record = self.fixture.record(results, agent='dsh')
+            self.fixture.attach_gif(path, record)
+            self.fixture.save(path, record)
+            build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
+            detail = next(p for p in (root / 'site').rglob('en.html') if 'dsh' in p.as_posix())
+            html = detail.read_text('utf8')
+            self.assertIn('Development trial', html)
+            self.assertIn('Development results (not formal)', html)
+
     def test_detail_run_notes_and_condition_banner(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

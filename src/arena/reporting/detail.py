@@ -67,6 +67,7 @@ details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cu
 :focus-visible{outline:3px solid #92b8f4;outline-offset:3px}.case-card{display:block;background:white;border:1px solid #dfe5ee;border-radius:9px;padding:20px;max-width:480px}.case-card h2{margin:10px 0}.case-card p{color:#63768e}
 .report-breadcrumb{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 8px;margin:0 0 10px;overflow-wrap:anywhere}
 .report-breadcrumb [aria-hidden],.report-breadcrumb [aria-current]{color:#78869a}
+.phase-label{display:inline-block;padding:3px 7px;border:1px solid #e6dfc9;border-radius:4px;background:#faf7ee;color:#8b7956;font-size:12px;font-weight:600;margin-left:8px}
 .condition-banner{margin:0 0 14px;padding:12px 14px;border:1px solid #ead7b0;border-radius:8px;background:#faf7ee;color:#6a5a3c;line-height:1.55}
 .report-return{display:inline-block;margin:12px 0 0}
 @media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar,.site-bar{padding-left:16px;padding-right:16px}.panel{padding:16px}.bar small{display:none}.site-nav{width:100%;order:3;margin:0;padding-top:8px;border-top:1px solid #dde3eb}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
@@ -168,6 +169,15 @@ def prompt_has_code(prompts):
 def prompt_code_note(language, prompts):
     if not prompt_has_code(prompts):return ''
     return '<p class="prompt-code-note">'+'<br>'.join(e(line) for line in PROMPT_CODE_NOTE[language])+'</p>'
+
+
+def site_phase_label(record, language):
+    if record['phase'] == 'formal':
+        text = 'Formal results' if language == 'en' else '正式结果'
+    else:
+        text = ('Development results (not formal)' if language == 'en'
+                else '开发阶段结果（非正式）')
+    return f'<span class="phase-label">{e(text)}</span>'
 
 
 def header_metadata(record, language):
@@ -434,11 +444,16 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
         metadata=header_metadata(record,language)
         short_model=metadata[2][1]
         if ' / ' not in short_model:short_model=short_model.split(' · ')[0].rsplit('/',1)[-1]
+        track=next(value for label,value in metadata if label in ('Track','试验类型'))
+        phase_note=site_phase_label(record,language) if record['phase']=='development' else ''
         body+='<p class="metadata-row">'+e(' · '.join([
             metadata[0][1].split(' (')[0],f'{record["agentId"].upper()} {metadata[1][1]}',
-            short_model,f'FinShield {metadata[3][1]}']))+'</p></div>'
+            short_model,f'FinShield {metadata[3][1]}',track]))+phase_note+'</p></div>'
     else:
-        body+='<div class="chips">'+''.join(f'<span class="chip">{e(ui.get("chips",{}).get(v,v))}</span>' for v in chips if v)+'</div></div>'
+        chips_html=''.join(f'<span class="chip">{e(ui.get("chips",{}).get(v,v))}</span>' for v in chips if v)
+        if record['phase'] == 'development':
+            chips_html += site_phase_label(record, language)
+        body+='<div class="chips">'+chips_html+'</div></div>'
     if compact and pair.get('differences'):
         mismatch=('Recorded configuration differs between default protection and FinShield. '
                   'This pair does not isolate FinShield causality.' if language=='en'

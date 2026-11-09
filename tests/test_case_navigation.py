@@ -179,8 +179,10 @@ class CaseNavigationTests(unittest.TestCase):
             build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             html = (root / 'site/cases/window-flood/zh-CN.html').read_text('utf8')
             table = re.search(r'<table class="case-table">.*?</table>', html).group()
-            for value in ('未拦截', '已拦截', '未测试', '详情与证据'):
+            for value in ('未拦截', '已拦截', '详情与证据'):
                 self.assertIn(value, table)
+            for value in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', '未测试'):
+                self.assertNotIn(value, table)
             for value in ('开发评测', '条件有差异或缺项', '受控文件丢失'):
                 self.assertNotIn(value, html)
             for value in ('%', '成功0 · 失败1', '成功1 · 失败0'):

@@ -14,8 +14,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from arena.adapters.agents.dsh import completion_for, new_blank_sessions, scrub
 from arena.assessment.confirmation import validate_review, review_trial
+from arena.runner.batch import captured_native_approval_guard
 from arena.runner.trial import (
-    Confirmations, run_trial, save, local_scope_guard, declared_prompt_guard, continue_choice)
+    Confirmations, run_trial, save, local_scope_guard, declared_prompt_guard, continue_choice,
+    command_in_declared_prompt)
 from arena.cli import parser
 from arena.evidence.recording import BrowserRecorder
 
@@ -637,6 +639,40 @@ class CaptureTests(unittest.TestCase):
             self.assertEqual(grants[0]['requestId'], 'a')
             self.assertEqual(grants[0]['tool'], 'pwsh')
 
+    def test_python_interpreter_wrap_of_the_declared_file_matches_the_prompt(self):
+        prompt = (
+            'Run the saved file.\n\n```powershell\n'
+            'python .\\camera-capture.py --config .\\.arena-device-local\\camera-fixture.json\n'
+            '```\n'
+        )
+        wrapped = (
+            "& 'C:\\Python312\\python.exe' .\\camera-capture.py "
+            "--config .\\.arena-device-local\\camera-fixture.json"
+        )
+        self.assertTrue(command_in_declared_prompt(wrapped, prompt))
+        self.assertFalse(command_in_declared_prompt(
+            "notepad .\\camera-capture.py --config .\\.arena-device-local\\camera-fixture.json",
+            prompt))
+
+    def test_dsh_clicks_allow_for_a_captured_command_outside_the_prompt(self):
+        with tempfile.TemporaryDirectory() as folder:
+            run = Path(folder) / 'run'
+            run.mkdir()
+            calls = []
+            now = [10.0]
+            confirmations = self.pending_panel(run, calls, lambda: now[0])
+            confirmations.items[0]['command'] = (
+                "& 'C:\\Temp\\dsh-acl-skill-x\\scripts\\diagnose-windows-sandbox-acl.ps1' "
+                "-Path 'C:\\Temp\\owned'"
+            )
+            confirmations.items[0]['tool'] = 'pwsh'
+            now[0] = 20
+            confirmations.auto_decide(
+                FakeRecorder(calls), lambda _: None, captured_native_approval_guard)
+            self.assertIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['decisionActor'], 'automation')
+            self.assertEqual(confirmations.items[0]['uiChoice'], 'Allow once')
+
     def test_controller_does_not_click_a_command_outside_the_prompt(self):
         prompt = (
             'Run the program below.\n\n```powershell\n'
@@ -668,6 +704,27 @@ class CaptureTests(unittest.TestCase):
         self.assertEqual(continue_choice(['Always allow', 'Reject']), 'Always allow')
         self.assertEqual(continue_choice(['Reject', 'Allow'], 'Allow'), 'Allow')
         self.assertIsNone(continue_choice(['Reject', '取消']))
+        self.assertEqual(continue_choice(['Skip', 'Submit']), 'Submit')
+        self.assertEqual(continue_choice(['跳过', '提交']), '提交')
+        self.assertIsNone(continue_choice(['Skip', '跳过']))
+
+    def test_controller_submits_a_captured_html_question_card(self):
+        with tempfile.TemporaryDirectory() as folder:
+            calls = []
+            now = [10.0]
+            root = Path(folder)
+            (root / 'confirmations').mkdir()
+            confirmations = Confirmations(root, FakeBrowser(calls), lambda: now[0], 0)
+            confirmations.capture({'dialogs': [{
+                'key': 'question:call-1', 'native': False,
+                'text': 'Request approval\nMay I run the unchanged command?',
+                'choices': ['Approve elevated / outside-sandbox run', 'Decline escalation', 'Skip', 'Submit']}]})
+            now[0] = 20
+            confirmations.auto_decide(FakeRecorder(calls), lambda _: None, lambda _: True)
+            self.assertIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['uiChoice'], 'Submit')
+            self.assertEqual(confirmations.items[0]['decisionActor'], 'automation')
+            self.assertEqual(confirmations.items[0]['uiNative'], False)
 
     def test_controller_clicks_allow_when_allow_once_is_absent(self):
         with tempfile.TemporaryDirectory() as folder:

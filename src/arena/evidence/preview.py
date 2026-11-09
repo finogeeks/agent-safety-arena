@@ -94,7 +94,7 @@ def export_preview(directory, moments_path=None, ffmpeg=None, output_name='overv
         filters.append('[v0][v1][v2]concat=n=3:v=1:a=0[out]')
     command+=['-filter_complex',';'.join(filters),'-map','[out]','-an','-c:v','libx264',
               '-threads','2','-preset','fast','-crf','22','-pix_fmt','yuv420p','-movflags','+faststart',str(output)]
-    subprocess.run(command,capture_output=True,text=True,check=True,timeout=180,**hidden_process_options())
+    subprocess.run(command,capture_output=True,text=True,check=True,timeout=600,**hidden_process_options())
     if hashlib.sha256(source.read_bytes()).hexdigest()!=original_hash:
         raise RuntimeError('The source recording changed during export')
     save(edit_path,dict(source=str(source),sourceSha256=original_hash,

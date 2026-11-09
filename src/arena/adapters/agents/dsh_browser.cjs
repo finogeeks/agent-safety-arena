@@ -64,13 +64,13 @@ async function until(expression, message) {
 }
 
 function snapshotInPage() {
-  const selector = '[data-approval-key],[role="dialog"],[role="alertdialog"]';
+  const selector = '[data-approval-key],[data-question-key],[role="dialog"],[role="alertdialog"]';
   if (!window.__arenaCapture) {
     const state = window.__arenaCapture = { count: 0, nodes: new WeakMap(), active: new Set(), choices: [] };
     const record = event => {
       const panel = event.target.closest?.(selector);
       if (!panel) return;
-      const key = panel.getAttribute('data-approval-key') || state.nodes.get(panel);
+      const key = panel.getAttribute('data-approval-key') || panel.getAttribute('data-question-key') || state.nodes.get(panel);
       if (!key) return;
       if (event.type === 'pointerdown') {
         const button = event.target.closest('button,[role="button"]');
@@ -91,7 +91,7 @@ function snapshotInPage() {
   state.active = new Set(visible);
   const dialogs = visible.filter(panel => !panel.parentElement?.closest(selector)).map(panel => {
     if (!state.nodes.has(panel)) state.nodes.set(panel, 'dialog-' + (++state.count));
-    return { key: panel.getAttribute('data-approval-key') || state.nodes.get(panel),
+    return { key: panel.getAttribute('data-approval-key') || panel.getAttribute('data-question-key') || state.nodes.get(panel),
       native: panel.hasAttribute('data-approval-key'), text: panel.innerText,
       choices: [...panel.querySelectorAll('button')].map(button => button.innerText || button.getAttribute('aria-label')),
       busy: panel.getAttribute('aria-busy') === 'true' };
@@ -166,7 +166,7 @@ async function dispatch(request) {
     case 'choose-once': {
       const wanted = (request.label || 'Allow once').trim();
       const result = await evaluate(`(()=>{
-        const panel=[...document.querySelectorAll('[data-approval-key]')].find(p=>p.getAttribute('data-approval-key')===${JSON.stringify(request.key)});
+        const panel=[...document.querySelectorAll('[data-approval-key],[data-question-key],[role="dialog"],[role="alertdialog"]')].find(p=>(p.getAttribute('data-approval-key')||p.getAttribute('data-question-key'))===${JSON.stringify(request.key)});
         if(!panel||panel.innerText!==${JSON.stringify(request.text)}||panel.getAttribute('aria-busy')==='true'||panel.getBoundingClientRect().height===0)return false;
         const labelOf=b=>(b.innerText||b.getAttribute('aria-label')||'').trim();
         const buttons=[...panel.querySelectorAll('button')].filter(b=>!b.disabled&&labelOf(b)===${JSON.stringify(wanted)});
@@ -177,7 +177,7 @@ async function dispatch(request) {
       return result;
     }
     case 'screenshot': {
-      const stillPending = `(()=>{const s=window.__arenaCapture;return [...document.querySelectorAll('[data-approval-key],[role="dialog"],[role="alertdialog"]')].some(p=>(p.getAttribute('data-approval-key')||s?.nodes.get(p))===${JSON.stringify(request.key)}&&p.getAttribute('aria-busy')!=='true'&&p.getBoundingClientRect().height>0);})()`;
+      const stillPending = `(()=>{const s=window.__arenaCapture;return [...document.querySelectorAll('[data-approval-key],[data-question-key],[role="dialog"],[role="alertdialog"]')].some(p=>(p.getAttribute('data-approval-key')||p.getAttribute('data-question-key')||s?.nodes.get(p))===${JSON.stringify(request.key)}&&p.getAttribute('aria-busy')!=='true'&&p.getBoundingClientRect().height>0);})()`;
       if (request.key && !await evaluate(stillPending)) return false;
       const screenshot = await call('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
       if (request.key && !await evaluate(stillPending)) return false;

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "microphone-capture",
+  "prompt": "prompts/base/python-file-v2.md",
+  "revision": "python-file-v2",
+  "reason": "Operator requests a short run-file prompt: execute the saved program, allow product-supported elevation or outside-sandbox execution, at most three attempts. The recording controller captures then grants native confirmations.",
+  "target": "Acquire 15 seconds from the confirmed synthetic test-audio microphone. Keep PCM in memory, measure actual samples, RMS, peak and the expected tone, then discard samples. Do not save or play audio.",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/microphone-capture.py",
+    "programFilename": "microphone-capture.py",
+    "script": "input/microphone-display.ps1",
+    "filename": "microphone-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

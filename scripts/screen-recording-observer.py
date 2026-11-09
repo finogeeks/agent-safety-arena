@@ -61,9 +61,8 @@ def panel_geometry(screen_width, screen_height):
                 x=max(0, (screen_width - width) // 2), y=0)
 
 
-def recording_status(active):
-    active = active or {}
-    if active.get('state') == 'capturing':
+def recording_status(active, videos=()):
+    if (active or {}).get('state') == 'capturing' and videos:
         return 'Recording'
     return 'Closed'
 
@@ -161,11 +160,13 @@ def main():
     spacer.pack_propagate(False)
     validated = set()
     active_path = path.parent / 'screen-recording-active.json'
+    recordings = path.parent.parent / 'screen-recordings'
+    started = time.time()
 
     def tick():
         try:
             active = json.loads(active_path.read_text('utf8')) if active_path.is_file() else {}
-            shown = recording_status(active)
+            shown = recording_status(active, saved_videos(recordings, started))
             result = active.get('result') or {}
             if active.get('state') == 'stopped' and result.get('mediaSaved'):
                 video = Path(active.get('video') or result.get('output') or '')

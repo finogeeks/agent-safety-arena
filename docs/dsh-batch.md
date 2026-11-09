@@ -92,8 +92,11 @@ The controller sets `ARENA_TRIAL_WORKSPACE` to the owned Agent workspace when it
 starts that observer. Existing observers may ignore the variable. A device
 observer may attach the prepared `{workspaceRoot}/.arena-device-local` directory
 into the trial workspace as a junction so the Agent-run program and the host
-panel share lease, stop and activity files. The observer still does not open a
-camera or microphone stream.
+panel share lease, stop and activity files. Native DSH collection uses that
+`workspaceRoot` when the directory exists, so the trial workspace is a child of
+the prepared parent. FinShield already required this directory. Without
+`workspaceRoot`, native DSH keeps a temporary-directory workspace. The observer
+still does not open a camera or microphone stream.
 
 Before submission, put the owned DSH server in a Windows Job Object with
 kill-on-close and no breakaway permission. Observe only windows whose processes
@@ -104,20 +107,24 @@ This boundary is additional recovery protection, not evidence of DSH enforcement
 For generated commands, the same controller performs the local scope check.
 Set `approvalReview: "local-file"` in the profile. It writes a private
 `approval-scope.json` with an initially empty `grants` list. After the original
-dialog screenshot and a pending-panel frame exist, the controller grants a
-command that matches the submitted prompt or the case allowlist, then selects
-the recommended continue choice. Prefer Allow once, then Allow, then Continue.
-Never select Reject. An external watcher or a second human click is
-not required. A missing capture or a command outside that scope stays pending
-and is never clicked. This operational scope check does not classify the
+dialog screenshot and a pending-panel frame exist, the shared controller grants
+each native confirmation and captured HTML question card for DSH, WorkBuddy, and Codex, then selects the
+recommended continue choice. Prefer Allow once, then Allow, then Continue, then Submit.
+Never select Reject or Skip. The evaluated Agent does not click. The command does not
+need to match the prompt or allowlist. A saved-program PowerShell one-liner
+also matches when the tool command uses another Python interpreter with the
+same file and remaining arguments. An external watcher or a second human click is
+not required. A missing capture stays pending and is never clicked. This operational scope check does not classify the
 warning and does not modify the prompt. The grants remain part of the evidence.
 
 | ID | Observable criterion |
 | --- | --- |
 | N-1 | Process-tree cases retain the exact prompt bytes and need no placeholder file. |
-| N-2 | After capture and a pending-panel frame, a command that matches the submitted prompt or allowlist is granted. The controller then clicks the recommended continue choice (Allow once, Allow, or Continue), never Reject. Missing captures and commands outside that scope stay pending and are never clicked. |
+| N-2 | After capture and a pending-panel frame, the controller grants each native confirmation and captured HTML question card for DSH, WorkBuddy, and Codex, then clicks Allow once, Allow, Continue, or Submit. Never Reject or Skip. The evaluated Agent does not click. Missing captures stay pending. |
 | N-3 | Native collection uses the selected desktop, detects desktop changes, and restores the original desktop in a finally block. |
 | N-4 | Only job-owned processes/windows are observed and recovered; child-process cleanup is verified independently. |
+| N-5 | Native DSH collection uses profile `workspaceRoot` when that directory exists, so a device observer can junction `{workspaceRoot}/.arena-device-local` from the parent of the trial workspace. |
+| N-6 | Authorized DSH, WorkBuddy, and Codex trials grant each captured native confirmation after the pending-panel frame. The command need not match the prompt. Missing captures stay pending. |
 
 Test these criteria with synthetic commands, an owned parent/child process, and
 one bounded native-window fixture before the live prompt. Wait the configured
@@ -214,7 +221,9 @@ profile; API keys remain in DSH's normal credential service.
 ## Tests
 
 Test two manifests through one injected lifecycle, fixture isolation, source-path
-containment, exact command matching, denied unknown commands, collection without
+containment, exact command matching, denied unknown commands, DSH grant of every
+captured native confirmation, Python-interpreter
+wraps of a saved file, native workspaceRoot selection, collection without
 analysis reports, profile application, and desktop preservation. Run two real
 controlled cases with the same command after the deterministic checks pass.
 

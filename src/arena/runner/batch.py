@@ -26,6 +26,22 @@ WORKBUDDY_PROFILE_FIELDS = {'schemaVersion','agent','node','workbuddyEntry','deb
     'captureSurface','screenRegion','approvalReview','windowState','workspaceRoot'}
 
 
+def captured_native_approval_guard(item):
+    """Grant every captured native or HTML confirmation. The evaluated Agent does not click."""
+    return True
+
+
+def install_captured_approval_guard(config):
+    config['approval_guard'] = captured_native_approval_guard
+
+
+def native_workspace_root(profile):
+    root = profile.get('workspaceRoot')
+    if not isinstance(root, str) or not Path(root).is_dir():
+        return None
+    return str(Path(root).resolve())
+
+
 def contained(root, relative):
     path = (root / relative).resolve()
     if not path.is_relative_to(root) or not path.is_file():
@@ -194,6 +210,7 @@ class DshRuntime:
         from arena.evidence.recording import BrowserRecorder, DesktopRecorder
         profile = self.profile
         config['approval_delay_seconds'] = profile.get('approvalDelaySeconds',5)
+        install_captured_approval_guard(config)
         expected = config.get('declared_conditions')
         if expected and (expected['model'] != profile['provider']+'/'+profile['model']
                 or expected['reasoningEffort'] != profile['reasoningEffort']
@@ -238,6 +255,10 @@ class DshRuntime:
             from arena.adapters.agents.dsh import finshield_confinement, finshield_workspace_root
             confinement = finshield_confinement(profile)
             config['workspace_root'] = finshield_workspace_root(profile)
+        else:
+            root = native_workspace_root(profile)
+            if root:
+                config['workspace_root'] = root
         agent = DshAgent(node, entry, preferences=preferences, process_boundary=boundary, confinement=confinement)
         recorder = DesktopRecorder(Path(ffmpeg), config['region']) if native else BrowserRecorder(Path(ffmpeg), browser)
         state = None
@@ -275,6 +296,7 @@ class CodexRuntime:
         from arena.evidence.recording import DesktopRecorder
         profile=self.profile
         config['approval_delay_seconds']=profile.get('approvalDelaySeconds',5)
+        install_captured_approval_guard(config)
         for field in ('node','terminal','ffmpeg','desktopTool'):
             if not shutil.which(profile[field]):raise ValueError('Native terminal dependency not found: '+field)
         for field in ('launchModule','launchConfig'):
@@ -338,6 +360,7 @@ class WorkBuddyRuntime:
         from arena.evidence.recording import DesktopRecorder
         profile = self.profile
         config['approval_delay_seconds'] = profile.get('approvalDelaySeconds', 5)
+        install_captured_approval_guard(config)
         expected = config.get('declared_conditions')
         if expected and expected.get('confirmationMode') != profile['confirmationMode']:
             raise ValueError('Machine profile differs from the frozen intervention conditions')

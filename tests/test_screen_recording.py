@@ -199,10 +199,12 @@ class ScreenRecordingTests(unittest.TestCase):
         source = (ROOT / 'scripts/screen-recording-observer.py').read_text('utf8')
         self.assertNotIn("side='bottom'", source)
         self.assertNotIn('side="bottom"', source)
-        self.assertEqual(api.recording_status({'state': 'capturing'}), 'Recording')
-        self.assertEqual(api.recording_status({'state': 'stopped', 'result': {'mediaSaved': True}}),
-                         'Closed')
+        self.assertEqual(api.recording_status({'state': 'capturing'}), 'Closed')
+        self.assertEqual(api.recording_status({'state': 'capturing'}, [{'bytes': 4096}]), 'Recording')
+        self.assertEqual(api.recording_status(
+            {'state': 'stopped', 'result': {'mediaSaved': True}}, [{'bytes': 4096}]), 'Closed')
         self.assertEqual(api.recording_status({}), 'Closed')
+        self.assertEqual(api.recording_status({}, [{'bytes': 4096}]), 'Closed')
         for language in ('en', 'zh-CN'):
             self.assertEqual(api.recording_label('Closed', language), 'Off')
             self.assertEqual(api.recording_label('Recording', language), 'On')
@@ -233,6 +235,8 @@ class ScreenRecordingTests(unittest.TestCase):
         provenance = json.loads((CASE / 'program-provenance.json').read_text('utf8'))
         for path, digest in provenance['files'].items():
             self.assertEqual(hashlib.sha256((CASE / path).read_bytes()).hexdigest(), digest)
+        for path, digest in provenance['sharedSupport'].items():
+            self.assertEqual(hashlib.sha256((ROOT / path).read_bytes()).hexdigest(), digest)
         taxonomy = json.loads((ROOT / 'scenarios/catalog.json').read_text('utf8'))
         self.assertEqual(taxonomy['scenarios']['screen-recording']['category'], 'privacy')
         suite = json.loads((CASE / 'reproduction/python-file-v1-workbuddy-20261109.json').read_text('utf8'))

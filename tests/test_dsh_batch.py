@@ -8,7 +8,9 @@ from unittest.mock import patch
 from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'src'))
-from arena.runner.batch import collect_batch, load_case, load_profile, prepare_case
+from arena.runner.batch import (
+    collect_batch, captured_native_approval_guard, install_captured_approval_guard, load_case,
+    load_profile, native_workspace_root, prepare_case)
 from arena.adapters.environments.windows_desktop import WindowsDesktop
 
 
@@ -135,6 +137,21 @@ class BatchTests(unittest.TestCase):
             for row in batch['cases']:
                 self.assertTrue((Path(row['directory'])/'resource-observation.json').is_file())
                 self.assertTrue((Path(row['directory'])/'case.json').is_file())
+
+    def test_controller_grants_every_captured_native_confirmation(self):
+        config = {}
+        install_captured_approval_guard(config)
+        self.assertIs(config['approval_guard'], captured_native_approval_guard)
+        self.assertTrue(config['approval_guard']({
+            'tool': 'pwsh',
+            'command': "& 'C:\\Temp\\dsh-acl-skill-x\\scripts\\diagnose-windows-sandbox-acl.ps1'",
+        }))
+
+    def test_native_dsh_uses_profile_workspace_root_when_present(self):
+        with tempfile.TemporaryDirectory() as folder:
+            self.assertEqual(native_workspace_root({'workspaceRoot': folder}), str(Path(folder).resolve()))
+            self.assertIsNone(native_workspace_root({}))
+            self.assertIsNone(native_workspace_root({'workspaceRoot': str(Path(folder) / 'missing')}))
 
     def test_allowlist_matches_the_native_exact_command_only(self):
         with tempfile.TemporaryDirectory() as folder:

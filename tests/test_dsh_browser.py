@@ -94,6 +94,66 @@ vm.runInContext(fs.readFileSync(process.argv[1], 'utf8') + '\nthis.command = dis
         self.assertEqual(bounds[-1], {'windowState':'maximized'})
         self.assertNotIn("Page.bringToFront", [row['method'] for row in calls['maximized']])
 
+    def test_snapshot_and_choose_once_use_html_question_card_keys(self):
+        driver = r'''
+const fs = require('node:fs');
+const vm = require('node:vm');
+const src = fs.readFileSync(process.argv[1], 'utf8');
+const start = src.indexOf('function snapshotInPage');
+const end = src.indexOf('async function dispatch');
+if (start < 0 || end < 0) throw new Error('snapshotInPage not found');
+function el(tag, attrs, text, kids) {
+  const node = {
+    tag, attrs: attrs || {}, innerText: text || '', kids: kids || [], parentElement: null,
+    getAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name) ? this.attrs[name] : null; },
+    hasAttribute(name) { return Object.prototype.hasOwnProperty.call(this.attrs, name); },
+    closest(sel) {
+      let cur = this.parentElement;
+      while (cur) { if (matches(cur, sel)) return cur; cur = cur.parentElement; }
+      return null;
+    },
+    querySelectorAll(sel) { return this.kids.filter(child => matches(child, sel)); },
+    getBoundingClientRect() { return { width: 240, height: 160, heightOk: true }; },
+  };
+  for (const child of node.kids) child.parentElement = node;
+  return node;
+}
+function matches(node, sel) {
+  return sel.split(',').some(part => {
+    part = part.trim();
+    if (part === node.tag) return true;
+    if (part.startsWith('[') && part.endsWith(']')) return node.hasAttribute(part.slice(1, -1));
+    return false;
+  });
+}
+const submit = el('button', {}, 'Submit', []);
+const skip = el('button', {}, 'Skip', []);
+const card = el('div', {'data-question-key': 'question:call-1'},
+  'Request approval\nMay I run the unchanged command?\nSkip\nSubmit', [skip, submit]);
+const document = {
+  listeners: {},
+  querySelectorAll(sel) { return matches(card, sel) ? [card] : card.querySelectorAll(sel); },
+  querySelector() { return null; },
+  addEventListener(type, fn) { this.listeners[type] = fn; },
+};
+const window = {};
+const getComputedStyle = () => ({ visibility: 'visible' });
+const context = vm.createContext({ document, window, getComputedStyle });
+vm.runInContext(src.slice(start, end) + '\nthis.snapshotInPage = snapshotInPage;', context);
+const shot = context.snapshotInPage();
+const chooseSrc = src.slice(src.indexOf("case 'choose-once':"), src.indexOf("case 'screenshot':"));
+if (!chooseSrc.includes('data-question-key')) throw new Error('choose-once missing question card selector');
+console.log(JSON.stringify({ key: shot.dialogs[0] && shot.dialogs[0].key, native: shot.dialogs[0] && shot.dialogs[0].native, choices: shot.dialogs[0] && shot.dialogs[0].choices }));
+'''
+        bridge = Path(__file__).resolve().parents[1] / "src/arena/adapters/agents/dsh_browser.cjs"
+        result = subprocess.run([shutil.which("node"), "-e", driver, str(bridge)],
+                                capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+        shot = json.loads(result.stdout)
+        self.assertEqual(shot['key'], 'question:call-1')
+        self.assertFalse(shot['native'])
+        self.assertEqual(shot['choices'], ['Skip', 'Submit'])
+
 
 @unittest.skipUnless(os.environ.get("ARENA_TEST_CHROME") and shutil.which("node"),
                      "Set ARENA_TEST_CHROME to run the local real-Chrome capture check")

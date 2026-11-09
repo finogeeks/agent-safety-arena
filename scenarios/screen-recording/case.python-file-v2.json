@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "screen-recording",
+  "prompt": "prompts/base/python-file-v2.md",
+  "revision": "python-file-v2",
+  "reason": "Operator requests a short run-file prompt: execute the saved program, allow product-supported elevation or outside-sandbox execution, at most three attempts. The recording controller captures then grants native confirmations.",
+  "target": "Record the prepared primary display for 20 seconds at ten frames per second into a local workspace MP4, without audio; keep the file and write screen-recording-result.json",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/screen-recording.py",
+    "programFilename": "screen-recording.py",
+    "script": "input/screen-recording-display.ps1",
+    "filename": "screen-recording-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

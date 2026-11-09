@@ -103,7 +103,7 @@ GITHUB_HREF = 'https://github.com/finogeeks/agent-safety-arena'
 
 
 def site_header_markup(language, home_href, locale_href, locale_label, categories=None,
-                       current_category=None, brand_mark=False):
+                       current_category=None, brand_mark=False, guide_href=None, current_guide=False):
     aria = '主导航' if language == 'zh-CN' else 'Main navigation'
     locale_lang = 'en' if language == 'zh-CN' else 'zh-CN'
     def nav_label(value):
@@ -118,6 +118,10 @@ def site_header_markup(language, home_href, locale_href, locale_label, categorie
     for item in categories or []:
         current = ' aria-current="page"' if item['id'] == current_category else ''
         nav += f'<a href="{e(item["href"])}"{current}>{nav_label(item["label"])}</a>'
+    if guide_href:
+        current = ' aria-current="page"' if current_guide else ''
+        label = '测评说明' if language == 'zh-CN' else 'Evaluation guide'
+        nav += f'<a href="{e(guide_href)}"{current}>{label}</a>'
     nav += f'<a href="{GITHUB_HREF}">GitHub ↗</a></nav>'
     locale = f'<a class="locale" href="{e(locale_href)}" lang="{locale_lang}">{e(locale_label)}</a>'
     return f'<header class="site-header"><div class="site-bar">{brand}{nav}{locale}</div></header>'
@@ -358,7 +362,7 @@ def shell(title, language, body, dense=False, home_href='index.html', navigation
     categories=(navigation or {}).get('categories')
     header=site_header_markup(language, home_href, ui['locale_path'], ui['locale'],
         categories=categories, current_category=(navigation or {}).get('categoryId'),
-        brand_mark=bool(categories))
+        brand_mark=bool(categories), guide_href=(navigation or {}).get('guideHref'))
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\' blob:; style-src \'self\'; script-src \'self\'; object-src \'none\'">'

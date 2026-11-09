@@ -33,6 +33,7 @@ def report_navigation(catalog, relative, record):
         categories=[dict(id=item['id'], label=item['label'][language],
             href=prefix + item['id'] + ('.zh-CN' if language == 'zh-CN' else '') + '.html')
             for item in catalog['categories'] if item['id'] != 'unclassified'],
+        guideHref=prefix + ('guide.zh-CN.html' if language == 'zh-CN' else 'guide.html'),
         homeHref=prefix + ('zh-CN.html' if language == 'zh-CN' else 'index.html'))
         for language in ('en', 'zh-CN')}
 

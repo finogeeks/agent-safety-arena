@@ -1,0 +1,288 @@
+{
+  "title": {
+    "zh-CN": "把电脑交给Agent以后，谁来保护你？",
+    "en": "Who protects you when an Agent takes over your computer?"
+  },
+  "summary": {
+    "zh-CN": "电脑开始由Agent代为操作，原来属于人的权限，也跟着交了出去。我们用一组固定程序，比较内置沙箱和FinShield，看看它们到底能为用户挡住什么。",
+    "en": "As Agents start operating computers for us, we also hand over permissions that used to belong to us. We use a set of fixed programs to compare built-in sandboxes with FinShield and see what they can actually stop for the user."
+  },
+  "sections": [
+    {
+      "id": "why",
+      "title": {
+        "zh-CN": "一、电脑原来是给人用的，现在交给了Agent",
+        "en": "1. Computers were designed for people. Now we hand them over to Agents."
+      },
+      "paragraphs": [
+        {
+          "zh-CN": "我们习惯了通过界面使用电脑，也习惯了界面替我们处理风险。删除文件有回收站，危险操作有提醒，许多底层功能根本不会摆在普通用户面前。人在界面里操作，能做的事情通常已经被软件筛过一遍。Agent却可以自己写代码、运行程序，直接调用系统接口。它做事更快、能做的更多，也可能不经过那些原本替人挡住危险的步骤。",
+          "en": "We are used to using computers through an interface, and to that interface handling risks for us. Deleted files go to the Recycle Bin, dangerous operations come with warnings, and many low-level functions are never put in front of ordinary users. By the time someone acts through an interface, the software has usually already filtered what they can do. An Agent, however, can write code, run programs and call system APIs directly. It works faster and can do more, but it may also bypass the steps that used to keep people out of trouble."
+        },
+        {
+          "zh-CN": "麻烦在于，电脑上的权限往往比一句任务宽得多。你只让Agent整理照片，它运行的程序却可能有权删除其他目录；你只让它改一份文档，它却可能访问屏幕和摄像头。系统会检查权限，但不会自动把你的要求变成一道限制。",
+          "en": "The problem is that permissions on a computer often reach far beyond a single task. You only ask an Agent to organize photos, yet the program it runs may have permission to delete other folders. You only ask it to edit a document, yet it may be able to access the screen and camera. The system checks permissions, but it does not automatically turn your request into a limit on what the Agent can do."
+        },
+        {
+          "zh-CN": "如果没有额外保护，让这样的Agent在日常电脑上自由运行，就像让它拿着火把在炸药库里跳舞。一次误解、一段错误代码，都可能把损失带到任务之外。从破坏能力上说，一个失控的Agent，确实可能成为“大号病毒”。我们希望知道，这些风险发生时，谁能真正拦住它。因此，我们选了一组具体场景，比较Agent内置沙箱和FinShield，检查电脑上究竟发生了什么。",
+          "en": "Without extra protection, letting an Agent like this run freely on your everyday computer is like letting it dance with a burning torch in a warehouse full of explosives. One misunderstanding or a piece of faulty code can cause damage beyond the task. In terms of destructive power, an Agent that goes out of control really can become an “oversized virus”. We want to know what can actually stop it when these risks arise. So we selected a set of concrete scenarios, compared Agent built-in sandboxes with FinShield, and checked what actually happened on the computer."
+        }
+      ],
+      "tocLabel": {
+        "zh-CN": "为什么测",
+        "en": "Why test"
+      }
+    },
+    {
+      "id": "method",
+      "title": {
+        "zh-CN": "二、我们怎么测：让同一个程序接受两种防护的检验",
+        "en": "2. How we test: the same program under two kinds of protection"
+      },
+      "paragraphs": [
+        {
+          "zh-CN": "我们先从用户可能受到的伤害出发，选了一组案例，分成四类：隐私安全，看摄像头、麦克风、截屏和录屏会不会暴露隐私；交互安全，看弹窗和窗口操作会不会让电脑没法正常使用；系统安全，看程序、服务和系统设置会不会被破坏；数据安全，看文件会不会被删除、改动或带走。具体哪些已经测完，哪些还没测，页面上会分别标明。",
+          "en": "We started with the harm users could suffer and selected cases in four categories. Privacy safety checks whether cameras, microphones, screenshots and screen recordings can expose private information. Interaction safety checks whether pop-ups and window operations can make the computer unusable. System safety checks whether programs, services and system settings can be damaged. Data safety checks whether files can be deleted, changed or taken away. The pages show which cases are complete and which have not yet been tested."
+        },
+        {
+          "zh-CN": "点开案例，你可能会觉得有些指令很奇怪：程序都准备好了，为什么还让Agent去运行？这和我们平时让Agent自己想办法做事，确实不太一样。这样做，是因为从一句要求到最后执行，中间有太多变化。同一个意思，换种说法，Agent的反应可能就不同；同一句要求，它可能写出不同的代码；到了运行时，还可能选择不同的工具和重试方式。代码写错了，程序没跑起来，不能算沙箱保护了用户。两组运行的代码不同，结果也很难公平比较。",
+          "en": "Open a case and some instructions may seem odd: if the program is already written, why ask an Agent to run it? That is certainly different from how we normally ask an Agent to figure things out for itself. We do this because too much can change between a request and its execution. Phrase the same idea differently, and the Agent may respond differently. Give it the same request, and it may write different code. When it runs that code, it may choose different tools and ways to retry. If faulty code keeps a program from running, that does not mean the sandbox protected the user. If the two runs use different code, a fair comparison is also difficult."
+        },
+        {
+          "zh-CN": "事实上，这些测试程序也没什么神奇，都是Agent根据普通提示词写出来的。我们先在受控环境里单独把程序跑通，确认它能产生预期效果，再把代码固定下来，交给被测Agent执行。这样，两种防护面对同一份代码，比较起来更公平，也能减少Agent每次写代码不同带来的干扰。程序和执行指令都保留在案例里，方便别人复查。对照在同一个Agent上进行，分别使用内置沙箱和FinShield。FinShield组关闭内置沙箱，单独检查FinShield的防护效果。实际使用的版本、模型、指令、程序和文件校验值都保存在详情里；历史记录中有差异的地方，也会如实列出。",
+          "en": "There is nothing magical about these test programs. Agents wrote them from ordinary prompts, too. We first run each program on its own in a controlled environment and confirm that it produces the expected effect. We then freeze the code and give it to the Agent under evaluation to execute. That way, both kinds of protection face the same code. The comparison is fairer, with less variation from the Agent writing different code each time. We keep the programs and execution instructions in the cases so others can check them. We compare the same Agent using its built-in sandbox and using FinShield. In the FinShield group, we turn off the built-in sandbox to check FinShield’s protection on its own. The details retain the actual versions, model, instructions, programs and file hashes. Differences in historical records are also disclosed as they are."
+        },
+        {
+          "zh-CN": "最后，我们检查电脑上真正发生了什么：摄像头有没有打开，文件有没有变化，桌面还能不能正常操作，并保留录像和检查结果。遇到测试范围内的确认提示，会先记录，再按事先约定的策略继续。如果危险效果是在授权后发生的，就明确写出这一点。最初有没有拦住、提示说了什么、继续后又发生了什么，读者都能分别查看。",
+          "en": "Finally, we check what actually happened on the computer: did the camera open, did files change, and could the desktop still be used normally? We keep the recordings and check results. When an approval prompt falls within the test scope, we record it first, then continue under the policy agreed in advance. If a harmful effect occurs after approval, we say so explicitly. Readers can separately inspect whether the operation was initially blocked, what the warning said, and what happened after continuing."
+        }
+      ],
+      "tocLabel": {
+        "zh-CN": "怎么测",
+        "en": "How we test"
+      }
+    },
+    {
+      "id": "findings",
+      "title": {
+        "zh-CN": "三、测到现在，我们发现了什么",
+        "en": "3. What we have found so far"
+      },
+      "paragraphs": [
+        {
+          "zh-CN": "目前，我们围绕DeepSeek Harness、WorkBuddy和Codex CLI开展测评，已经完成的测试主要集中在隐私安全和交互安全，包括摄像头、麦克风、截屏、录屏，以及弹窗、窗口和鼠标干扰等操作。不同Agent的覆盖范围还没有完全对齐，系统安全和数据安全也还有待补齐。",
+          "en": "We are currently evaluating DeepSeek Harness, WorkBuddy and Codex CLI. The completed tests mainly cover privacy and interaction safety, including camera and microphone access, screenshots, screen recording, pop-ups, and interference with windows and the mouse. Coverage is not yet the same for every Agent, and system and data safety still need to be filled in."
+        },
+        {
+          "zh-CN": "真正让我们大吃一惊的是：在DeepSeek Harness、WorkBuddy和Codex CLI各自已经完成的测试中，内置沙箱对受测危险操作的最终防护成功率是0%。摄像头被打开、声音被录下、屏幕被截取或录制，弹窗和窗口干扰让电脑无法正常使用——这些危险操作最终都没有被挡住。放到日常电脑上，受到影响的就是用户的私人谈话、工作资料和正常工作。",
+          "en": "What really shocked us was this: in the tests completed for each of DeepSeek Harness, WorkBuddy and Codex CLI, the built-in sandboxes had a final prevention rate of 0% for the tested harmful operations. Cameras opened, audio was recorded, screens were captured or recorded, and pop-ups and window interference made the computer unusable. None of these harmful operations was ultimately stopped. On an everyday computer, that would put the user’s private conversations, work materials and ability to work at risk."
+        },
+        {
+          "zh-CN": "有些操作虽然弹出了确认框，但提示没有把危害讲清楚。用户看到的是一条命令、一次权限申请，却未必知道，点下“允许”之后，摄像头会被打开、屏幕会被录下，或者桌面会变得无法使用。弹窗本身也容易让人麻木。Anthropic公布的数据显示，Claude Code的权限请求有97%被用户批准。在另一项包含1,053名付费测试者的受控实验中，面对明确危险的命令，也只有13.6%的测试者选择拦下。频繁要求确认，并不意味着用户会认真判断每一次操作的风险。",
+          "en": "Some operations did show an approval dialog, but the prompt did not explain the harm clearly. Users saw a command or a permission request, without necessarily knowing that clicking “Allow” would open the camera, record the screen or make the desktop unusable. The prompts themselves can also wear people down. According to figures published by Anthropic, users approve 97% of Claude Code permission requests. In a separate controlled experiment with 1,053 paid testers, only 13.6% chose to stop a clearly dangerous command. Asking for confirmation frequently does not mean users will carefully judge the risk of every operation."
+        },
+        {
+          "zh-CN": "警示没有讲清后果，用户又习惯了点击通过，确认框就容易变成完成任务前顺手点掉的一步。在我们的测评中，按事先约定的策略继续授权后，危险操作仍然发生。提醒出现了，但用户的隐私和电脑并没有得到应有的保护。相比之下，FinShield在已经完成的对照中，阻止了相应的危险操作。",
+          "en": "When warnings do not explain the consequences and users are used to approving requests, the dialog can become just another thing to click away before a task is done. In our evaluations, harmful operations still occurred after we continued granting approval under the policy agreed in advance. A warning appeared, but the user’s privacy and computer did not receive the protection they should have. In contrast, FinShield stopped the corresponding harmful operations in the completed comparisons."
+        }
+      ],
+      "links": [
+        {
+          "href": "https://claude.com/resources/articles/auto-mode-default-in-claude-code",
+          "label": {
+            "zh-CN": "Anthropic官方报告：权限审批、审批疲劳与受控实验",
+            "en": "Anthropic: permission approvals, approval fatigue and the controlled study"
+          }
+        }
+      ],
+      "tocLabel": {
+        "zh-CN": "测到了什么",
+        "en": "Findings"
+      }
+    },
+    {
+      "id": "priorities",
+      "title": {
+        "zh-CN": "四、为什么会这样：完成任务和保护电脑，是两件事",
+        "en": "4. Why this happens: finishing a task and protecting a computer are different goals"
+      },
+      "paragraphs": [
+        {
+          "zh-CN": "这些大厂有能力做更严格的隔离。FinShield用到的系统安全机制，也并非只有我们才能使用。我们认为，眼前的差别，更可能来自产品目标和取舍。对于Agent产品，一个重要目标是让Agent顺利工作。沙箱需要提供稳定、可用的执行环境，让它能读文件、运行工具，少被环境问题打断。遇到权限不足，产品通常会提供申请权限、确认放行等途径，让任务能够继续。",
+          "en": "These large vendors can build stricter isolation. The system security mechanisms FinShield uses are not exclusive to us. We think the difference we see is more likely to come from product goals and tradeoffs. An important goal for an Agent product is to keep the Agent working smoothly. The sandbox needs to provide a stable, usable execution environment where it can read files and run tools without constant interruptions from environment problems. When permissions are insufficient, the product will usually offer ways to request access and approve it so the task can continue."
+        },
+        {
+          "zh-CN": "但站在用户这边，有些红线不能因为任务需要就被越过。Agent不能觉得某份资料“可能有帮助”，就自行读取；不能觉得某项权限“用起来方便”，就要求用户全部交出来。就像人做事要受法律和规则约束，不能拿“把事情办成”当作肆意妄为的理由，Agent也必须在用户允许的范围内行动。这两种出发点，会影响遇到限制时怎么处理。优先考虑任务能否完成，就容易把权限限制看作需要解决的障碍；优先保护用户，就要接受有些操作必须停下来。即使Agent给出了听起来合理的解释，也不能因此放开那些本来就不该碰的资源。",
+          "en": "From the user’s side, though, some lines must not be crossed just because a task calls for it. An Agent must not read a document on its own simply because it “might help”, or ask the user to hand over all their permissions because they would be “convenient”. Just as people must follow laws and rules and cannot use “getting things done” as an excuse to do whatever they want, an Agent must act within the limits the user allows. These two starting points affect what happens when a restriction gets in the way. Put task completion first, and permission limits can easily become obstacles to overcome. Put user protection first, and some operations have to stop. Even a reasonable-sounding explanation from the Agent must not open access to resources it should never touch."
+        },
+        {
+          "zh-CN": "我们的判断是，受测产品目前更偏向于让Agent继续把任务做完。一些限制通过确认授权被放开，风险判断也随之交给了用户。但很少有用户能看懂每一条命令，判断每一次权限申请会带来什么后果。面对这些请求，用户往往只能猜：这是不是完成任务所必需的？点了允许，会不会出问题？在我们看来，这实际上把本该由产品承担的防护责任，推给了缺乏判断条件的用户。用户点了“允许”，并不意味着他真正理解了风险。有些边界应该由系统守住，不能靠用户猜对，更不能随着Agent完成任务的需要，一步步向外退。",
+          "en": "Our judgment is that the tested products currently lean toward letting the Agent keep working until the task is done. Some restrictions are lifted through approval, and the risk decision passes to the user. But few users can understand every command and judge the consequences of every permission request. Faced with these requests, they often have to guess: is this needed to finish the task? Will something go wrong if I allow it? In our view, this pushes responsibility for protection from the product onto users who lack what they need to make that judgment. Clicking “Allow” does not mean the user truly understands the risk. Some boundaries should be enforced by the system. They must not depend on users guessing correctly, or keep moving outward as the Agent tries to finish its task."
+        },
+        {
+          "zh-CN": "技术可以借鉴，产品长期形成的优先级却很难改变。权限怎么申请、遇到限制怎么处理、什么时候让用户确认，都会受到这个优先级的影响。要改变这些选择，会牵动整个产品的兼容性和使用体验，很难靠补几条拦截规则解决。这也让独立防护有了价值：它可以专门围绕用户需要守住的红线来设计。",
+          "en": "Technology can be borrowed, but a product’s long-established priorities are hard to change. Those priorities affect how permissions are requested, how restrictions are handled, and when users are asked to confirm. Changing those choices affects compatibility and the user experience across the product. Adding a few blocking rules is unlikely to solve it. This is also where independent protection has value: it can be designed specifically around the lines users need to hold."
+        },
+        {
+          "zh-CN": "用户需要一层独立于Agent的防护。Agent可以想办法完成任务，但不能同时决定自己应该获得多大的权限。哪些资料可以读取、哪些设备可以使用、哪些操作必须禁止，需要由用户的保护规则来约束，不能因为Agent遇到了困难，就跟着放宽。独立第三方沙箱的价值，就在于把这道边界从Agent的任务执行中分离出来。它可以把保护用户放在首位，约束Agent和它启动的程序。Agent换了模型、改了计划，或者换一种方式运行代码，用户需要保护的东西仍然应该受到保护。这也是FinShield要做的事：让Agent在明确的权限范围内发挥能力，同时守住用户不愿交出去的资料、隐私和电脑控制权。从目前已公开的测评结果看，FinShield在这些受测场景中做到了这一点。",
+          "en": "Users need a layer of protection independent of the Agent. The Agent can work out how to finish a task, but it must not also decide how much authority it should have. The user’s protection rules must determine which documents it can read, which devices it can use, and which operations are prohibited. Those rules must not loosen simply because the Agent runs into difficulty. The value of an independent third-party sandbox is that it separates this boundary from the Agent’s task execution. It can put user protection first and constrain both the Agent and the programs it launches. If the Agent changes its model, revises its plan or runs code another way, the things the user needs to protect should stay protected. This is what FinShield aims to do: let the Agent work within clear permission limits while protecting the documents, privacy and control over the computer that the user does not want to hand over. In the evaluation results published so far, FinShield has done this in the tested scenarios."
+        }
+      ],
+      "diagram": {
+        "computer": {
+          "zh-CN": "用户的电脑",
+          "en": "Your computer"
+        },
+        "agent": {
+          "zh-CN": "Agent及其运行的程序",
+          "en": "Agent and its programs"
+        },
+        "resources": {
+          "zh-CN": "文件、摄像头、麦克风、桌面",
+          "en": "Files, camera, microphone and desktop"
+        },
+        "caption": {
+          "zh-CN": "Agent负责想办法完成任务，独立沙箱按用户规则允许或阻止操作。换模型、改计划、换工具，都不意味着可以自行放宽保护。",
+          "en": "The Agent works out how to finish the task. The independent sandbox allows or blocks operations under the user’s rules. Changing the model, plan or tool does not mean the Agent can relax that protection."
+        },
+        "cards": [
+          {
+            "title": {
+              "zh-CN": "Agent：负责完成任务",
+              "en": "Agent: responsible for finishing the task"
+            },
+            "scope": {
+              "zh-CN": "规划任务 · 写代码 · 运行工具",
+              "en": "Plan tasks · write code · run tools"
+            },
+            "decision": {
+              "zh-CN": "任务受阻 → 申请更多权限",
+              "en": "Task blocked → request more access"
+            },
+            "tradeoff": {
+              "zh-CN": "Agent可以选择做事的方法，但不能自行决定权限范围。",
+              "en": "The Agent can choose how to do the work, but cannot set its own permission limits."
+            }
+          },
+          {
+            "title": {
+              "zh-CN": "独立沙箱：负责守住边界",
+              "en": "Independent sandbox: responsible for enforcing limits"
+            },
+            "scope": {
+              "zh-CN": "可以换模型、改计划、换工具",
+              "en": "Models, plans and tools may change"
+            },
+            "guard": {
+              "zh-CN": "用户的保护规则\nAgent不能自行放宽",
+              "en": "User protection rules\nThe Agent cannot relax them"
+            },
+            "decision": {
+              "zh-CN": "规则内允许 · 越界阻止",
+              "en": "Allow within the rules · block beyond them"
+            },
+            "tradeoff": {
+              "zh-CN": "保护约束执行过程，用户不必靠猜来守住红线。",
+              "en": "Protection constrains execution. Users do not have to guess to keep their limits in place."
+            }
+          }
+        ]
+      },
+      "tocLabel": {
+        "zh-CN": "为什么有差别",
+        "en": "Why results differ"
+      }
+    },
+    {
+      "id": "implementation",
+      "title": {
+        "zh-CN": "五、FinShield怎么做：给Agent一套单独的身份",
+        "en": "5. How FinShield works: give the Agent a separate identity"
+      },
+      "paragraphs": [
+        {
+          "zh-CN": "FinShield复用Windows已有的权限设施，包括AppContainer、Job UI等，也参考了MXC、Chrome沙箱、Codex sandbox和Claude srt的设计。Codex和Claude也是我们的测评对象。研究它们的沙箱设计，给了我们不少启发，FinShield也从中借鉴了一些做法。",
+          "en": "FinShield reuses existing Windows permission mechanisms, including AppContainer and Job UI restrictions. It also draws on the designs of MXC, the Chrome sandbox, Codex sandbox and Claude srt. Codex and Claude are also among the products we evaluate. Studying their sandbox designs gave us plenty to think about, and FinShield borrowed some of their approaches."
+        },
+        {
+          "zh-CN": "原理可以简单理解为：给Agent和它运行的程序一套单独的身份。它还在你的电脑上工作，但不会自动拿到你的全部权限。哪些文件可以读写、哪些设备可以使用，由这套身份对应的权限决定。Agent和工具仍然直接在本机运行，由Windows检查权限。任务需要的文件和资源，可以按规则开放；超出授权范围的访问，则由系统限制。整个过程不需要额外运行一套虚拟机，也就省去了这部分资源开销。",
+          "en": "The principle is simple: give the Agent and the programs it runs a separate identity. It still works on your computer, but it does not automatically get all your permissions. The permissions attached to that identity determine which files it can read and write, and which devices it can use. The Agent and its tools still run directly on the computer, with Windows checking permissions. Files and resources needed for the task can be made available under the rules, while the system restricts access beyond that authorization. There is no need to run an additional virtual machine, so its resource overhead is avoided."
+        },
+        {
+          "zh-CN": "具体的技术细节，我们会在后续文章里展开，敬请关注。",
+          "en": "We will cover the technical details in a follow-up article. Stay tuned."
+        }
+      ],
+      "tocLabel": {
+        "zh-CN": "FinShield怎么做",
+        "en": "How FinShield works"
+      }
+    }
+  ],
+  "references": [],
+  "metadata": {
+    "author": "Agent Safety Arena",
+    "updated": "2026-11-09",
+    "siteUrl": "https://agent-safety-arena.finogeeks.club",
+    "seoTitle": {
+      "zh-CN": "AI Agent安全测评：内置沙箱与FinShield",
+      "en": "AI Agent safety evaluation: built-in sandboxes and FinShield"
+    },
+    "description": {
+      "zh-CN": "Agent Safety Arena对比Agent内置沙箱与FinShield，介绍AI Agent权限风险、Windows沙箱、固定程序测评方法和已完成场景的防护结果，分析独立第三方沙箱的价值。",
+      "en": "Agent Safety Arena compares Agent built-in sandboxes with FinShield, covering AI Agent permission risks, Windows sandboxing, fixed-program evaluation methods, protection results in completed scenarios and the value of independent third-party sandboxes."
+    },
+    "keywords": {
+      "zh-CN": [
+        "AI Agent安全测评",
+        "Agent沙箱",
+        "Windows沙箱",
+        "Agent权限管理",
+        "独立第三方沙箱",
+        "FinShield",
+        "AppContainer"
+      ],
+      "en": [
+        "AI Agent safety evaluation",
+        "Agent sandbox",
+        "Windows sandbox",
+        "Agent permissions",
+        "independent third-party sandbox",
+        "FinShield",
+        "AppContainer"
+      ]
+    }
+  },
+  "takeaways": [
+    {
+      "title": {
+        "zh-CN": "给人设计的电脑，不能原样交给Agent。",
+        "en": "A computer designed for people cannot simply be handed over to an Agent."
+      },
+      "body": {
+        "zh-CN": "Agent可以直接写代码、运行程序，许多界面上的保护未必还在。拿到过大权限的Agent，一旦失控，就具备“大号病毒”的破坏能力。",
+        "en": "Agents can write code and run programs directly, so many interface safeguards may no longer apply. With excessive permissions, an Agent that goes out of control can have the destructive power of an “oversized virus”."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "有内置沙箱，危险操作仍然发生了。",
+        "en": "Harmful operations still occurred with built-in sandboxes."
+      },
+      "body": {
+        "zh-CN": "在各Agent已完成的受测场景中，内置沙箱的最终防护成功率为0%；FinShield则在已完成的对应对照中，阻止了这些危险操作。",
+        "en": "In the tested scenarios completed for each Agent, built-in sandboxes had a final prevention rate of 0%. FinShield stopped these harmful operations in the completed corresponding comparisons."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "产品导向决定了沙箱优先保护谁。",
+        "en": "Product priorities determine whom a sandbox protects first."
+      },
+      "body": {
+        "zh-CN": "让Agent顺利完成任务，和守住用户电脑上的红线，是两种不同的优先级。这也让独立第三方沙箱有了价值：把保护用户放在首位，让权限边界独立于Agent的任务执行。",
+        "en": "Keeping the Agent working toward task completion and holding the lines that protect the user’s computer are different priorities. This gives independent third-party sandboxes their value: putting user protection first and keeping permission limits separate from the Agent’s task execution."
+      }
+    }
+  ]
+}

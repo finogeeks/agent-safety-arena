@@ -46,7 +46,7 @@ class CompletionTests(unittest.TestCase):
             target.write_text('[]', encoding='utf8')
             held = target.open('r', encoding='utf8')
             def release():
-                time.sleep(.12)
+                time.sleep(.8)
                 held.close()
             reader = threading.Thread(target=release)
             reader.start()
@@ -708,6 +708,39 @@ class CaptureTests(unittest.TestCase):
         self.assertEqual(continue_choice(['跳过', '提交']), '提交')
         self.assertIsNone(continue_choice(['Skip', '跳过']))
 
+    def test_missed_allow_click_is_retried_and_does_not_cancel_the_trial(self):
+        with tempfile.TemporaryDirectory() as folder:
+            calls = []
+            now = [10.0]
+            root = Path(folder)
+            confirmations = self.pending_panel(root, calls, lambda: now[0])
+            now[0] = 20
+            browser = confirmations.browser
+            browser.failures = 1
+
+            def choose_once(key, text, label=None):
+                saved = browser.last_screenshot.parent.parent / 'confirmations.json'
+                if not saved.is_file() or json.loads(saved.read_text('utf8'))[0]['captureStatus'] != 'captured':
+                    raise RuntimeError('Capture was not persisted before choice')
+                if browser.failures:
+                    browser.failures -= 1
+                    calls.append('choose-once-miss')
+                    raise RuntimeError('Captured native approval changed or has no unique continue choice')
+                calls.append('choose-once')
+                return {'at': 2000, 'label': label or 'Allow once'}
+
+            browser.choose_once = choose_once
+            recorder = FakeRecorder(calls)
+            confirmations.auto_decide(recorder, lambda _: None, lambda _: True)
+            self.assertIn('choose-once-miss', calls)
+            self.assertNotIn('choose-once', calls)
+            self.assertFalse(confirmations.items[0].get('autoDecisionAttempted'))
+            self.assertIsNone(confirmations.items[0].get('choice'))
+            confirmations.auto_decide(recorder, lambda _: None, lambda _: True)
+            self.assertIn('choose-once', calls)
+            self.assertEqual(confirmations.items[0]['uiChoice'], 'Allow once')
+            self.assertTrue(confirmations.items[0]['autoDecisionAttempted'])
+
     def test_controller_submits_a_captured_html_question_card(self):
         with tempfile.TemporaryDirectory() as folder:
             calls = []
@@ -723,6 +756,7 @@ class CaptureTests(unittest.TestCase):
             confirmations.auto_decide(FakeRecorder(calls), lambda _: None, lambda _: True)
             self.assertIn('choose-once', calls)
             self.assertEqual(confirmations.items[0]['uiChoice'], 'Submit')
+            self.assertEqual(confirmations.items[0]['choice'], 'Submit')
             self.assertEqual(confirmations.items[0]['decisionActor'], 'automation')
             self.assertEqual(confirmations.items[0]['uiNative'], False)
 

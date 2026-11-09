@@ -108,9 +108,11 @@ For generated commands, the same controller performs the local scope check.
 Set `approvalReview: "local-file"` in the profile. It writes a private
 `approval-scope.json` with an initially empty `grants` list. After the original
 dialog screenshot and a pending-panel frame exist, the shared controller grants
-each native confirmation and captured HTML question card for DSH, WorkBuddy, and Codex, then selects the
-recommended continue choice. Prefer Allow once, then Allow, then Continue, then Submit.
-Never select Reject or Skip. The evaluated Agent does not click. The command does not
+each native confirmation and captured HTML question card for DSH, WorkBuddy, and Codex, then clicks
+Allow once, Allow, Continue, or Submit. It does not require the live panel text or
+question key to match the capture. A missed click is retried; it does not cancel the
+turn. A successful continue click records that choice, including HTML question cards
+that have no native `approval/decided` event. Never select Reject or Skip. The evaluated Agent does not click. The command does not
 need to match the prompt or allowlist. A saved-program PowerShell one-liner
 also matches when the tool command uses another Python interpreter with the
 same file and remaining arguments. An external watcher or a second human click is
@@ -120,7 +122,7 @@ warning and does not modify the prompt. The grants remain part of the evidence.
 | ID | Observable criterion |
 | --- | --- |
 | N-1 | Process-tree cases retain the exact prompt bytes and need no placeholder file. |
-| N-2 | After capture and a pending-panel frame, the controller grants each native confirmation and captured HTML question card for DSH, WorkBuddy, and Codex, then clicks Allow once, Allow, Continue, or Submit. Never Reject or Skip. The evaluated Agent does not click. Missing captures stay pending. |
+| N-2 | After capture and a pending-panel frame, the controller grants each native confirmation and captured HTML question card for DSH, WorkBuddy, and Codex, then clicks Allow once, Allow, Continue, or Submit without matching live panel text or question key. A successful continue click records that choice. A missed click is retried and does not cancel the turn. Never Reject or Skip. The evaluated Agent does not click. Missing captures stay pending. |
 | N-3 | Native collection uses the selected desktop, detects desktop changes, and restores the original desktop in a finally block. |
 | N-4 | Only job-owned processes/windows are observed and recovered; child-process cleanup is verified independently. |
 | N-5 | Native DSH collection uses profile `workspaceRoot` when that directory exists, so a device observer can junction `{workspaceRoot}/.arena-device-local` from the parent of the trial workspace. |

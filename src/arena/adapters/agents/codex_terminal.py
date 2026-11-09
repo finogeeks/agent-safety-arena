@@ -16,6 +16,24 @@ from arena.adapters.agents.codex import CodexEventStream, approval_panel, model_
 from arena.adapters.agents.dsh import hidden_process_options
 
 
+def codex_confinement(profile):
+    result = {}
+    for field, key in [('finshield', 'executable'), ('finshieldConfig', 'config')]:
+        path = profile.get(field)
+        if not isinstance(path, str) or not Path(path).is_file():
+            raise ValueError('Codex FinShield launch file not found: ' + field)
+        result[key] = str(Path(path).resolve())
+    return result
+
+
+def self_confine_wrap(confinement):
+    if not confinement:
+        return None
+    return {'executable': confinement['executable'],
+            'args': ['self-confine', '--yaml-path', confinement['config'],
+                     '--stdio', 'inherit', '--integration-id', 'codex', '--']}
+
+
 def native_window(title):
     user=c.WinDLL('user32',use_last_error=True)
     callback=c.WINFUNCTYPE(w.BOOL,w.HWND,w.LPARAM)
@@ -164,9 +182,9 @@ class NativeTerminalView:
 
 
 class CodexTerminalAgent:
-    def __init__(self, profile, boundary):
-        self.profile=profile;self.boundary=boundary;self.stream=CodexEventStream()
-        self.process=None;self.lines=0
+    def __init__(self, profile, boundary, confinement=None):
+        self.profile=profile;self.boundary=boundary;self.confinement=confinement
+        self.stream=CodexEventStream();self.process=None;self.lines=0
 
     def command(self, **request):
         self.process.stdin.write(json.dumps(request)+'\n');self.process.stdin.flush()
@@ -195,9 +213,14 @@ class CodexTerminalAgent:
             stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=(evidence_directory/'bridge-error.log').open('w'),
             text=True,encoding='utf8',**hidden_process_options())
         self.boundary.assign(self.process,evidence_directory)
-        ready=self.command(action='start',directory=str(evidence_directory),workspace=str(workspace),
+        wrap=self_confine_wrap(self.confinement)
+        request=dict(action='start',directory=str(evidence_directory),workspace=str(workspace),
             launchModule=self.profile['launchModule'],launchConfig=self.profile['launchConfig'],
             wsModule=self.profile['wsModule'],modelArguments=arguments)
+        if wrap:
+            request['confinement']=wrap
+            (evidence_directory/'finshield-wrap.json').write_text(json.dumps(wrap,indent=2),encoding='utf8')
+        ready=self.command(**request)
         browser.launch(workspace,evidence_directory,ready['url'])
         return dict(agent='Codex CLI',agentVersion=self.version,captureWindowTitle=browser.title,
                     addedProtection=True,uiLanguage='en',presentation='native Windows Terminal',

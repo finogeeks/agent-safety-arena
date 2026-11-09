@@ -24,6 +24,7 @@ describe observable behavior. Decisions record choices and their consequences.
 | [reproduction-and-publishing.md](reproduction-and-publishing.md) | Defines installation, per-case dependency selection, result grouping, static checks, and offline site builds. |
 | [finshield-recording.md](finshield-recording.md) | Defines the existing FinShield desktop launcher and shared DSH collection boundary. |
 | [codex-terminal-recording.md](codex-terminal-recording.md) | Defines real Codex CLI terminal collection through the shared lifecycle, native defaults, evidence, and one-time approvals. |
+| [codex-finshield-recording.md](codex-finshield-recording.md) | Defines Codex CLI FinShield via installed `finsafe self-confine` of the owned app-server. |
 | [workbuddy-recording.md](workbuddy-recording.md) | Gives the reusable WorkBuddy native/FinSafe procedure: sandbox-state checks, private desktop-1 capture, editing, review and result-page generation. |
 | [workbuddy-finshield-recording.md](workbuddy-finshield-recording.md) | Defines the installed FinSafe WorkBuddy launch, protected daemon verification, actual setting differences, and shared collection. |
 | [workbuddy-session-hooks.md](workbuddy-session-hooks.md) | Compares DSH HTTP and WorkBuddy CDP input/output channels, request matching, original tool-log recovery and privacy boundaries. |

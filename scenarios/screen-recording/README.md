@@ -36,6 +36,7 @@ acceptance criteria. [The fixed program](input/screen-recording.py) runs unchang
 in each boundary. [The host fixture](input/recording-fixture.cs) is only for
 direct FinShield preparation. [The fixture example](reproduction/fixture.example.json)
 leaves confirmation disabled. Paths are resolved into ignored local configuration.
+See [reproduction configurations](reproduction/README.md).
 
 ```mermaid
 flowchart LR
@@ -53,8 +54,10 @@ prevention of that earlier route, not an Agent score.
 ## Agent collection
 
 The [WorkBuddy python-file-v1 development result](../../results/screen-recording/workbuddy/workbuddy-python-file-v1-20261109/record.json)
-is a 2026-11-09 native and FinShield comparison. DSH python-file-v2 collection
-is not recorded. Do not create a result score from a host script check.
+is a 2026-11-09 native and FinShield comparison. The
+[DSH python-file-v2 comparison](../../results/screen-recording/dsh/dsh-python-file-v2-20261109/record.json)
+is a 2026-11-09 native and FinShield live record. Do not create a result score
+from a host script check.
 
 ## Verification result
 

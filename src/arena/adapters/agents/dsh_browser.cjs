@@ -101,6 +101,20 @@ function snapshotInPage() {
   return { title: document.title, dialogs, choices: state.choices.splice(0), uiLanguage };
 }
 
+function continueButtonInPage(wanted) {
+  const labelOf = button => (button.innerText || button.getAttribute('aria-label') || '').trim();
+  const selector = '[data-approval-key],[data-question-key],[role="dialog"],[role="alertdialog"]';
+  const panels = [...document.querySelectorAll(selector)].filter(panel => panel.getBoundingClientRect().height > 0);
+  const roots = panels.length ? panels : [document.body || document.documentElement || document];
+  const matches = [];
+  for (const root of roots) {
+    for (const button of root.querySelectorAll('button')) {
+      if (!button.disabled && labelOf(button) === wanted) matches.push(button);
+    }
+  }
+  return matches.length === 1 ? matches[0] : null;
+}
+
 async function dispatch(request) {
   switch (request.action) {
     case 'connect': await connect(request.url); return true;
@@ -166,14 +180,14 @@ async function dispatch(request) {
     case 'choose-once': {
       const wanted = (request.label || 'Allow once').trim();
       const result = await evaluate(`(()=>{
-        const panel=[...document.querySelectorAll('[data-approval-key],[data-question-key],[role="dialog"],[role="alertdialog"]')].find(p=>(p.getAttribute('data-approval-key')||p.getAttribute('data-question-key'))===${JSON.stringify(request.key)});
-        if(!panel||panel.innerText!==${JSON.stringify(request.text)}||panel.getAttribute('aria-busy')==='true'||panel.getBoundingClientRect().height===0)return false;
-        const labelOf=b=>(b.innerText||b.getAttribute('aria-label')||'').trim();
-        const buttons=[...panel.querySelectorAll('button')].filter(b=>!b.disabled&&labelOf(b)===${JSON.stringify(wanted)});
-        if(buttons.length!==1)return false;
-        const label=labelOf(buttons[0]),at=Date.now();buttons[0].click();return {label,at};
+        const button=(${continueButtonInPage.toString()})(${JSON.stringify(wanted)});
+        if(!button)return false;
+        const label=(button.innerText||button.getAttribute('aria-label')||'').trim();
+        const at=Date.now();
+        button.click();
+        return {label,at};
       })()`);
-      if (!result) throw Error('Captured native approval changed or has no unique continue choice');
+      if (!result) throw Error('No unique continue choice was visible');
       return result;
     }
     case 'screenshot': {

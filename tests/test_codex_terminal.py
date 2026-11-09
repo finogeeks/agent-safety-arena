@@ -6,6 +6,7 @@ import unittest
 import tempfile
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from arena.adapters.agents.codex import CodexEventStream, approval_panel, model_arguments
 from arena.adapters.agents.dsh import completion_for
 
@@ -29,6 +30,10 @@ class CodexTerminalTests(unittest.TestCase):
                 with self.assertRaises(ValueError):load_profile(path)
             path.write_text(json.dumps({**profile,'approvalPolicy':'never'}))
             with self.assertRaises(ValueError):load_profile(path)
+            path.write_text(json.dumps({**profile,'workspaceRoot':str(Path(folder))}))
+            self.assertEqual(load_profile(path)['workspaceRoot'],str(Path(folder)))
+            path.write_text(json.dumps({**profile,'finshield':'finsafe.exe','finshieldConfig':'effective.yaml'}))
+            self.assertEqual(load_profile(path)['finshield'],'finsafe.exe')
 
     def test_native_startup_is_recorded_before_any_prompt_and_uses_shared_preflight(self):
         from arena.runner.trial import run_trial
@@ -143,5 +148,59 @@ class CodexTerminalTests(unittest.TestCase):
         self.assertFalse(stream.pending)
         self.assertEqual(stream.events[-1]['type'],'approval/decided')
         self.assertEqual(stream.events[-1]['data']['nativeDecision'],'accept')
+
+    def test_doctor_checks_codex_launch_files_not_dsh_chrome(self):
+        from arena.setup import check_repository
+        root=Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as folder:
+            missing=Path(folder)/'missing'
+            profile=dict(schemaVersion=2,agent='codex-cli',node=str(missing/'node.exe'),
+                launchModule=str(missing/'launch.mjs'),launchConfig=str(missing/'setup.json'),
+                wsModule=str(missing/'ws'),terminal=str(missing/'wt.exe'),ffmpeg=str(missing/'ffmpeg.exe'),
+                desktopTool=str(missing/'desktop.exe'),desktop=1,windowSize=[1200,800],theme='light',
+                fontSize=22,timeout=900,confirmationMode='capture-then-allow-once',finalHoldSeconds=30,
+                captureSurface='desktop',screenRegion=[0,0,3840,2160],approvalReview='local-file',
+                windowState='maximized',workspaceRoot=str(missing/'workspaces'))
+            path=Path(folder)/'profile.json';path.write_text(json.dumps(profile),encoding='utf8')
+            result=check_repository(root,path)
+            names={row['name']:row['status'] for row in result['checks']}
+            self.assertEqual(names['launchModule'],'fail')
+            self.assertEqual(names['launchConfig'],'fail')
+            self.assertEqual(names['wsModule'],'fail')
+            self.assertEqual(names['workspaceRoot'],'fail')
+            self.assertNotIn('dshEntry',names)
+            self.assertNotIn('chrome',names)
+
+    def test_codex_runtime_uses_profile_workspace_root(self):
+        from unittest.mock import MagicMock,patch
+        from arena.runner.batch import CodexRuntime
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            launch=root/'launch.mjs';launch.write_text('export {}\n',encoding='utf8')
+            setup=root/'setup.json';setup.write_text('{}',encoding='utf8')
+            workspace=root/'workspaces';workspace.mkdir()
+            profile=dict(schemaVersion=2,agent='codex-cli',node='node',launchModule=str(launch),
+                launchConfig=str(setup),wsModule='ws',terminal='wt.exe',ffmpeg='ffmpeg',desktopTool='desktop',
+                desktop=1,windowSize=[1200,800],theme='light',fontSize=22,timeout=900,
+                confirmationMode='capture-then-allow-once',finalHoldSeconds=30,captureSurface='desktop',
+                screenRegion=[0,0,3840,2160],approvalReview='local-file',windowState='maximized',
+                workspaceRoot=str(workspace))
+            captured={}
+            def fake_run(config,**kwargs):
+                captured['workspace_root']=config.get('workspace_root')
+                run_dir=root/'run';run_dir.mkdir()
+                return dict(status='preflight-completed',runId='codex-fake',directory=str(run_dir),
+                            errors=[],evidenceGaps=[])
+            desktop=MagicMock();desktop.current.return_value=1;desktop.number=1
+            job=MagicMock();job.close.return_value=dict(recovered=True,observerError=None)
+            with patch('shutil.which',return_value='found'),\
+                 patch('arena.adapters.environments.windows_desktop.WindowsDesktop',return_value=desktop),\
+                 patch('arena.adapters.environments.windows_job.WindowsJob',return_value=job),\
+                 patch('arena.adapters.agents.codex_terminal.NativeTerminalView'),\
+                 patch('arena.adapters.agents.codex_terminal.CodexTerminalAgent'),\
+                 patch('arena.evidence.recording.DesktopRecorder'),\
+                 patch('arena.runner.batch.run_trial',side_effect=fake_run):
+                CodexRuntime(profile).collect(dict(prompt='x'))
+            self.assertEqual(captured['workspace_root'],str(workspace.resolve()))
 
 if __name__=='__main__':unittest.main()

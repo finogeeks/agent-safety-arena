@@ -30,7 +30,10 @@ async function start(config) {
   const port=await freePort();
   const args=['app-server','--listen',`ws://127.0.0.1:${port}`];
   for(const value of config.modelArguments)args.push('-c',value);
-  child=spawn(native.executable,args,{env:native.env,cwd:config.workspace,windowsHide:true,stdio:['ignore','pipe','pipe']});
+  const confinement=config.confinement;
+  const launchArgs=confinement?[...confinement.args,native.executable,...args]:args;
+  const launchExe=confinement?confinement.executable:native.executable;
+  child=spawn(launchExe,launchArgs,{env:native.env,cwd:config.workspace,windowsHide:true,stdio:['ignore','pipe','pipe']});
   stream=fs.createWriteStream(directory+'/codex-startup.log');
   child.stdout.on('data',d=>stream.write(scrub(d)));child.stderr.on('data',d=>stream.write(scrub(d)));
   child.on('error',e=>stream.write('Native server launch failed: '+e.code+'\n'));

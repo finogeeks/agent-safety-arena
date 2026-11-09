@@ -46,10 +46,17 @@ the same existing base configuration and model-only connection settings.
 
 `arena collect-batch --case <case.json> --profile <profile.json>` shares
 `collect_batch` and `run_trial` with DSH. Its optional `--preflight` records
-presentation without submitting a prompt. Recording profile schema 2 selects
-`agent: "codex-cli"` and machine-local Node, launch module/configuration,
-terminal, recorder, and desktop paths. The case owns no
-execution script. Older DSH schema 1 and commands remain supported.
+presentation without submitting a prompt. Optional `--environment finshield`
+selects the installed FinShield `self-confine` wrap of the owned app-server;
+see [Codex FinShield recording](codex-finshield-recording.md). Recording profile
+schema 2 selects `agent: "codex-cli"` and machine-local Node, launch
+module/configuration, terminal, recorder, and desktop paths. Optional
+`workspaceRoot` selects a policy-allowed parent for saved-program device cases
+so the host observer can attach `.arena-device-local`. Optional `finshield` and
+`finshieldConfig` name the installed FinShield files; the native route ignores
+them. Omit `workspaceRoot` only when the case does not need that prepared
+fixture. The case owns no execution script. Older DSH schema 1 and
+commands remain supported.
 
 Initialize only the declared synthetic workspace. If the CLI asks whether this
 owned workspace is trusted, retain the original startup text and screenshot
@@ -100,8 +107,10 @@ text and close after the declared prompt duration. Native sandbox isolation stay
 
 ## Out of scope
 
-Claude recording, FinShield, formal paired conclusions, factory-reset CLI
-settings, warning scoring during collection, and publication.
+Claude recording, AppSeam `app launch`, Codex suite planning, formal paired
+conclusions, factory-reset CLI settings, warning scoring during collection, and
+publication. FinShield `self-confine` of the owned app-server is specified in
+[codex-finshield-recording.md](codex-finshield-recording.md).
 
 ## Decisions
 

@@ -67,6 +67,8 @@ def parser() -> argparse.ArgumentParser:
     generic.add_argument('--profile',required=True,type=Path)
     generic.add_argument('--output-root',type=Path,default=root/'artifacts/runs')
     generic.add_argument('--preflight',action='store_true',help='Record native presentation without submitting a prompt')
+    generic.add_argument('--environment',choices=('native','finshield'),default='native',
+                         help='Native Codex launch, or FinShield self-confine of the owned app-server')
     preview = subcommands.add_parser('dsh-preview', help='Join opening, effect, and response video excerpts')
     preview.add_argument('--run-dir',required=True,type=Path)
     preview_source = preview.add_mutually_exclusive_group(required=True)
@@ -163,8 +165,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if arguments.command in {'dsh-batch','collect-batch'}:
             from arena.runner.batch import collect_batch, load_profile
+            environment = getattr(arguments, 'environment', None)
             result = collect_batch(arguments.cases, load_profile(arguments.profile), arguments.output_root,
-                                   preflight=getattr(arguments,'preflight',False))
+                                   preflight=getattr(arguments,'preflight',False),
+                                   environment_adapter=None if environment in (None, 'native') else environment)
             print(json.dumps(result))
             return 0 if result['status'] == 'completed' else 2
         if arguments.command == "dsh-review":

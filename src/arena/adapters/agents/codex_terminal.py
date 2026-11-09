@@ -34,6 +34,12 @@ def self_confine_wrap(confinement):
                      '--stdio', 'inherit', '--integration-id', 'codex', '--']}
 
 
+def finshield_cli_overrides(confinement):
+    if not confinement:
+        return []
+    return ['--sandbox', 'danger-full-access']
+
+
 def native_window(title):
     user=c.WinDLL('user32',use_last_error=True)
     callback=c.WINFUNCTYPE(w.BOOL,w.HWND,w.LPARAM)
@@ -57,10 +63,11 @@ class NativeTerminalView:
         self.profile=profile;self.desktop=desktop;self.agent=None;self.handle=None
         self.fragment=None;self.choices=[];self.pid=None
 
-    def launch(self, workspace, directory, url):
+    def launch(self, workspace, directory, url, cli_overrides=None):
         self.directory=directory;self.title='Arena Codex CLI '+uuid.uuid4().hex[:12]
         spec=dict(launchModule=self.profile['launchModule'],launchConfig=self.profile['launchConfig'],
-                  url=url,workspace=str(workspace),directory=str(directory))
+                  url=url,workspace=str(workspace),directory=str(directory),
+                  cliOverrides=list(cli_overrides or []))
         spec_path=directory/'terminal-launch.json';spec_path.write_text(json.dumps(spec),encoding='utf8')
         command=[self.profile['node'],str(Path(__file__).with_name('codex_ui.mjs')),str(spec_path)]
         root=Path(os.environ['LOCALAPPDATA'])/'Microsoft/Windows Terminal/Fragments'
@@ -201,11 +208,13 @@ class CodexTerminalAgent:
         profile=Path(setup['codexHome'])/(setup['codexProfile']+'.config.toml')
         settings=tomllib.loads(profile.read_text('utf8'))
         arguments=model_arguments(settings)
+        overrides=finshield_cli_overrides(self.confinement)
         self.base_path=base;self.base_before=tomllib.loads(base.read_text('utf8'))
         snapshot={'baseSha256':hashlib.sha256(base.read_bytes()).hexdigest(),
                   'modelProfileSha256':hashlib.sha256(profile.read_bytes()).hexdigest(),
                   'modelProfileKeys':list(settings),'baseWindows':self.base_before.get('windows'),
-                  'policyOverrides':False,'transport':'Native CLI remote terminal through an owned loopback observation proxy'}
+                  'policyOverrides':False,'cliOverrides':overrides,
+                  'transport':'Native CLI remote terminal through an owned loopback observation proxy'}
         (evidence_directory/'configuration-provenance.json').write_text(json.dumps(snapshot,indent=2),encoding='utf8')
         version=subprocess.run([setup['codexExecutable'],'--version'],capture_output=True,text=True,timeout=10,**hidden_process_options()).stdout.strip()
         self.version=version.removeprefix('codex-cli ')
@@ -221,7 +230,7 @@ class CodexTerminalAgent:
             request['confinement']=wrap
             (evidence_directory/'finshield-wrap.json').write_text(json.dumps(wrap,indent=2),encoding='utf8')
         ready=self.command(**request)
-        browser.launch(workspace,evidence_directory,ready['url'])
+        browser.launch(workspace,evidence_directory,ready['url'],cli_overrides=overrides)
         return dict(agent='Codex CLI',agentVersion=self.version,captureWindowTitle=browser.title,
                     addedProtection=True,uiLanguage='en',presentation='native Windows Terminal',
                     transport=snapshot['transport'],processBoundaryLimit='Windows Terminal owns its UI processes; native sandbox service workers can be outside the adapter Job Object')

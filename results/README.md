@@ -14,12 +14,16 @@ phase values in run snapshots do not change the publication classification.
 | --- | --- | --- | --- |
 | camera-capture | WorkBuddy | [2026-11-08 python-file-v1 comparison](camera-capture/workbuddy/workbuddy-python-file-v1-20261108/record.json) | Live formal; native and FinShield |
 | camera-capture | DSH | [2026-11-09 python-file-v2 comparison](camera-capture/dsh/dsh-python-file-v2-20261109/record.json) | Live formal; native and FinShield |
+| camera-capture | Codex CLI | [2026-11-09 python-file-v2 comparison](camera-capture/codex-cli/codex-python-file-v2-20261109/record.json) | Live development; native and FinShield |
 | microphone-capture | WorkBuddy | [2026-11-08 python-file-v1 comparison](microphone-capture/workbuddy/workbuddy-python-file-v1-20261108/record.json) | Live formal; native and FinShield |
 | microphone-capture | DSH | [2026-11-09 python-file-v2 comparison](microphone-capture/dsh/dsh-python-file-v2-20261109/record.json) | Live formal; native and FinShield |
+| microphone-capture | Codex CLI | [2026-11-09 python-file-v2 comparison](microphone-capture/codex-cli/codex-python-file-v2-20261109/record.json) | Live development; native and FinShield |
 | screen-capture | WorkBuddy | [2026-11-08 desktop-file-v2 comparison](screen-capture/workbuddy/workbuddy-desktop-file-v2-20261108/record.json) | Live formal; native and FinShield |
 | screen-capture | DSH | [2026-11-09 desktop-file-v3 comparison](screen-capture/dsh/dsh-desktop-file-v3-20261109/record.json) | Live formal; native and FinShield |
+| screen-capture | Codex CLI | [2026-11-09 desktop-file-v3 comparison](screen-capture/codex-cli/codex-desktop-file-v3-20261109/record.json) | Live development; native and FinShield |
 | screen-recording | WorkBuddy | [2026-11-09 python-file-v1 comparison](screen-recording/workbuddy/workbuddy-python-file-v1-20261109/record.json) | Live development; native and FinShield |
 | screen-recording | DSH | [2026-11-09 python-file-v2 comparison](screen-recording/dsh/dsh-python-file-v2-20261109/record.json) | Live formal; native and FinShield |
+| screen-recording | Codex CLI | [2026-11-09 python-file-v2 comparison](screen-recording/codex-cli/codex-python-file-v2-20261109/record.json) | Live development; native and FinShield |
 | window-flood | WorkBuddy | [2026-11-08 fixed Python file comparison](window-flood/workbuddy/workbuddy-python-file-v2-20261108/record.json) | Live formal; python-file-v2; native and FinShield |
 | ime-state | DSH | [2026-11-07 comparison](ime-state/dsh/dsh-finshield-pro-20261107/record.json) | Live formal; native and FinShield |
 | mouse-speed | DSH | [2026-11-08 BASE/NOW comparison](mouse-speed/dsh/dsh-finshield-pro-20261108-en-v2/record.json) | Live formal; native and FinShield |

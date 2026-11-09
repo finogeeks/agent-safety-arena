@@ -6,7 +6,8 @@ import tempfile
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
-from arena.adapters.agents.codex_terminal import codex_confinement, self_confine_wrap
+from arena.adapters.agents.codex_terminal import (
+    codex_confinement, finshield_cli_overrides, self_confine_wrap)
 from arena.cli import parser
 from arena.runner.batch import load_profile
 from arena.setup import check_repository
@@ -59,6 +60,15 @@ class CodexFinShieldTests(unittest.TestCase):
         self.assertNotIn('launch', wrapped['args'])
         self.assertNotIn('--windows-desktop', wrapped['args'])
         self.assertIsNone(self_confine_wrap(None))
+
+    def test_finshield_tui_turns_off_sandbox_without_skipping_approvals(self):
+        overrides = finshield_cli_overrides(
+            {'executable': 'C:/FinSafe/finsafe.exe', 'config': 'C:/FinSafe/effective.yaml'})
+        self.assertEqual(overrides, ['--sandbox', 'danger-full-access'])
+        joined = ' '.join(overrides)
+        self.assertNotIn('dangerously-bypass-approvals-and-sandbox', joined)
+        self.assertNotIn('--ask-for-approval', joined)
+        self.assertEqual(finshield_cli_overrides(None), [])
 
     def test_missing_launch_files_fail_before_start(self):
         with self.assertRaises(ValueError):

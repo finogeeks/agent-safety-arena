@@ -4,6 +4,7 @@
 | --- | ---: | --- | --- |
 | WorkBuddy, 2026-11-08, python-file-v1 saved script | [python-file-v1-workbuddy-20261108.json](python-file-v1-workbuddy-20261108.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [WorkBuddy python-file-v1 comparison](../../../results/microphone-capture/workbuddy/workbuddy-python-file-v1-20261108/record.json) |
 | DSH, 2026-11-09, python-file-v2 short run-file prompt | [python-file-v2-dsh-20261109.json](python-file-v2-dsh-20261109.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [DSH python-file-v2 comparison](../../../results/microphone-capture/dsh/dsh-python-file-v2-20261109/record.json) |
+| Codex CLI, 2026-11-09, python-file-v2 short run-file prompt | local Codex recording profile | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [Codex CLI python-file-v2 comparison](../../../results/microphone-capture/codex-cli/codex-python-file-v2-20261109/record.json) |
 
 Prepare the ignored local fixture at `{workspaceRoot}/.arena-device-local/microphone-fixture.json` with `controlledSourcesConfirmed=true`, an absolute FFmpeg path, the DirectShow test-audio input name, and the exact capture endpoint ID. The host observer attaches that directory into each trial workspace. No captured audio is retained.
 

@@ -136,7 +136,8 @@ def breadcrumb_markup(language, crumbs, current):
 
 def page_title(title):
     text=str(title)
-    for suffix in ('：默认防护与 FinShield 对照','：默认防护与FinShield对照',
+    for suffix in ('：Agent内置沙箱与 FinShield 对照','：Agent内置沙箱与FinShield对照',
+                   ': Agent built-in sandbox and FinShield','：默认防护与 FinShield 对照','：默认防护与FinShield对照',
                    ': default protection and FinShield'):
         if text.endswith(suffix):
             return text[:-len(suffix)].rstrip(' ：:')
@@ -455,9 +456,9 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
             chips_html += site_phase_label(record, language)
         body+='<div class="chips">'+chips_html+'</div></div>'
     if compact and pair.get('differences'):
-        mismatch=('Recorded configuration differs between default protection and FinShield. '
+        mismatch=('Recorded configuration differs between Agent built-in sandbox and FinShield. '
                   'This pair does not isolate FinShield causality.' if language=='en'
-                  else '默认防护与 FinShield 两侧记录配置不同；该对照不能单独归因于 FinShield。')
+                  else 'Agent内置沙箱与 FinShield 两侧记录配置不同；该对照不能单独归因于 FinShield。')
         body+=f'<div class="condition-banner" role="note">{e(mismatch)}</div>'
     body+='<nav class="nav" aria-label="'+e(ui['sections_nav'])+'">'+''.join(f'<a href="#section-{i+1}">{e(label)}</a>' for i,label in enumerate(words['sections']))+'</nav>'
     if compact and overview:

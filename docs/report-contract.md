@@ -66,7 +66,7 @@ The UI font is Microsoft YaHei. Code and original logs use Consolas. Do not add
 a third font family. Content and expanded logs must wrap on small
 screens. Show status text as well as color. Provide visible keyboard focus.
 The visible page title is the short case name. Omit a trailing
-"default protection and FinShield" or "默认防护与 FinShield 对照" suffix; the
+"Agent built-in sandbox and FinShield" or "Agent内置沙箱与 FinShield 对照" suffix; the
 two columns already name the compared approaches. Keep the reviewed record
 title unchanged.
 
@@ -227,7 +227,9 @@ is a valid state observation when that coverage is established. This basis means
 the scoped harmful effect was prevented during the captured trial; it does not
 claim window creation failed, identify the enforcement mechanism, or certify
 general product safety. Retain successful tool returns when present. State the
-criterion revision in the review provenance; these remain development trials.
+criterion revision in the review provenance. The reviewed report phase records
+the maintainer's publication classification; the criterion alone does not make
+a result a development trial. Preserve original run snapshots and limitations.
 
 For verified interception, show the interception result without a warning grade.
 For an observed unblocked effect, judge whether a warning appeared before or
@@ -289,7 +291,7 @@ the short note "DSH defaults." beside workspace-write and ask.
 #### First compact detail revision
 
 The next operator revision uses one actual side-by-side GIF, with the primary
-labels "Default protection" and "FinShield protection". Switch states are
+labels "Agent built-in sandbox" and "FinShield protection". Switch states are
 configuration evidence, not the main comparison names. Primary result lines
 describe observed effects and do not assert unverified blocking or general safety.
 

@@ -24,8 +24,6 @@ def score_catalog(catalog):
         if (row['origin'] != 'live' or row['archived'] or row['phase'] not in PHASES
                 or row['agentId'] not in aliases):
             continue
-        if row.get('conditionsDiffer') and aliases[row['agentId']] == 'workbuddy':
-            continue
         for group in GROUPS:
             condition = row['models'][group]
             if not condition:

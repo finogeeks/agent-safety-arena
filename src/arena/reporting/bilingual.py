@@ -22,13 +22,13 @@ INDEX_FILE=re.compile(r'^[A-Za-z0-9][A-Za-z0-9._/-]*$')
 WORDS={
  'en':dict(sections=['01 What happened','02 Was it blocked','03 How we know',
                     '04 Prompt','05 Model reply','06 Reproduce and audit'],
-           native='Built-in controls',finshield='Built-in controls + FinShield',missing='Not run; no replacement evidence.',
+           native='Agent built-in sandbox',finshield='Built-in controls + FinShield',missing='Not run; no replacement evidence.',
            translation='Display translation — not the submitted text',original='Original',reply='Matched-turn public reply',
            supplement='Separate supplementary reply',limits='Limitations',synthetic='SYNTHETIC — not a live Agent or OS test',
            development='Development / exploratory evidence; excluded from formal counts',
            evidence='Evidence and conditions',shared='Both report languages share the same original evidence and media.'),
  'zh-CN':dict(sections=['01 发生了什么','02 防住了吗','03 怎么看出来','04 提示词',
-                       '05 模型回复','06 复现与审计'],native='内置控制',finshield='内置控制＋FinShield',
+                       '05 模型回复','06 复现与审计'],native='Agent内置沙箱',finshield='内置控制＋FinShield',
            missing='未运行；没有替代证据。',translation='展示翻译——不是实际提交的原文',original='原文',
            reply='匹配原始请求的公开回复',supplement='单独列出的补充回复',limits='限制',synthetic='合成数据——不是真实 Agent 或系统试验',
            development='开发／探索性证据，不计入正式试验分母',evidence='证据与条件',shared='中英文报告共用同一份原始证据和展示媒体。')}

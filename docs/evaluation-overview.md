@@ -1,6 +1,6 @@
 # Evaluation overview
 
-Status: Category-based local design, revised 2026-11-06. No production publication.
+Status: Homepage restoration and published-result classification, revised 2026-11-09.
 
 ## Problem
 
@@ -11,7 +11,7 @@ With 100 scenarios, readers need a compact overview and category navigation.
 
 The global project evaluates Agent safety controls, not model capability. Use
 DeepSeek Pro (`deepseek-v4-pro`) / high for default and FinShield protection.
-The first roster is DSH desktop, WorkBuddy, Codex CLI, Claude CLI, and OpenCode
+The first roster is DeepSeek Harness, WorkBuddy, Codex CLI, Claude CLI, and OpenCode
 CLI. Do not divide or label Agents by country or region. Roster entries are
 coverage goals, not proof of implemented integrations or completed evaluations.
 
@@ -19,6 +19,16 @@ The existing `arena build-site` command generates English at `index.html`
 (`en.html` remains an alias) and Chinese at `zh-CN.html`. All navigation and
 pagination use static relative links and work without JavaScript. Keep the
 six-section comparison details and original evidence unchanged.
+
+Label the native protection track "Agent built-in sandbox" in English and
+"Agent内置沙箱" in Chinese across the homepage, categories, scenario hubs and
+comparison details. This names the track; recorded sandbox settings remain
+explicit and do not imply that the sandbox was enabled in every run.
+Keep the authored Agent order and capitalization from `profiles/coverage.json`.
+Use the official [DeepSeek Harness](https://www.deepseek.com/en/harness/) name in
+both languages. Keep `dsh` as the internal record identity and historical alias.
+In each desktop showcase row, align the two protection labels immediately above
+the GIFs even when category descriptions use different numbers of lines.
 
 ```mermaid
 flowchart LR
@@ -62,6 +72,23 @@ objects; they do not calculate a different grade. Keep both protection tracks
 and all four categories visible on each card. Stack the cards on small
 screens. Do not hide category results behind navigation. Category pages
 retain a compact category score summary and a scenario card grid.
+
+The homepage restoration keeps cards with live records visible even when an
+Agent has no assessed or paired result. Fold roster entries with no live records
+under a localized "Agents without results yet" disclosure. Codex CLI and
+WorkBuddy stay visible when their records are unassessed or outside score scope.
+Keep all four category media slots and all four score rows per Agent, including
+empty states. Omit repeated phase badges from the homepage title, score heading,
+and score cells; phase metadata remains in the data, methodology, and details.
+Restore the shared scorer's original eligibility: use assessed live outcomes
+within the selected phase and model/effort scope. Condition differences remain
+visible in the evidence; they do not erase WorkBuddy's observed results or make
+them untested. The scores describe scoped outcomes, not isolated causality.
+On 2026-11-09 the maintainer confirmed that the 25 committed live reports are
+formal published results. Set their report phase to formal and correct authored
+phase descriptions. Preserve original run-condition snapshots, prompts, replies,
+assessments and media. The report phase controls publication and summary phase;
+a historical phase in a run snapshot does not override that classification.
 
 The showcase precedes scores, so a new reader sees actual testing immediately.
 Reuse each selected record's existing reviewed combined GIF without re-editing
@@ -290,6 +317,8 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-14 | Category introductions omit model/effort metadata. At 1280x900 the score table is at most 245px high and the first card row is fully visible. |
 | AC-15 | Privacy Safety is the first authored category. Camera Leak belongs to it. Detail breadcrumbs use that category. Homepage GIF slots are the four authored categories in order. Agent cards include all four category scores in authored order. Category pages do not repeat a four-category tab row. |
 | AC-16 | Category, hub, methodology, and detail breadcrumbs start with Home. Every full-site header has the four category links, GitHub, and language, without Scenarios or Methodology. Standalone reports omit category links. The homepage omits the purpose sentence and the fixed-model chip. |
+| AC-17 | Both homepage languages show Agents with live records as cards, each with overall and four category score rows. Roster entries without live records remain accessible in a collapsed disclosure. Four category media slots retain honest empty frames. Summary headings and cells omit phase badges. The committed live reports use the maintainer-confirmed formal phase, with original observations unchanged. |
+| AC-18 | Native-track headings, score labels and authored descriptions use Agent built-in sandbox / Agent内置沙箱. Original prompts, replies, tool logs and recorded settings remain unchanged. |
 
 ## Out of scope
 

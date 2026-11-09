@@ -95,13 +95,13 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertIn('class="coverage-table"', html)
                 self.assertIn('0%', html)
                 self.assertIn('100%', html)
-                self.assertIn('class="phase-label"', html)
+                self.assertNotIn('class="phase-label"', html)
                 self.assertNotIn('class="category-tabs"', html)
                 self.assertNotIn('class="pagination"', html)
                 self.assertNotIn('防护结果 · 智能体数量', html)
                 self.assertNotIn('Protection results · Agent counts', html)
             for route in ('index.html', 'zh-CN.html'):
-                self.assertIn('Development results (not formal)', (root / 'site' / route).read_text('utf8'))
+                self.assertNotIn('class="phase-label"', (root / 'site' / route).read_text('utf8'))
 
     def test_display_priority_applies_before_pagination_and_description_is_escaped(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -187,7 +187,7 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertNotIn(value, html)
             for value in ('%', '成功0 · 失败1', '成功1 · 失败0'):
                 self.assertNotIn(value, table)
-            self.assertIn('data-label="默认防护"', table)
+            self.assertIn('data-label="Agent内置沙箱"', table)
             self.assertIn('data-label="FinShield"', table)
             self.assertIn('把正在用的应用埋住', html)
             self.assertIn('../../window-flood/dsh/paired/zh-CN.html', html)

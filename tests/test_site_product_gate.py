@@ -17,7 +17,28 @@ class SiteProductGateTests(unittest.TestCase):
     def setUp(self):
         self.fixture = fixtures.EvaluationOverviewTests()
 
-    def test_development_phase_label_on_home_and_scored_cells(self):
+    def test_native_track_uses_agent_builtin_sandbox_label(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            path, record = self.fixture.record(root / 'results', scenario='window-flood', agent='dsh')
+            self.fixture.attach_gif(path, record)
+            for group in record['groups'].values():
+                group['conditions'].update(model='deepseek-v4-pro', reasoningEffort='high')
+            self.fixture.save(path, record)
+            build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
+            for route, expected, previous in (
+                ('index.html', 'Agent built-in sandbox', 'Default protection'),
+                ('zh-CN.html', 'Agent内置沙箱', '默认防护'),
+                ('interaction.html', 'Agent built-in sandbox', 'Default protection'),
+                ('interaction.zh-CN.html', 'Agent内置沙箱', '默认防护'),
+                ('cases/window-flood/index.html', 'Agent built-in sandbox', 'Default protection'),
+                ('cases/window-flood/zh-CN.html', 'Agent内置沙箱', '默认防护'),
+            ):
+                html = (root / 'site' / route).read_text('utf8')
+                self.assertIn(expected, html, route)
+                self.assertNotIn(previous, html, route)
+
+    def test_home_omits_repeated_phase_badges_and_keeps_footer(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -29,12 +50,13 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/index.html').read_text('utf8')
-            self.assertIn('Development results (not formal)', home)
-            self.assertGreaterEqual(home.count('class="phase-label"'), 2)
+            self.assertNotIn('class="phase-label"', home)
+            catalog = json.loads((root / 'site/catalog.json').read_text('utf8'))
+            self.assertEqual(catalog['scorePhase'], 'development')
             self.assertIn('https://finaios.ai', home)
             self.assertIn('FinAI OS', home)
 
-    def test_workbuddy_mismatch_excluded_from_home_scores(self):
+    def test_workbuddy_observed_results_are_scored_with_condition_limits_preserved(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -47,12 +69,16 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/index.html').read_text('utf8')
-            self.assertNotIn('data-score-agent="workbuddy"', home)
+            self.assertIn('data-score-agent="workbuddy"', home)
             catalog = json.loads((root / 'site/catalog.json').read_text('utf8'))
-            scores = catalog['scores']['development']['agents'].get('workbuddy', {})
-            self.assertEqual(scores.get('native', {}).get('denominator'), 0)
+            scores = catalog['scores']['development']['agents']['workbuddy']
+            self.assertEqual(scores['native']['denominator'], 1)
+            self.assertEqual(scores['native']['rate'], 0)
+            self.assertEqual(scores['finshield']['denominator'], 1)
+            self.assertEqual(scores['finshield']['rate'], 100)
+            self.assertTrue(catalog['reports'][0]['conditionsDiffer'])
 
-    def test_untested_roster_agents_hidden_and_codex_archived(self):
+    def test_recorded_agents_visible_and_only_unrecorded_roster_entries_folded(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -63,16 +89,38 @@ class SiteProductGateTests(unittest.TestCase):
             record['groups']['finshield'] = None
             record['groups']['native'].pop('interceptionAssessment', None)
             self.fixture.save(path, record)
+            self.fixture.record(results, agent='dsh')
+            self.fixture.record(results, agent='workbuddy')
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/index.html').read_text('utf8')
-            self.assertNotIn('data-score-agent="claude-cli"', home)
-            self.assertNotIn('data-score-agent="opencode-cli"', home)
-            main_scores = home.split('id="agent-scores"', 1)[1].split('agent-archive', 1)[0]
-            self.assertNotIn('data-score-agent="codex-cli"', main_scores)
-            self.assertIn('agent-archive', home)
-            self.assertIn('data-score-agent="codex-cli"', home.split('agent-archive', 1)[1])
+            roster = json.loads((ROOT / 'profiles/coverage.json').read_text('utf8'))
+            for route in ('index.html', 'zh-CN.html'):
+                home = (root / 'site' / route).read_text('utf8')
+                self.assertIn('<details class="unrecorded-agents">', home)
+                visible, folded = home.split('<details class="unrecorded-agents">', 1)
+                self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', visible),
+                                 ['dsh', 'workbuddy', 'codex-cli'])
+                self.assertEqual(re.findall(r'<h3>([^<]+)</h3>', visible)[-3:],
+                                 ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI'])
+                self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', folded),
+                                 ['claude-cli', 'opencode-cli'])
+                self.assertNotIn('<details class="unrecorded-agents" open', home)
+                self.assertNotIn('agent-archive', home)
+                for card in re.findall(r'<article class="agent-card".*?</article>', home, re.S):
+                    self.assertEqual(re.findall(r'class="agent-scope ([^"]+)"', card),
+                                     ['overall', 'privacy', 'interaction', 'system', 'data'])
+                    self.assertEqual(card.count('data-score-protection='), 10)
+                self.assertNotIn('class="phase-label"', home)
 
-    def test_showcase_omits_empty_categories_and_no_media_copy(self):
+    def test_committed_live_reports_use_the_confirmed_formal_phase(self):
+        records = list((ROOT / 'results').rglob('record.json'))
+        self.assertTrue(records)
+        for path in records:
+            record = json.loads(path.read_text('utf8'))
+            if record['evidenceOrigin'] == 'live':
+                self.assertEqual(record['phase'], 'formal', path.relative_to(ROOT))
+
+    def test_showcase_keeps_four_categories_and_honest_empty_frames(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -84,9 +132,10 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/index.html').read_text('utf8')
-            self.assertNotIn('No media available', home)
+            self.assertIn('No media available', home)
             categories = re.findall(r'data-category="([^"]+)"', home)
-            self.assertEqual(categories, ['privacy'])
+            self.assertEqual(categories, ['privacy', 'interaction', 'system', 'data'])
+            self.assertEqual(home.count('data-media-state="empty"'), 3)
 
     def test_case_hubs_omit_unpaired_roster_agents_and_not_tested_badges(self):
         with tempfile.TemporaryDirectory() as folder:

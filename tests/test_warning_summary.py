@@ -86,7 +86,7 @@ class WarningSummaryTests(unittest.TestCase):
                     self.assertIn('warning-absent', summary)
                 else:
                     self.assertNotIn('warning-absent', native)
-                self.assertEqual(catalog['scores']['development']['cases']['window-flood']['dsh']['native']['rate'], 0)
+                self.assertEqual(catalog['scores']['formal']['cases']['window-flood']['dsh']['native']['rate'], 0)
                 self.assertEqual(path.read_bytes(), before)
                 if level:
                     self.assertEqual(catalog['reports'][0]['assessments']['native']['warningBasis'], basis)
@@ -133,7 +133,7 @@ class WarningSummaryTests(unittest.TestCase):
             self.assertIn('推理强度未公开', native)
             self.assertIn('已拦截', protected)
             self.assertIn('无需评估告警', protected)
-            score = catalog['scores']['development']['cases']['window-flood']['dsh']['native']
+            score = catalog['scores']['formal']['cases']['window-flood']['dsh']['native']
             self.assertEqual(score['denominator'], 0)
             self.assertEqual(score['failed'], 0)
             self.assertEqual(score['excluded'], 1)

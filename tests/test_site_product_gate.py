@@ -52,7 +52,7 @@ class SiteProductGateTests(unittest.TestCase):
             home = (root / 'site/index.html').read_text('utf8')
             self.assertNotIn('class="phase-label"', home)
             catalog = json.loads((root / 'site/catalog.json').read_text('utf8'))
-            self.assertEqual(catalog['scorePhase'], 'development')
+            self.assertEqual(catalog['scorePhase'], 'formal')
             self.assertIn('https://finaios.ai', home)
             self.assertIn('FinAI OS', home)
 
@@ -71,7 +71,7 @@ class SiteProductGateTests(unittest.TestCase):
             home = (root / 'site/index.html').read_text('utf8')
             self.assertIn('data-score-agent="workbuddy"', home)
             catalog = json.loads((root / 'site/catalog.json').read_text('utf8'))
-            scores = catalog['scores']['development']['agents']['workbuddy']
+            scores = catalog['scores']['formal']['agents']['workbuddy']
             self.assertEqual(scores['native']['denominator'], 1)
             self.assertEqual(scores['native']['rate'], 0)
             self.assertEqual(scores['finshield']['denominator'], 1)
@@ -112,13 +112,16 @@ class SiteProductGateTests(unittest.TestCase):
                     self.assertEqual(card.count('data-score-protection='), 10)
                 self.assertNotIn('class="phase-label"', home)
 
-    def test_committed_live_reports_use_the_confirmed_formal_phase(self):
+    def test_committed_live_reports_have_formal_publication_without_rewriting_collection_phase(self):
         records = list((ROOT / 'results').rglob('record.json'))
         self.assertTrue(records)
         for path in records:
             record = json.loads(path.read_text('utf8'))
             if record['evidenceOrigin'] == 'live':
-                self.assertEqual(record['phase'], 'formal', path.relative_to(ROOT))
+                from arena.reporting.publication import public_record
+                before = path.read_bytes()
+                self.assertEqual(public_record(record)['phase'], 'formal', path.relative_to(ROOT))
+                self.assertEqual(path.read_bytes(), before)
 
     def test_showcase_keeps_four_categories_and_honest_empty_frames(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -132,7 +135,8 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/index.html').read_text('utf8')
-            self.assertIn('No media available', home)
+            self.assertNotIn('No media available', home)
+            self.assertEqual(home.count('class="category-entry"'), 3)
             categories = re.findall(r'data-category="([^"]+)"', home)
             self.assertEqual(categories, ['privacy', 'interaction', 'system', 'data'])
             self.assertEqual(home.count('data-media-state="empty"'), 3)
@@ -175,7 +179,7 @@ class SiteProductGateTests(unittest.TestCase):
                           (root / 'site/system.html').read_text('utf8'))
             self.assertIn('本分类场景收录中', (root / 'site/system.zh-CN.html').read_text('utf8'))
 
-    def test_detail_shows_development_phase_beside_track(self):
+    def test_detail_hides_internal_collection_phase_for_published_results(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -185,10 +189,10 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             detail = next(p for p in (root / 'site').rglob('en.html') if 'dsh' in p.as_posix())
             html = detail.read_text('utf8')
-            self.assertIn('Development trial', html)
-            self.assertIn('Development results (not formal)', html)
+            self.assertNotIn('Development trial', html)
+            self.assertNotIn('Development results (not formal)', html)
 
-    def test_detail_run_notes_and_condition_banner(self):
+    def test_detail_run_notes_treat_native_sandbox_switch_as_expected(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -202,8 +206,8 @@ class SiteProductGateTests(unittest.TestCase):
             html = detail.read_text('utf8')
             self.assertIn('Run notes', html)
             self.assertNotIn('Preview notes', html)
-            self.assertIn('condition-banner', html)
-            self.assertIn('does not isolate FinShield causality', html)
+            self.assertNotIn('role="note"', html)
+            self.assertNotIn('does not isolate FinShield causality', html)
 
 
 if __name__ == '__main__':

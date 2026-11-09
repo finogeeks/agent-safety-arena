@@ -2,6 +2,7 @@
 from html import escape
 from pathlib import PurePosixPath
 import re
+from arena.reporting.publication import public_record
 
 
 TEXT = {
@@ -67,7 +68,7 @@ details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cu
 :focus-visible{outline:3px solid #92b8f4;outline-offset:3px}.case-card{display:block;background:white;border:1px solid #dfe5ee;border-radius:9px;padding:20px;max-width:480px}.case-card h2{margin:10px 0}.case-card p{color:#63768e}
 .report-breadcrumb{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 8px;margin:0 0 10px;overflow-wrap:anywhere}
 .report-breadcrumb [aria-hidden],.report-breadcrumb [aria-current]{color:#78869a}
-.phase-label{display:inline-block;padding:3px 7px;border:1px solid #e6dfc9;border-radius:4px;background:#faf7ee;color:#8b7956;font-size:12px;font-weight:600;margin-left:8px}
+.phase-label{display:inline-block;padding:3px 7px;border:1px solid #e6dfc9;border-radius:4px;background:#faf7ee;color:#8b7956;font-size:var(--text-size);font-weight:600;margin-left:8px}
 .condition-banner{margin:0 0 14px;padding:12px 14px;border:1px solid #ead7b0;border-radius:8px;background:#faf7ee;color:#6a5a3c;line-height:1.55}
 .report-return{display:inline-block;margin:12px 0 0}
 @media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar,.site-bar{padding-left:16px;padding-right:16px}.panel{padding:16px}.bar small{display:none}.site-nav{width:100%;order:3;margin:0;padding-top:8px;border-top:1px solid #dde3eb}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
@@ -183,6 +184,7 @@ def site_phase_label(record, language):
 
 def header_metadata(record, language):
     """Use reviewed dates and actual group conditions for both report formats."""
+    record = public_record(record)
     presentation=record['presentation'];groups=record['groups'];ui=TEXT[language]
     missing='Not recorded' if language=='en' else '未记录'
     def shared_value(value_for):
@@ -198,7 +200,7 @@ def header_metadata(record, language):
     tested_label=f'{tested["date"]} ({tested["timezone"]})' if tested else missing
     fs_version=(groups.get('finshield') or {}).get('environmentVersion') or missing
     fs_version=re.sub(r'^(?:FinShield|FinSAFE)\s+', '',fs_version,flags=re.I)
-    phase=ui['development'] if record['phase']!='formal' else record['phase']
+    phase=ui['development'] if record['phase']!='formal' else ('Reviewed evaluation' if language=='en' else '实测')
     labels=(['Test date',record['agentId'].upper()+' version','Model','FinShield version','Track']
             if language=='en' else ['测试时间',record['agentId'].upper()+' 版本','模型','FinShield 版本','试验类型'])
     return list(zip(labels,[tested_label,agent_version,model,fs_version,phase]))
@@ -375,6 +377,7 @@ def display_text(record, language, original, original_language, translation):
 
 
 def render_index(record):
+    record = public_record(record)
     cards=[]
     for language in ('en','zh-CN'):
         text=record['narrative'][language];ui=TEXT[language]
@@ -386,6 +389,7 @@ def render_index(record):
 
 
 def render_detail(record, language, evidence_hash, pair, words, outcomes, navigation=None):
+    record = public_record(record)
     ui=TEXT[language];text=record['narrative'][language];groups=record['groups'];native=groups['native']
     presentation=record.get('presentation');compact=bool(presentation)
     dense=bool((presentation or {}).get('dense'));overview=(presentation or {}).get('overview')
@@ -455,7 +459,7 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
         if record['phase'] == 'development':
             chips_html += site_phase_label(record, language)
         body+='<div class="chips">'+chips_html+'</div></div>'
-    if compact and pair.get('differences'):
+    if compact and set(pair.get('differences', {})) - {'builtinSandbox'}:
         mismatch=('Recorded configuration differs between Agent built-in sandbox and FinShield. '
                   'This pair does not isolate FinShield causality.' if language=='en'
                   else 'Agent内置沙箱与 FinShield 两侧记录配置不同；该对照不能单独归因于 FinShield。')

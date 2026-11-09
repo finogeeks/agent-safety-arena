@@ -125,7 +125,10 @@ missing media slots stay labeled.
 Agents with live records stay visible; Agents without records are folded below
 the score cards. The committed live reports are formal published results, as
 confirmed by the maintainer on 2026-11-09. Summary pages omit phase badges.
-Development records and reused runs do not inflate formal results or trial counts.
+Reviewed live evaluations share one public score set even when collection metadata
+still says development. Original evidence retains that metadata. The homepage
+keeps reviewed GIFs, uses compact links for empty media slots, and shows Evaluation
+results below them. Reused runs do not increase trial counts.
 
 ## Development
 

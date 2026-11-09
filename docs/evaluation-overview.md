@@ -50,16 +50,17 @@ Methodology in the header; keep methodology in the footer and on its own page.
 
 Homepage order:
 
-1. Site title only. Do not put the purpose sentence or the fixed-model chip on
-   the homepage. Keep the fixed model on the methodology page.
-2. A real-test showcase with one card per authored category, in authored
+1. Use Agent安全测评 / Agent Safety Evaluation as the title and Agent内置沙箱 vs
+   FinShield / Agent built-in sandbox vs FinShield as the short comparison line.
+   Keep fixed-model metadata on the methodology page.
+2. A GIF showcase without a Real tests heading, with one card per category in authored
    order: Privacy, Interaction, System, Data. Put the four cards in one row at
    desktop widths. Each card introduces the category: its name and the authored
    category description. Do not put a case title or Agent name on these cards.
    Put the name and description first, then the GIF. The name links to that
    category page. The GIF links to the comparison. Use one representative live
    reviewed GIF per category as illustration, not a list of all cases.
-   Missing media stays an honest empty frame.
+   Missing media uses a compact category link without a GIF frame.
 3. One small card per Agent combining overall and all four category scores.
    Each Agent occupies one card. Overall, Privacy, Interaction, System and Data
    each have Default/FinShield scores on that card, in that order. Keep pass/fail
@@ -78,29 +79,30 @@ Agent has no assessed or paired result. Fold roster entries with no live records
 under a localized "Agents without results yet" disclosure. Codex CLI and
 WorkBuddy stay visible when their records are unassessed or outside score scope.
 Keep all four category media slots and all four score rows per Agent, including
-empty states. Omit repeated phase badges from the homepage title, score heading,
+compact empty-category links. Omit repeated phase badges from the homepage title, score heading,
 and score cells; phase metadata remains in the data, methodology, and details.
 Restore the shared scorer's original eligibility: use assessed live outcomes
-within the selected phase and model/effort scope. Condition differences remain
+within the reviewed-publication and model/effort scope. Condition differences remain
 visible in the evidence; they do not erase WorkBuddy's observed results or make
 them untested. The scores describe scoped outcomes, not isolated causality.
 On 2026-11-09 the maintainer confirmed that the 25 committed live reports are
 formal published results. Set their report phase to formal and correct authored
 phase descriptions. Preserve original run-condition snapshots, prompts, replies,
-assessments and media. The report phase controls publication and summary phase;
-a historical phase in a run snapshot does not override that classification.
+assessments and media. The shared [publication policy](public-result-presentation.md) now derives public
+classification from reviewed live records. Collection phase remains in the source
+and evidence export; it does not exclude a newly published result from summaries.
 
 The showcase precedes scores, so a new reader sees actual testing immediately.
 Reuse each selected record's existing reviewed combined GIF without re-editing
 or rerunning. Show native/FinShield pane labels above the GIF. Do not call an
 edited GIF a full recording. Do not put Video, Records, Reproduce, or GIF
-edit-note actions on the homepage cards. Missing media gets a labeled empty
-frame, not a synthetic or unrelated image. Do not create links to nonexistent
+edit-note actions on the homepage cards. Missing media gets a compact category
+link; never substitute synthetic or unrelated images. Do not create links to nonexistent
 video, evidence or reproduction material.
 
 Representatives must be live, non-archived, paired and owned by a roster Agent.
 Match the fixed model/effort on both groups when declared. Prefer the active
-score phase; a different phase remains labeled. Synthetic GIFs never stand in
+publication scope; source collection phases stay in the evidence. Synthetic GIFs never stand in
 for live evidence. `reports.hasReproduction` records whether reviewed bilingual
 instructions exist; it does not add another copy of reproduction text.
 
@@ -121,7 +123,7 @@ description. Reserve at least three count lines for aligned statistics. Place
 the detail action 8px after the statistics, without automatic spacer growth.
 Count Agents separately for default and FinShield as passed, failed, unassessed,
 untested, or outside score scope. Count each roster Agent once per track using
-the same phase-specific combined result as its hub. Show nonzero counts with
+the same publication-scoped combined result as its hub. Show nonzero counts with
 clear labels; never treat an untested or unresolved Agent as a failure. Do not
 show scenario IDs, Agent name lists, or percentages on these cards. Show the
 category score table directly above the cards without requiring expansion.
@@ -152,7 +154,7 @@ shows one row per roster Agent: default protection, FinShield, and a link to
 the original report. Each Agent/protection track is one item in this scenario,
 so show only its combined result: Blocked, Not blocked, Unverified, Not tested,
 or Outside score scope. Omit percentages and redundant pass/fail counts from
-this table. Derive states from the same phase-specific combined scores. Keep
+this table. Derive states from the same publication-scoped combined scores. Keep
 percentages and counts in category and overall summaries.
 At phone widths, stack each Agent row with visible protection labels so both
 tracks and the evidence link remain visible without horizontal scrolling.
@@ -181,7 +183,7 @@ the A/B/C/U letters in status labels. A verified block shows Warning review not
 required. For `confirmed-no-warning`, show No warning. Never infer absence
 from an ordinary C grade or from missing data. Retain `warningBasis` alongside
 `warningLevel` in catalog assessments; do not regrade or change source records.
-Use only the source reports of that phase/model-scoped score item. Across
+Use only the source reports of that publication/model-scoped score item. Across
 repeat runs, a known C remains C; otherwise an unknown review yields U, then
 use the least adequate known grade. Mixed presence states use a general
 warning-adequacy label instead of claiming all runs had, or lacked, warnings.
@@ -245,11 +247,10 @@ outcome is unassessed. A recorded result excluded for model/effort mismatch says
 "Outside score scope", rather than falsely saying it was never tested.
 
 Use live records with matching fixed model and reasoning effort. Exclude
-synthetic and language-study data from these scores. Score formal and development
-records separately. Show formal scores if eligible formal records exist;
-otherwise show development scores, without a phase badge beside public summary
-headings. Use one phase across all summary
-cells, without filling empty formal cells from development results.
+synthetic and language-study data from these scores. All reviewed live evaluations
+share the formal publication bucket, regardless of their original collection phase.
+Home, category and scenario summaries use the same items. Preserve original
+collection phase in source records and evidence; omit public development badges.
 
 Ignore archived duplicate reports. Deduplicate by original run identity, Agent,
 scenario, protection track and phase. Retain all contributing report links.
@@ -316,8 +317,8 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-13 | Desktop and phone home, category and hub pages use only 14px and 20px text with Microsoft YaHei and no added Chinese/Latin boundary spaces. |
 | AC-14 | Category introductions omit model/effort metadata. At 1280x900 the score table is at most 245px high and the first card row is fully visible. |
 | AC-15 | Privacy Safety is the first authored category. Camera Leak belongs to it. Detail breadcrumbs use that category. Homepage GIF slots are the four authored categories in order. Agent cards include all four category scores in authored order. Category pages do not repeat a four-category tab row. |
-| AC-16 | Category, hub, methodology, and detail breadcrumbs start with Home. Every full-site header has the four category links, GitHub, and language, without Scenarios or Methodology. Standalone reports omit category links. The homepage omits the purpose sentence and the fixed-model chip. |
-| AC-17 | Both homepage languages show Agents with live records as cards, each with overall and four category score rows. Roster entries without live records remain accessible in a collapsed disclosure. Four category media slots retain honest empty frames. Summary headings and cells omit phase badges. The committed live reports use the maintainer-confirmed formal phase, with original observations unchanged. |
+| AC-16 | Category, hub, methodology, and detail breadcrumbs start with Home. Every full-site header has the four category links, GitHub, and language, without Scenarios or Methodology. Standalone reports omit category links. The homepage uses the short protection-comparison subtitle and omits the fixed-model chip. |
+| AC-17 | Both homepage languages show Agents with live records as cards, each with overall and four category score rows. Roster entries without live records remain accessible in a collapsed disclosure. Four category cards retain reviewed GIFs and compact links where media is absent. Summary headings and cells omit phase badges. The committed live reports use the maintainer-confirmed formal phase, with original observations unchanged. |
 | AC-18 | Native-track headings, score labels and authored descriptions use Agent built-in sandbox / Agent内置沙箱. Original prompts, replies, tool logs and recorded settings remain unchanged. |
 
 ## Out of scope

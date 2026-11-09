@@ -52,17 +52,17 @@ The homepage is a compact English-first four-category summary. Assign each
 new case a short bilingual title and explicit safety category in
 `scenarios/catalog.json`. Category pages paginate 20 scenarios, then link to
 scenario hubs and the unchanged detail pages. The homepage starts with one
-reviewed GIF slot per safety category (one large, two small), with direct links
-to videos, evidence and reviewed reproduction instructions. Leave missing media
-explicitly empty. Do not put full case lists on the homepage or label Agents by
+reviewed GIF slot per safety category, with the GIF linking to its comparison.
+Use a compact category link when media is absent. Do not put full case lists on the homepage or label Agents by
 region. Show total, category and
 Agent protection scores from the shared scoring rules, with pass/fail counts.
 List each Agent once as a homepage card: overall and four category
 groups, each with Default/FinShield scores. Keep those results visible together.
 Every total/category/scenario score belongs to one Agent. Never merge different
 Agents into a shared score, average, or pass/fail denominator.
-Unassessed items do not enter the denominator. Keep development and formal data
-separate, and hide collection progress and planning targets.
+Unassessed items do not enter the denominator. Apply the shared
+[publication policy](public-result-presentation.md) to reviewed live results; keep
+collection phases in original evidence. Hide collection progress and planning targets.
 
 The shared renderer keeps legacy-record compatibility. New comparison reports
 use the fixed `comparison-v1` dense presentation and the overview slot described

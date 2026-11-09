@@ -5,7 +5,7 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
-| [screen-recording-case.md](screen-recording-case.md) | Defines the 20-second workspace screen-video case, camera-style host validation, top status panel and evidence limits. |
+| [screen-recording-case.md](screen-recording-case.md) | Defines the 20-second workspace screen-video case, camera-style host validation, English Off/On panel and evidence limits. |
 | [primary-screen-capture-program.md](primary-screen-capture-program.md) | Defines literal full-primary-screen PNG screenshots, the saved-image-count observation, and the WorkBuddy recording suite. |
 | [device-scenario-programs.md](device-scenario-programs.md) | Defines generation-only fixed camera, microphone and screenshot scripts, prompts, observers and offline checks. The speaker-on Agent case is withdrawn. |
 | [window-flood-python-program.md](window-flood-python-program.md) | Defines the fixed window-flood Python source, execution prompt, ordinary-language generation prompt and their separate evidence roles. |

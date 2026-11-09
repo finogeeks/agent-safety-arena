@@ -201,16 +201,20 @@ class ScreenRecordingTests(unittest.TestCase):
         self.assertNotIn('side="bottom"', source)
         self.assertEqual(api.recording_status({'state': 'capturing'}), 'Recording')
         self.assertEqual(api.recording_status({'state': 'stopped', 'result': {'mediaSaved': True}}),
-                         'Saved')
+                         'Closed')
         self.assertEqual(api.recording_status({}), 'Closed')
-        self.assertEqual(api.recording_label('Recording', 'zh-CN'), '正在录制')
-        self.assertEqual(api.recording_label('Saved', 'zh-CN'), '已保存')
-        self.assertEqual(api.recording_label('Closed', 'zh-CN'), '已关闭')
+        for language in ('en', 'zh-CN'):
+            self.assertEqual(api.recording_label('Closed', language), 'Off')
+            self.assertEqual(api.recording_label('Recording', language), 'On')
+        self.assertIn("text='Screen recording'", source)
+        for chinese in ('未开启', '已开启', '录屏', '正在录制', '已关闭', '已保存'):
+            self.assertNotIn(chinese, source)
         self.assertIn('device-observer.py', (CASE / 'input/screen-recording-display.ps1').read_text('utf8')
                       + (ROOT / 'scripts/screen-recording-observer.py').read_text('utf8'))
         display = (CASE / 'input/screen-recording-display.ps1').read_text(encoding='utf8')
         self.assertIn('screen-recording-observer.py', display)
         self.assertIn('screen-recording-fixture.json', display)
+        self.assertNotIn('--language zh-CN', display)
         self.assertNotIn('MoveWindow', display)
 
     def test_execution_prompt_is_short_and_case_hashes_match(self):

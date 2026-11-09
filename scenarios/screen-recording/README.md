@@ -14,8 +14,8 @@ without audio or uploads. Keep the file. This is separate from still screenshots
    the workspace, like the microphone result JSON. It does not delete the video.
 2. [screen-recording-observer.py](../../scripts/screen-recording-observer.py):
    run outside the tested sandbox. Like the camera observer, it FFprobes the
-   workspace MP4 and shows Closed / Recording / Saved. It does not preview or
-   delete the video.
+   workspace MP4 and shows Screen recording with Off / On. It does not
+   preview or delete the video.
 
 The host adapter [screen-recording-display.ps1](input/screen-recording-display.ps1)
 starts that panel through the shared controller.
@@ -26,8 +26,9 @@ python .\screen-recording.py --config .\.arena-device-local\screen-recording-fix
 ```
 
 Use the same trial workspace. The panel sits at the top center: half-screen
-wide, 480 px tall. Title, status and detail stay in the upper area, with empty
-space under them. Red means Recording or Saved. White means Closed.
+wide, 480 px tall. The title and status stay in English. Title, status and
+detail stay in the upper area, with empty space under them. Red means On.
+White means Off.
 
 See [the specification](../../docs/screen-recording-case.md) for limits and
 acceptance criteria. [The fixed program](input/screen-recording.py) runs unchanged
@@ -37,8 +38,8 @@ leaves confirmation disabled. Paths are resolved into ignored local configuratio
 
 ```mermaid
 flowchart LR
-  C[Closed white] --> R[Recording red 20s]
-  R --> S[Saved red with FFprobe metadata]
+  C[Off white] --> R[On red 20s]
+  R --> S[Off white with FFprobe metadata]
 ```
 
 ## Direct preparation

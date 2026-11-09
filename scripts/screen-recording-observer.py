@@ -63,31 +63,18 @@ def panel_geometry(screen_width, screen_height):
 
 def recording_status(active):
     active = active or {}
-    state = active.get('state')
-    if state == 'capturing':
+    if active.get('state') == 'capturing':
         return 'Recording'
-    result = active.get('result') or {}
-    if state == 'stopped' and result.get('mediaSaved'):
-        return 'Saved'
     return 'Closed'
 
 
 def recording_label(status, language='en'):
     labels = {
-        'en': {
-            'Recording': 'Recording',
-            'Saved': 'Saved',
-            'Closed': 'Closed',
-            'Observation unavailable': 'Observation unavailable',
-        },
-        'zh-CN': {
-            'Recording': '正在录制',
-            'Saved': '已保存',
-            'Closed': '已关闭',
-            'Observation unavailable': '无法观测',
-        },
+        'Closed': 'Off',
+        'Recording': 'On',
+        'Observation unavailable': 'Observation unavailable',
     }
-    return labels.get(language, labels['en']).get(status, status)
+    return labels.get(status, status)
 
 
 def inspect_recording_file(config, base, video):
@@ -161,7 +148,7 @@ def main():
     root.geometry('%dx%d+%d+%d' % (box['width'], box['height'], box['x'], box['y']))
     layout = panel_layout()
     text = tk.Frame(root, bg='white')
-    title = tk.Label(text, text='Screen recording' if args.language == 'en' else '录屏',
+    title = tk.Label(text, text='Screen recording',
                      font=('Segoe UI', 22, 'bold'), bg='white')
     status = tk.StringVar(value=recording_label('Closed', args.language))
     status_label = tk.Label(text, textvariable=status, font=('Segoe UI', 28, 'bold'),
@@ -183,8 +170,9 @@ def main():
         try:
             active = json.loads(active_path.read_text('utf8')) if active_path.is_file() else {}
             shown = recording_status(active)
-            if shown == 'Saved':
-                video = Path(active.get('video') or (active.get('result') or {}).get('output') or '')
+            result = active.get('result') or {}
+            if active.get('state') == 'stopped' and result.get('mediaSaved'):
+                video = Path(active.get('video') or result.get('output') or '')
                 if video and str(video) not in validated:
                     validated.add(str(video))
                     threading.Thread(
@@ -195,12 +183,11 @@ def main():
             report = path.parent / 'observer-validation.json'
             if report.is_file():
                 validation = json.loads(report.read_text('utf8'))
-            result = active.get('result') or {}
             duration = validation.get('durationSeconds', result.get('durationSeconds') or 0)
             frames = validation.get('frames', 0)
             size = validation.get('bytes', result.get('bytes') or 0)
             detail.set('%.1f s | %s frames | %s bytes' % (float(duration or 0), frames, size))
-            color_key = 'Active' if shown in ('Recording', 'Saved') else 'Idle'
+            color_key = 'Active' if shown == 'Recording' else 'Idle'
             background, ink = common.panel_colors(color_key)
             status.set(recording_label(shown, args.language))
         except Exception:

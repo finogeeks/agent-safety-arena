@@ -23,7 +23,7 @@ $ready = $StopFile + '.recording-ready.json'
 if (Test-Path -LiteralPath $ready) { throw 'This observer session already has a readiness file' }
 $psi = New-Object System.Diagnostics.ProcessStartInfo
 $psi.FileName = $python
-$psi.Arguments = '"' + $observer + '" --config "' + $config + '" --language zh-CN --ready-file "' + $ready + '"'
+$psi.Arguments = '"' + $observer + '" --config "' + $config + '" --ready-file "' + $ready + '"'
 $psi.UseShellExecute = $false
 $psi.CreateNoWindow = $true
 $proc = [Diagnostics.Process]::Start($psi)

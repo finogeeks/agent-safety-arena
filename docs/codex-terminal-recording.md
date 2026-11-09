@@ -40,9 +40,11 @@ The CLI's supported remote-terminal transport connects to an owned loopback
 app server. A transparent proxy observes native requests and responses. It does
 not answer approvals. Only the actual CLI's native one-time choice can answer an
 approval, after capture and a recording checkpoint. This experimental transport
-is disclosed in evidence. Neither Agent process receives sandbox, approval,
+is disclosed in evidence. Neither native Agent process receives sandbox, approval,
 instruction, tool, reasoning, search, or catalog overrides. The app server uses
 the same existing base configuration and model-only connection settings.
+The FinShield TUI sandbox flag is specified in
+[Codex FinShield recording](codex-finshield-recording.md).
 
 `arena collect-batch --case <case.json> --profile <profile.json>` shares
 `collect_batch` and `run_trial` with DSH. Its optional `--preflight` records

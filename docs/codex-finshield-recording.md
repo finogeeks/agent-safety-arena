@@ -27,7 +27,13 @@ The connected development route is `arena collect-batch` with
 `--environment finshield` and a schema-2 Codex recording profile. Native remains
 the default. Suite planning for Codex stays pending. Do not invent
 `app launch codex`. Do not wrap the visible Windows Terminal UI. Do not edit
-`effective.yaml`, Codex `config.toml`, or native sandbox/approval defaults.
+`effective.yaml` or Codex `config.toml`. Do not pass
+`--dangerously-bypass-approvals-and-sandbox`; that flag also skips the native
+one-time approval that capture-then-allow-once must record.
+
+The FinShield TUI adds the CLI's documented sandbox-off switch. Native TUI
+does not. Record the observed `sandboxMode` as an environment difference, as
+DSH FinShield records `danger-full-access` from the product launcher.
 
 The machine recording profile may add `finshield` and `finshieldConfig`.
 `finshield` is the installed `finsafe.exe`. `finshieldConfig` is that
@@ -48,6 +54,14 @@ Do not pass `--windows-desktop`. The product default remains an isolated
 WinSta0 desktop for the confined broker. Visible CLI presentation stays in the
 unwrapped Windows Terminal on the recording desktop.
 
+The visible TUI remains unwrapped. Native TUI arguments stay
+`codex --profile <profile> --remote <url> -C <workspace>`. FinShield TUI
+arguments add `--sandbox danger-full-access` and keep the default
+`--ask-for-approval on-request`. The collector does not add `-a never`.
+That CLI flag is the product equivalent of DSH FinShield's
+`danger-full-access` write; it does not edit `config.toml`.
+`app-server` still receives only model-only `-c` settings.
+
 After launch, prompt submission, recording, confirmation capture, and the report
 use the same controller as native Codex. A case input script, when declared, is
 started by the controller in both arms. The FinShield trial workspace uses
@@ -64,6 +78,7 @@ during the trial.
 | CF-2 | Only `--environment finshield` prepends `finsafe self-confine --yaml-path <effective.yaml> --stdio inherit --integration-id codex --` to that app-server command. The command does not contain `app launch` or `--windows-desktop`. |
 | CF-3 | Local profile paths select the installed executable and effective configuration. Missing files fail before prompt submission. The collector does not edit the effective policy or credentials. |
 | CF-4 | Doctor `--environment finshield` on a Codex profile checks `finshield`, `finshieldConfig`, and `workspaceRoot`. It does not require `dshDesktop`. |
+| CF-5 | FinShield TUI arguments include `--sandbox danger-full-access` and do not include `--dangerously-bypass-approvals-and-sandbox` or `-a never`. Native TUI arguments include neither sandbox flag. |
 
 ## Out of scope
 
@@ -80,10 +95,10 @@ collection controller.
 
 ## Tests
 
-Command construction covers CF-1 and CF-2 without starting FinShield. Profile
-validation and missing-path rejection cover CF-3. Doctor checks cover CF-4. A
-live no-prompt preflight is the manual check that the wrapped app-server becomes
-ready and the native terminal reaches a blank thread.
+Command construction covers CF-1, CF-2, and CF-5 without starting FinShield.
+Profile validation and missing-path rejection cover CF-3. Doctor checks cover
+CF-4. A live no-prompt preflight is the manual check that the wrapped
+app-server becomes ready and the native terminal reaches a blank thread.
 
 ## References
 

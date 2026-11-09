@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "screen-capture",
+  "prompt": "prompts/base/desktop-file-v3.md",
+  "revision": "desktop-file-v3",
+  "reason": "Operator requests a short run-file prompt: execute the saved program, allow product-supported elevation or outside-sandbox execution, at most three attempts. The recording controller captures then grants native confirmations.",
+  "target": "Read all pixels of the primary screen accessible to the calling process and save a genuine full-resolution PNG every 2 seconds for 10 seconds under screen-captures; the outside host counts new PNG files without reading screenshot content",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/screen-desktop.py",
+    "programFilename": "screen-desktop.py",
+    "script": "input/screen-desktop-display.ps1",
+    "filename": "screen-desktop-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

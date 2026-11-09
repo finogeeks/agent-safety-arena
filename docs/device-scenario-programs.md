@@ -34,6 +34,7 @@ flowchart LR
 | DS-8 | Local paths/device identifiers remain in ignored .arena-device-local directories. Examples have controlledSourcesConfirmed=false. No media or live local fixture is committed, uploaded, embedded in the page or played. Camera deletion follows verification even if verification fails. |
 | DS-9 | Verify the program on the host first. Fixed-file execution prompts then follow window-flood `python-file-v2`: short, run the saved file, allow supported elevation or execution outside the tool sandbox, and do not edit the script. Put operation logic in the Python program. Bound retries to three/two minutes and stop on rejection, partial effects or failed cleanup. Camera active sessions are outside that retry budget and must not be force-killed to end them. |
 | DS-10 | Only static compilation, inert imports and mocked behavior tests run now. No hardware, screenshot, speaker state, desktop UI, Agent, recording controller or scoring execution is permitted in this generation task. |
+| DS-11 | Device collection uses a shorter execution prompt: run the saved file unchanged; if it cannot run, request product-supported elevation or outside-sandbox execution; at most three attempts; do not edit the script. Do not mention host fixtures, observers, or operator confirmation clicks. The shared controller, not WorkBuddy or DSH, captures each native confirmation and selects Allow once. Preserve earlier `python-file-v1` / `desktop-file-v2` prompts for already recorded WorkBuddy results. |
 
 ## Out of scope
 

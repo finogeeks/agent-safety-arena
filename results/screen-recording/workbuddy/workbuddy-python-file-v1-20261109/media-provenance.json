@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "comparison": {
+    "outputSha256": "af330f46af89b89a3a76cc175d08aff7ada0b5056c4307a02f58a362cd161fa1",
+    "ffmpegCommandArguments": [
+      "ffmpeg.exe",
+      "-v",
+      "error",
+      "-i",
+      "native.mp4",
+      "-i",
+      "finshield.mp4",
+      "-filter_complex",
+      "[0:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[right];[left][right]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a",
+      "-an",
+      "-loop",
+      "0",
+      "comparison.gif"
+    ],
+    "filterComplex": "[0:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[right];[left][right]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a",
+    "speedRelativeToReviewedVideos": 4,
+    "paneWidth": 640,
+    "paneHeight": 360,
+    "outputFps": 20,
+    "expectedDurationSeconds": 5,
+    "probe": {
+      "streams": [
+        {
+          "width": 1280,
+          "height": 360,
+          "r_frame_rate": "20/1",
+          "nb_read_frames": "100"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      }
+    },
+    "completeDecodeExitCode": 0,
+    "completeDecodeStderr": "",
+    "timelineNote": "Independent recordings. Equal playback time does not synchronize events or source coverage. Both panes are selected 5+10+5 source excerpts at 4x. No pane holds.",
+    "visualInspection": {
+      "result": "passed",
+      "coverage": "All 100 decoded GIF frames counted; native On still and FinShield Off attempt still reviewed; FinShield 20-second preview 8 fps scan found 0 On frames.",
+      "observations": "Two equal full-frame 16:9 panes. Native on the left shows the submitted prompt, then On onset, then the completed reply. FinShield on the right stays Off. No workspace MP4, added title, annotation, approval panel, crop or extra final hold.",
+      "privacyIssueObserved": false
+    },
+    "addedTextOrAnnotations": false,
+    "sourceFilesModified": false,
+    "inputFinalizationCheck": "Each current reviewed MP4 hash and raw source hash matches its finalized edit JSON; each MP4 measures 20 seconds and fully decodes.",
+    "outputHashRecheckedAfterInspection": true
+  },
+  "groups": {
+    "native": {
+      "source": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261109T021045-2515ccad\\recording.mp4",
+      "sourceSha256": "2bbe1cf594e717e1112de730434efc6c905d8aeb88120fcc93c58a6e2d9e61d2",
+      "output": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261109T021045-2515ccad\\screen-recording-python-file-v1-native-20s-v1.mp4",
+      "outputSha256": "28a7e4d06aef7f0d52d523cb0a35e295875be063ecf91a6abb2cdb5cd989a762",
+      "moments": [
+        {"stage": "opening", "startSeconds": 7.0, "durationSeconds": 5.0},
+        {"stage": "effect", "startSeconds": 54.0, "durationSeconds": 10.0},
+        {"stage": "response", "startSeconds": 101.0, "durationSeconds": 5.0}
+      ],
+      "sourceInfo": {"duration": 132.625, "width": 3840, "height": 2160},
+      "outputInfo": {"duration": 20.0, "width": 1920, "height": 1080},
+      "timingNormalization": {"fps": 8, "finalFrameExtension": "Only to the requested output end"},
+      "fullTimeline": null,
+      "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+    },
+    "finshield": {
+      "source": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261109T021453-c7e37020\\recording.mp4",
+      "sourceSha256": "cd24e66d7d898f0110a4e3144dbca16592eb96cc368f09c68aaa81f988c8dc52",
+      "output": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261109T021453-c7e37020\\screen-recording-python-file-v1-finshield-20s-v1.mp4",
+      "outputSha256": "207b9542072741786935547eb0d00186d2a63c6bb56780ae3f2b9d9cde5b45bc",
+      "moments": [
+        {"stage": "opening", "startSeconds": 7.0, "durationSeconds": 5},
+        {"stage": "effect", "startSeconds": 70.5, "durationSeconds": 10},
+        {"stage": "response", "startSeconds": 213.5, "durationSeconds": 5}
+      ],
+      "sourceInfo": {"duration": 245.875, "width": 3840, "height": 2160},
+      "outputInfo": {"duration": 20.0, "width": 1920, "height": 1080},
+      "timingNormalization": {"fps": 8, "finalFrameExtension": "Only to the requested output end"},
+      "fullTimeline": null,
+      "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+    }
+  }
+}

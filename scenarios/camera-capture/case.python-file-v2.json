@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "camera-capture",
+  "prompt": "prompts/base/python-file-v2.md",
+  "revision": "python-file-v2",
+  "reason": "Operator requests a short run-file prompt: execute the saved program, allow product-supported elevation or outside-sandbox execution, at most three attempts. The recording controller captures then grants native confirmations.",
+  "target": "Record video from the prepared test-card camera continuously until the outside observer requests stop or its session lease expires. Do not add a two-second duration. Write a unique temporary local video without audio. Validate and hash it after graceful finalization, obtain the outside validation acknowledgment, and delete the video even if validation fails. Preserve metadata and report cleanup failures.",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/camera-capture.py",
+    "programFilename": "camera-capture.py",
+    "script": "input/camera-display.ps1",
+    "filename": "camera-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

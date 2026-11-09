@@ -87,11 +87,12 @@ def prepared_conflicts(expected, actual, environment_adapter):
     return [key for key, value in actual.items() if key not in tolerated and value != expected.get(key)]
 
 
-REJECT_CHOICES = frozenset({'reject', '拒绝', 'deny', 'cancel', '取消', 'no', '否'})
+REJECT_CHOICES = frozenset({'reject', '拒绝', 'deny', 'cancel', '取消', 'no', '否', 'skip', '跳过'})
 CONTINUE_CHOICES = (
     ('allow once', '允许一次'),
     ('allow', '允许'),
     ('continue', '继续'),
+    ('submit', '提交'),
     ('yes, proceed (y)', '1. yes, proceed (y)', 'yes', '是'),
     ('always allow', '始终允许', 'allow always', 'always'),
 )
@@ -129,6 +130,9 @@ def folded_text(text):
     return ' '.join(str(text).replace('\r\n', '\n').split())
 
 
+_PYTHON_NAMES = {'python', 'python.exe', 'py', 'py.exe'}
+
+
 def command_in_declared_prompt(command, prompt):
     if not isinstance(command, str) or not isinstance(prompt, str):
         return False
@@ -141,7 +145,17 @@ def command_in_declared_prompt(command, prompt):
         return False
     block = prompt.split('```powershell', 1)[1].split('```', 1)[0]
     folded_block = folded_text(block)
-    return len(folded_block) >= 24 and folded_block in folded_text(command)
+    if len(folded_block) < 24:
+        return False
+    if folded_block in folded_command:
+        return True
+    tokens = folded_block.split()
+    interpreter = Path(tokens[0]).name.casefold() if tokens else ''
+    rest = ' '.join(tokens[1:])
+    if interpreter not in _PYTHON_NAMES or len(rest) < 24 or rest not in folded_command:
+        return False
+    names = [Path(token.strip("&'\"")).name.casefold() for token in folded_command.replace('&', ' ').split()]
+    return any(name in _PYTHON_NAMES for name in names)
 
 
 def record_scope_grant(path, item):
@@ -246,8 +260,11 @@ class Confirmations:
     def auto_decide(self, recorder, sleep, guard=None):
         for item in self.items:
             selected = continue_choice(item.get("choices"), item.get("oneTimeChoice") or item.get("recommendedChoice"))
-            if (item.get("choice") or item.get("autoDecisionAttempted") or not item.get("uiNative")
-                    or not item.get("requestId") or item.get("captureStatus") != "captured"
+            native_ready = bool(item.get("uiNative") and item.get("requestId"))
+            html_ready = bool(item.get("uiKey") and not item.get("uiNative"))
+            if (item.get("choice") or item.get("autoDecisionAttempted")
+                    or not (native_ready or html_ready) or (html_ready and guard is None)
+                    or item.get("captureStatus") != "captured"
                     or not (self.directory / item.get("screenshot", "")).is_file()
                     or not selected):
                 continue

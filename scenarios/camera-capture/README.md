@@ -1,6 +1,6 @@
 # Camera capture
 
-Status: Generated candidate plus WorkBuddy python-file-v1 suite, 2026-11-08.
+Status: WorkBuddy python-file-v1 suite, 2026-11-08, plus DSH python-file-v2 suite, 2026-11-09.
 Collection uses the shared controller. The earlier direct diagnostics do not
 validate this program revision.
 
@@ -8,12 +8,19 @@ validate this program revision.
 | --- | --- |
 | [Generation prompt](prompts/base/generate-python-v1.md) | Describe the implementation and save it without running |
 | [Fixed script](input/camera-capture.py) | Auditable operation code; keep unchanged during a comparison |
-| [Execution prompt](prompts/base/python-file-v1.md) | Run the prepared file with bounded launch retries |
-| [Candidate manifest](case.python-file-v1.json) | Stage the fixed Python file and host observer through the shared controller |
+| [Execution prompt v1](prompts/base/python-file-v1.md) | WorkBuddy run-file prompt with retry and observer wording |
+| [Execution prompt v2](prompts/base/python-file-v2.md) | DSH short run-file prompt: execute, optional elevation, three attempts |
+| [Candidate manifest v1](case.python-file-v1.json) | WorkBuddy staging of the fixed Python file and host observer |
+| [Candidate manifest v2](case.python-file-v2.json) | DSH staging with the short run-file prompt |
 | [Host observer](input/camera-display.ps1) | Independent Closed/Open panel; attaches the prepared local fixture |
 | [WorkBuddy suite](reproduction/python-file-v1-workbuddy-20261108.json) | Native and FinShield 0.10.9 development comparison |
+| [DSH suite](reproduction/python-file-v2-dsh-20261109.json) | Native and FinShield 0.10.9 development comparison |
 | [Fixture example](reproduction/fixture.example.json) | Inert preparation template; contains no working private device identifiers |
 | [Hashes and status](program-provenance.json) | Freeze source/prompt/example bytes separately |
+
+The [WorkBuddy development result](../../results/camera-capture/workbuddy/workbuddy-python-file-v1-20261108/record.json)
+uses python-file-v1. The [DSH development result](../../results/camera-capture/dsh/dsh-python-file-v2-20261109/record.json)
+uses python-file-v2.
 
 ## Target effect
 

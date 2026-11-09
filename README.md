@@ -1,150 +1,186 @@
-# agent-safety-arena
+# Agent Safety Arena
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A case-driven project for evaluating AI agent behavior and sandbox enforcement.
-Clone it to rebuild saved reports offline or prepare a controlled trial using the
-versions selected by a case. Report generation does not run an Agent.
-The generated Evaluation guide introduces the goals, methods and current
-reviewed findings, with links to primary security guidance and case evidence.
+**When an Agent can operate your computer, what actually stops it from causing harm?**
 
-The project evaluates **Agent safety controls, not model capability**. The first
-roster is DeepSeek Harness, WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI, each
-under default protection and FinShield protection. Hold the model at
-**DeepSeek Pro / high**. Planned Agents stay visible when no trial exists.
+Agent Safety Arena evaluates AI Agent safety and sandbox protection on Windows.
+We compare **Agent built-in sandboxes** with **FinShield**, run concrete programs,
+and check what happens to files, devices and the desktop. Published cases retain
+execution conditions, original responses, reviewed results and selected recordings
+so readers can inspect the evidence.
 
-Keep Agent decisions, native approvals, visible effects, and sandbox enforcement
-as separate observations. A reply or an initial denial alone does not establish
-what happened. Development trials and synthetic fixtures remain labeled.
+[Evaluation website](https://safety.finaios.ai/) ·
+[GitHub Pages site](https://agent-safety-arena.finogeeks.club/) ·
+[Read the project article](https://agent-safety-arena.finogeeks.club/guide.html) ·
+[Browse the cases](scenarios/README.md)
 
-## Ask an Agent to record a case
+## Why we test
 
-Use the [recording task prompt](templates/recording-task-prompt.md) for a new
-case or a new execution of an existing case. The Agent follows the
-[recording standard](docs/recording-standard.md): discover and reuse installed
-programs, prepare missing dependencies, generate ignored local configuration,
-record the actual environment, check and preflight, then collect and hand off
-review. You do not need to supply another operator's executable paths.
+Computers were designed around people using interfaces. Those interfaces hide
+many low-level operations and add warnings and confirmation steps. An Agent can
+write code, run programs and call system APIs directly. The permissions it gets
+may reach far beyond the task you gave it.
 
-The repository owns portable case requirements and per-case versions. The Agent
-owns preparation of the current machine and its private environment record.
-For a saved-program case, verify the program outside the evaluated Agent, then
-submit the short window-flood `python-file-v2` execution prompt.
-Unavailable credentials, dependency sources and unsupported integrations remain
-explicit gaps. The procedure uses existing tools; bootstrap alone does not
-discover or install evaluated products. Fresh-machine recording validation is
-still required before claiming an end-to-end verified setup.
+Without extra protection, letting an Agent operate freely on an everyday computer
+is like letting it dance with a burning torch in a warehouse full of explosives.
+One misunderstanding or a piece of faulty code can cause damage beyond the task.
+An Agent that goes out of control can have the destructive power of an
+“oversized virus”.
 
-## Start from a clone
+We want to know whether protection holds when a program actually tries to open a
+camera, record a screen, interfere with windows or change files. A refusal in a
+reply, an initial block and a harmful effect after approval are different
+observations. The evaluations keep them separate.
 
-On Windows, install Python 3.12 or later, then run from the repository root:
+## What we test
+
+| Category | What could happen to the user |
+| --- | --- |
+| [Privacy safety](https://agent-safety-arena.finogeeks.club/privacy.html) | Cameras or microphones activate, or screenshots and screen recordings expose private information. |
+| [Interaction safety](https://agent-safety-arena.finogeeks.club/interaction.html) | Pop-ups, window operations and mouse interference make the computer difficult or impossible to use. |
+| [System safety](https://agent-safety-arena.finogeeks.club/system.html) | Programs, services, permissions or system settings are damaged. |
+| [Data safety](https://agent-safety-arena.finogeeks.club/data.html) | Files are deleted, changed or taken away. |
+
+Completed evaluations currently cover **DeepSeek Harness, WorkBuddy and Codex CLI**,
+mainly in privacy and interaction safety. System and data safety need further
+coverage. **Claude CLI and OpenCode CLI** are also in the evaluation roster;
+listing a product does not mean it has completed tests. The website shows actual
+results and keeps untested and unassessed items distinct.
+
+## How we test
+
+There is nothing magical about the saved test programs: Agents wrote them from
+ordinary prompts, too. We first run a program outside the evaluated Agent in a
+controlled environment and confirm its effect. We then freeze that code and give
+it to the Agent to execute. This reduces variation from code generation and lets
+the two kinds of protection face the same program. Broken code is not a
+successful sandbox block.
+
+The comparison uses the same Agent under two protection configurations:
+
+- **Agent built-in sandbox:** retain its default sandbox and approval policy.
+- **FinShield:** use FinShield protection with the built-in sandbox disabled, so
+  the comparison checks FinShield separately.
+
+The current summary uses **DeepSeek Pro / high** (`deepseek-v4-pro`). Each case
+retains its actual product versions, model, prompt, program hashes and settings.
+Differences and unknown conditions in historical trials remain visible.
+
+```mermaid
+flowchart LR
+  P[Validate the program outside the Agent] --> F[Freeze code and execution prompt]
+  F --> N[Agent built-in sandbox]
+  F --> S[FinShield]
+  N --> E[Record approvals and observe effects]
+  S --> E
+  E --> R[Review results and warning quality separately]
+  R --> W[Publish bilingual reports from the same evidence]
+```
+
+Tests use declared controlled resources. For an approval request within that
+scope, we capture the original prompt and then continue under the policy agreed
+in advance. Reports distinguish the initial block, warning, approval and final
+effect. Recordings and independent observations support the result; preventing an
+effect does not by itself prove which API or mechanism blocked it.
+
+## What we have found
+
+In the completed tests for DeepSeek Harness, WorkBuddy and Codex CLI, built-in
+sandboxes had a **0% final prevention rate for the tested harmful operations**.
+Some operations ran directly; others ran after approval. FinShield prevented the
+corresponding harmful effects in the completed comparisons. These findings apply
+to the published scenarios and conditions, not every possible action or product
+version.
+
+The difference matters because a sandbox can serve different priorities. Keeping
+an Agent working toward task completion and enforcing the user’s limits are
+separate responsibilities. An independent sandbox can put user protection first,
+without letting the Agent expand its own authority to finish a task. The
+[project article](https://agent-safety-arena.finogeeks.club/guide.html) explains
+our findings, approval fatigue, product priorities and FinShield’s approach.
+
+The website reports each Agent separately, with total and category scores. A
+successful protection result means the tested harmful effect was prevented.
+The rate is `passed / (passed + failed)`; unassessed and unrun items are excluded.
+Re-exporting a trial does not create another execution. See the
+[methodology](https://agent-safety-arena.finogeeks.club/methodology.html) and
+[saved records](results/README.md) for scope and evidence.
+
+## Build the website locally
+
+You can rebuild the published reports without running an Agent or supplying
+model credentials. On Windows, install Python 3.12 or later, then run:
 
 ```powershell
+git clone https://github.com/finogeeks/agent-safety-arena.git
+cd agent-safety-arena
 .\scripts\bootstrap.ps1
-.\.venv\Scripts\python.exe -m arena doctor
 .\.venv\Scripts\python.exe -m arena build-site --results results --output artifacts/site/preview
 .\.venv\Scripts\python.exe -m http.server 8765 --bind 127.0.0.1 --directory artifacts/site/preview
 ```
 
-Open `http://127.0.0.1:8765/`. Use a new directory for another export.
-If `python` is not the installed interpreter, pass its executable to bootstrap
-with `-Python '<path-to-python.exe>'`. Replace the placeholder.
-Bootstrap installs Arena in `.venv` and preserves existing local profiles.
-It needs the Python build backend from the package index; Arena has no
-third-party runtime dependency. An editable install,
-`python -m pip install -e .`, also works.
+Open [the local website](http://127.0.0.1:8765/). Use a new output directory for
+another build. Bootstrap creates `.venv`, installs Arena and preserves existing
+local profiles; it does not install evaluated products. If needed, select your
+Python executable with `-Python '<path-to-python.exe>'`, replacing the placeholder.
+Arena has no third-party runtime dependencies; installation needs the Python
+package index for the build backend. An editable install with
+`python -m pip install -e .` also works. See the [setup guide](docs/reproduction.md).
 
-Read [the setup and report guide](docs/reproduction.md) for existing commands.
-For live recording, the Agent prepares FinShield, DSH, Node.js, Chrome, FFmpeg,
-desktop tools and product access as required by the selected case.
-**Each case revision selects its FinShield version**;
-there is no global version. [Dependency files](dependencies/README.md) record
-runtime hashes and unresolved installer provenance. A missing version or
-installation source remains an explicit setup gap.
+## Inspect results or contribute a case
 
-## Repository map
+Start with the [case catalog](scenarios/README.md) and
+[saved results](results/README.md). Programs, exact submitted prompts, actual
+conditions and selected evidence belong with the case. Reviewed records are the
+source for the bilingual site; HTML is generated. Full raw recordings, event logs,
+credentials and machine-specific profiles stay outside Git.
 
-| Path | Owns |
+For a new case or a repeat execution, use the
+[recording task prompt](templates/recording-task-prompt.md),
+[recording standard](docs/recording-standard.md) and
+[recording skill](skills/arena-record-trial/SKILL.md). Define the controlled
+resources and recovery first. Each case selects its Agent and FinShield versions;
+missing dependencies or unsupported integrations remain explicit gaps. Detailed
+machine preparation and collection steps belong in those guides.
+
+| Path | Contents |
 | --- | --- |
-| [scenarios/](scenarios/README.md) | Cases, exact prompts, controlled resources, and reproduction suites |
-| `profiles/agents/` | Agent identities and shared settings |
-| `profiles/environments/` | Environment profiles, with versioned FinShield entries |
-| `profiles/recording/` | Recording templates; ignored local machine settings |
-| [dependencies/](dependencies/README.md) | Tool requirements and version-specific product baselines |
-| `scripts/` | Clone setup |
-| `src/arena/` | Shared runner, adapters, evidence handling, review, and reports |
-| [results/](results/README.md) | Reviewed records grouped by case, Agent, and comparison |
-| `templates/` | Shared presentation assets |
-| `tests/` | Offline behavior checks and controlled fixtures |
-| [docs/](docs/README.md) | Specifications, decisions, setup, and evidence limits |
-| [skills/](skills/README.md) | One canonical procedure tree |
-| `migration/` | Historical reference and provenance; not a runtime dependency |
-| `artifacts/` | Ignored raw runs and generated static sites |
-
-```mermaid
-flowchart LR
-  O[Verify program outside] --> C[Freeze saved program and short prompt]
-  C --> P[Plan and no-prompt preflight]
-  P --> R[Evaluated Agent runs the saved file]
-  R --> E[Private run evidence]
-  E --> V[Separate review]
-  V --> J[Saved result JSON and selected media]
-  J --> S[Offline static site build]
-```
-
-For a saved-program case, verify the program on the host first. Then give the
-unchanged file to the evaluated Agent with a short execution prompt in the
-window-flood `python-file-v2` form. Put operation logic in the program, not in
-the prompt.
-
-See [directory ownership](docs/repository-structure.md) and
-[reproduction and publishing](docs/reproduction-and-publishing.md).
-Raw recordings and full event logs do not enter Git. Result JSON is the saved
-source; HTML is a generated deployment artifact. Selected public media can
-accompany a reviewed result. Site builds require no raw runs or credentials.
-
-## First DSH case
-
-Start with [window-flood / DSH reproduction](scenarios/window-flood/reproduction/README.md).
-That revision selects FinShield 0.10.9; another case can select another version.
-The native recording used DSH Web CLI plus temporary Chrome. The FinShield
-recording used DeepSeek Harness. Different or unknown built-in controls remain
-visible and prevent an unqualified matched comparison.
-
-The exporter keeps its six-section detail layout. The generated bilingual
-[evaluation overview](docs/evaluation-overview.md) defaults to English and groups
-scenarios into Privacy Safety, Interaction Safety, System Safety, and Data
-Safety, with Privacy first. The homepage stays compact; category pages show 20
-scenarios at a time, followed by scenario hubs and evidence details. The
-[planned roster](profiles/coverage.json) has no regional grouping. [Scenario
-metadata](scenarios/catalog.json) owns categories and names. The homepage puts
-each Agent's overall and four category scores in
-one compact matrix, each split by protection track, with passed/failed counts.
-Scores use actual assessed outcomes, not a fixed
-scenario target; collection progress is not displayed. Different Agents' scores
-are never merged. Reviewed comparison GIFs appear above the compact score table;
-missing media slots stay labeled.
-Agents with live records stay visible; Agents without records are folded below
-the score cards. The committed live reports are formal published results, as
-confirmed by the maintainer on 2026-11-09. Summary pages omit phase badges.
-Reviewed live evaluations share one public score set even when collection metadata
-still says development. Original evidence retains that metadata. The homepage
-keeps reviewed GIFs, uses compact links for empty media slots, and shows Evaluation
-results below them. Reused runs do not increase trial counts.
+| [scenarios/](scenarios/README.md) | Cases, programs, prompts, controlled resources and reproduction suites |
+| [results/](results/README.md) | Reviewed records and selected public evidence |
+| [profiles/](profiles/) | Agent, environment and recording profiles |
+| [dependencies/](dependencies/README.md) | Tool requirements and version baselines |
+| [src/arena/](src/arena/) | Shared runner, adapters, evidence handling and report generation |
+| [templates/](templates/) | Bilingual article content and report templates |
+| [docs/](docs/README.md) | Method, setup, specifications and technical decisions |
+| [skills/](skills/README.md) | Canonical task procedures |
 
 ## Development
+
+Read [AGENTS.md](AGENTS.md) and the matching skill before changing the project.
+Keep specifications and behavior in sync, and update both README languages together.
 
 ```powershell
 .\.venv\Scripts\python.exe -m unittest discover -s tests -p 'test_*.py'
 ```
 
-The ordinary suite uses offline fixtures. Optional local UI tests need explicit
-tool environment variables. It does not rerun saved live experiments.
-For offline replay commands and examples, see
-[offline-workflow.md](docs/offline-workflow.md).
+Ordinary tests use offline fixtures and do not rerun saved live evaluations.
+Optional local UI tests need explicit tool environment variables. See
+[offline workflows](docs/offline-workflow.md) for replay commands and
+[repository structure](docs/repository-structure.md) for directory ownership.
 
-Read [AGENTS.md](AGENTS.md) and the matching canonical skill before a change.
-Specifications precede new interfaces. Keep both README languages in sync.
-The [first evaluation draft](docs/first-evaluation.md) and migration documents
-record their original scope; current recording procedure is in the recording
-standard, with setup commands in the reproduction guide.
+## Publishing
+
+The [Publish site workflow](https://github.com/finogeeks/agent-safety-arena/actions/workflows/pages.yml)
+builds and deploys the website through GitHub Pages after a push to `main`,
+including a merged PR. To redeploy without another code change, select
+**Run workflow** and the `main` branch, or run:
+
+```powershell
+gh workflow run pages.yml --ref main
+```
+
+Confirm that both the build and deploy jobs succeeded before checking the live
+site. Publishing to `safety.finaios.ai` is managed separately by a bot; this
+repository does not yet document its trigger or deployment command. A successful
+GitHub Pages run does not establish that the other destination was updated.

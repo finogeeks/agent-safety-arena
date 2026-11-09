@@ -5,7 +5,6 @@ import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
 
 PAGE_SIZE = 20
-HIDDEN_HOME_AGENTS = frozenset({'claude-cli', 'opencode-cli'})
 
 
 class Pages:
@@ -49,31 +48,6 @@ class Pages:
     def model(self):
         protocol = self.data['protocol']
         return (protocol['label'] + ' · ' + protocol['reasoningEffort'].capitalize()) if protocol else self.t('模型见各记录', 'Model recorded per report')
-
-    def homepage_score_agents(self):
-        agents = []
-        for agent in self.data['coverage']:
-            if agent['id'] in HIDDEN_HOME_AGENTS or agent['id'] == 'codex-cli':
-                continue
-            summary = self.scores['agents'][agent['id']]
-            if summary['native']['denominator'] or summary['finshield']['denominator']:
-                agents.append(agent)
-        return agents
-
-    def case_has_paired_assessed_score(self, case_id, agent_id):
-        by_group = {}
-        for item in self.scores['items']:
-            if item['scenarioId'] != case_id or item['agentId'] != agent_id:
-                continue
-            if item['status'] == 'excluded':
-                continue
-            by_group[item['group']] = item['status']
-        return (by_group.get('native') in ('passed', 'failed')
-                and by_group.get('finshield') in ('passed', 'failed'))
-
-    def case_hub_agents(self, case_id):
-        return [agent for agent in self.data['coverage']
-                if self.case_has_paired_assessed_score(case_id, agent['id'])]
 
     def score(self, value, compact=False):
         rate = value['rate']
@@ -135,10 +109,6 @@ class Pages:
         label = self.t('Agent内置沙箱', 'Agent built-in sandbox') if group == 'native' else 'FinShield'
         attrs = f' data-score-scope="{identity}" data-score-protection="{group}"' if identity else ''
         return f'<div class="scope-track"{attrs}><span>{label}</span>'+self.score(value, True)+'</div>'
-
-    def category_scope_empty(self, agent_id, category_id):
-        values = self.scores['categories'][category_id][agent_id]
-        return not values['native']['denominator'] and not values['finshield']['denominator']
 
     def has_live_records(self, agent):
         return any(row['origin'] == 'live' and not row['archived']
@@ -229,13 +199,10 @@ class Pages:
         body += f'<section class="page-intro"><h1>{e(title)}</h1>'
         body += f'<p class="lead">{e(category["description"][self.language])}</p></section>'
         if category['id'] in self.scores['categories']:
-            scored_agents = [agent for agent in self.homepage_score_agents()
-                             if not self.category_scope_empty(agent['id'], category['id'])]
             body += '<div class="section-heading"><h2>'+t('本分类总成绩','Category scores')+'</h2></div>'
-            if scored_agents:
-                body += '<section class="panel agent-scores"><div class="table-scroll">'
-                body += self.agent_table(self.scores['categories'][category['id']], agents=scored_agents)
-                body += '</div></section>'
+            body += '<section class="panel agent-scores"><div class="table-scroll">'
+            body += self.agent_table(self.scores['categories'][category['id']])
+            body += '</div></section>'
         selected = cases[(page-1)*PAGE_SIZE:page*PAGE_SIZE]
         if not selected:
             if category['id'] in ('system', 'data'):
@@ -310,10 +277,9 @@ class Pages:
         body += '<section class="page-intro">'
         body += f'<h1>{e(case["title"][self.language])}</h1><p class="lead">{e(case["description"][self.language])}</p></section>'
         body += '<div class="section-heading"><h2>'+t('各智能体的防护结果','Results by Agent')+'</h2></div>'
-        hub_agents = self.case_hub_agents(case['id'])
         body += '<div class="panel table-scroll"><table class="case-table"><thead><tr><th>'+t('智能体','Agent')+'</th><th>'+t('Agent内置沙箱','Agent built-in sandbox')+'</th><th>FinShield</th><th>'+t('评测记录','Report')+'</th></tr></thead><tbody>'
         displayed = set()
-        for agent in hub_agents:
+        for agent in self.data['coverage']:
             candidates = [row for row in rows if row['agentId'] in agent['recordAgentIds'] and not row['archived'] and row['origin'] == 'live']
             candidates.sort(key=lambda row: row['phase'] != self.phase)
             active = [row for row in candidates if row['phase'] == self.phase]

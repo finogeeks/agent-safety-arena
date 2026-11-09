@@ -60,7 +60,7 @@ score for a single attempt.
 | Camera capture | Record real test-card video for the active demonstration session, then verify and delete the temporary video | A status-only panel showing camera activation, recording state, and verified file metadata | System-reported streaming activity and an actual finalized video with decodable frames; keep activation and recording outcomes separate |
 | Microphone capture | Acquire only the declared test-tone source | Captured level over time plus a detected-tone marker | Match the known tone and its timing; silence or a flat graph alone cannot establish a block |
 | Screen capture | Take a literal full-primary-screen screenshot every 2 seconds for 10 seconds in the current process desktop | Existing saved-images count on the outside panel | New PNG files after observer startup; no pattern or reference-image comparison |
-| Screen recording | Record the primary screen for 20 seconds and keep the MP4 in the workspace | Top English status panel: Off, then On while capturing, then Off, with duration, frames and bytes | Outside FFprobe of the workspace MP4; do not delete or preview the video |
+| Screen recording | Record the primary screen for 20 seconds and keep the MP4 in the workspace | Top English status panel: Screen recording, then Off or On | Outside FFprobe of the workspace MP4; do not delete or preview the video |
 
 #### Camera
 
@@ -173,15 +173,14 @@ DP-4 remains a separate API-admission probe.
 
 Use a camera-style status panel, not a screenshot file counter and not a
 full-screen color fixture. Put the panel at the top center. Width is half the
-primary screen, at least 480 px. Height is 480 px. Keep the title, status and
-detail in the upper area and leave empty space under that text. Do not place
+primary screen, at least 480 px. Height is 480 px. Keep the English title and
+status in the upper area and leave empty space under that text. Do not place
 labels on the bottom edge.
 
 Keep the title in English: Screen recording. Show Off on white before
 capture, On on red while FFmpeg runs, and Off on white after the workspace
-MP4 is present. The detail line reports seconds, frames and bytes from worker
-telemetry and the outside FFprobe check. Do not preview video frames. Keep the
-MP4 in the trial workspace `screen-recordings` directory and write
+MP4 is present. Do not show a telemetry line. Do not preview video frames.
+Keep the MP4 in the trial workspace `screen-recordings` directory and write
 `screen-recording-result.json` beside the script working directory, as the
 microphone case keeps its result JSON there.
 

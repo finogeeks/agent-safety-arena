@@ -207,7 +207,9 @@ class ScreenRecordingTests(unittest.TestCase):
             self.assertEqual(api.recording_label('Closed', language), 'Off')
             self.assertEqual(api.recording_label('Recording', language), 'On')
         self.assertIn("text='Screen recording'", source)
-        for chinese in ('未开启', '已开启', '录屏', '正在录制', '已关闭', '已保存'):
+        self.assertNotIn('detail_label', source)
+        self.assertNotIn('%.1f s', source)
+        for chinese in ('未开启', '已开启', '录屏', '正在录制', '已关闭', '已保存', '无法观测'):
             self.assertNotIn(chinese, source)
         self.assertIn('device-observer.py', (CASE / 'input/screen-recording-display.ps1').read_text('utf8')
                       + (ROOT / 'scripts/screen-recording-observer.py').read_text('utf8'))

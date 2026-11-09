@@ -26,9 +26,9 @@ python .\screen-recording.py --config .\.arena-device-local\screen-recording-fix
 ```
 
 Use the same trial workspace. The panel sits at the top center: half-screen
-wide, 480 px tall. The title and status stay in English. Title, status and
-detail stay in the upper area, with empty space under them. Red means On.
-White means Off.
+wide, 480 px tall. The two visible lines are English: Screen recording, then
+Off or On. They stay in the upper area, with empty space under them. Red means
+On. White means Off.
 
 See [the specification](../../docs/screen-recording-case.md) for limits and
 acceptance criteria. [The fixed program](input/screen-recording.py) runs unchanged

@@ -153,12 +153,8 @@ def main():
     status = tk.StringVar(value=recording_label('Closed', args.language))
     status_label = tk.Label(text, textvariable=status, font=('Segoe UI', 28, 'bold'),
                             wraplength=box['width'] - 48, bg='white')
-    detail = tk.StringVar(value='')
-    detail_label = tk.Label(text, textvariable=detail, font=('Segoe UI', 16),
-                            wraplength=box['width'] - 48, bg='white')
     title.pack(side='top', pady=(28, 10))
     status_label.pack(side='top', pady=10)
-    detail_label.pack(side='top', pady=(8, 0))
     text.pack(side='top', fill='x')
     spacer = tk.Frame(root, bg='white', height=layout['bottomPad'])
     spacer.pack(side='top', fill='both', expand=layout['bottomExpand'])
@@ -179,25 +175,16 @@ def main():
                         target=inspect_recording_file,
                         args=(config, path.parent, video),
                         daemon=True).start()
-            validation = {}
-            report = path.parent / 'observer-validation.json'
-            if report.is_file():
-                validation = json.loads(report.read_text('utf8'))
-            duration = validation.get('durationSeconds', result.get('durationSeconds') or 0)
-            frames = validation.get('frames', 0)
-            size = validation.get('bytes', result.get('bytes') or 0)
-            detail.set('%.1f s | %s frames | %s bytes' % (float(duration or 0), frames, size))
             color_key = 'Active' if shown == 'Recording' else 'Idle'
             background, ink = common.panel_colors(color_key)
             status.set(recording_label(shown, args.language))
         except Exception:
             background, ink = common.panel_colors('Observation unavailable')
             status.set(recording_label('Observation unavailable', args.language))
-            detail.set('')
         root.configure(bg=background)
         text.configure(bg=background)
         spacer.configure(bg=background)
-        for widget in (title, status_label, detail_label):
+        for widget in (title, status_label):
             widget.configure(bg=background, fg=ink)
         root.after(500, tick)
 

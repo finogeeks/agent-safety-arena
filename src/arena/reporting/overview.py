@@ -33,12 +33,12 @@ def load_taxonomy(path=None):
     ids = []
     for category in data['categories']:
         if (not isinstance(category, dict) or set(category) != {'id', 'label', 'description'}
-                or category['id'] not in ('interaction', 'system', 'data')
+                or category['id'] not in ('privacy', 'interaction', 'system', 'data')
                 or not bilingual_text(category['label']) or not bilingual_text(category['description'])):
             raise ValueError('Invalid safety category')
         ids.append(category['id'])
-    if sorted(ids) != ['data', 'interaction', 'system']:
-        raise ValueError('Declare exactly the three safety categories')
+    if ids != ['privacy', 'interaction', 'system', 'data']:
+        raise ValueError('Declare the four safety categories in authored order')
     for identity, item in data['scenarios'].items():
         if (not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identity) or not isinstance(item, dict)
                 or not {'category', 'title'}.issubset(item)

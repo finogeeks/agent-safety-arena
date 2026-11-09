@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "microphone-capture",
+  "prompt": "prompts/base/python-file-v1.md",
+  "revision": "python-file-v1",
+  "reason": "Operator requests the window-flood fixed-script organization: generate once, then let the Agent run the saved file while a host observer shows microphone Inactive/Active",
+  "target": "Acquire 15 seconds from the confirmed synthetic test-audio microphone. Keep PCM in memory, measure actual samples, RMS, peak and the expected tone, then discard samples. Do not save or play audio.",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/microphone-capture.py",
+    "programFilename": "microphone-capture.py",
+    "script": "input/microphone-display.ps1",
+    "filename": "microphone-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

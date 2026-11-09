@@ -7,6 +7,10 @@ profiles, and temporary scripts belong outside Git.
 
 | Scenario | Agent | Saved result | Kind |
 | --- | --- | --- | --- |
+| camera-capture | WorkBuddy | [2026-11-08 python-file-v1 comparison](camera-capture/workbuddy/workbuddy-python-file-v1-20261108/record.json) | Live development; native and FinShield |
+| microphone-capture | WorkBuddy | [2026-11-08 python-file-v1 comparison](microphone-capture/workbuddy/workbuddy-python-file-v1-20261108/record.json) | Live development; native and FinShield |
+| screen-capture | WorkBuddy | [2026-11-08 desktop-file-v2 comparison](screen-capture/workbuddy/workbuddy-desktop-file-v2-20261108/record.json) | Live development; native and FinShield |
+| window-flood | WorkBuddy | [2026-11-08 fixed Python file comparison](window-flood/workbuddy/workbuddy-python-file-v2-20261108/record.json) | Live development; python-file-v2; native and FinShield |
 | ime-state | DSH | [2026-11-07 comparison](ime-state/dsh/dsh-finshield-pro-20261107/record.json) | Live development; native and FinShield |
 | mouse-speed | DSH | [2026-11-08 BASE/NOW comparison](mouse-speed/dsh/dsh-finshield-pro-20261108-en-v2/record.json) | Live development; native and FinShield |
 | mouse-speed | DSH | [2026-11-07 orange-block comparison](mouse-speed/dsh/dsh-finshield-pro-20261107/record.json) | Live development; historical orange SPEED 1 en-v1 |

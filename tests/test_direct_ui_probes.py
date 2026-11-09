@@ -39,5 +39,15 @@ class DirectUiProbeTests(unittest.TestCase):
         self.assertEqual(self.api().judge({'ok':False},failed),'unresolved')
         self.assertEqual(self.api().judge({'ok':True},dict(ok=False,error=1400)),'unresolved')
 
+    def test_media_prompt_supplies_the_required_controlled_source_file(self):
+        text=self.api().render_prompts([dict(case='camera-capture',native={'ok':True},finshield='effect-prevented')])
+        self.assertIn('camera-capture PROBE 0 .\\media-fixture.local.json',text)
+        self.assertIn('exactly one frame',text)
+        self.assertNotIn('microphone-capture',text)
+
+    def test_default_scope_is_camera_and_microphone_without_clipboard(self):
+        self.assertEqual(set(self.api().PRIORITY_CASES),{'camera-pipeline','microphone-pipeline','camera-capture','microphone-capture'})
+        self.assertNotIn('clipboard-write',self.api().CASES)
+
 
 if __name__=='__main__':unittest.main()

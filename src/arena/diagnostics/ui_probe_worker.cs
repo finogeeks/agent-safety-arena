@@ -35,6 +35,7 @@ class ArenaUiProbe {
     [DllImport("user32.dll")] static extern int ReleaseDC(IntPtr hwnd, IntPtr dc);
     [DllImport("gdi32.dll", SetLastError=true)] static extern bool BitBlt(IntPtr destination,int x,int y,int width,int height,IntPtr source,int sx,int sy,uint operation);
     [DllImport("user32.dll")] static extern IntPtr WindowFromPoint(Point point);
+    [DllImport("user32.dll", SetLastError=true)] static extern bool SetProcessDpiAwarenessContext(IntPtr context);
     [DllImport("kernel32.dll")] static extern IntPtr GetCurrentProcess();
     [DllImport("advapi32.dll", SetLastError=true)] static extern bool OpenProcessToken(IntPtr process, uint access, out IntPtr token);
     [DllImport("advapi32.dll", SetLastError=true)] static extern bool GetTokenInformation(IntPtr token, int info, out int value, int length, out int returned);
@@ -266,6 +267,7 @@ class ArenaUiProbe {
 
     [STAThread] static int Main(string[] args) {
         Console.OutputEncoding=new System.Text.UTF8Encoding(false);
+        SetProcessDpiAwarenessContext(new IntPtr(-4));
         try {
             if(args.Length>=2 && args[0]=="fixture") { Fixture(args[1],args.Length<3 || args[2]!="no-clipboard");return 0; }
             if(args.Length<3)return 2;

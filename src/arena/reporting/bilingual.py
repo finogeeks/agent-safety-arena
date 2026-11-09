@@ -16,19 +16,19 @@ from arena.runner.trial import save
 OUTCOMES=('task','agentDecision','approval','effect','enforcement','completion','evidence','recovery')
 TOP_FIELDS={'schemaVersion','reviewStatus','evidenceOrigin','scenarioId','agentId','phase','prompt','groups','narrative','publicMedia'}
 GROUP_FIELDS={'runId','environmentVersion','conditions','outcomes','reply','supplementaryReplies','evidenceReferences'}
-PRESENTATION_KEYS={'layout','agentLabel','groups','reproduction','evidenceFiles','testedOn','dense','overview','audit'}
+PRESENTATION_KEYS={'layout','agentLabel','groups','reproduction','evidenceFiles','testedOn','dense','overview','audit','promptGeneration'}
 SCRIPT_PATH=re.compile(r'^[a-z0-9][a-z0-9./_-]*\.(ps1|py|js|cjs)$')
 INDEX_FILE=re.compile(r'^[A-Za-z0-9][A-Za-z0-9._/-]*$')
 WORDS={
- 'en':dict(sections=['01 Scenario and impact','02 Observed comparison and limits','03 Reviewed media',
-                    '04 Submitted prompts','05 Verified public replies','06 Reproduce and audit'],
+ 'en':dict(sections=['01 What happened','02 Was it blocked','03 How we know',
+                    '04 Prompt','05 Model reply','06 Reproduce and audit'],
            native='Built-in controls',finshield='Built-in controls + FinShield',missing='Not run; no replacement evidence.',
            translation='Display translation — not the submitted text',original='Original',reply='Matched-turn public reply',
            supplement='Separate supplementary reply',limits='Limitations',synthetic='SYNTHETIC — not a live Agent or OS test',
            development='Development / exploratory evidence; excluded from formal counts',
            evidence='Evidence and conditions',shared='Both report languages share the same original evidence and media.'),
- 'zh-CN':dict(sections=['01 场景与影响','02 观察对比与限制','03 已评审展示媒体','04 实际提交的提示词',
-                       '05 核对后的公开回复','06 复现与审计'],native='内置控制',finshield='内置控制＋FinShield',
+ 'zh-CN':dict(sections=['01 发生了什么','02 防住了吗','03 怎么看出来','04 提示词',
+                       '05 模型回复','06 复现与审计'],native='内置控制',finshield='内置控制＋FinShield',
            missing='未运行；没有替代证据。',translation='展示翻译——不是实际提交的原文',original='原文',
            reply='匹配原始请求的公开回复',supplement='单独列出的补充回复',limits='限制',synthetic='合成数据——不是真实 Agent 或系统试验',
            development='开发／探索性证据，不计入正式试验分母',evidence='证据与条件',shared='中英文报告共用同一份原始证据和展示媒体。')}
@@ -165,6 +165,17 @@ def validate(record):
             raise ValueError('Evidence files must not replace generated report files')
         if 'audit' in presentation:
             valid_audit(presentation['audit'], bilingual)
+        if 'promptGeneration' in presentation:
+            guide=presentation['promptGeneration']
+            required={'generationPrompt'}
+            optional={'fixedScript','fixedScriptSha256'}
+            if (not isinstance(guide,dict) or not required.issubset(guide)
+                    or set(guide)-required-optional
+                    or any(not isinstance(guide[key],str) or not guide[key].strip() for key in guide)):
+                raise ValueError('Prompt generation guide requires nonempty prompt strings')
+            if set(guide)&optional:
+                if not optional.issubset(guide) or hashlib.sha256(guide['fixedScript'].encode('utf8')).hexdigest()!=guide['fixedScriptSha256']:
+                    raise ValueError('Fixed script text and hash must match')
     valid_prompt(record['prompt'])
     if not isinstance(record['groups'],dict) or set(record['groups'])!={'native','finshield'}:
         raise ValueError('Declare native and finshield groups; use null for an unrun group')
@@ -285,11 +296,12 @@ def comparison(record):
 
 
 def render(record,language,evidence_hash):
+    from arena.reporting.detail import page_title
     words=WORDS[language];text=record['narrative'][language];groups=record['groups'];pair=comparison(record)
     if 'presentation' in record:
         words={**words,**{name:item['title'][language] for name,item in record['presentation']['groups'].items()}}
     status='Incomplete' if pair['status']!='matched' else 'Conditions matched; protection not scored'
-    lines=['# '+plain(text['title']),'',plain(text['purpose']),'',
+    lines=['# '+plain(page_title(text['title'])),'',plain(text['purpose']),'',
            f"Agent: {plain(record['agentId'])} · {plain(record['phase'])} · {status}",'',words['shared'],'']
     if 'presentation' in record:
         from arena.reporting.detail import header_metadata
@@ -337,17 +349,25 @@ def render(record,language,evidence_hash):
             lines.append(f'![{caption}]({path})' if media['kind']=='image' else f'[{caption}]({path})')
         lines.append('')
     lines += ['','## '+words['sections'][3],'']
-    from arena.reporting.detail import PROMPT_CODE_NOTE, prompt_has_code
+    from arena.reporting.detail import PROMPT_CODE_NOTE, GENERATION_CODE_NOTE, prompt_has_code
     prompts=[(name,group.get('prompt',record['prompt'])) for name,group in groups.items() if group]
     if not prompts:prompts=[('native',record['prompt'])]
     if len({p['sha256'] for _,p in prompts})==1:prompts=prompts[:1]
-    if prompt_has_code(prompts):lines += [*PROMPT_CODE_NOTE[language],'']
+    guide=record.get('presentation',{}).get('promptGeneration')
+    if guide:
+        lines += [*GENERATION_CODE_NOTE[language],'',
+            '### '+('1. Generate and save the script' if language=='en' else '1. 生成并保存脚本'),'',block(guide['generationPrompt']),'',
+            '### '+('2. Run the saved script' if language=='en' else '2. 运行已保存的脚本'),'']
+    elif prompt_has_code(prompts):lines += [*PROMPT_CODE_NOTE[language],'']
     for name,prompt in prompts:
         if len(prompts)>1:lines += ['### '+words[name],'']
         lines += [f"{words['original']} · {prompt['language']} · {plain(prompt['revision'])}",'',block(prompt['text']),
                   '',f"SHA256: `{prompt['sha256']}`",'']
     if text.get('promptTranslation'):
         lines += [words['translation'],'',block(text['promptTranslation']),'']
+    if guide and guide.get('fixedScript'):
+        lines += [('Saved Python script' if language=='en' else '已保存的 Python 脚本'),'',block(guide['fixedScript']),
+                  '',f"SHA256: `{guide['fixedScriptSha256']}`",'']
     lines += ['## '+words['sections'][4],'']
     for name,group in groups.items():
         lines += ['### '+words[name],'']

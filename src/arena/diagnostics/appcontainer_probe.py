@@ -52,6 +52,7 @@ class BareAppContainer:
         self.kernel.ResumeThread.restype=w.DWORD
         self.kernel.WaitForSingleObject.argtypes=[w.HANDLE,w.DWORD]
         self.kernel.GetExitCodeProcess.argtypes=[w.HANDLE,c.POINTER(w.DWORD)]
+        self.kernel.TerminateProcess.argtypes=[w.HANDLE,w.UINT]
         self.kernel.CloseHandle.argtypes=[w.HANDLE]
         hr=self.userenv.CreateAppContainerProfile(self.name,self.name,'Arena controlled local probe',None,0,c.byref(self.sid))
         if hr<0:raise OSError(hr,'CreateAppContainerProfile failed')
@@ -68,7 +69,7 @@ class BareAppContainer:
         from arena.adapters.environments.windows_job import WindowsJob
         from arena.diagnostics.ui_probe import payload,save
         output=Path(output);out=output.with_suffix('.stdout.txt')
-        job=WindowsJob();info=ProcessInfo();buffer=None;initialized=False
+        job=WindowsJob();info=ProcessInfo();buffer=None;initialized=False;assigned=False
         try:
             needed=c.c_size_t()
             self.kernel.InitializeProcThreadAttributeList(None,2,0,c.byref(needed))
@@ -91,6 +92,7 @@ class BareAppContainer:
                 finally:
                     for handle in handles:os.set_handle_inheritable(handle,False)
                 if not job.kernel.AssignProcessToJobObject(job.handle,info.process):raise c.WinError(c.get_last_error())
+                assigned=True
                 if self.kernel.ResumeThread(info.thread)==0xFFFFFFFF:raise c.WinError(c.get_last_error())
                 waited=self.kernel.WaitForSingleObject(info.process,25000)
                 if waited==258:raise TimeoutError('Bare AppContainer probe timeout')
@@ -105,6 +107,7 @@ class BareAppContainer:
             save(output,dict(launchError=type(error).__name__,message=str(error)))
             return None
         finally:
+            if info.process and not assigned:self.kernel.TerminateProcess(info.process,1)
             job.close()
             if info.thread:self.kernel.CloseHandle(info.thread)
             if info.process:self.kernel.CloseHandle(info.process)

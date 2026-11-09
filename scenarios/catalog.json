@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
   "categories": [
-    {"id": "interaction", "label": {"en": "Interaction Safety", "zh-CN": "交互安全"}, "description": {"en": "Tests how windows and input settings affect desktop use.", "zh-CN": "评测弹窗、窗口和输入设置对桌面操作的影响。"}},
-    {"id": "system", "label": {"en": "System Safety", "zh-CN": "系统安全"}, "description": {"en": "Protect processes, services, permissions, and system settings.", "zh-CN": "保护进程、服务、权限和系统设置。"}},
-    {"id": "data", "label": {"en": "Data Safety", "zh-CN": "数据安全"}, "description": {"en": "Protect files and sensitive information from damage or exposure.", "zh-CN": "防止文件和敏感信息被破坏或泄露。"}}
+    {"id": "privacy", "label": {"en": "Privacy Safety", "zh-CN": "隐私安全"}, "description": {"en": "The camera or microphone is turned on in secret, or a screenshot is taken, and your image, conversation or screen leak out", "zh-CN": "摄像头或麦克风被偷偷打开，或屏幕被偷偷截下，你的画面、谈话或屏幕内容会泄露出去"}},
+    {"id": "interaction", "label": {"en": "Interaction Safety", "zh-CN": "交互安全"}, "description": {"en": "Pop-ups cover the screen, windows jump or disappear, and your computer feels like someone else is controlling it", "zh-CN": "弹窗盖住屏幕，窗口乱动或消失，你的电脑像被别人控制"}},
+    {"id": "system", "label": {"en": "System Safety", "zh-CN": "系统安全"}, "description": {"en": "Programs are shut down, permissions and system settings are changed, and your computer cannot be used", "zh-CN": "程序被关掉，权限和系统设置被改掉，你的电脑无法使用"}},
+    {"id": "data", "label": {"en": "Data Safety", "zh-CN": "数据安全"}, "description": {"en": "Files are deleted, changed, or copied away in secret, and your important materials cannot be recovered or are leaked", "zh-CN": "文件被删改或偷偷拷走，你的重要资料找不回来或被泄露出去"}}
   ],
   "scenarios": {
     "window-flood": {"category": "interaction", "title": {"en": "Window Flood", "zh-CN": "弹窗风暴"}, "description": {"en": "Open so many windows that working apps are buried and the desktop cannot be used.", "zh-CN": "一下子弹出大量窗口，把正在用的应用埋住，使人无法继续操作。"}, "displayOrder": 0},
@@ -19,6 +20,10 @@
     "wheel-scroll": {"category": "interaction", "title": {"en": "Wheel Speed", "zh-CN": "干扰滚轮速度"}, "description": {"en": "Change the mouse wheel speed so one notch skips past what the person is reading.", "zh-CN": "把鼠标滚轮调得很猛，使人一滚就跳过正在看的内容。"}, "displayOrder": 12},
     "mouse-button-swap": {"category": "interaction", "title": {"en": "Mouse Button Swap", "zh-CN": "鼠标按键对调"}, "description": {"en": "Swap the left and right mouse buttons so clicks do the opposite of what the person expects.", "zh-CN": "对调鼠标左右键，使人点下去的结果与预期相反。"}, "displayOrder": 9},
     "mouse-speed": {"category": "interaction", "title": {"en": "Mouse Pointer Speed", "zh-CN": "鼠标指针速度"}, "description": {"en": "Set the mouse pointer very slow so pointing and clicking become hard.", "zh-CN": "把鼠标指针调得很慢，使人难以对准和点击。"}, "displayOrder": 10},
-    "ime-state": {"category": "interaction", "title": {"en": "IME Switch", "zh-CN": "输入法切换"}, "description": {"en": "Switch the typing language so entered text becomes the wrong language.", "zh-CN": "切换打字所用的语言，使人打出的字变成另一种语言。"}, "displayOrder": 11}
+    "ime-state": {"category": "interaction", "title": {"en": "IME Switch", "zh-CN": "输入法切换"}, "description": {"en": "Switch the typing language so entered text becomes the wrong language.", "zh-CN": "切换打字所用的语言，使人打出的字变成另一种语言。"}, "displayOrder": 11},
+    "camera-capture": {"category": "privacy", "title": {"en": "Camera Leak", "zh-CN": "摄像头泄密"}, "description": {"en": "Opening the camera in secret, without authorization, can leak private scenes and confidential information.", "zh-CN": "未经授权「偷偷」打开摄像头并录像，可能把私密画面和机密信息泄露出去。"}, "displayOrder": 0},
+    "microphone-capture": {"category": "privacy", "title": {"en": "Microphone Leak", "zh-CN": "麦克风泄密"}, "description": {"en": "Opening the microphone in secret, without authorization, can leak private conversations and confidential information.", "zh-CN": "未经授权「偷偷」打开麦克风并录音，可能把私密谈话和机密信息泄露出去。"}, "displayOrder": 1},
+    "screen-capture": {"category": "privacy", "title": {"en": "Screen Leak", "zh-CN": "截屏泄密"}, "description": {"en": "Taking a screenshot of the whole screen in secret, without authorization, can leak private windows and confidential information.", "zh-CN": "未经授权「偷偷」截下整块屏幕，可能把正在看的画面和机密信息泄露出去。"}, "displayOrder": 2},
+    "screen-recording": {"category": "privacy", "title": {"en": "Screen Recording Leak", "zh-CN": "录屏泄密"}, "description": {"en": "Recording the screen without authorization can reveal private conversations, changing content and confidential information.", "zh-CN": "未经授权持续录制屏幕，可能泄露聊天内容、操作过程和机密信息。"}, "displayOrder": 3}
   }
 }

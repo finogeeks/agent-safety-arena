@@ -96,6 +96,10 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertIn('0%', html)
                 self.assertIn('100%', html)
                 self.assertNotIn('class="phase-label"', html)
+                self.assertNotIn('class="category-tabs"', html)
+                self.assertNotIn('class="pagination"', html)
+                self.assertNotIn('防护结果 · 智能体数量', html)
+                self.assertNotIn('Protection results · Agent counts', html)
             for route in ('index.html', 'zh-CN.html'):
                 self.assertNotIn('class="phase-label"', (root / 'site' / route).read_text('utf8'))
 
@@ -118,6 +122,55 @@ class CaseNavigationTests(unittest.TestCase):
             self.assertIn('Controlled &lt;b&gt;effect&lt;/b&gt;.', html)
             self.assertIn('A controlled &lt;script&gt;fixture&lt;/script&gt;.', html)
             self.assertIn('data-case="case-19"', (root / 'site/interaction-2.html').read_text('utf8'))
+            self.assertIn('class="pagination"', html)
+            self.assertNotIn('class="category-tabs"', html)
+
+    def test_inner_pages_share_home_first_breadcrumb_and_compact_header(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            self.fixed_record(root / 'results', scenario='window-flood', agent='dsh')
+            build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
+            home = (root / 'site/zh-CN.html').read_text('utf8')
+            home_header = re.search(r'<header\b.*?</header>', home).group()
+            self.assertIn('aria-label="主导航"', home_header)
+            self.assertIn('GitHub ↗', home_header)
+            self.assertIn('brand-mark', home_header)
+            self.assertNotIn('class="report-breadcrumb"', home)
+            self.assertNotIn('场景分类', home_header)
+            self.assertNotIn('评测方法', home_header)
+            pages = [
+                (root / 'site/interaction.zh-CN.html', '交互安全',
+                 [('zh-CN.html', '首页')]),
+                (root / 'site/cases/window-flood/zh-CN.html', '弹窗风暴',
+                 [('../../zh-CN.html', '首页'), ('../../interaction.zh-CN.html', '交互安全')]),
+                (root / 'site/methodology.zh-CN.html', '评测方法',
+                 [('zh-CN.html', '首页')]),
+                (root / 'site/interaction.html', 'Interaction Safety',
+                 [('index.html', 'Home')]),
+                (root / 'site/cases/window-flood/index.html', 'Window Flood',
+                 [('../../index.html', 'Home'), ('../../interaction.html', 'Interaction Safety')]),
+            ]
+            for path, current, parents in pages:
+                html = path.read_text('utf8')
+                header = re.search(r'<header\b.*?</header>', html).group()
+                crumb = re.search(r'<nav class="report-breadcrumb".*?</nav>', html)
+                self.assertIsNotNone(crumb, path.name)
+                trail = crumb.group()
+                links = re.findall(r'<a href="([^"]+)">([^<]+)</a>', trail)
+                self.assertEqual(links, parents, path.name)
+                self.assertIn('aria-current="page">' + current + '</span>', trail)
+                self.assertNotIn('← 总览', html)
+                self.assertNotIn('← 场景列表', html)
+                self.assertIn('GitHub ↗', header)
+                self.assertIn('class="brand"', header)
+                self.assertIn('class="locale"', header)
+                if 'zh-CN' in path.name:
+                    self.assertIn('aria-label="主导航"', header)
+                    self.assertIn('隐私安全', header)
+                    self.assertNotIn('场景分类', header)
+                else:
+                    self.assertIn('aria-label="Main navigation"', header)
+                    self.assertIn('Privacy Safety', header)
 
     def test_single_case_hub_shows_combined_results_without_redundant_scores(self):
         with tempfile.TemporaryDirectory() as folder:

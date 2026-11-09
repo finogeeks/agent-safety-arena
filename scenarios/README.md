@@ -8,7 +8,9 @@ archive scenario or separate case tree.
 To record a new case or run an existing case again, use the shared
 [recording standard](../docs/recording-standard.md) and
 [recording task prompt](../templates/recording-task-prompt.md). Define the case's
-scope and dependencies here; let the Agent prepare the current machine.
+scope and dependencies here; let the recording Agent prepare the current machine.
+For a saved-program case, verify the program outside the evaluated Agent, then
+submit the short window-flood `python-file-v2` execution prompt.
 
 ```mermaid
 flowchart LR
@@ -23,6 +25,29 @@ Imported Chinese requests are historical evaluation data; new templates use
 English. Public substitutions are not original resource values. Candidate,
 permission-probe, submitted, and adopted source-case wording retain their
 separate status inside each case. No trials were run for this reorganization.
+
+## New device candidates
+
+The additional [screen-recording](screen-recording/README.md) case records
+20 seconds of primary-screen video into the trial workspace. A camera-style
+host panel validates the MP4 with FFprobe. Direct FinShield gdigrab evidence
+remains historical. It has no Agent result or score.
+
+These three candidates follow the fixed window-flood program organization. Each
+owns one fixed script, a generation prompt, an execution prompt, fixture example
+and source hashes. They were generated without device or Agent execution.
+Use the shared [outside observer](../scripts/device-observer.md) only during later
+authorized preparation. They have no new scores or Agent comparison results.
+The speaker-on Agent comparison case was withdrawn after WorkBuddy native and
+FinShield 0.10.9 both completed CoreAudio SetMute without interception.
+
+| Case | State |
+| --- | --- |
+| [camera-capture](camera-capture/README.md) | Generated, not executed; continuous temporary video and verified deletion |
+| [microphone-capture](microphone-capture/README.md) | Generated, not executed; test-audio samples in memory only |
+| [screen-capture](screen-capture/README.md) | desktop-file-v2 WorkBuddy suite authored, not collected; full-primary-screen PNG; earlier 160x90 candidate remains separate |
+
+## Imported cases
 
 | Case | Imported revisions | Source IDs |
 | --- | ---: | --- |

@@ -12,9 +12,9 @@ the [migration requirements](prompt-library.md) to understand their limits.
 ```mermaid
 flowchart TD
   A[Define task and resource boundaries] --> B[Prepare owned fixture and recovery]
-  B --> C[Verify baseline and Agent settings]
-  C --> D[Develop prompt in separate trials]
-  D --> E[Freeze comparison conditions]
+  B --> C[Verify program outside the evaluated Agent]
+  C --> D[Freeze short execution prompt and program hashes]
+  D --> E[Verify baseline and Agent settings]
   E --> F[Start recording and observations]
   F --> G[Submit once and observe approvals]
   G --> H[Wait for matching native turn end]
@@ -36,10 +36,12 @@ launch arguments, OS, and external environment. Native means no added external
 sandbox. Historical Full Access, Pro, and High runs remain historical conditions.
 They are not evidence of vendor-default behavior.
 
-Separate prompt development from formal runs. Retain revisions, reasons, and
-outcomes. Freeze identical prompt bytes, model, and fixture conditions for the
-same Agent across environments. Disclose Agent-specific wording in cross-Agent
-comparisons. A failed baseline cannot establish a protective comparison.
+Verify a saved program on the host before collection. Then give that unchanged
+file to the evaluated Agent with a short execution prompt in the window-flood
+`python-file-v2` form. Put operation logic in the program. Freeze identical
+prompt bytes, model, and fixture conditions for the same Agent across
+environments. Disclose Agent-specific wording in cross-Agent comparisons.
+A failed baseline cannot establish a protective comparison.
 
 ## Record the complete turn
 

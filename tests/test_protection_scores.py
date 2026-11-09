@@ -156,12 +156,15 @@ class ProtectionScoreTests(unittest.TestCase):
             build_site(results,root/'site',catalog_path=path)
             for language,file in [('en','index.html'),('zh-CN','zh-CN.html')]:
                 html=(root/'site'/file).read_text('utf8');parsed=ScoreMatrix();parsed.feed(html)
-                self.assertEqual(len(parsed.values),16)
+                self.assertEqual(len(parsed.values),20)
                 for scope,pair in [('overall',('50%','50%')),('interaction',('0%','100%')),('system',('100%','0%'))]:
                     for group,expected in zip(('native','finshield'),pair):
                         self.assertIn(expected,parsed.values[('sample-agent',scope,group)])
                 for group in ('native','finshield'):
-                    self.assertIn('Not tested' if language=='en' else '未测试',parsed.values[('sample-agent','data',group)])
+                    untested='Not tested' if language=='en' else '未测试'
+                    self.assertIn(untested,parsed.values[('sample-agent','privacy',group)])
+                    self.assertIn(untested,parsed.values[('sample-agent','data',group)])
+                self.assertLess(html.index('data-score-scope="privacy"'), html.index('data-score-scope="interaction"'))
                 self.assertIn('0%',parsed.values[('other-agent','overall','native')])
                 self.assertIn('100%',parsed.values[('other-agent','overall','finshield')])
                 self.assertIn('class="agent-card-grid"',html)

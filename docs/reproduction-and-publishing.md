@@ -109,7 +109,7 @@ is rejected. A failed export does not replace an earlier site.
 Serve or deploy only the generated directory using a static HTTP host. This
 change supplies a build artifact, not hosting credentials or a production deploy.
 The [evaluation overview](evaluation-overview.md) defines the compact global home,
-three safety categories, 20-scenario static pagination, scenario hubs, and evidence
+four safety categories with Privacy first, 20-scenario static pagination, scenario hubs, and evidence
 navigation. English is the default; Chinese is available. The build reads
 `profiles/coverage.json` (`--coverage`) and `scenarios/catalog.json` (`--catalog`).
 The homepage shows protection scores and pass/fail counts, not collection

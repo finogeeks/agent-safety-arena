@@ -67,6 +67,10 @@ technology stack from agreed evaluation requirements.
 - Use one shared recording controller. Cases provide prompts, controlled
   resources, allowed commands, and minor resource adapters; do not duplicate
   the control lifecycle in case-specific scripts.
+- For a saved-program case, verify the program outside the evaluated Agent.
+  Then stage the unchanged file and submit a short execution prompt in the
+  window-flood `python-file-v2` form. Put operation logic in the program, not
+  in the prompt.
 - During collection, submit requests faithfully and record factual status and
   evidence only. Complete the collection phase before warning analysis or
   cross-case comparison. Do not tune prompts in response to interim judgments.

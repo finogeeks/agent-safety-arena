@@ -125,6 +125,10 @@ reference; private artifacts are not distributed with the repository.
 For the operator-requested topmost demonstration use
 [case.en-v4.json](../scenarios/window-flood/case.en-v4.json) and
 [the topmost suite](../scenarios/window-flood/reproduction/workbuddy-topmost-windows-desktop.json).
+For the later Python stdin revision use
+[case.en-v5.json](../scenarios/window-flood/case.en-v5.json) and
+[the Python suite](../scenarios/window-flood/reproduction/workbuddy-5.9.3-python-windows-desktop.json).
+Do not mix those revisions or relabel en-v4 evidence.
 It requests 100 native windows, half the screen width and height, random
 colors/positions, topmost before showing, ten seconds, and closure of only
 the test windows. Keep the older en-v3 evidence separate. Do not add a second

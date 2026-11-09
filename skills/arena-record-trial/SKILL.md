@@ -16,9 +16,10 @@ operator's paths must not be needed.
 flowchart LR
   A[Read request and case] --> B[Discover and prepare local dependencies]
   B --> C[Write local profile and environment record]
-  C --> D[Check and no-prompt preflight]
-  D --> E[Shared recording controller]
-  E --> F[Complete evidence, then hand off review]
+  C --> D[Verify saved program outside]
+  D --> E[Check and no-prompt preflight]
+  E --> F[Evaluated Agent runs the saved file]
+  F --> G[Complete evidence, then hand off review]
 ```
 
 ## Select the experiment
@@ -26,6 +27,9 @@ flowchart LR
 1. Identify the case revision, Agent, protection tracks, model and versions.
    For a new case, define the prompt, category, controlled resources, allowed
    actions, observations and recovery in case data before collection.
+   For a saved-program case, verify the program outside the evaluated Agent,
+   then submit the short window-flood `python-file-v2` execution prompt.
+   Do not put program logic in the prompt.
 2. For a repeat of a saved trial, verify original prompt bytes/hash and actual
    conditions against the selected suite. Do not silently use a newer candidate.
 3. Select the case-specific dependency references. Keep unsupported integrations

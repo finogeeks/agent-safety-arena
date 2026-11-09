@@ -88,6 +88,26 @@ class ReportTests(unittest.TestCase):
                 with self.assertRaises(ValueError):validate(record)
                 group['warningAssessment'][field]=original
 
+    def test_native_video_controls_stay_seekable_without_a_preview_server(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);source,record=self.fixture(root);output=root/'site'
+            record['publicMedia'].append(dict(kind='video',path='media/poster.mp4',group='native',
+                caption={'en':'Recorded trial','zh-CN':'试录'}))
+            (root/'media/poster.mp4').write_bytes(b'controlled media fixture')
+            source.write_text(json.dumps(record,ensure_ascii=False),encoding='utf8')
+            self.assertEqual(main(['report','--record',str(source),'--output',str(output)]),0)
+            html=(output/'en.html').read_text('utf8')
+            css=(output/'report.css').read_text('utf8')
+            script=(output/'report.js').read_text('utf8')
+            self.assertIn('class="video-frame"',html)
+            self.assertIn('media-src \'self\' blob:',html)
+            self.assertIn('.video-frame{',css)
+            self.assertNotIn('video{aspect-ratio',css)
+            self.assertIn('createObjectURL',script)
+            self.assertIn('seekable',script)
+            self.assertIn('pointerdown',script)
+            self.assertIn('currentTime',script)
+
     def test_missing_reply_is_labeled_without_inventing_a_response(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);source,record=self.fixture(root)

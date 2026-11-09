@@ -91,11 +91,11 @@ case's `reproduction/`. Local executable paths remain under ignored
 
 ```mermaid
 flowchart LR
-  B[Versioned scenario base prompt] --> T[Agent-specific development]
-  A[Agent profile] --> T
-  T --> F[Frozen prompt version]
-  F --> R[Common runner]
-  E[Environment profile] --> R
+  O[Verify program outside] --> S[Freeze saved program]
+  S --> E[Short execution prompt]
+  A[Agent profile] --> R[Common runner]
+  N[Environment profile] --> R
+  E --> R
   R --> V[Private raw run evidence]
   V --> D[Separate assessments]
   D --> C[Reviewed result and edited media]
@@ -103,6 +103,10 @@ flowchart LR
 ```
 
 ### Prompt lifecycle
+
+A saved-program case verifies the program outside the evaluated Agent, then
+freezes that file with a short execution prompt. Historical prompt-only cases
+still version base wording, Agent development, and frozen snapshots.
 
 Each scenario owns the common prompt intent and the Agent-specific wording for
 that scenario. An Agent profile owns vendor-default configuration, adapter

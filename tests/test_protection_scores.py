@@ -67,8 +67,8 @@ class ProtectionScoreTests(unittest.TestCase):
             source=root/'taxonomy.json';source.write_text(json.dumps(taxonomy),encoding='utf8')
             build_site(results,root/'site',catalog_path=source)
             data=json.loads((root/'site/catalog.json').read_text('utf8'))
-            scores=data['scores']['development']
-            self.assertEqual(data['scorePhase'],'development')
+            scores=data['scores']['formal']
+            self.assertEqual(data['scorePhase'],'formal')
             self.assertNotIn('overall',scores)
             native=scores['agents']['sample-agent']['native'];fs=scores['agents']['sample-agent']['finshield']
             self.assertEqual((native['passed'],native['failed'],native['unassessed'],native['denominator'],native['rate']), (1,1,0,2,50.0))
@@ -81,9 +81,9 @@ class ProtectionScoreTests(unittest.TestCase):
             self.assertTrue(all(item['reports'] for item in scores['items']))
             self.assertTrue(all('synthetic-agent' not in item['agentId'] for item in scores['items']))
             home=(root/'site/index.html').read_text('utf8')
-            for text in ('Overall &amp; category scores by Agent','50%','100%','passed','failed','unassessed','Not tested'):
+            for text in ('Evaluation results','50%','100%','passed','failed','unassessed','Not tested'):
                 self.assertIn(text,home)
-            catalog_scores = data['scores']['development']['agents']['unknown-agent']['native']
+            catalog_scores = data['scores']['formal']['agents']['unknown-agent']['native']
             self.assertEqual(catalog_scores['unassessed'], 1)
             self.assertNotIn('66.7%',home)
             for text in ('Target:','recorded scenario','Agent coverage','progress'):
@@ -100,17 +100,17 @@ class ProtectionScoreTests(unittest.TestCase):
             self.fixture.save(path,repeat)
             build_site(results,root/'site-a')
             data=json.loads((root/'site-a/catalog.json').read_text('utf8'))
-            fs=data['scores']['development']['agents']['sample-agent']['finshield']
+            fs=data['scores']['formal']['agents']['sample-agent']['finshield']
             self.assertEqual((fs['unassessed'],fs['denominator'],fs['rate']),(1,0,None))
             repeat['groups']['finshield']['interceptionAssessment']=dict(status='not-blocked',basis='observed-effect',
                 reason={'en':'Effect observed.','zh-CN':'效果已出现。'},evidence=['controlled-observation'])
             self.fixture.save(path,repeat)
             build_site(results,root/'site-b')
             data=json.loads((root/'site-b/catalog.json').read_text('utf8'))
-            fs=data['scores']['development']['agents']['sample-agent']['finshield']
+            fs=data['scores']['formal']['agents']['sample-agent']['finshield']
             self.assertEqual((fs['passed'],fs['failed'],fs['denominator'],fs['rate']),(0,1,1,0.0))
 
-    def test_formal_phase_does_not_borrow_development_scores_or_model_mismatches(self):
+    def test_published_collection_phases_share_scores_but_model_mismatches_stay_excluded(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);results=root/'results'
             path,record=self.fixture.record(results,agent='dsh')
@@ -131,8 +131,8 @@ class ProtectionScoreTests(unittest.TestCase):
             self.assertIsNone(scores['agents']['codex-cli']['finshield']['rate'])
             self.assertEqual(scores['agents']['codex-cli']['finshield']['excluded'],1)
             self.assertIn('Outside score scope', (root/'site/index.html').read_text('utf8'))
-            self.assertIsNone(scores['agents']['dsh']['native']['rate'])
-            self.assertEqual(data['scores']['development']['agents']['dsh']['finshield']['passed'],1)
+            self.assertEqual(scores['agents']['dsh']['native']['rate'],0)
+            self.assertEqual(data['scores']['formal']['agents']['dsh']['finshield']['passed'],1)
             roster=json.loads((ROOT/'profiles/coverage.json').read_text('utf8'))
             roster['scenarioGoal']=7
             planning=root/'planning.json';planning.write_text(json.dumps(roster),encoding='utf8')

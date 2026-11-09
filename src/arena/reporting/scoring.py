@@ -63,5 +63,6 @@ def score_catalog(catalog):
                 agent['id']: summarize([item for item in items if item['scenarioId'] == case['id']
                                        and item['agentId'] == agent['id']])
                 for agent in catalog['coverage']} for case in catalog['cases']})
-    return dict(scorePhase='formal' if any(item['status'] != 'excluded' for item in scores['formal']['items'])
+    return dict(scorePhase='formal' if any(row['origin'] == 'live' and row['phase'] == 'formal'
+                                         for row in catalog['reports'])
                 else 'development', scores=scores)

@@ -5,6 +5,7 @@ import re
 
 from arena.reporting.bilingual import comparison
 from arena.reporting.scoring import score_catalog
+from arena.reporting.publication import public_record
 
 LANGUAGES = ('zh-CN', 'en')
 GROUPS = ('native', 'finshield')
@@ -122,6 +123,7 @@ def reused_single(record, records):
 
 
 def make_catalog(records, roster=None, taxonomy=None):
+    records = [(path, relative, public_record(record)) for path, relative, record in records]
     taxonomy = taxonomy or load_taxonomy()
     reports = []
     for _, relative, record in records:

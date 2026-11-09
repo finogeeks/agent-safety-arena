@@ -23,7 +23,8 @@ before the Agent score cards. Each card names the category and uses its authored
 description first, then the GIF. The name links to that category page. The GIF
 links to the comparison. Homepage cards omit
 case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions.
-Keep honest empty states.
+Use compact category links when no reviewed GIF exists. Public phase handling
+follows [the publication policy](public-result-presentation.md).
 Do not put full result lists on the homepage. The six-section
 detail page remains unchanged. Its local index provides language selection.
 When built as part of the full site, each English/Chinese detail page has a

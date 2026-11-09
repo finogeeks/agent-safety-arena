@@ -87,7 +87,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             counts = catalog['counts']
             self.assertEqual(catalog['schemaVersion'], 1)
             for key, expected in dict(liveScenarios=1, liveAgents=2, liveRuns=3,
-                    pairedReports=1, formalReports=0, developmentReports=3,
+                    pairedReports=1, formalReports=3, developmentReports=0,
                     languageStudyReports=0, syntheticReports=1, archivedReports=1).items():
                 self.assertEqual(counts[key], expected, key)
             earlier = next(r for r in catalog['reports'] if r['path'].endswith('/earlier'))
@@ -167,7 +167,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertEqual(len(catalog['coverage']), 5)
             codex = next(r for r in catalog['coverage'] if r['id'] == 'codex-cli')
             self.assertEqual(codex['native']['scenarios'], 1)
-            self.assertEqual(codex['native']['formalScenarios'], 0)
+            self.assertEqual(codex['native']['formalScenarios'], 1)
             self.assertEqual(codex['finshield']['scenarios'], 0)
             workbuddy = next(r for r in catalog['coverage'] if r['id'] == 'workbuddy')
             self.assertEqual(workbuddy['native']['reports'], [])
@@ -293,7 +293,8 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertEqual(html.count('data-media-state="empty"'),4)
             self.assertNotIn('<img',html)
             self.assertNotIn('href="#"',html)
-            self.assertIn('No media available',html)
+            self.assertNotIn('No media available',html)
+            self.assertEqual(html.count('class="category-entry"'),4)
             self.assertNotIn('class="test-actions"',html)
 
     def test_homepage_uses_the_same_type_as_inner_pages(self):
@@ -332,8 +333,8 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertNotIn('评测方法', home_header)
             self.assertNotIn('不评测模型能力', home)
             self.assertNotIn('class="protocol"', home)
-            self.assertIn('<section class="intro"><div><p class="eyebrow">', home)
-            self.assertLess(home.index('AI Agent安全评测'), home.index('id="real-tests"'))
+            self.assertIn('<section class="intro"><div><h1>', home)
+            self.assertLess(home.index('Agent安全测评'), home.index('id="real-tests"'))
             pages = {
                 root / 'site/zh-CN.html': chinese,
                 root / 'site/privacy.zh-CN.html': chinese,

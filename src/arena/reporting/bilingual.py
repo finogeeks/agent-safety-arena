@@ -7,6 +7,7 @@ import json
 from pathlib import Path, PureWindowsPath, PurePosixPath
 import re
 import shutil
+from arena.reporting.publication import public_record
 
 from arena.evidence.media import resolve_public_media_sources, copy_public_media
 from arena.runner.suite import compare_conditions, CONDITION_KEYS
@@ -297,6 +298,7 @@ def comparison(record):
 
 def render(record,language,evidence_hash):
     from arena.reporting.detail import page_title
+    record = public_record(record)
     words=WORDS[language];text=record['narrative'][language];groups=record['groups'];pair=comparison(record)
     if 'presentation' in record:
         words={**words,**{name:item['title'][language] for name,item in record['presentation']['groups'].items()}}

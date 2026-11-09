@@ -5,6 +5,7 @@ import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
 
 PAGE_SIZE = 20
+HIDDEN_HOME_AGENTS = frozenset({'claude-cli', 'opencode-cli'})
 
 
 class Pages:
@@ -49,6 +50,33 @@ class Pages:
         protocol = self.data['protocol']
         return (protocol['label'] + ' · ' + protocol['reasoningEffort'].capitalize()) if protocol else self.t('模型见各记录', 'Model recorded per report')
 
+    def phase_label_markup(self):
+        if self.phase == 'formal':
+            text = self.t('正式结果', 'Formal results')
+        else:
+            text = self.t('开发阶段结果（非正式）', 'Development results (not formal)')
+        return f'<span class="phase-label">{self.e(text)}</span>'
+
+    def homepage_score_agents(self):
+        agents = []
+        for agent in self.data['coverage']:
+            if agent['id'] in HIDDEN_HOME_AGENTS or agent['id'] == 'codex-cli':
+                continue
+            summary = self.scores['agents'][agent['id']]
+            if summary['native']['denominator'] or summary['finshield']['denominator']:
+                agents.append(agent)
+        return agents
+
+    def homepage_archive_agents(self):
+        archived = []
+        for agent in self.data['coverage']:
+            if agent['id'] != 'codex-cli':
+                continue
+            summary = self.scores['agents'][agent['id']]
+            if not (summary['native']['denominator'] and summary['finshield']['denominator']):
+                archived.append(agent)
+        return archived
+
     def score(self, value, compact=False):
         rate = value['rate']
         label = '—' if rate is None else f'{rate:g}%'
@@ -63,7 +91,8 @@ class Pages:
         if value['excluded']:
             detail += (' · ' if detail else '') + self.t('未纳入本轮评分', 'Outside score scope')
         size = ' compact' if compact else ''
-        return f'<div class="score{size}"><strong class="score-value {state}">{label}</strong><small>{detail}</small></div>'
+        phase = self.phase_label_markup() if value['denominator'] else ''
+        return f'<div class="score{size}">{phase}<strong class="score-value {state}">{label}</strong><small>{detail}</small></div>'
 
     def trail(self, crumbs, current):
         return breadcrumb_markup(self.language, crumbs, current)
@@ -80,15 +109,22 @@ class Pages:
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
             f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css"></head><body class="{page_class}">'
-            +header+'<main>'+body+
-            f'<footer><span>Agent Safety Arena</span><div><a href="{prefix}{self.method_path}">{t("方法与复现","Method & reproduction")}</a>'
-            f'<a href="{prefix}catalog.json">{t("汇总数据","Data")}</a><a href="{prefix}site-manifest.json">{t("证据索引","Build manifest")}</a></div></footer></main></body></html>')
+            +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
-    def agent_table(self, values, mini=False):
+    def document_footer_brand(self, prefix=''):
+        t = self.t
+        return (f'<footer><span>Agent Safety Arena · <a href="https://finaios.ai">FinAI OS</a></span><div>'
+                f'<a href="{prefix}{self.method_path}">{t("方法与复现","Method & reproduction")}</a>'
+                f'<a href="https://github.com/finogeeks/agent-safety-arena">GitHub</a>'
+                f'<a href="{prefix}catalog.json">{t("汇总数据","Data")}</a>'
+                f'<a href="{prefix}site-manifest.json">{t("证据索引","Build manifest")}</a></div></footer>')
+
+    def agent_table(self, values, mini=False, agents=None):
         t=self.t; e=self.e
+        agents = agents or self.data['coverage']
         style='category-score-table' if mini else 'coverage-table'
         text=f'<table class="{style}"><thead><tr><th>Agent</th><th>'+t('默认防护','Default' if mini else 'Default protection')+'</th><th>FinShield</th></tr></thead><tbody>'
-        for agent in self.data['coverage']:
+        for agent in agents:
             text+=f'<tr><th scope="row">{e(agent["label"][self.language])}</th>'
             for group in ('native','finshield'):
                 text+='<td>'+self.score(values[agent['id']][group],True)+'</td>'
@@ -103,22 +139,60 @@ class Pages:
         attrs = f' data-score-scope="{identity}" data-score-protection="{group}"' if identity else ''
         return f'<div class="scope-track"{attrs}><span>{label}</span>'+self.score(value, True)+'</div>'
 
+    def category_scope_empty(self, agent_id, category_id):
+        values = self.scores['categories'][category_id][agent_id]
+        return not values['native']['denominator'] and not values['finshield']['denominator']
+
+    def low_sample_note(self, agent_id, category_id):
+        values = self.scores['categories'][category_id][agent_id]
+        count = values['native']['denominator'] + values['finshield']['denominator']
+        if count != 1:
+            return ''
+        return f'<p class="low-sample">{self.t("样本量 n=1","Low sample size (n=1)")}</p>'
+
     def home_agent_cards(self):
         t=self.t; e=self.e
-        scopes=[('overall',t('总成绩','Overall'))]+[(category['id'],category['label'][self.language])
-                                                  for category in self.data['categories']]
+        scopes=[('overall',t('总成绩','Overall'))]
+        for category in self.data['categories']:
+            if category['id'] == 'unclassified':
+                continue
+            scopes.append((category['id'], category['label'][self.language]))
         text='<div class="agent-card-grid">'
-        for agent in self.data['coverage']:
+        for agent in self.homepage_score_agents():
             text+=f'<article class="agent-card" data-score-agent="{e(agent["id"])}"><h3>{e(agent["label"][self.language])}</h3><div class="agent-card-scopes">'
             for identity,label in scopes:
                 values=self.scores['agents'] if identity=='overall' else self.scores['categories'][identity]
+                if identity != 'overall' and self.category_scope_empty(agent['id'], identity):
+                    continue
                 heading=e(label) if identity=='overall' else f'<a href="{self.route(identity)}">{e(label)}</a>'
                 text+=f'<div class="agent-scope {identity}"><span class="scope-label">{heading}</span><div class="scope-scores">'
                 for group in ('native','finshield'):
                     text+=self.track(group, values[agent['id']][group], identity)
+                if identity != 'overall':
+                    text+=self.low_sample_note(agent['id'], identity)
                 text+='</div></div>'
             text+='</div></article>'
         return text+'</div>'
+
+    def home_agent_archive(self):
+        agents = self.homepage_archive_agents()
+        if not agents:
+            return ''
+        t = self.t; e = self.e
+        body = ('<details class="archive agent-archive"><summary>'
+                + t('归档 Agent（尚无完整对照成绩）', 'Archived Agents (no complete paired score)')
+                + f' · {len(agents)}</summary><div class="agent-card-grid">')
+        for agent in agents:
+            rows = [row for row in self.data['reports']
+                    if row['agentId'] in agent['recordAgentIds'] and row['origin'] == 'live' and not row['archived']]
+            body += (f'<article class="agent-card" data-score-agent="{e(agent["id"])}"><h3>{e(agent["label"][self.language])}</h3>'
+                     + '<p class="small-note">'
+                     + t('尚无 FinShield 配对且已评估的对照成绩。', 'No FinShield-paired, assessed comparison score yet.')
+                     + '</p>')
+            if rows:
+                body += self.report_links(rows)
+            body += '</article>'
+        return body + '</div></details>'
 
     def showcase(self):
         t=self.t; e=self.e
@@ -139,30 +213,42 @@ class Pages:
             chosen[category['id']]=next((row for row in candidates if row['phase']==self.phase), candidates[0] if candidates else None)
         categories=[item for item in self.data['categories'] if item['id']!='unclassified']
         body='<section id="real-tests" class="real-tests"><div class="section-heading"><h2>'+t('真实测试','Real tests')+'</h2></div><div id="categories" class="showcase-grid">'
-        for index,category in enumerate(categories):
-            row=chosen[category['id']]
-            state='ready' if row else 'empty'
-            href=self.route(category['id'])
-            body+=f'<article class="test-card" data-category="{category["id"]}" data-media-state="{state}">'
-            body+=f'<h3><a class="showcase-category" href="{href}">{e(category["label"][self.language])}</a></h3>'
-            body+=f'<p class="showcase-lead">{e(category["description"][self.language])}</p>'
-            if row:
-                loading='eager' if index==0 else 'lazy'
-                body+='<div class="gif-labels"><span>'+t('默认防护','Default protection')+'</span><span>FinShield</span></div>'
-                body+=f'<a class="test-gif" href="{self.report_path(row)}#section-3" aria-label="{t("打开对照录像","Open the recording comparison")}"><img src="{e(row["preview"]["path"])}" alt="{e(row["preview"]["caption"][self.language])}" loading="{loading}" decoding="async"></a>'
-            else:
-                body+='<div class="showcase-blank"><span class="gif-placeholder">GIF</span><p>'+t('暂无素材','No media available')+'</p></div>'
-            body+='</article>'
+        shown = 0
+        for index, category in enumerate(categories):
+            row = chosen[category['id']]
+            if not row:
+                continue
+            shown += 1
+            href = self.route(category['id'])
+            loading = 'eager' if shown == 1 else 'lazy'
+            body += f'<article class="test-card" data-category="{category["id"]}" data-media-state="ready">'
+            body += f'<h3><a class="showcase-category" href="{href}">{e(category["label"][self.language])}</a></h3>'
+            body += f'<p class="showcase-lead">{e(category["description"][self.language])}</p>'
+            body += '<div class="gif-labels"><span>'+t('默认防护','Default protection')+'</span><span>FinShield</span></div>'
+            body += (f'<a class="test-gif" href="{self.report_path(row)}#section-3" '
+                     f'aria-label="{t("打开对照录像","Open the recording comparison")}">'
+                     f'<img src="{e(row["preview"]["path"])}" alt="{e(row["preview"]["caption"][self.language])}" '
+                     f'loading="{loading}" decoding="async"></a>')
+            body += '</article>'
+        if not shown:
+            body += ('<p class="showcase-empty">'
+                     + t('暂无已审阅对照录像；新场景完成录制与审阅后会出现在这里。',
+                         'No reviewed comparison recordings yet. Scenarios appear here after collection and review.')
+                     + '</p>')
         return body+'</div></section>'
 
     def home(self):
         t=self.t; e=self.e
         body=('<section class="intro"><div><p class="eyebrow">OPEN AGENT SAFETY EVALUATION</p>'
-            f'<h1>{t("AI Agent 安全评测","AI Agent Safety Evaluation")}</h1></div></section>')
+            f'<h1>{t("AI Agent 安全评测","AI Agent Safety Evaluation")}</h1>'
+            f'<p class="intro-phase">{self.phase_label_markup()}</p></div></section>')
         body+=self.showcase()
-        body+='<section id="agent-scores" class="agent-scores"><div class="section-heading"><h2>'+t('各 Agent 总成绩与分类成绩','Overall &amp; category scores by Agent')+'</h2></div>'
+        body+=('<section id="agent-scores" class="agent-scores"><div class="section-heading">'
+               '<h2>'+t('各 Agent 总成绩与分类成绩','Overall &amp; category scores by Agent')+'</h2>'
+               + self.phase_label_markup() + '</div>')
         body+=self.home_agent_cards()+'<p class="footnote">'
-        body+=t('每个 Agent 独立计分：成功 ÷（成功 + 失败）。待核实不计入分母。','Each Agent is scored separately: passed / (passed + failed). Unassessed items are excluded.')+'</p></section>'
+        body+=t('每个 Agent 独立计分：成功 ÷（成功 + 失败）。待核实不计入分母。','Each Agent is scored separately: passed / (passed + failed). Unassessed items are excluded.')+'</p>'
+        body+=self.home_agent_archive()+'</section>'
         unknown=[case for case in self.data['cases'] if case['categoryId']=='unclassified']
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
         return self.document(t('Agent 安全评测','Agent Safety Evaluation'),body,'index.html' if self.zh else 'zh-CN.html',
@@ -175,8 +261,13 @@ class Pages:
         body += f'<section class="page-intro"><h1>{e(title)}</h1>'
         body += f'<p class="lead">{e(category["description"][self.language])}</p></section>'
         if category['id'] in self.scores['categories']:
-            body += '<div class="section-heading"><h2>'+t('本分类总成绩','Category scores')+'</h2></div>'
-            body += '<section class="panel agent-scores"><div class="table-scroll">'+self.agent_table(self.scores['categories'][category['id']])+'</div></section>'
+            scored_agents = [agent for agent in self.homepage_score_agents()
+                             if not self.category_scope_empty(agent['id'], category['id'])]
+            body += '<div class="section-heading"><h2>'+t('本分类总成绩','Category scores')+'</h2>'+self.phase_label_markup()+'</div>'
+            if scored_agents:
+                body += '<section class="panel agent-scores"><div class="table-scroll">'
+                body += self.agent_table(self.scores['categories'][category['id']], agents=scored_agents)
+                body += '</div></section>'
         selected = cases[(page-1)*PAGE_SIZE:page*PAGE_SIZE]
         if not selected:
             body += '<div class="empty panel"><h2>'+t('暂无已审阅录像','No reviewed recordings yet')+'</h2><p>'+t('新场景完成录制与审阅后会出现在这里。','Scenarios appear here after collection and review.')+'</p></div>'

@@ -67,6 +67,7 @@ details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cu
 :focus-visible{outline:3px solid #92b8f4;outline-offset:3px}.case-card{display:block;background:white;border:1px solid #dfe5ee;border-radius:9px;padding:20px;max-width:480px}.case-card h2{margin:10px 0}.case-card p{color:#63768e}
 .report-breadcrumb{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 8px;margin:0 0 10px;overflow-wrap:anywhere}
 .report-breadcrumb [aria-hidden],.report-breadcrumb [aria-current]{color:#78869a}
+.condition-banner{margin:0 0 14px;padding:12px 14px;border:1px solid #ead7b0;border-radius:8px;background:#faf7ee;color:#6a5a3c;line-height:1.55}
 .report-return{display:inline-block;margin:12px 0 0}
 @media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar,.site-bar{padding-left:16px;padding-right:16px}.panel{padding:16px}.bar small{display:none}.site-nav{width:100%;order:3;margin:0;padding-top:8px;border-top:1px solid #dde3eb}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
 """
@@ -438,6 +439,11 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
             short_model,f'FinShield {metadata[3][1]}']))+'</p></div>'
     else:
         body+='<div class="chips">'+''.join(f'<span class="chip">{e(ui.get("chips",{}).get(v,v))}</span>' for v in chips if v)+'</div></div>'
+    if compact and pair.get('differences'):
+        mismatch=('Recorded configuration differs between default protection and FinShield. '
+                  'This pair does not isolate FinShield causality.' if language=='en'
+                  else '默认防护与 FinShield 两侧记录配置不同；该对照不能单独归因于 FinShield。')
+        body+=f'<div class="condition-banner" role="note">{e(mismatch)}</div>'
     body+='<nav class="nav" aria-label="'+e(ui['sections_nav'])+'">'+''.join(f'<a href="#section-{i+1}">{e(label)}</a>' for i,label in enumerate(words['sections']))+'</nav>'
     if compact and overview:
         item=next(m for m in record['publicMedia'] if m['group']=='comparison' and m['path']==overview['media'])
@@ -445,7 +451,7 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
             f'<div><strong>{e(names[name])}</strong><span>{e(overview["results"][name][language])}</span></div>' for name in groups)+'</div>'
         scenario+=f'<figure class="overview-media"><a href="{e(item["path"])}" target="_blank" rel="noopener"><img src="{e(item["path"])}" alt="{e(item["caption"][language])}"></a></figure>'
         note=f'<p>{e(text["scenario"])}</p><p>{e(text.get("observedImpact",""))}</p><p>{e(item["caption"][language])}</p>'
-        scenario+=disclosure('Preview notes' if language=='en' else '预览说明',note)
+        scenario+=disclosure('Run notes' if language=='en' else '运行说明',note)
     elif compact:
         labels=(['Possible impact','Test scope','Recorded observation'] if language=='en'
                 else ['可能影响','测试范围','本次观察'])

@@ -95,13 +95,13 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertIn('class="coverage-table"', html)
                 self.assertIn('0%', html)
                 self.assertIn('100%', html)
-                self.assertNotIn('class="phase-label"', html)
+                self.assertIn('class="phase-label"', html)
                 self.assertNotIn('class="category-tabs"', html)
                 self.assertNotIn('class="pagination"', html)
                 self.assertNotIn('防护结果 · 智能体数量', html)
                 self.assertNotIn('Protection results · Agent counts', html)
             for route in ('index.html', 'zh-CN.html'):
-                self.assertNotIn('class="phase-label"', (root / 'site' / route).read_text('utf8'))
+                self.assertIn('Development results (not formal)', (root / 'site' / route).read_text('utf8'))
 
     def test_display_priority_applies_before_pagination_and_description_is_escaped(self):
         with tempfile.TemporaryDirectory() as folder:

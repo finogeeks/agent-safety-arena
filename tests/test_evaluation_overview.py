@@ -172,8 +172,12 @@ class EvaluationOverviewTests(unittest.TestCase):
             workbuddy = next(r for r in catalog['coverage'] if r['id'] == 'workbuddy')
             self.assertEqual(workbuddy['native']['reports'], [])
             html = (root / 'site/zh-CN.html').read_text('utf8')
+            catalog = json.loads((root / 'site/catalog.json').read_text('utf8'))
+            labels = {agent['label']['zh-CN'] for agent in catalog['coverage']}
             for label in ('WorkBuddy', 'OpenCode CLI', 'Claude CLI'):
-                self.assertIn(label, html)
+                self.assertIn(label, labels)
+            self.assertNotIn('data-score-agent="claude-cli"', html)
+            self.assertNotIn('data-score-agent="opencode-cli"', html)
             self.assertNotIn('不评测模型能力', html)
             self.assertNotIn('class="protocol"', html)
             self.assertNotIn('DeepSeek Pro', html)
@@ -193,10 +197,10 @@ class EvaluationOverviewTests(unittest.TestCase):
             path = root / 'catalog.json'; path.write_text(json.dumps(taxonomy), encoding='utf8')
             build_site(results, site, ROOT / 'profiles/coverage.json', path)
             home = (site / 'index.html').read_text('utf8')
-            self.assertEqual(re.findall(r'data-category="([^"]+)"', home),
-                             ['privacy', 'interaction', 'system', 'data'])
+            self.assertNotIn('data-category="', home)
             self.assertIn('class="agent-card-grid"', home)
-            self.assertEqual(home.count('data-score-agent='), 5)
+            scores_block = home.split('id="agent-scores"', 1)[1].split('agent-archive', 1)[0]
+            self.assertNotIn('data-score-agent=', scores_block)
             self.assertNotIn('score-matrix', home)
             self.assertNotIn('data-case=', home)
             self.assertNotIn('<img', home)
@@ -268,9 +272,10 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertNotIn('GIF excerpt',html)
             css=(site/'catalog.css').read_text('utf8')
             self.assertIn('.refined-page .showcase-grid{grid-template-columns:repeat(4,minmax(0,1fr))',css)
-            self.assertEqual(re.findall(r'data-category="([^"]+)"', html),
-                             ['privacy', 'interaction', 'system', 'data'])
-            self.assertEqual(html.count('data-media-state="empty"'),3)
+            categories = re.findall(r'data-category="([^"]+)"', html)
+            self.assertEqual(categories, ['data'])
+            self.assertNotIn('system', categories)
+            self.assertNotIn('No media available', html)
             self.assertNotIn('category-score-table',html)
             self.assertEqual(media.read_bytes(),(site/prefix/'media/comparison.gif').read_bytes())
             self.assertEqual(path.read_bytes(),before)
@@ -286,12 +291,11 @@ class EvaluationOverviewTests(unittest.TestCase):
             build_site(results,site)
             html=(site/'index.html').read_text('utf8')
             self.assertIn('id="real-tests"',html)
-            self.assertEqual(re.findall(r'data-category="([^"]+)"', html),
-                             ['privacy', 'interaction', 'system', 'data'])
-            self.assertEqual(html.count('data-media-state="empty"'),4)
+            self.assertNotIn('data-category="', html)
             self.assertNotIn('<img',html)
             self.assertNotIn('href="#"',html)
-            self.assertIn('No media available',html)
+            self.assertNotIn('No media available',html)
+            self.assertIn('showcase-empty', html)
             self.assertNotIn('class="test-actions"',html)
 
     def test_homepage_uses_the_same_type_as_inner_pages(self):
@@ -399,9 +403,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.save(path, record)
             build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/zh-CN.html').read_text('utf8')
-            self.assertEqual(re.findall(r'data-category="([^"]+)"', home),
-                             ['privacy', 'interaction', 'system', 'data'])
-            self.assertLess(home.index('data-category="privacy"'), home.index('data-category="interaction"'))
+            self.assertEqual(re.findall(r'data-category="([^"]+)"', home), ['privacy'])
             card = re.search(r'<article class="agent-card".*?</article>', home, re.S).group()
             self.assertLess(card.index('隐私安全'), card.index('交互安全'))
             html = (root / 'site/camera-capture/workbuddy/paired/zh-CN.html').read_text('utf8')

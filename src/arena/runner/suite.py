@@ -73,6 +73,10 @@ def build_plan(suite_path, root):
             script=contained(path.parent,resource['script'])
             resource['scriptSha256']=digest(script)
             inputs[script.relative_to(root).as_posix()]=digest(script)
+        if 'program' in resource:
+            program=contained(path.parent,resource['program'])
+            resource['programSha256']=digest(program)
+            inputs[program.relative_to(root).as_posix()]=digest(program)
         fingerprint=hashlib.sha256(json.dumps(resource,sort_keys=True).encode()).hexdigest()
         for agent in agents:
             base_blockers=[]

@@ -17,18 +17,27 @@ the complete detail-page structure from the POC.
 
 Use Agent Safety Arena branding. Each scenario has a detail page. The project
 overview follows [evaluation-overview.md](evaluation-overview.md): an English-first,
-compact three-category score summary, paginated scenario cards, and per-scenario Agent
-comparisons. Put three bounded real-test GIF slots before the Agent score
-cards, with direct video/evidence/reproduction links and honest empty states.
+compact four-category score summary, paginated scenario cards, and per-scenario Agent
+comparisons. Put four bounded real-test GIF slots, one per authored category,
+before the Agent score cards. Each card names the category and uses its authored
+description first, then the GIF. The name links to that category page. The GIF
+links to the comparison. Homepage cards omit
+case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions.
+Keep honest empty states.
 Do not put full result lists on the homepage. The six-section
 detail page remains unchanged. Its local index provides language selection.
 When built as part of the full site, each English/Chinese detail page has a
-compact breadcrumb before its title: category, scenario, and current Agent
-details. The first two items link to their localized category and scenario
-hub. The current item uses `aria-current="page"`. Add a localized return-to-
+compact breadcrumb before its title: Home, category, scenario, and current
+Agent details. Home, category, and scenario link to their localized pages.
+The current item uses `aria-current="page"`. Add a localized return-to-
 scenario link after section 06. Use static relative links, so direct visits
 and relocated site folders work without browser history or JavaScript.
-Use the existing font and a 14px text size; wrap items on phones. The site
+Every full-site page uses the same header: brand, the four authored category
+links, GitHub, and language. Category, scenario hub, and methodology pages keep
+the Home-first breadcrumb under that header. Standalone report exports omit
+category links.
+Use the same type rules as category and scenario hub pages: Microsoft YaHei,
+14px body text, and 20px headings. Wrap items on phones. The site
 brand links to the localized project home. Standalone report exports retain
 their local index navigation and do not link to absent parent pages.
 
@@ -49,21 +58,26 @@ placeholder content, not a screenshot of an implemented page or a test result.
 The legacy card navigation uses a maximum content width of 1000 px, two columns above 760 px,
 one column at 760 px and below, 12 px gaps, and 14–16 px card padding. Preserve
 the POC visual direction: a light gray background, white panels, blue controls,
-thin borders, and rounded corners. Use 18 px main headings and 14 px body text,
-labels, and controls. Establish hierarchy through weight and spacing.
+thin borders, and rounded corners. Use 20 px headings and 14 px body text,
+labels, and controls, matching category and scenario hub pages. Establish
+hierarchy through weight, color, and spacing. Do not add a third type size.
 
-Use Noto Sans SC, Segoe UI Variable Text, Segoe UI, Microsoft YaHei, and
-sans-serif as the font stack. Content and expanded logs must wrap on small
+The UI font is Microsoft YaHei. Code and original logs use Consolas. Do not add
+a third font family. Content and expanded logs must wrap on small
 screens. Show status text as well as color. Provide visible keyboard focus.
+The visible page title is the short case name. Omit a trailing
+"default protection and FinShield" or "默认防护与 FinShield 对照" suffix; the
+two columns already name the compared approaches. Keep the reviewed record
+title unchanged.
 
 ```mermaid
 flowchart TD
   N[Case navigation] --> H[Header and comparison conditions]
-  H --> S[01 Scenario and impact]
-  S --> R[02 Observed comparison and limits]
-  R --> M[03 Two-column video or screenshot evidence]
-  M --> P[04 Submitted prompts]
-  P --> A[05 Verified public replies]
+  H --> S[01 What happened]
+  S --> R[02 Was it blocked]
+  R --> M[03 How we know]
+  M --> P[04 Prompt]
+  P --> A[05 Model reply]
   A --> E[06 Reproduce and audit]
 ```
 
@@ -117,14 +131,25 @@ copy belongs in reviewed data, not Python templates or ignored staging scripts.
 | Position | Required content | Presentation |
 | --- | --- | --- |
 | Header | Case title, category, one-sentence purpose, date, OS, Agent and version, model, reasoning, access and approval modes, environment versions, short scoped conclusion, and section navigation. | Keep the overview brief. Put run IDs and hashes in the expanded evidence. Label historical and synthetic results explicitly. |
-| 01 Scenario and impact | The requested action, owned target, allowed boundary, and possible user impact. For injection cases, identify the legitimate task and untrusted input separately. | One or two short paragraphs. Distinguish possible harm from observed effects. |
-| 02 Observed comparison | Actual baseline and comparison-group behavior, target state, protection status, enforcement location, evidence limits, and any mismatch in conditions. | A compact comparison table followed by one short explanation of the supported mechanism. Use a neutral heading when protection failed or the comparison is incomplete. |
-| 03 Comparison media | Baseline on the left, compared environment on the right. Each column has the exact group name, viewing hint, video or screenshot, and a short effect caption. | Stack baseline first on phones. Keep visible effects in the selected media. Give source time ranges and edit labels. Missing media is labeled; never create replacement evidence. |
-| 04 Submitted prompts | The full request actually submitted to each formal group, its frozen version, and public hash. | Show one copy when the requests are identical; otherwise show both and disclose the difference. Provide copy controls. Public substitutions are marked explicitly; do not present a rewritten template as the submission. When the submitted prompt contains a code block, show two short lines under the heading: the code came from an AI response to an ordinary request and is not correct every time, and it stays fixed so a wrong program is not mistaken for a block. Keep both lines visible. Do not end them with a period. |
-| 05 Agent final replies | Verified public text from the matched formal turn in each group, completion state, and any conflict with observations. | A short excerpt by default, with expansion and copy of the full reviewed public reply. Mark an absent or interrupted reply; do not invent one. Keep supplementary replies separate. |
-| 06 Reproduce and audit | One identity sentence for this comparison: Agent, prompt revision, phase, and date. A collapsed reproduction block with frozen conditions per group, suite commands, auxiliary scripts, capture rectangle, desktop, and confirmation mode. A collapsed audit index that names page files, raw run directories, and what each file is for, plus short limits. | Do not repeat the section 02 findings. Do not paste full logs. Name private logs; do not publish them. No extra attachment section. |
+| 01 What happened | The requested action, owned target, allowed boundary, and possible user impact. For injection cases, identify the legitimate task and untrusted input separately. | Visible labels: 发生了什么 / What happened. One or two short paragraphs. Distinguish possible harm from observed effects. |
+| 02 Was it blocked | Actual baseline and comparison-group behavior, target state, protection status, enforcement location, evidence limits, and any mismatch in conditions. | Visible labels: 防住了吗 / Was it blocked. A compact comparison table followed by one short explanation of the supported mechanism. Use a neutral heading when protection failed or the comparison is incomplete. |
+| 03 How we know | Baseline on the left, compared environment on the right. Each column has the exact group name, viewing hint, video or screenshot, and a short effect caption. | Visible labels: 怎么看出来 / How we know. Stack baseline first on phones. Keep visible effects in the selected media. Give source time ranges and edit labels. Missing media is labeled; never create replacement evidence. |
+| 04 Prompt | The full request actually submitted to each formal group, its frozen version, and public hash. | Visible labels: 提示词 / Prompt. Show one copy when the requests are identical; otherwise show both and disclose the difference. Provide copy controls. Public substitutions are marked explicitly; do not present a rewritten template as the submission. When the submitted prompt contains a code block, show two short lines under the heading: the code came from an AI response to an ordinary request and is not correct every time, and it stays fixed so a wrong program is not mistaken for a block. Keep both lines visible. Do not end them with a period. |
+| 05 Model reply | Verified public text from the matched formal turn in each group, completion state, and any conflict with observations. | Visible labels: 模型回复 / Model reply. A short excerpt by default, with expansion and copy of the full reviewed public reply. Mark an absent or interrupted reply; do not invent one. Keep supplementary replies separate. |
+| 06 Reproduce and audit | One identity sentence for this comparison: Agent, prompt revision, phase, and date. A collapsed reproduction block with frozen conditions per group, suite commands, auxiliary scripts, capture rectangle, desktop, and confirmation mode. A collapsed audit index that names page files, raw run directories, and what each file is for, plus short limits. | Visible labels: 复现与审计 / Reproduce and audit. Do not repeat the section 02 findings. Do not paste full logs. Name private logs; do not publish them. No extra attachment section. |
 
 ### Comparison fields
+
+An optional `presentation.promptGeneration` supplements section 04 with a
+two-step presentation. It contains a nonempty English `generationPrompt` and
+may contain `fixedScript` with its matching `fixedScriptSha256`. Show generation
+and saving first, then the exact recorded Agent execution prompt and hash. Keep
+the saved script inside that execution disclosure. The guide must not replace
+the original submitted request or imply a second recorded trial. The two
+visible note lines for this presentation are:
+
+- 提示词当中的脚本是由AI根据普通提示词生成的。
+- 我们固定这些代码，是为了评测 Agent 的安全管控能力，避免把“没写对”误判为“防住了”
 
 Use the same row labels for both columns. The compact table prioritizes actual
 action and target state. The expanded records retain these distinct fields:
@@ -269,11 +294,15 @@ configuration evidence, not the main comparison names. Primary result lines
 describe observed effects and do not assert unverified blocking or general safety.
 
 Optional presentation `dense: true` enables a supplemental stylesheet and
-progressive disclosure while preserving `report.css`. Optional `overview`
-contains `media` (one reviewed comparison GIF path) and `results` (native and
-finshield bilingual one-line observations). The referenced image must have
-public-media group `comparison`, be a GIF, and have two recorded source groups.
-It appears once in section 01. Keep pane timing and final-frame holds in the
+progressive disclosure while preserving `report.css`. Reviewed live records on
+the evaluation site use this dense layout even when FinShield is unrun. Keep
+the empty panel. Do not keep a long-form page to represent a native-only trial.
+Do not add an overview GIF unless both source groups are recorded. Optional
+`overview` contains `media` (one reviewed comparison GIF path) and `results`
+(native and finshield bilingual one-line observations). The referenced image
+must have public-media group `comparison`, be a GIF, and have two recorded
+source groups. It appears once in section 01. Keep pane timing and final-frame
+holds in the
 provenance; do not imply synchronization. The actual group names come from
 reviewed presentation data, not hard-coded product labels in Python.
 
@@ -395,9 +424,14 @@ and the target or observer. Initial recording arrangement must not constrain
 the effect or keep the conversation artificially above the target.
 
 For interaction cases, use reviewed MP4 with poster, play/pause, seeking, and
-fullscreen. Load video on request rather than on navigation-page load. The current
-operator default is 20 seconds: opening 5 seconds, effect 10 seconds, and final
-reply 5 seconds. Disclose omitted waiting and any omitted part of the effect.
+fullscreen. Load video on request rather than on navigation-page load.
+Keep native controls. Put the 16:9 size on a frame around the video, not on the
+video element, so the control bar stays clickable. If the host does not make
+the file seekable, load that short MP4 as a blob on first play. Do not add a
+custom preview server.
+The current operator default is 20 seconds: opening 5 seconds, effect 10
+seconds, and final reply 5 seconds. Disclose omitted waiting and any omitted
+part of the effect.
 Anchor the effect excerpt to its first visible frames, with about one second
 of lead-in when available. Deliver native sandbox confirmations as separate
 original screenshots. Do not use approval-video excerpts in place of those
@@ -439,6 +473,7 @@ edited media under `results/<scenario-id>/<agent-id>/<comparison-id>/`. Generate
 | AC-8 | The shared report command writes both local HTML languages and navigation from the existing record schema; missing groups have no fabricated media or outcomes, and prompt text cannot inject HTML. |
 | AC-8 | Documentation and the layout reference identify this as the target; the existing single-run renderer is not claimed to implement it. |
 | AC-9 | Each section 03 display video is 20 seconds. Each reviewed GIF, including the section 01 comparison, is 5 seconds and is a 4x playback of those videos, with no extra hold. |
+| AC-10 | Section 03 videos keep native controls. The 16:9 frame is not the video element. Progress-bar seeking still works when the host has no byte ranges. |
 
 ## Out of scope
 

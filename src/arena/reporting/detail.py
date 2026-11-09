@@ -32,16 +32,17 @@ TEXT = {
 
 
 CSS = """
-:root{font-family:'Segoe UI Variable Text','Segoe UI','Microsoft YaHei',sans-serif;color:#243248;background:#f4f6f9;font-size:14px;line-height:1.65;color-scheme:light}
-*{box-sizing:border-box}body{margin:0}a{color:#285dbb;text-decoration:none}a:hover{text-decoration:underline}
-main,.bar{max-width:1000px;margin:auto;padding:24px 22px}.bar{display:flex;align-items:center;justify-content:space-between;padding-top:17px;padding-bottom:17px}
-header{background:white;border-bottom:1px solid #dde3eb}.brand{color:#22324b;font-weight:650;letter-spacing:.1px}.bar small{color:#778397;margin-left:12px}
-h1{font-size:24px;line-height:1.35;margin:12px 0 10px;color:#172b4a}h2{font-size:18px;margin:0 0 16px}h3{font-size:14px;margin:0 0 10px}p{margin:8px 0;white-space:pre-line}
-.eyebrow{color:#69809e;font-size:12px;letter-spacing:.08em;text-transform:uppercase}.muted,figcaption{color:#69798d}.lead{color:#56687e;max-width:760px}
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0}.chip{display:inline-flex;padding:3px 9px;border:1px solid #e0e5ed;border-radius:5px;color:#516479;background:#f8fafc;font-size:12px}
+:root{--text-size:14px;--heading-size:20px;color-scheme:light;color:#243248;background:#f4f6f9;font-family:"Microsoft YaHei",sans-serif;font-size:var(--text-size);line-height:1.65}
+*{box-sizing:border-box;font-family:inherit;font-size:inherit;letter-spacing:normal}body{margin:0}a{color:#285dbb;text-decoration:none}a:hover{text-decoration:underline}
+main,.bar,.site-bar{max-width:1000px;margin:auto;padding:24px 22px}.bar,.site-bar{display:flex;align-items:center;justify-content:flex-start;gap:16px;flex-wrap:wrap;padding-top:17px;padding-bottom:17px}
+.site-header{background:white;border-bottom:1px solid #dde3eb}.brand{display:inline-flex;align-items:center;gap:8px;color:#22324b;font-weight:650}.brand-mark{display:grid;place-items:center;background:#285ecc;color:white;width:26px;height:28px;border-radius:6px}.site-nav{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-left:auto}.site-nav a[aria-current]{color:#172b4a;font-weight:600}.locale{color:#778397}.bar small{color:#778397;margin-left:12px}
+h1,h2,.group-title,.overview-headings strong{font-size:var(--heading-size);font-weight:600;line-height:1.4;color:#172b4a}
+h1{margin:12px 0 10px}h2{margin:0 0 16px}h3{margin:0 0 10px;font-weight:600}p{margin:8px 0;white-space:pre-line}
+.eyebrow,.muted,figcaption,.lead,.fine,.metadata-row,footer,.prompt-code-note{color:#69798d}.lead{max-width:760px}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0}.chip{display:inline-flex;padding:3px 9px;border:1px solid #e0e5ed;border-radius:5px;color:#516479;background:#f8fafc}
 .hero{padding:4px 0 10px}.panel{background:white;border:1px solid #e0e6ee;border-radius:10px;padding:22px;margin:16px 0;scroll-margin-top:75px}
-.nav{position:sticky;top:0;z-index:10;display:flex;gap:18px;overflow:auto;background:#f4f6f9f5;border-bottom:1px solid #dfe5ed;padding:13px 0;backdrop-filter:blur(8px);white-space:nowrap;font-size:12px}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}.group{min-width:0}.group-title{padding:0 0 10px;border-bottom:1px solid #e7ebf1;margin-bottom:12px;font-weight:600}
+.nav{position:sticky;top:0;z-index:10;display:flex;gap:18px;overflow:auto;background:#f4f6f9f5;border-bottom:1px solid #dfe5ed;padding:13px 0;backdrop-filter:blur(8px);white-space:nowrap}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:18px}.group{min-width:0}.group-title{padding:0 0 10px;border-bottom:1px solid #e7ebf1;margin-bottom:12px}
 .empty{background:#fafbfd;border:1px dashed #dce2eb;border-radius:8px;min-height:230px;display:flex;flex-direction:column;justify-content:center;align-items:center;color:#8a97a9;padding:26px;text-align:center}.empty strong{color:#7a899e;font-weight:500}
 .grade-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}.grade{display:inline-flex;align-items:center;gap:8px;padding:4px 11px;border-radius:6px;font-weight:650;border:1px solid #e3e7ee;background:#f3f5f8;color:#55657b}
 .assessment-status{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 12px;margin-bottom:10px}
@@ -51,42 +52,93 @@ h1{font-size:24px;line-height:1.35;margin:12px 0 10px;color:#172b4a}h2{font-size
 .assessment-status .grade{padding:0;border:0;background:transparent;font-weight:500}.assessment-note{color:#78869a}.assessment-evidence{margin:8px 0 14px;padding-top:8px}
 .grade[data-warning-level="insufficient"]{background:#fff3e8;border-color:#f3d6ba;color:#97511c}.grade[data-warning-level="adequate"]{background:#eaf5ee;border-color:#c6e1cf;color:#316746}.grade[data-warning-level="partial"]{background:#fff8df;border-color:#eadba4;color:#806113}
 .assessment-status .warning-absent{background:transparent;color:#9f2424;font-weight:600}
-.grade-reason{font-size:14px;color:#475c74;margin-bottom:12px}.fine{font-size:12px;color:#78869a;overflow-wrap:anywhere}
+.grade-reason{color:#475c74;margin-bottom:12px}.fine{overflow-wrap:anywhere}
 table{width:100%;border-collapse:collapse;text-align:left;table-layout:fixed}th,td{padding:10px 11px;border-bottom:1px solid #e9edf2;vertical-align:top;overflow-wrap:anywhere}th{color:#65758c;font-weight:500;background:#f8fafc}th:first-child{width:18%}.facts td:first-child{color:#64748b;width:26%}.facts td{padding-left:0}
-figure{margin:0 0 22px}video,img{display:block;width:100%;max-width:100%;border-radius:7px;border:1px solid #e3e8ef}video{aspect-ratio:16/9;background:#e9edf3}figcaption{font-size:12px;line-height:1.5;margin-top:8px;white-space:pre-line}.still img{max-height:420px;object-fit:contain;background:#f8fafc}
-pre{font-family:'Cascadia Code',Consolas,monospace;font-size:12px;background:#f7f9fc;border:1px solid #e6ebf2;border-radius:7px;padding:15px;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0;line-height:1.7}.reply{font-family:inherit;font-size:14px;background:transparent;border:0;padding:0}
-.tools{display:flex;justify-content:space-between;align-items:center;gap:8px}.copy{font:inherit;font-size:12px;background:white;border:1px solid #dbe2ec;border-radius:5px;padding:4px 10px;color:#3e5c82;cursor:pointer}
-.prompt-code-note{margin:0 0 14px;font-size:12px;line-height:1.7;color:#78869a}
-details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cursor:pointer;color:#315e9a}li{margin:5px 0}footer{padding:20px 0 35px;color:#8a96a7;font-size:12px;overflow-wrap:anywhere}
+figure{margin:0 0 22px}img{display:block;width:100%;max-width:100%;border-radius:7px;border:1px solid #e3e8ef}
+.video-frame{aspect-ratio:16/9;background:#e9edf3;border:1px solid #e3e8ef;border-radius:7px}
+.video-frame video{display:block;width:100%;height:100%;border:0;background:#e9edf3}
+figcaption{line-height:1.5;margin-top:8px;white-space:pre-line}.still img{max-height:420px;object-fit:contain;background:#f8fafc}
+pre,code{font-family:Consolas,monospace}
+pre{background:#f7f9fc;border:1px solid #e6ebf2;border-radius:7px;padding:15px;white-space:pre-wrap;overflow-wrap:anywhere;margin:12px 0;line-height:1.7}.reply{font-family:inherit;background:transparent;border:0;padding:0}
+#fixed-script,#generation-prompt{max-height:420px;overflow:auto}
+.tools{display:flex;justify-content:space-between;align-items:center;gap:8px}.copy{font:inherit;background:white;border:1px solid #dbe2ec;border-radius:5px;padding:4px 10px;color:#3e5c82;cursor:pointer}
+.prompt-code-note{margin:0 0 14px;line-height:1.7}
+details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cursor:pointer;color:#315e9a}li{margin:5px 0}footer{padding:20px 0 35px;overflow-wrap:anywhere}
 :focus-visible{outline:3px solid #92b8f4;outline-offset:3px}.case-card{display:block;background:white;border:1px solid #dfe5ee;border-radius:9px;padding:20px;max-width:480px}.case-card h2{margin:10px 0}.case-card p{color:#63768e}
-.report-breadcrumb{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 8px;margin:0 0 10px;font-size:14px;overflow-wrap:anywhere}
+.report-breadcrumb{display:flex;align-items:baseline;flex-wrap:wrap;gap:5px 8px;margin:0 0 10px;overflow-wrap:anywhere}
 .report-breadcrumb [aria-hidden],.report-breadcrumb [aria-current]{color:#78869a}
-.report-return{display:inline-block;margin:12px 0 0;font-size:14px}
-@media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar{padding-left:16px;padding-right:16px}.panel{padding:16px}h1{font-size:21px}.bar small{display:none}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
+.report-return{display:inline-block;margin:12px 0 0}
+@media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar,.site-bar{padding-left:16px;padding-right:16px}.panel{padding:16px}.bar small{display:none}.site-nav{width:100%;order:3;margin:0;padding-top:8px;border-top:1px solid #dde3eb}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
 """
 
-JS = """document.addEventListener('click',async event=>{const b=event.target.closest('[data-copy]');if(!b)return;const t=document.getElementById(b.dataset.copy);if(!t)return;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(t.textContent)}else{const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges()}b.textContent=b.dataset.copied}catch{t.focus()}});"""
+JS = """document.addEventListener('click',async event=>{const b=event.target.closest('[data-copy]');if(!b)return;const t=document.getElementById(b.dataset.copy);if(!t)return;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(t.textContent)}else{const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges()}b.textContent=b.dataset.copied}catch{t.focus()}});
+document.querySelectorAll('video').forEach(video=>{const localize=async()=>{if(video.dataset.local==='blob')return;const src=video.currentSrc||video.querySelector('source')?.src;const end=video.seekable.length?video.seekable.end(video.seekable.length-1):0;if(end>0||!src||src.startsWith('blob:')){if(end>0)video.dataset.local='ok';return}video.dataset.local='blob';const url=URL.createObjectURL(await(await fetch(src)).blob());const time=video.currentTime,paused=video.paused;video.querySelectorAll('source').forEach(s=>s.remove());video.src=url;video.currentTime=time;if(!paused)video.play()};const seek=event=>{const box=video.getBoundingClientRect();if(!video.duration||box.height<=0)return false;const y=event.clientY-box.top,x=event.clientX-box.left;if(y<box.height-44||x<48||x>box.width-96)return false;video.currentTime=((x-48)/Math.max(box.width-144,1))*video.duration;return true};video.addEventListener('pointerdown',async event=>{if(event.button)return;await localize();if(seek(event)){event.preventDefault();event.stopPropagation()}},true);video.addEventListener('play',localize)});"""
 
 DENSE_CSS = """
-main,.bar{padding:14px 20px}.bar{padding-top:12px;padding-bottom:12px}
-.hero{padding:0 0 5px}.hero h1{margin:5px 0 6px;font-size:23px}.lead{margin:4px 0 7px}
-.metadata-row{font-size:12px;color:#778397;margin:5px 0;overflow-wrap:anywhere}
-.nav{gap:14px;padding:8px 0;font-size:12px}.panel{padding:15px 18px;margin:11px 0}
-.panel h2{font-size:17px;margin-bottom:9px}.panel p{margin:5px 0}.panel details{margin-top:9px;padding-top:8px}
+main,.bar,.site-bar{padding:14px 20px}.bar,.site-bar{padding-top:12px;padding-bottom:12px}
+.hero{padding:0 0 5px}.hero h1{margin:5px 0 6px}.lead{margin:4px 0 7px}
+.metadata-row{margin:5px 0;overflow-wrap:anywhere}
+.nav{gap:14px;padding:8px 0}.panel{padding:15px 18px;margin:11px 0}
+.panel h2{margin-bottom:9px}.panel p{margin:5px 0}.panel details{margin-top:9px;padding-top:8px}
 .overview-headings{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:10px 0 8px}
-.overview-headings strong{display:block;font-size:16px;color:#172b4a}.overview-headings span{font-size:13px;color:#61718a}
-.overview-media{margin:0}.overview-media img{width:100%;height:auto}.overview-media figcaption{font-size:11px;margin-top:5px}
-.panel figure{margin-bottom:10px}.panel summary{font-size:13px}.panel .group-title{margin-bottom:8px;padding-bottom:7px}
-.panel pre{margin:8px 0}.panel code{font-family:'Cascadia Code',Consolas,monospace;font-size:12px}footer{padding:12px 0;font-size:11px}
+.overview-headings strong{display:block}.overview-headings span{color:#61718a}
+.overview-media{margin:0}.overview-media img{width:100%;height:auto}.overview-media figcaption{margin-top:5px}
+.panel figure{margin-bottom:10px}.panel .group-title{margin-bottom:8px;padding-bottom:7px}
+.panel pre{margin:8px 0}footer{padding:12px 0}
 .configuration-note{display:inline-block;position:relative;border:0!important;margin:0 0 0 5px!important;padding:0!important}
-.configuration-note summary{display:inline;list-style:none;font-size:13px;cursor:pointer}.configuration-note summary::-webkit-details-marker{display:none}
-.configuration-note p{position:absolute;right:0;top:16px;z-index:20;min-width:170px;padding:8px 10px!important;background:white;border:1px solid #dfe5ee;border-radius:6px;box-shadow:0 3px 12px #24324818;font-size:12px}
-@media(max-width:760px){main,.bar{padding-left:12px;padding-right:12px}.panel{padding:13px}.overview-headings strong{font-size:14px}.overview-headings span{font-size:12px}}
+.configuration-note summary{display:inline;list-style:none;cursor:pointer}.configuration-note summary::-webkit-details-marker{display:none}
+.configuration-note p{position:absolute;right:0;top:16px;z-index:20;min-width:170px;padding:8px 10px!important;background:white;border:1px solid #dfe5ee;border-radius:6px;box-shadow:0 3px 12px #24324818}
+@media(max-width:760px){main,.bar{padding-left:12px;padding-right:12px}.panel{padding:13px}}
 """
 
 
 def e(value):
     return escape(str(value), quote=True)
+
+
+GITHUB_HREF = 'https://github.com/finogeeks/agent-safety-arena'
+
+
+def site_header_markup(language, home_href, locale_href, locale_label, categories=None,
+                       current_category=None, brand_mark=False):
+    aria = '主导航' if language == 'zh-CN' else 'Main navigation'
+    locale_lang = 'en' if language == 'zh-CN' else 'zh-CN'
+    def nav_label(value):
+        if language == 'zh-CN':
+            value = re.sub(r'(?<=[\u3400-\u9fff])\s+(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])\s+(?=[\u3400-\u9fff])', '', str(value))
+        return e(value)
+    brand = f'<a class="brand" href="{e(home_href)}">'
+    if brand_mark:
+        brand += '<span class="brand-mark">A</span>'
+    brand += 'Agent Safety Arena</a>'
+    nav = f'<nav class="site-nav" aria-label="{aria}">'
+    for item in categories or []:
+        current = ' aria-current="page"' if item['id'] == current_category else ''
+        nav += f'<a href="{e(item["href"])}"{current}>{nav_label(item["label"])}</a>'
+    nav += f'<a href="{GITHUB_HREF}">GitHub ↗</a></nav>'
+    locale = f'<a class="locale" href="{e(locale_href)}" lang="{locale_lang}">{e(locale_label)}</a>'
+    return f'<header class="site-header"><div class="site-bar">{brand}{nav}{locale}</div></header>'
+
+
+def breadcrumb_markup(language, crumbs, current):
+    aria='当前位置' if language=='zh-CN' else 'Breadcrumb'
+    def nav_label(value):
+        if language=='zh-CN':
+            value=re.sub(r'(?<=[\u3400-\u9fff])\s+(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])\s+(?=[\u3400-\u9fff])','',str(value))
+        return e(value)
+    body='<nav class="report-breadcrumb" aria-label="'+aria+'">'
+    for href,label in crumbs:
+        body+=f'<a href="{e(href)}">{nav_label(label)}</a><span aria-hidden="true">›</span>'
+    return body+'<span aria-current="page">'+nav_label(current)+'</span></nav>'
+
+
+def page_title(title):
+    text=str(title)
+    for suffix in ('：默认防护与 FinShield 对照','：默认防护与FinShield对照',
+                   ': default protection and FinShield'):
+        if text.endswith(suffix):
+            return text[:-len(suffix)].rstrip(' ：:')
+    return text
 
 
 PROMPT_CODE_NOTE={
@@ -98,6 +150,13 @@ PROMPT_CODE_NOTE={
         '提示词中的代码由 AI 根据普通请求生成，但未必每次都能写对',
         '我们固定这些代码，是为了评测 Agent 的安全管控能力，避免把“没写对”误判为“防住了”',
     ),
+}
+
+GENERATION_CODE_NOTE={
+    'en':('The script in the prompt was generated by AI from an ordinary prompt.',
+          'We keep this code fixed to test the Agent\'s safety controls, so a wrong program is not mistaken for a block'),
+    'zh-CN':('提示词当中的脚本是由AI根据普通提示词生成的。',
+             '我们固定这些代码，是为了评测 Agent 的安全管控能力，避免把“没写对”误判为“防住了”'),
 }
 
 
@@ -280,16 +339,18 @@ def assessment_markup(group, language):
     return body+'<details class="assessment-evidence"><summary>'+('Assessment basis' if language=='en' else '评估依据')+'</summary>'+reasons+'</details>'
 
 
-def shell(title, language, body, dense=False, home_href='index.html'):
+def shell(title, language, body, dense=False, home_href='index.html', navigation=None):
     ui=TEXT[language]
+    categories=(navigation or {}).get('categories')
+    header=site_header_markup(language, home_href, ui['locale_path'], ui['locale'],
+        categories=categories, current_category=(navigation or {}).get('categoryId'),
+        brand_mark=bool(categories))
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
-        '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\'; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
+        '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\' blob:; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
         f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css">'
         +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
-        f'<header><div class="bar"><a class="brand" href="{e(home_href)}">Agent Safety Arena</a><small>{ui["shared"]}</small>'
-        f'<a href="{ui["locale_path"]}" lang="{"en" if language=="zh-CN" else "zh-CN"}">{ui["locale"]}</a></div></header>'
-        '<main>'+body+'</main><script src="report.js" defer></script></body></html>')
+        +header+'<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
 
 def display_text(record, language, original, original_language, translation):
@@ -307,7 +368,7 @@ def render_index(record):
         text=record['narrative'][language];ui=TEXT[language]
         phase=ui['development'] if record['phase']!='formal' else record['phase']
         cards.append(f'<a class="case-card" href="{language}.html" lang="{language}"><span class="chip">{e(phase)}</span>'
-            f'<h2>{e(text["title"])}</h2><p>{e(text["purpose"])}</p>{assessment_markup(record["groups"]["native"],language)}'
+            f'<h2>{e(page_title(text["title"]))}</h2><p>{e(text["purpose"])}</p>{assessment_markup(record["groups"]["native"],language)}'
             f'<p>{ui["detail"]} →</p></a>')
     return shell('Results','en','<div class="hero"><h1>Results</h1></div><div class="pair">'+''.join(cards)+'</div>')
 
@@ -336,7 +397,7 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
             if item['kind']=='video':
                 poster=str(PurePosixPath(path).with_suffix('.png'))
                 attr=f' poster="{e(poster)}"' if poster in images else ''
-                element=f'<video controls preload="none" playsinline{attr} aria-label="{e(caption)}"><source src="{e(path)}" type="video/mp4"></video>'
+                element=f'<div class="video-frame"><video controls preload="none" playsinline{attr} aria-label="{e(caption)}"><source src="{e(path)}" type="video/mp4"></video></div>'
                 kind=''
             else:
                 element=f'<a href="{e(path)}" target="_blank" rel="noopener" aria-label="{ui["open_image"]}"><img src="{e(path)}" alt="{e(caption)}" loading="lazy"></a>'
@@ -350,20 +411,18 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
             return ''.join(videos)+(disclosure('Original screenshots' if language=='en' else '原始截图',''.join(stills)) if stills else '')
         return ''.join(output)
     if navigation:
-        def nav_label(value):
-            if language == 'zh-CN':
-                value = re.sub(r'(?<=[\u3400-\u9fff])\s+(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])\s+(?=[\u3400-\u9fff])', '', value)
-            return e(value)
         current = navigation['agentLabel'] + ('详情' if language == 'zh-CN' else ' details')
-        body = '<nav class="report-breadcrumb" aria-label="'+('当前位置' if language == 'zh-CN' else 'Breadcrumb')+'">'
-        for item in ('category', 'case'):
-            body += f'<a href="{e(navigation[item+"Href"])}">{nav_label(navigation[item+"Label"])}</a><span aria-hidden="true">›</span>'
-        body += '<span aria-current="page">'+nav_label(current)+'</span></nav>'
+        body = breadcrumb_markup(language, (
+            (navigation['homeHref'], '首页' if language == 'zh-CN' else 'Home'),
+            (navigation['categoryHref'], navigation['categoryLabel']),
+            (navigation['caseHref'], navigation['caseLabel']),
+        ), current)
     else:
         body = '' if dense else f'<a class="fine" href="index.html">← {ui["back"]}</a>'
+    title=page_title(text['title'])
     body += '<div class="hero">'
     if not dense:body+=f'<div class="eyebrow">{e(record["agentId"])} / {e(record["scenarioId"])}</div>'
-    body+=f'<h1>{e(text["title"])}</h1><p class="lead">{e(text["purpose"])}</p>'
+    body+=f'<h1>{e(title)}</h1><p class="lead">{e(text["purpose"])}</p>'
     phase=ui['development'] if record['phase']!='formal' else record['phase']
     if compact:
         chips=[f'{label}：{value}' for label,value in header_metadata(record,language)]
@@ -454,7 +513,17 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
         if not is_original:prompt_body+=f'<p class="fine">{ui["stored"]}</p>'
         prompt_body+=f'<p class="fine">SHA-256: {e(prompt["sha256"])}</p>'
     shown_prompts=prompts or [('native',record['prompt'])]
-    body+=section(4,prompt_code_note(language,shown_prompts)+(disclosure('Original submitted prompt' if language=='en' else '查看原始提示词',prompt_body) if dense else prompt_body))
+    guide=(presentation or {}).get('promptGeneration')
+    if guide:
+        note='<p class="prompt-code-note">'+'<br>'.join(e(line) for line in GENERATION_CODE_NOTE[language])+'</p>'
+        generation_body='<div class="tools"><span class="fine">'+e('Generate window-flood.py and save it' if language=='en' else '先生成 window-flood.py 并保存')+'</span>'+copy_button('generation-prompt')+'</div>'+original('generation-prompt',guide['generationPrompt'])
+        generation_body+='<p class="fine">'+e('Then run the saved script with the execution prompt below' if language=='en' else '保存后，使用下面的运行 Prompt 执行脚本')+'</p>'
+        if guide.get('fixedScript'):
+            prompt_body+='<div class="tools"><span class="fine">'+e('Saved Python script' if language=='en' else '已保存的 Python 脚本')+'</span>'+copy_button('fixed-script')+'</div>'+original('fixed-script',guide['fixedScript'])
+            prompt_body+='<p class="fine">SHA-256: '+e(guide['fixedScriptSha256'])+'</p>'
+        body+=section(4,note+disclosure('1. Generate and save the Python script' if language=='en' else '1. 生成并保存 Python 脚本',generation_body)+disclosure('2. View the Agent execution prompt' if language=='en' else '2. 查看 Agent 运行 Prompt',prompt_body))
+    else:
+        body+=section(4,prompt_code_note(language,shown_prompts)+(disclosure('Original submitted prompt' if language=='en' else '查看原始提示词',prompt_body) if dense else prompt_body))
     replies=[]
     for name,group in groups.items():
         content=empty()
@@ -486,5 +555,5 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
     body+=section(6,evidence_body)
     if navigation:
         body += f'<a class="report-return" href="{e(navigation["caseHref"])}">← '+('返回场景评测' if language == 'zh-CN' else 'Back to scenario')+'</a>'
-    body+=f'<footer>{ui["shared"]}<br>{ui["hash_label"]}: {e(evidence_hash)}</footer>'
-    return shell(text['title'],language,body,dense,navigation['homeHref'] if navigation else 'index.html')
+    body+=f'<footer>{ui["hash_label"]}: {e(evidence_hash)}</footer>'
+    return shell(title,language,body,dense,navigation['homeHref'] if navigation else 'index.html', navigation)

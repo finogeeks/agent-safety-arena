@@ -37,12 +37,19 @@ class DetailNavigationTests(unittest.TestCase):
                     html = (report / (language + '.html')).read_text('utf8')
                     breadcrumb = re.search(r'<nav class="report-breadcrumb".*?</nav>', html)
                     self.assertIsNotNone(breadcrumb)
+                    crumb = breadcrumb.group()
+                    home_label = '首页' if language == 'zh-CN' else 'Home'
                     self.assertLess(breadcrumb.start(), html.index('<div class="hero">'))
-                    self.assertIn('href="../../../' + category + '"', breadcrumb.group())
+                    self.assertIn('href="../../../' + home + '"', crumb)
+                    self.assertIn(home_label, crumb)
+                    self.assertLess(crumb.index('href="../../../' + home + '"'),
+                                    crumb.index('href="../../../' + category + '"'))
+                    self.assertIn('href="../../../' + category + '"', crumb)
                     case_href = '../../../cases/cursor-recenter/' + hub
                     self.assertEqual(html.count('href="' + case_href + '"'), 2)
-                    self.assertIn(case['title'][language], breadcrumb.group())
-                    self.assertIn('aria-current="page"', breadcrumb.group())
+                    self.assertIn(case['title'][language], crumb)
+                    self.assertIn('aria-current="page"', crumb)
+                    self.assertNotIn('>' + home_label + '</span>', crumb)
                     self.assertIn('<a class="brand" href="../../../' + home + '"', html)
                     self.assertGreater(html.index(label), html.index('id="section-6"'))
                     links = Links(); links.feed(html)
@@ -52,6 +59,11 @@ class DetailNavigationTests(unittest.TestCase):
                                      (root / 'standalone' / (language + '.md')).read_bytes())
             self.assertEqual((report / 'evidence.json').read_bytes(), (root / 'standalone/evidence.json').read_bytes())
             self.assertEqual(path.read_bytes(), before)
+            site_header = re.search(r'<header\b.*?</header>',
+                                    (report / 'zh-CN.html').read_text('utf8')).group()
+            self.assertIn('隐私安全', site_header)
+            self.assertIn('GitHub ↗', site_header)
+            self.assertIn('href="../../../privacy.zh-CN.html"', site_header)
 
     def test_navigation_uses_authored_category_and_escapes_localized_labels(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -78,6 +90,35 @@ class DetailNavigationTests(unittest.TestCase):
                 self.assertNotIn('class="report-breadcrumb"', html)
                 self.assertNotIn('../../../', html)
                 self.assertIn('class="brand" href="index.html"', html)
+                header = re.search(r'<header\b.*?</header>', html).group()
+                self.assertNotIn('Privacy Safety', header)
+                self.assertNotIn('隐私安全', header)
+                self.assertNotIn('interaction.html', header)
+                self.assertNotIn('Shared original evidence', html)
+                self.assertNotIn('共用原始证据', html)
+                self.assertNotIn('<small>', html)
+
+    def test_detail_header_omits_local_report_subtitle(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            path, record = self.record(root / 'results', scenario='cursor-recenter', agent='dsh')
+            self.attach_gif(path, record)
+            record['presentation']['dense'] = True
+            self.save(path, record)
+            build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
+            export_reports(path, root / 'standalone')
+            pages = [
+                root / 'standalone' / 'zh-CN.html',
+                root / 'standalone' / 'en.html',
+                root / 'site/cursor-recenter/dsh/paired/zh-CN.html',
+                root / 'site/cursor-recenter/dsh/paired/en.html',
+            ]
+            for page in pages:
+                html = page.read_text('utf8')
+                self.assertNotIn('Shared original evidence · local report', html)
+                self.assertNotIn('共用原始证据 · 本地结果页', html)
+                self.assertNotIn('<small>', html)
+                self.assertIn('class="brand"', html)
 
 
 if __name__ == '__main__':

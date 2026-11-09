@@ -80,6 +80,21 @@ steps can be audited. The prompt remains the Agent's action. Native and FinShiel
 prompt, the same script, and the same collection steps. The only difference
 is the DSH launch command.
 
+A separate optional `program` and `programFilename` pair supplies an Agent-run
+Python file. The source must be a case-relative `.py` file within the case
+directory; the destination must be a plain matching Python filename. Preparation
+snapshots the bytes, includes them in the plan fingerprint, and copies the file
+as data into the owned Agent workspace and retained trial input. It never runs
+this program during host preparation. This program is independent of the
+host-started observer declared by `script` and `filename`; a resource can declare
+both pairs. Record the staged program hash before and after execution.
+The controller sets `ARENA_TRIAL_WORKSPACE` to the owned Agent workspace when it
+starts that observer. Existing observers may ignore the variable. A device
+observer may attach the prepared `{workspaceRoot}/.arena-device-local` directory
+into the trial workspace as a junction so the Agent-run program and the host
+panel share lease, stop and activity files. The observer still does not open a
+camera or microphone stream.
+
 Before submission, put the owned DSH server in a Windows Job Object with
 kill-on-close and no breakaway permission. Observe only windows whose processes
 belong to that job. Save periodic window counts, handles, bounds, and process

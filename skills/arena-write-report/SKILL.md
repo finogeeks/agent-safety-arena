@@ -40,11 +40,10 @@ Build it from reviewed records and `profiles/coverage.json`; keep planned Agents
 both protection tracks, and the fixed model explicit. Do not invent summary
 results or inflate coverage by counting exports of the same trial.
 Assign new case names and categories in `scenarios/catalog.json`. The
-English-first homepage starts with three fixed real-test GIF slots and direct
-video, evidence and reproduction links, followed by compact per-Agent scores.
+English-first homepage starts with four category GIF slots, followed by compact per-Agent scores.
 Reuse only reviewed live media. Keep missing slots explicitly empty; never
 replace them with fabricated or unrelated examples. Full videos remain in the
-comparison details. On the homepage, list each Agent as a card with total and three
+comparison details. On the homepage, list each Agent as a card with total and four
 category scores, each split into Default/FinShield. Category pages
 retain the detailed scores and paginated scenario cards.
 Do not introduce country or region labels for Agents.

@@ -26,11 +26,12 @@ flowchart TD
   D -->|Missing dependencies| E[Obtain declared versions from verified sources]
   E --> C
   D -->|Unresolved prerequisite| F[Record exact gap and required input]
-  D -->|Yes| G[Generate local profile and environment record]
-  G --> H[Plan, static checks and no-prompt preflight]
+  D -->|Yes|   G[Generate local profile and environment record]
+  G --> V[Verify saved program outside the evaluated Agent]
+  V --> H[Plan, static checks and no-prompt preflight]
   H --> I{Ready within declared scope?}
   I -->|No| F
-  I -->|Yes| J[Record through shared controller]
+  I -->|Yes| J[Evaluated Agent runs the saved file]
   J --> K[Complete evidence and recovery records]
   K --> L[Separate editing, assessment and report]
 ```
@@ -45,6 +46,9 @@ locale, and intervention policy. Save the suite and dependency references.
 Use the existing [case and suite contracts](multi-agent-evaluation.md); add
 controller behavior only through the normal specification and code workflow.
 Imported case wording alone is not an executable scope declaration.
+For a saved-program case, verify the program on the host first. Then write the
+execution prompt in the window-flood `python-file-v2` form. The evaluated Agent
+runs that unchanged file. It does not write or debug the program during the trial.
 
 For an existing case, select an explicit revision and suite. If the request is
 to repeat a saved trial, compare its exact submitted prompt hash and actual
@@ -56,6 +60,15 @@ A case revision selects its own FinShield version. There is no global selected
 version and no implicit upgrade to `latest`. Freeze required conditions before
 the first prompt; record actual conditions separately. Preserve launcher-induced
 differences and unknowns rather than editing policy to obtain a matched label.
+
+Before each new logical preflight or collection run, close the owned Agent and
+check its documented default sandbox and approval settings. Restore any prior
+trial changes through the documented preparation procedure, and record the
+changed fields without credentials. Record actual runtime settings again after
+launch: a launcher can change them. Do not assume a direct launch restores
+defaults. Keep launcher-induced differences explicit and do not weaken a
+protection setting to force an effect. After collection, restore and verify the
+native default state before returning the machine.
 
 ### 2. Prepare the current machine
 
@@ -168,6 +181,7 @@ earlier run; reproduction does not promise identical model output.
 | REC-6 | New cases declare scope and recovery; repeated trials preserve the selected original prompt and conditions or disclose a new revision. |
 | REC-7 | Shared collection, original evidence, partial failures, separate review and existing launch contracts remain intact. |
 | REC-8 | Reviewed display videos are 20 seconds. Reviewed GIFs are 5 seconds, each a 4x playback of its 20-second video, including the opening comparison GIF. |
+| REC-9 | A saved-program trial verifies the program outside the evaluated Agent, then submits only the short window-flood `python-file-v2` execution prompt. |
 
 ## Out of scope
 
@@ -190,7 +204,7 @@ For this documentation change, check local links, both skill indexes, template
 consistency, language parity of the README entry, and Git whitespace. No live
 trial is needed to rename and define the procedure.
 
-To validate REC-1 through REC-8 operationally, give a fresh Agent only a clone,
+To validate REC-1 through REC-9 operationally, give a fresh Agent only a clone,
 the recording request, and necessary product access. Test both a host with
 compatible programs already installed and a clean supported host. Check reuse,
 verified acquisition, profile generation, physical capture, no-prompt preflight,

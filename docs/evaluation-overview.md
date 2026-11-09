@@ -23,42 +23,53 @@ six-section comparison details and original evidence unchanged.
 ```mermaid
 flowchart LR
   R[Reviewed records and case metadata] --> O[Compact project overview]
-  O --> C[Interaction, System, Data categories]
+  O --> C[Privacy, Interaction, System, Data categories]
   C --> P[20 scenarios per static page]
   P --> H[Scenario hub: five Agents, two protection tracks]
   H --> D[Original six-section comparison and evidence]
   O --> M[Separate methodology and reproduction page]
 ```
 
+Every full-site page uses the same header: brand, the four authored category
+links in order, GitHub, and language. The current category page marks its
+header link with `aria-current="page"`. Hub and detail pages keep those four
+links so a reader can change category without returning home. Breadcrumbs still
+show Home, category, scenario, and Agent details. Standalone report exports omit
+category links because those parents are absent. Do not put Scenarios or
+Methodology in the header; keep methodology in the footer and on its own page.
+
 Homepage order:
 
-1. Project purpose and fixed model.
-2. A real-test showcase with exactly three category slots. Use a large reviewed
-   comparison GIF on the left and two smaller slots on the right. Each category
-   links to its scenario/score page. Use one representative live reviewed GIF per
-   category, not a list of all cases. Put the first available representative in
-   the large slot; keep deterministic category order when no media exists.
-3. One small card per Agent combining overall and all three category scores.
-   Each Agent occupies one card. Overall, Interaction, System and Data each have
-   Default/FinShield scores on that card. Keep pass/fail counts and explicit
-   untested states. Do not combine different Agents or turn empty cells into
-   zero scores. Follow the cards with methodology, source, and data links.
+1. Site title only. Do not put the purpose sentence or the fixed-model chip on
+   the homepage. Keep the fixed model on the methodology page.
+2. A real-test showcase with one card per authored category, in authored
+   order: Privacy, Interaction, System, Data. Put the four cards in one row at
+   desktop widths. Each card introduces the category: its name and the authored
+   category description. Do not put a case title or Agent name on these cards.
+   Put the name and description first, then the GIF. The name links to that
+   category page. The GIF links to the comparison. Use one representative live
+   reviewed GIF per category as illustration, not a list of all cases.
+   Missing media stays an honest empty frame.
+3. One small card per Agent combining overall and all four category scores.
+   Each Agent occupies one card. Overall, Privacy, Interaction, System and Data
+   each have Default/FinShield scores on that card, in that order. Keep pass/fail
+   counts and explicit untested states. Do not combine different Agents or turn
+   empty cells into zero scores. Follow the cards with methodology, source, and
+   data links.
 
 The homepage Agent cards read the existing per-Agent total/category score
 objects; they do not calculate a different grade. Keep both protection tracks
-and all three categories visible on each card. Stack the cards on small
+and all four categories visible on each card. Stack the cards on small
 screens. Do not hide category results behind navigation. Category pages
 retain a compact category score summary and a scenario card grid.
 
 The showcase precedes scores, so a new reader sees actual testing immediately.
 Reuse each selected record's existing reviewed combined GIF without re-editing
-or rerunning. Show case name, Agent, native/FinShield pane labels,
-and an expandable original edit note. Do not call an edited GIF a full recording.
-Link the GIF and a Video action directly to section 03 of the original report;
-link Records to its evidence.json and Reproduce to section 06 only when reviewed
-reproduction instructions exist. Otherwise disable that action explicitly.
-Missing media gets a labeled empty frame, not a synthetic or unrelated image.
-Do not create links to nonexistent video, evidence or reproduction material.
+or rerunning. Show native/FinShield pane labels above the GIF. Do not call an
+edited GIF a full recording. Do not put Video, Records, Reproduce, or GIF
+edit-note actions on the homepage cards. Missing media gets a labeled empty
+frame, not a synthetic or unrelated image. Do not create links to nonexistent
+video, evidence or reproduction material.
 
 Representatives must be live, non-archived, paired and owned by a roster Agent.
 Match the fixed model/effort on both groups when declared. Prefer the active
@@ -67,9 +78,8 @@ for live evidence. `reports.hasReproduction` records whether reviewed bilingual
 instructions exist; it does not add another copy of reproduction text.
 
 Do not put full case result lists, logs, or long method text on the homepage.
-Adding scenarios must not add homepage GIF slots beyond the three category
-cards. Stack the showcase on phones and keep both protection tracks visible
-on each Agent card.
+The four authored categories each have one homepage GIF slot. Stack the
+showcase on phones and keep both protection tracks visible on each Agent card.
 
 Category pages group reports by scenario and contain at most 20 scenario cards.
 Each card has its localized name, one sentence describing the action and its
@@ -95,11 +105,15 @@ metadata in the records and explain phase selection in methodology. Use compact 
 section spacing so the first card row fits in a 1280x900 desktop view.
 Order cards by authored display priority, then scenario ID, before
 pagination. Priority reflects visible impact and ease of understanding; it does
-not change scores. Category and scenario hub pages use one font stack and only
+not change scores. The homepage, category pages and scenario hub pages use Microsoft YaHei and only
 two text sizes, 14px and 20px, at desktop and phone widths. Use weight, spacing,
 and color for other hierarchy. Remove spaces at Chinese/Latin text boundaries
 in these generated pages without changing original evidence.
-Generate previous/next and numbered static page links. Each scenario links to a
+Switch categories from the homepage. Do not repeat the four category names as
+tabs on a category page. Keep the scenario-card heading without a side caption
+about protection results or Agent counts. Generate previous/next and numbered
+static page links only when a category has more than one page. Each scenario
+links to a
 hub with the five Agents and two protection tracks. Prefer a paired report for
 an Agent's displayed row; retain every other report as an expandable link. Do
 not synthesize a comparison by joining groups from unrelated reports. Empty
@@ -153,14 +167,19 @@ planning metadata; it is never a score denominator or displayed progress. An Age
 `id`, bilingual `label`, and unique `recordAgentIds`. Aliases retain historical
 identities without rewriting evidence. There are no region fields.
 
-`scenarios/catalog.json` has `schemaVersion: 1`, exactly three `categories`
-(`id`, bilingual `label` and `description`), and `scenarios`. Each scenario entry
+`scenarios/catalog.json` has `schemaVersion: 1`, exactly four `categories`
+(`id`, bilingual `label` and `description`), and `scenarios`. Category
+descriptions speak from the reader's harm, stay one short line, and do not end
+with a period. Each scenario entry
 has `category` and bilingual `title`, with optional bilingual `description` and
 nonnegative integer `displayOrder` (lower values appear first). Missing
 descriptions fall back to the original report purpose; missing priorities sort
-after authored priorities. Category IDs are `interaction`, `system`,
-and `data`. Membership is explicit authored metadata, never guessed from a
-filename or model reply. New cases must receive a category when authored.
+after authored priorities. Category IDs, in authored order, are `privacy`,
+`interaction`, `system`, and `data`. Privacy Safety is first. Camera Leak
+(`camera-capture`), Microphone Leak (`microphone-capture`) and Screen Leak
+(`screen-capture`) belong to `privacy`. Membership is explicit authored
+metadata, never guessed from a filename or model reply. New cases must receive a
+category when authored.
 Unmapped recorded scenarios remain accessible through a small unclassified link;
 they do not silently enter a category. Synthetic examples remain separate.
 
@@ -216,10 +235,16 @@ Never merge different Agents into one protection score or average their rates.
 Each Agent's overall score uses only that Agent's assessed scenarios. Category
 scores use only that Agent's scenarios in the category. A scenario score remains
 separate for each Agent. The homepage shows the five Agents independently in
-one card each, with overall and three category scores on that card.
+one card each, with overall and four category scores on that card.
 There is no combined all-Agent score. Category pages retain the Agent score summary.
-Category pages and per-scenario hubs show scores and the corresponding result
-states. Scores describe the recorded
+Category pages, scenario hubs, and methodology use the same compact
+breadcrumb as detail pages, with Home first:
+
+`Home › category › scenario › Agent details`.
+
+The current page is not a link. Every full-site header includes the four
+category links, GitHub, and language. Category pages and scenario hubs show scores and the
+corresponding result states. Scores describe the recorded
 scoped effects; they do not establish API denial, general safety, or isolated
 FinShield causality when the compared conditions differ.
 
@@ -254,15 +279,17 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-3 | English is the default; both languages retain navigation to every report and evidence file. |
 | AC-4 | Other scenarios and Agents reuse the template without unrelated case wording. |
 | AC-5 | Original records, media, and six-section details remain unchanged; output-preservation checks pass. |
-| AC-6 | A 100-scenario fixture creates three homepage cards and five category pages of at most 20 scenarios. |
+| AC-6 | A 100-scenario fixture creates four homepage category cards and five category pages of at most 20 scenarios. |
 | AC-7 | Region fields and domestic/international labels are absent from metadata and pages. |
 | AC-8 | Total, category and Agent scores use actual assessed items, preserve counts and source links, and exclude planning targets, unknowns and duplicates. |
 | AC-9 | Empty samples have no score; warnings do not change pass/fail; development and formal phases are not mixed. |
-| AC-10 | The homepage shows a reviewed live GIF before scores, direct video/record/reproduction links, and honest empty slots when media is missing. Synthetic media cannot replace live evidence. |
+| AC-10 | The homepage shows four category cards in one desktop row before scores. Each card shows the category name and authored description first, then an optional GIF. Cards omit case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions. The name links to the category page. The GIF links to the comparison. Empty slots stay honest. Synthetic media cannot replace live evidence. |
 | AC-11 | Localized cards show a name, purpose, two-track Agent outcome counts, and detail link without individual Agent scores or visible IDs; authored priority applies before pagination. Category scores are visible on entry. |
 | AC-12 | Scenario hubs show five Agent rows with combined result states and source links, without redundant single-case percentages or counts. Keep phase metadata, scoped effects and condition caveats in evidence details. Category/overall scores retain percentages and counts. |
-| AC-13 | Desktop and phone category/hub pages use only 14px and 20px text with one font stack and no added Chinese/Latin boundary spaces. |
+| AC-13 | Desktop and phone home, category and hub pages use only 14px and 20px text with Microsoft YaHei and no added Chinese/Latin boundary spaces. |
 | AC-14 | Category introductions omit model/effort metadata. At 1280x900 the score table is at most 245px high and the first card row is fully visible. |
+| AC-15 | Privacy Safety is the first authored category. Camera Leak belongs to it. Detail breadcrumbs use that category. Homepage GIF slots are the four authored categories in order. Agent cards include all four category scores in authored order. Category pages do not repeat a four-category tab row. |
+| AC-16 | Category, hub, methodology, and detail breadcrumbs start with Home. Every full-site header has the four category links, GitHub, and language, without Scenarios or Methodology. Standalone reports omit category links. The homepage omits the purpose sentence and the fixed-model chip. |
 
 ## Out of scope
 
@@ -281,5 +308,6 @@ Use offline fixtures for run deduplication, 100-scenario pagination, bilingual
 navigation, empty categories, missing mappings, invalid metadata, escaping,
 original evidence, relative links and manifest hashes. Inspect desktop/mobile
 layouts and the real local preview. Test score denominators, deduplication,
-repeat conflicts, phase selection and fixed-model eligibility. Run no live
-collection or assessment revision for this redesign.
+repeat conflicts, phase selection and fixed-model eligibility. Confirm Privacy
+Safety is first and owns Camera Leak. Run no live collection or assessment
+revision for this redesign.

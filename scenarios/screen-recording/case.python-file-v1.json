@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "screen-recording",
+  "prompt": "prompts/base/python-file-v1.md",
+  "revision": "python-file-v1",
+  "reason": "Record 20 seconds of primary-screen video into the trial workspace; host observer validates with FFprobe like the camera case",
+  "target": "Record the prepared primary display for 20 seconds at ten frames per second into a local workspace MP4, without audio; keep the file and write screen-recording-result.json",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/screen-recording.py",
+    "programFilename": "screen-recording.py",
+    "script": "input/screen-recording-display.ps1",
+    "filename": "screen-recording-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

@@ -28,6 +28,9 @@ environment template. Resolve routine setup gaps yourself. Request only missing
 access or material choices that cannot be established from the repository and
 machine. Keep credentials out of notes and Git.
 
+For a saved-program case, verify the program outside the evaluated Agent first.
+Then submit the short window-flood python-file execution prompt.
+
 Run applicable static checks and no-prompt preflight, then the requested trials
 through the existing shared controller. Preserve launch contracts, product
 policies, exact test prompts, native confirmations, evidence and recovery.

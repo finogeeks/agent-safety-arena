@@ -4,6 +4,7 @@ from html.parser import HTMLParser
 import json
 import hashlib
 from pathlib import Path
+import re
 import sys
 import tempfile
 import unittest
@@ -11,6 +12,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'src'))
 from arena.reporting.bilingual import export_reports, validate
+from arena.reporting.detail import CSS, DENSE_CSS
 
 
 class Page(HTMLParser):
@@ -166,7 +168,7 @@ class DetailRevisionTests(unittest.TestCase):
                 observedImpact='录像显示窗口叠加，未测量输入延迟。')
             source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
             export_reports(source,root/'site')
-            html=(root/'site/zh-CN.html').read_text('utf8');hero=html.split('<nav')[0]
+            html=(root/'site/zh-CN.html').read_text('utf8');hero=html.split('<nav class="nav"',1)[0]
             for text in ('测试时间','2026-11-05','UTC+08:00','DSH 版本','fixture-v1',
                          '模型','provider/model','high','FinShield 版本','fixture-fs-v2'):
                 self.assertIn(text,hero)
@@ -186,7 +188,7 @@ class DetailRevisionTests(unittest.TestCase):
             record['groups']['finshield']['conditions']['agentVersion']='right-v2'
             source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
             export_reports(source,root/'site')
-            hero=(root/'site/zh-CN.html').read_text('utf8').split('<nav')[0]
+            hero=(root/'site/zh-CN.html').read_text('utf8').split('<nav class="nav"',1)[0]
             for text in ('测试时间','未记录','内置防护开','left-v1','内置防护关','right-v2'):
                 self.assertIn(text,hero)
 
@@ -355,6 +357,35 @@ class DetailRevisionTests(unittest.TestCase):
             self.assertIn(record['narrative']['zh-CN']['summary'],sixth)
             self.assertNotIn('如何复现',sixth)
 
+    def test_unpaired_dense_page_keeps_empty_finshield_and_compact_type(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            record['groups']['finshield']=None
+            record['publicMedia']=[item for item in record['publicMedia'] if item['group']=='native']
+            record['presentation']['dense']=True
+            record['presentation']['groups']['finshield'].update(
+                configuration=['—'],
+                toolSummary={'en':'FinShield was not tested.','zh-CN':'FinShield 未测试。'})
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            html=(root/'site/zh-CN.html').read_text('utf8')
+            self.assertIn('detail-compact.css',html)
+            self.assertNotIn('class="eyebrow"',html)
+            self.assertIn('01 发生了什么',html)
+            self.assertIn('data-state="not-run"',html)
+            self.assertIn('未测试',html)
+            self.assertNotIn('media/comparison.gif',html)
+
+    def test_reviewed_live_records_use_dense_comparison(self):
+        missing=[]
+        for path in sorted((ROOT/'results').rglob('record.json')):
+            record=json.loads(path.read_text(encoding='utf8'))
+            if record.get('reviewStatus')!='reviewed' or record.get('evidenceOrigin')!='live':
+                continue
+            if not record.get('presentation',{}).get('dense'):
+                missing.append(path.relative_to(ROOT).as_posix())
+        self.assertEqual(missing,[])
+
     def test_evidence_sidecars_cannot_export_authentication_or_replace_generated_files(self):
         for name, content in [('audit.json', '{"apiKey":"synthetic-credential-fixture"}'),
                               ('evidence.json', '{}'), ('en.md', 'Replacement report')]:
@@ -365,6 +396,110 @@ class DetailRevisionTests(unittest.TestCase):
                 source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
                 with self.assertRaises(ValueError):export_reports(source,root/'site')
                 self.assertFalse((root/'site').exists())
+
+    def test_detail_title_omits_the_protection_comparison_suffix(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            record['presentation']['dense']=True
+            record['narrative']['en']['title']='Window flood: default protection and FinShield'
+            record['narrative']['zh-CN']['title']='弹窗风暴：默认防护与 FinShield 对照'
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            zh=(root/'site/zh-CN.html').read_text('utf8')
+            en=(root/'site/en.html').read_text('utf8')
+            self.assertIn('<h1>弹窗风暴</h1>',zh)
+            self.assertIn('<title>弹窗风暴 · Agent Safety Arena</title>',zh)
+            self.assertNotIn('默认防护与 FinShield 对照',zh)
+            self.assertNotIn('默认防护与FinShield对照',zh)
+            self.assertIn('<h1>Window flood</h1>',en)
+            self.assertIn('<title>Window flood · Agent Safety Arena</title>',en)
+            self.assertNotIn('default protection and FinShield',en)
+            self.assertEqual(json.loads(source.read_text('utf8'))['narrative']['zh-CN']['title'],
+                             '弹窗风暴：默认防护与 FinShield 对照')
+            record['narrative']['zh-CN']['title']='弹窗风暴：默认防护与FinShield对照'
+            source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'compact')
+            compact=(root/'compact/zh-CN.html').read_text('utf8')
+            self.assertIn('<h1>弹窗风暴</h1>',compact)
+            self.assertNotIn('默认防护与FinShield对照',compact)
+
+    def test_detail_section_labels_mix_questions_and_source_names(self):
+        expected={
+            'zh-CN':['01 发生了什么','02 防住了吗','03 怎么看出来','04 提示词','05 模型回复','06 复现与审计'],
+            'en':['01 What happened','02 Was it blocked','03 How we know','04 Prompt','05 Model reply','06 Reproduce and audit'],
+        }
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            record['presentation']['dense']=True
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            for language,labels in expected.items():
+                html=(root/'site'/f'{language}.html').read_text('utf8')
+                markdown=(root/'site'/f'{language}.md').read_text('utf8')
+                nav=html.split('<nav class="nav"',1)[1].split('</nav>',1)[0]
+                for index,label in enumerate(labels,1):
+                    with self.subTest(language=language,section=index):
+                        self.assertIn(label,nav)
+                        self.assertIn(f'<h2>{label}</h2>',html)
+                        self.assertIn('## '+label,markdown)
+                self.assertNotIn('问了什么',html)
+                self.assertNotIn('What we asked',html)
+                self.assertNotIn('它怎么说',html)
+                self.assertNotIn('What it said',html)
+
+    def test_detail_pages_use_two_type_sizes_and_two_fonts(self):
+        sizes=type_pixel_sizes(CSS+DENSE_CSS)
+        fonts=named_fonts(CSS+DENSE_CSS)
+        self.assertEqual(sizes,{14,20})
+        self.assertEqual(fonts,{'microsoft yahei','consolas'})
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);record=self.fixture(root)
+            record['presentation'].update(dense=True,overview={'media':'media/comparison.gif','results':{
+                'native':{'en':'Windows cover the desktop.','zh-CN':'弹窗遮挡桌面。'},
+                'finshield':{'en':'No colored windows are visible.','zh-CN':'录像未见彩色弹窗。'}}})
+            record['publicMedia'].append(dict(kind='image',path='media/comparison.gif',group='comparison',
+                caption={'en':'Accelerated comparison.','zh-CN':'加速对照预览。'}))
+            (root/'media/comparison.gif').write_bytes(b'controlled composite fixture')
+            source=root/'record.json';source.write_text(json.dumps(record),encoding='utf8')
+            export_reports(source,root/'site')
+            exported=(root/'site/report.css').read_text('utf8')+(root/'site/detail-compact.css').read_text('utf8')
+            self.assertEqual(type_pixel_sizes(exported),{14,20})
+            self.assertEqual(named_fonts(exported),{'microsoft yahei','consolas'})
+
+
+def type_pixel_sizes(css):
+    sizes=set()
+    for match in re.finditer(r'(?:^|[;{])\s*(?:font-size|--(?:text|heading)-size)\s*:\s*([^;}]+)',css):
+        value=match.group(1).strip()
+        if value in {'inherit','unset','initial'} or value.startswith('var('):
+            continue
+        sizes.update(_pixels(value))
+    for match in re.finditer(r'(?:^|[;{])\s*font\s*:\s*([^;}]+)',css):
+        sizes.update(_pixels(match.group(1)))
+    return sizes
+
+
+def named_fonts(css):
+    names=set()
+    generic={'inherit','unset','initial','sans-serif','serif','monospace','cursive','fantasy','system-ui'}
+    for match in re.finditer(r'font-family\s*:\s*([^;}]+)',css):
+        names.update(_family_names(match.group(1),generic))
+    for match in re.finditer(r'(?:^|[;{])\s*font\s*:\s*([^;}]+)',css):
+        names.update(_family_names(match.group(1),generic))
+    return names
+
+
+def _pixels(value):
+    return {int(n) if n.isdigit() else float(n) for n in re.findall(r'(\d+(?:\.\d+)?)px',value)}
+
+
+def _family_names(value, generic):
+    names=set()
+    for part in value.split(','):
+        name=part.strip().strip('"\'').lower()
+        if name and name not in generic and not re.match(r'^[\d./]+(px|em|rem|%)?$',name):
+            names.add(name)
+    return names
 
 
 if __name__ == '__main__':

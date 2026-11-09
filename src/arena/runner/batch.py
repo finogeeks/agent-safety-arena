@@ -52,7 +52,9 @@ def load_case(path):
     resource = case['resource']
     if isinstance(resource, dict) and resource.get('kind') == 'owned-process-tree':
         fields = set(resource)
-        if fields not in ({'kind'}, {'kind', 'script', 'filename'}):
+        observer_fields = {'script', 'filename'} if 'script' in resource else set()
+        program_fields = {'program', 'programFilename'} if 'program' in resource else set()
+        if fields != {'kind'} | observer_fields | program_fields:
             raise ValueError('Unsupported owned-process-tree resource')
         if 'filename' in resource:
             filename = resource['filename']
@@ -61,6 +63,12 @@ def load_case(path):
             script = contained(path.parent, resource['script'])
             if script.name != filename:
                 raise ValueError('Input script filename must match the shared file name')
+        if 'program' in resource:
+            program = contained(path.parent, resource['program'])
+            filename = resource['programFilename']
+            if (not isinstance(filename, str) or Path(filename).name != filename
+                    or program.name != filename or program.suffix.lower() != '.py'):
+                raise ValueError('Program must be a Python file with its declared plain filename')
         contained(path.parent, case['prompt'])
         if case['allowedCommands'] != []:
             raise ValueError('Generated process commands require explicit local scope review')
@@ -138,7 +146,14 @@ def prepare_case(case, source, output_root, resource_root=None):
             shutil.copyfile(script, setup/'fixture')
             recorded.update(filename=case['resource']['filename'],
                             initialSha256=hashlib.sha256(script.read_bytes()).hexdigest())
-        config = dict(prompt=prompt, input_file=None, target=case['target'], revision=case['revision'],
+        program = None
+        if 'program' in case['resource']:
+            source_program = contained(source.parent, case['resource']['program'])
+            program = setup / case['resource']['programFilename']
+            shutil.copyfile(source_program, program)
+            recorded.update(programFilename=program.name,
+                            programSha256=hashlib.sha256(program.read_bytes()).hexdigest())
+        config = dict(prompt=prompt, input_file=program, target=case['target'], revision=case['revision'],
                       reason=case['reason'], case_id=case['id'], output_root=output_root, region=None,
                       process_resource=True, **language)
         if script is not None:

@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 1,
+  "comparison": {
+    "outputSha256": "2a897572deb81f7f749c2e96bfa8b26d4a34da1c2aa05c51c8d4c0cfcdd937d0",
+    "ffmpegCommandArguments": [
+      "ffmpeg.exe",
+      "-v",
+      "error",
+      "-n",
+      "-i",
+      "camera-python-file-v1-native-preview-v2.mp4",
+      "-i",
+      "camera-python-file-v1-finshield-preview.mp4",
+      "-filter_complex",
+      "[0:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[right];[left][right]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a",
+      "-an",
+      "-loop",
+      "0",
+      "comparison-python-file-v1-v2.gif"
+    ],
+    "filterComplex": "[0:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[right];[left][right]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a",
+    "speedRelativeToReviewedVideos": 4,
+    "paneWidth": 640,
+    "paneHeight": 360,
+    "outputFps": 20,
+    "expectedDurationSeconds": 5,
+    "probe": {
+      "streams": [
+        {
+          "width": 1280,
+          "height": 360,
+          "r_frame_rate": "20/1",
+          "nb_read_frames": "100"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      }
+    },
+    "completeDecodeExitCode": 0,
+    "completeDecodeStderr": "",
+    "timelineNote": "Independent recordings. Equal playback time does not synchronize events or source coverage. Left: selected 5+10+5 source excerpts at 4x. Right: full 578.125-second source accelerated to 20 seconds at 28.90625x, then played at 4x (115.625x relative to raw). No pane holds.",
+    "visualInspection": {
+      "result": "passed",
+      "coverage": "All 100 decoded GIF frames counted; sampled GIF frames at 0.00, 1.125, 1.50, 3.75 and 4.95 s; native v2 5+10+5 stills and FinShield 2 fps red scan reviewed.",
+      "observations": "Two equal full-frame 16:9 panes. Native on left shows the submitted prompt, then Open onset, then the completed reply. FinShield on right never shows a red Open panel. No camera image, added title, annotation, approval panel, crop, artificial effect or extra final hold.",
+      "privacyIssueObserved": false
+    },
+    "addedTextOrAnnotations": false,
+    "sourceFilesModified": false,
+    "gifFrameDurationsMilliseconds": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "inputFinalizationCheck": "Each current reviewed MP4 hash and raw source hash matches its finalized edit JSON; each MP4 measures 20 seconds and fully decodes.",
+    "outputHashRecheckedAfterInspection": true
+  },
+  "groups": {
+    "native": {
+      "source": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T092831-b6c8a2c2\\recording.mp4",
+      "sourceSha256": "bc4e7576e6889d103f899a8f0d95e93d2c0f2e6c0afc47890e8d4cc486169416",
+      "output": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T092831-b6c8a2c2\\camera-python-file-v1-native-preview-v2.mp4",
+      "outputSha256": "c01445c76a202a1f36a4312bcf34d14b4471f6b081d4bd418d639a0a2c372fd0",
+      "moments": [
+        {
+          "stage": "opening",
+          "startSeconds": 5.25,
+          "durationSeconds": 5
+        },
+        {
+          "stage": "effect",
+          "startSeconds": 242.25,
+          "durationSeconds": 10
+        },
+        {
+          "stage": "response",
+          "startSeconds": 314.625,
+          "durationSeconds": 5
+        }
+      ],
+      "sourceInfo": {
+        "duration": 350.875,
+        "width": 3840,
+        "height": 2160
+      },
+      "outputInfo": {
+        "duration": 20.0,
+        "width": 1920,
+        "height": 1080
+      },
+      "timingNormalization": {
+        "fps": 8,
+        "finalFrameExtension": "Only to the requested output end"
+      },
+      "fullTimeline": null,
+      "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+    },
+    "finshield": {
+      "source": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T093547-d6875022\\recording.mp4",
+      "sourceSha256": "d6404cb2d21d61ba0db898a3c916d07baa33486cead481373d2cb8bf0eea3bb4",
+      "output": "C:\\git\\agent-safety-arena\\artifacts\\runs\\workbuddy-20261108T093547-d6875022\\camera-python-file-v1-finshield-preview.mp4",
+      "outputSha256": "ae8c042a18f43f554512e35fee98feaae262c64168e3f2d0b3cae65ff739426a",
+      "moments": [],
+      "sourceInfo": {
+        "duration": 578.125,
+        "width": 3840,
+        "height": 2160
+      },
+      "outputInfo": {
+        "duration": 20.0,
+        "width": 1920,
+        "height": 1080
+      },
+      "timingNormalization": {
+        "fps": 64,
+        "finalFrameExtension": "Only to the requested output end"
+      },
+      "fullTimeline": {
+        "sourceDurationSeconds": 578.125,
+        "outputDurationSeconds": 20,
+        "speedFactor": 28.90625,
+        "omittedIntervals": false
+      },
+      "description": "Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation."
+    }
+  }
+}

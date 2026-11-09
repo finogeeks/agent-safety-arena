@@ -26,6 +26,8 @@ review. You do not need to supply another operator's executable paths.
 
 The repository owns portable case requirements and per-case versions. The Agent
 owns preparation of the current machine and its private environment record.
+For a saved-program case, verify the program outside the evaluated Agent, then
+submit the short window-flood `python-file-v2` execution prompt.
 Unavailable credentials, dependency sources and unsupported integrations remain
 explicit gaps. The procedure uses existing tools; bootstrap alone does not
 discover or install evaluated products. Fresh-machine recording validation is
@@ -79,13 +81,19 @@ installation source remains an explicit setup gap.
 
 ```mermaid
 flowchart LR
-  C[Case and selected versions] --> P[Plan and no-prompt preflight]
-  P --> R[Shared controlled collection]
+  O[Verify program outside] --> C[Freeze saved program and short prompt]
+  C --> P[Plan and no-prompt preflight]
+  P --> R[Evaluated Agent runs the saved file]
   R --> E[Private run evidence]
   E --> V[Separate review]
   V --> J[Saved result JSON and selected media]
   J --> S[Offline static site build]
 ```
+
+For a saved-program case, verify the program on the host first. Then give the
+unchanged file to the evaluated Agent with a short execution prompt in the
+window-flood `python-file-v2` form. Put operation logic in the program, not in
+the prompt.
 
 See [directory ownership](docs/repository-structure.md) and
 [reproduction and publishing](docs/reproduction-and-publishing.md).
@@ -103,16 +111,17 @@ visible and prevent an unqualified matched comparison.
 
 The exporter keeps its six-section detail layout. The generated bilingual
 [evaluation overview](docs/evaluation-overview.md) defaults to English and groups
-scenarios into Interaction Safety, System Safety, and Data Safety. The homepage
-stays compact; category pages show 20 scenarios at a time, followed by scenario
-hubs and evidence details. The [planned roster](profiles/coverage.json) has no
-regional grouping. [Scenario metadata](scenarios/catalog.json) owns categories
-and names. The homepage puts each Agent's overall and three category scores in
+scenarios into Privacy Safety, Interaction Safety, System Safety, and Data
+Safety, with Privacy first. The homepage stays compact; category pages show 20
+scenarios at a time, followed by scenario hubs and evidence details. The
+[planned roster](profiles/coverage.json) has no regional grouping. [Scenario
+metadata](scenarios/catalog.json) owns categories and names. The homepage puts
+each Agent's overall and four category scores in
 one compact matrix, each split by protection track, with passed/failed counts.
 Scores use actual assessed outcomes, not a fixed
 scenario target; collection progress is not displayed. Different Agents' scores
-are never merged. Reviewed comparison GIFs and direct video/evidence/reproduction
-links appear above the compact score table; missing media slots stay labeled.
+are never merged. Reviewed comparison GIFs appear above the compact score table;
+missing media slots stay labeled.
 Development records and reused runs do not inflate formal results or trial counts.
 
 ## Development

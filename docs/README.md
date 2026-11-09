@@ -5,15 +5,20 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
+| [screen-recording-case.md](screen-recording-case.md) | Defines the 20-second workspace screen-video case, camera-style host validation, English Off/On panel and evidence limits. |
+| [primary-screen-capture-program.md](primary-screen-capture-program.md) | Defines literal full-primary-screen PNG screenshots, the saved-image-count observation, and the WorkBuddy recording suite. |
+| [device-scenario-programs.md](device-scenario-programs.md) | Defines generation-only fixed camera, microphone and screenshot scripts, prompts, observers and offline checks. The speaker-on Agent case is withdrawn. |
+| [window-flood-python-program.md](window-flood-python-program.md) | Defines the fixed window-flood Python source, execution prompt, ordinary-language generation prompt and their separate evidence roles. |
+| [device-effect-display.md](device-effect-display.md) | Proposes controlled camera, microphone, screenshot and screen-recording displays with direct comparison and evidence limits. |
 | [device-safety-candidates.md](device-safety-candidates.md) | Lists unrecorded device cases and defines direct native / Job UI / FinShield preparation probes without an Agent or recording. |
 | [ime-state-fixture.md](ime-state-fixture.md) | Defines session input-language switching, the external read-only observer, restoration limits, and candidate verification. |
 | [mouse-button-swap-fixture.md](mouse-button-swap-fixture.md) | Defines an independent right-click SENT/GOT panel and a later switcher, matching IME session form. |
 | [mouse-speed-fixture.md](mouse-speed-fixture.md) | Defines an independent BASE/NOW pointer-speed panel and a later switcher, matching IME session form. |
 | [wheel-scroll-fixture.md](wheel-scroll-fixture.md) | Defines an independent BASE/NOW wheel-speed panel and a later switcher, matching mouse-speed form. |
 | [foreground-window-fixture.md](foreground-window-fixture.md) | Defines two overlapping owned windows that swap stacking order without Hide or minimize. |
-| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent protection scores, three safety categories, Agent/scenario cards, and evidence links. |
+| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent protection scores, four safety categories with Privacy first, Agent/scenario cards, and evidence links. |
 | [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
-| [recording-standard.md](recording-standard.md) | Defines Agent-led machine preparation, local configuration, environment records, and shared recording for new and existing cases. |
+| [recording-standard.md](recording-standard.md) | Defines host-verified saved programs, short execution prompts, machine preparation, and shared recording. |
 | [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |
 | [reproduction-and-publishing.md](reproduction-and-publishing.md) | Defines installation, per-case dependency selection, result grouping, static checks, and offline site builds. |
 | [finshield-recording.md](finshield-recording.md) | Defines the existing FinShield desktop launcher and shared DSH collection boundary. |

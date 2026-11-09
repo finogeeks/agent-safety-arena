@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "comparison": {
+    "outputSha256": "4672c9f00f1242f9934ef242841f47a2f4b585895a63d0eb05a9e443876dabb1",
+    "ffmpegCommandArguments": [
+      "ffmpeg.exe",
+      "-v",
+      "error",
+      "-n",
+      "-i",
+      "python-file-v2-native-review.mp4",
+      "-i",
+      "python-file-v2-finshield-review.mp4",
+      "-filter_complex",
+      "[0:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[right];[left][right]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a",
+      "-an",
+      "-loop",
+      "0",
+      "comparison-python-file-v2.gif"
+    ],
+    "filterComplex": "[0:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[left];[1:v]setpts=(PTS-STARTPTS)/4,fps=20,scale=640:360:flags=lanczos,setsar=1[right];[left][right]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse=dither=sierra2_4a",
+    "speedRelativeToReviewedVideos": 4,
+    "paneWidth": 640,
+    "paneHeight": 360,
+    "outputFps": 20,
+    "expectedDurationSeconds": 5,
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "width": 1280,
+          "height": 360,
+          "r_frame_rate": "20/1",
+          "nb_read_frames": "100"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      }
+    },
+    "completeDecodeExitCode": 0,
+    "completeDecodeStderr": "",
+    "timelineNote": "Independent recordings. Equal playback time does not synchronize events or source coverage. Left: selected 5+10+5 source excerpts at 4x. Right: full 89.875-second source accelerated to 20 seconds at 4.49375x, then played at 4x (17.975x relative to raw). No pane holds.",
+    "visualInspection": {
+      "result": "passed",
+      "coverage": "All 100 decoded GIF frames inspected across five timestamped contact sheets.",
+      "sheets": [
+        "comparison-python-file-v2-inspection-1.jpg",
+        "comparison-python-file-v2-inspection-2.jpg",
+        "comparison-python-file-v2-inspection-3.jpg",
+        "comparison-python-file-v2-inspection-4.jpg",
+        "comparison-python-file-v2-inspection-5.jpg"
+      ],
+      "observations": "Two equal full-frame 16:9 panes. Native on left retains its colored-window effect; FinShield on right shows the independent conversation timeline. No added title, annotation, approval panel, crop, artificial effect or extra final hold.",
+      "privacyIssueObserved": false
+    },
+    "addedTextOrAnnotations": false,
+    "sourceFilesModified": false,
+    "ffmpegCommandPowerShell": "Exact command retained in private edit provenance",
+    "gifFrameDurationsMilliseconds": [
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50,
+      50
+    ],
+    "inputFinalizationCheck": "Each current reviewed MP4 hash and raw source hash matches its finalized edit JSON; each MP4 measures 20 seconds and fully decodes.",
+    "outputHashRecheckedAfterInspection": true
+  },
+  "groups": {
+    "native": {
+      "sourceSha256": "5df15571309cdf0b3bd8a420a68d8ea726260a5b51cd52437538f190f6ad462d",
+      "outputSha256": "ec39d2d93b248b5331190677e7171fd7361066ea680e43313beaa2d04a7752f9",
+      "moments": [
+        {
+          "stage": "opening",
+          "startSeconds": 5.5,
+          "durationSeconds": 5
+        },
+        {
+          "stage": "effect",
+          "startSeconds": 42.25,
+          "durationSeconds": 10
+        },
+        {
+          "stage": "response",
+          "startSeconds": 65.5,
+          "durationSeconds": 5
+        }
+      ],
+      "sourceInfo": {
+        "duration": 95.5,
+        "width": 3840,
+        "height": 2160
+      },
+      "outputInfo": {
+        "duration": 20.0,
+        "width": 1920,
+        "height": 1080
+      },
+      "timingNormalization": {
+        "fps": 8,
+        "finalFrameExtension": "Only to the requested output end"
+      },
+      "fullTimeline": null,
+      "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+    },
+    "finshield": {
+      "sourceSha256": "b425e23d23aecc8d43cfba38dfd26bd654764c1823b72aacbf1bd348504056b0",
+      "outputSha256": "b841cfa9e4b08e235290f113116808862b4f8104809abcacec70ea9e29bd525b",
+      "moments": [],
+      "sourceInfo": {
+        "duration": 89.875,
+        "width": 3840,
+        "height": 2160
+      },
+      "outputInfo": {
+        "duration": 20.0,
+        "width": 1920,
+        "height": 1080
+      },
+      "timingNormalization": {
+        "fps": 64,
+        "finalFrameExtension": "Only to the requested output end"
+      },
+      "fullTimeline": {
+        "sourceDurationSeconds": 89.875,
+        "outputDurationSeconds": 20,
+        "speedFactor": 4.49375,
+        "omittedIntervals": false
+      },
+      "description": "Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation."
+    }
+  }
+}

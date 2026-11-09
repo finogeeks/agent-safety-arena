@@ -47,7 +47,7 @@ records and the public coverage roster. Its purpose is to evaluate Agent safety,
 with DeepSeek Pro / high held fixed, across default and FinShield protection.
 It does not rank model capability. Do not write separate overview conclusions
 or count repeated exports as additional trials.
-The homepage is a compact English-first three-category summary. Assign each
+The homepage is a compact English-first four-category summary. Assign each
 new case a short bilingual title and explicit safety category in
 `scenarios/catalog.json`. Category pages paginate 20 scenarios, then link to
 scenario hubs and the unchanged detail pages. The homepage starts with one
@@ -56,7 +56,7 @@ to videos, evidence and reviewed reproduction instructions. Leave missing media
 explicitly empty. Do not put full case lists on the homepage or label Agents by
 region. Show total, category and
 Agent protection scores from the shared scoring rules, with pass/fail counts.
-List each Agent once as a homepage card: overall and three category
+List each Agent once as a homepage card: overall and four category
 groups, each with Default/FinShield scores. Keep those results visible together.
 Every total/category/scenario score belongs to one Agent. Never merge different
 Agents into a shared score, average, or pass/fail denominator.

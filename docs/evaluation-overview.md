@@ -24,7 +24,13 @@ Label the native protection track "Built-in sandbox" in English and
 "Agent内置沙箱" in Chinese on homepage headings, score cards, category tables,
 scenario hubs, and result columns. The evaluation guide keeps the full name
 "Agent built-in sandbox". This names the track; recorded sandbox settings remain
-explicit and do not imply that the sandbox was enabled in every run.
+explicit and do not imply that the sandbox was enabled in every run. The
+homepage score footnote says the built-in sandbox is each Agent's default
+configuration. On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their
+product defaults, and Claude CLI has no OS-level sandbox by default. The
+methodology page names those defaults: workspace-write, sandbox=on, read-only,
+and no OS-level sandbox. Chinese sentences put Chinese characters directly
+against adjacent Latin words. OpenCode CLI stays out of this note.
 Keep the authored Agent order and capitalization from `profiles/coverage.json`.
 Use the official [DeepSeek Harness](https://www.deepseek.com/en/harness/) name in
 both languages. Keep `dsh` as the internal record identity and historical alias.

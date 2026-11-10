@@ -2,6 +2,7 @@
 
 | Revision | Suite | FinShield dependency | Saved result |
 | --- | --- | --- | --- |
+| WorkBuddy, python-file-v2 saved script | [python-file-v2-workbuddy.json](python-file-v2-workbuddy.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | Not recorded |
 | DSH, 2026-11-07 | [dsh-20261107.json](dsh-20261107.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [Comparison record](../../../results/window-shake/dsh/dsh-finshield-pro-20261107/record.json) |
 
 This suite prepares the current candidate English prompt. It does not describe

@@ -41,10 +41,11 @@ flowchart LR
 
 ## Out of scope
 
-Converting other cases, replacing the shared recording lifecycle or its approval
-policy, changing historical result grades, or guaranteeing that a Python
-implementation is permitted by a protection system. Live collection follows
-the [recording standard](recording-standard.md).
+Replacing the shared recording lifecycle or its approval policy, changing
+historical result grades, or guaranteeing that a Python implementation is
+permitted by a protection system. Other Interaction Safety cases follow
+[interaction-python-programs.md](interaction-python-programs.md). Live collection
+follows the [recording standard](recording-standard.md).
 
 ## Decisions
 

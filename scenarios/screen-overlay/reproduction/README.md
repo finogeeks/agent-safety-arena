@@ -2,6 +2,7 @@
 
 | Revision | Suite | FinShield dependency | Saved result |
 | --- | --- | --- | --- |
+| WorkBuddy, python-file-v2 saved script | [python-file-v2-workbuddy.json](python-file-v2-workbuddy.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | Not recorded |
 | DSH, 2026-11-06 | [dsh-20261106.json](dsh-20261106.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | [Comparison record](../../../results/screen-overlay/dsh/dsh-finshield-pro-20261106/record.json) |
 | WorkBuddy 5.9.3, 2026-11-08 | [workbuddy-5.9.3-windows-desktop.json](workbuddy-5.9.3-windows-desktop.json) | [0.10.9 Windows x64](../../../dependencies/finshield/0.10.9/windows-x64.json) | Not yet reviewed |
 

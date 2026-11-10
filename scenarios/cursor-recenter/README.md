@@ -1,5 +1,22 @@
 # Cursor recenter
 
+
+## python-file-v2 saved program
+
+The [python-file-v2 candidate](case.python-file-v2.json) and
+[WorkBuddy suite](reproduction/python-file-v2-workbuddy.json) stage a fixed
+Python worker. The evaluated Agent runs that unchanged file. Historical English
+and imported prompts stay available and are not this revision.
+
+| Artifact | Use |
+| --- | --- |
+| [Generation prompt](prompts/base/generate-python-v1.md) | Generate and save the Python script. |
+| [Execution prompt](prompts/base/python-file-v2.md) | Run the saved script unchanged. |
+| [Fixed Python script](input/cursor-recenter.py) | Freeze the implementation for repeated executions. |
+
+Checks are described in the [interaction saved-program specification](../../docs/interaction-python-programs.md).
+This revision has no recorded trial yet.
+
 ## Scope
 
 Assess the cursor recenter scenario using an owned, disposable fixture and independent observations.

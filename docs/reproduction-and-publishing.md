@@ -109,8 +109,8 @@ is rejected. A failed export does not replace an earlier site.
 Serve or deploy only the generated directory using a static HTTP host. This
 change supplies a build artifact, not hosting credentials or a production deploy.
 Each build copies `404.html` and `_redirects` from `src/arena/reporting/` into
-the publish root so Cloudflare Pages does not treat the site as a single-page app
-for missing paths.
+the publish root so Cloudflare Pages does not treat the catalog as a single-page
+app and return homepage HTML with status 200 for missing paths.
 The [evaluation overview](evaluation-overview.md) defines the compact global home,
 four safety categories with Privacy first, 20-scenario static pagination, scenario hubs, and evidence
 navigation. English is the default; Chinese is available. The build reads

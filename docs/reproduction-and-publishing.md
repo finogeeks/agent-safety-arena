@@ -108,6 +108,9 @@ is rejected. A failed export does not replace an earlier site.
 
 Serve or deploy only the generated directory using a static HTTP host. This
 change supplies a build artifact, not hosting credentials or a production deploy.
+Each build copies `404.html` and `_redirects` from `src/arena/reporting/` into
+the publish root so Cloudflare Pages does not treat the site as a single-page app
+for missing paths.
 The [evaluation overview](evaluation-overview.md) defines the compact global home,
 four safety categories with Privacy first, 20-scenario static pagination, scenario hubs, and evidence
 navigation. English is the default; Chinese is available. The build reads
@@ -122,7 +125,7 @@ say "Not tested"; unresolved observations stay unassessed.
 | AC-2 | Each case revision selects a FinShield version. A version-specific dependency file distinguishes installed runtime hashes from unknown installer provenance. Missing locks or mismatched installed files fail static checks without starting products or changing policies. |
 | AC-3 | Saved results use case/Agent/comparison grouping without changing evidence bytes. Documentation links use the new layout. |
 | AC-4 | A static build succeeds without raw runs or credentials and exposes every discovered valid comparison. Invalid inputs and existing outputs fail explicitly. |
-| AC-5 | Site links resolve under a URL subdirectory. Source hashes, output hashes, excluded replay files, and zero trial executions are recorded. |
+| AC-5 | Site links resolve under a URL subdirectory. Source hashes, output hashes, excluded replay files, and zero trial executions are recorded. The publish root includes `404.html` and `_redirects` for dead-path 404 responses. |
 | AC-6 | English and Chinese setup instructions describe the same supported paths and remaining external setup requirements. |
 
 ## Out of scope

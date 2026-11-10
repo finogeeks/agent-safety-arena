@@ -79,7 +79,8 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding='utf8')
         (staging / 'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
-        for filename in ('catalog.css',):
+        static_assets = ('catalog.css', '404.html', '_redirects')
+        for filename in static_assets:
             (staging / filename).write_bytes(Path(__file__).with_name(filename).read_bytes())
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},

@@ -91,6 +91,10 @@ class RepositoryWorkflowTests(unittest.TestCase):
             self.assertEqual(manifest['sources'][source], hashlib.sha256(first.read_bytes()).hexdigest())
             for name, digest in manifest['files'].items():
                 self.assertEqual(hashlib.sha256((site / name).read_bytes()).hexdigest(), digest)
+            self.assertTrue((site / '404.html').is_file())
+            self.assertIn('Not found', (site / '404.html').read_text('utf8'))
+            self.assertTrue((site / '_redirects').is_file())
+            self.assertIn('/.env', (site / '_redirects').read_text('utf8'))
 
     def test_checks_explicit_case_locks_and_accepts_non_executable_dsh_entry(self):
         with tempfile.TemporaryDirectory() as folder:

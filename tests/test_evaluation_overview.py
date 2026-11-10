@@ -172,10 +172,12 @@ class EvaluationOverviewTests(unittest.TestCase):
             workbuddy = next(r for r in catalog['coverage'] if r['id'] == 'workbuddy')
             self.assertEqual(workbuddy['native']['reports'], [])
             html = (root / 'site/zh-CN.html').read_text('utf8')
-            for label in ('WorkBuddy', 'OpenCode CLI', 'Claude CLI'):
+            for label in ('WorkBuddy', 'Claude CLI'):
                 self.assertIn(label, html)
-            for agent in ('workbuddy', 'claude-cli', 'opencode-cli', 'codex-cli'):
+            self.assertNotIn('OpenCode CLI', html)
+            for agent in ('workbuddy', 'claude-cli', 'codex-cli'):
                 self.assertIn(f'data-score-agent="{agent}"', html, agent)
+            self.assertNotIn('data-score-agent="opencode-cli"', html)
             self.assertNotIn('不评测模型能力', html)
             self.assertNotIn('class="protocol"', html)
             self.assertNotIn('DeepSeek Pro', html)
@@ -198,7 +200,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertEqual(re.findall(r'data-category="([^"]+)"', home),
                              ['privacy', 'interaction', 'system', 'data'])
             self.assertIn('class="agent-card-grid"', home)
-            self.assertEqual(home.count('data-score-agent='), 5)
+            self.assertEqual(home.count('data-score-agent='), 4)
             self.assertNotIn('score-matrix', home)
             self.assertNotIn('data-case=', home)
             self.assertNotIn('<img', home)
@@ -421,7 +423,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertEqual(re.findall(r'data-category="([^"]+)"', home),
                              ['privacy', 'interaction', 'system', 'data'])
             self.assertLess(home.index('data-category="privacy"'), home.index('data-category="interaction"'))
-            card = re.search(r'<article class="agent-card".*?</article>', home, re.S).group()
+            card = re.search(r'<a class="agent-card".*?</a>', home, re.S).group()
             self.assertLess(card.index('隐私安全'), card.index('交互安全'))
             html = (root / 'site/camera-capture/workbuddy/paired/zh-CN.html').read_text('utf8')
             crumb = re.search(r'<nav class="report-breadcrumb".*?</nav>', html).group()
@@ -433,6 +435,62 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertNotIn('class="category-tabs"', category)
             main = category.split('</header>', 1)[1]
             self.assertNotIn('交互安全', main)
+
+    def test_agent_score_page_opens_one_category_and_links_to_the_comparison(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            results = root / 'results'
+            path, record = self.record(results, scenario='camera-capture', agent='workbuddy')
+            for group in record['groups'].values():
+                if group:
+                    group['conditions'].update(model='deepseek-v4-pro', reasoningEffort='high')
+            self.save(path, record)
+            build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
+            home = (root / 'site/zh-CN.html').read_text('utf8')
+            card = re.search(
+                r'<a class="agent-card"[^>]*data-score-agent="workbuddy">.*?</a>', home, re.S).group()
+            self.assertIn('href="agents/workbuddy/zh-CN.html"', card)
+            self.assertEqual(card.count('<a'), 1)
+            self.assertIn('class="agent-scope privacy"', card)
+            self.assertNotIn('privacy.zh-CN.html', card)
+            self.assertRegex(card, r'class="scope-label">[^<]+</span><span class="score-pair">')
+            self.assertIn('.score-pair{display:grid;grid-template-columns:5.8em 5.8em',
+                          (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8'))
+            self.assertIn('.agent-scope.overall{margin:0}',
+                          (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8'))
+            category = (root / 'site/privacy.zh-CN.html').read_text('utf8')
+            self.assertIn('class="row-link" href="agents/workbuddy/privacy.zh-CN.html"', category)
+            self.assertRegex((ROOT / 'src/arena/reporting/catalog.css').read_text('utf8'),
+                             r'\.row-link::after\{[^}]*inset:0')
+            opened = (root / 'site/agents/workbuddy/privacy.zh-CN.html').read_text('utf8')
+            self.assertIn('<details id="privacy" open>', opened)
+            self.assertNotRegex(opened, r'<details id="interaction"[^>]* open>')
+            self.assertIn('">0<', opened)
+            self.assertIn('">100<', opened)
+            self.assertNotIn('%', opened)
+            scene = re.search(
+                r'<a class="agent-scene result-row" href="../../camera-capture/workbuddy/paired/zh-CN.html">.*?</a>',
+                opened, re.S).group()
+            self.assertIn('摄像头泄密', scene)
+            self.assertIn('未拦截', scene)
+            self.assertIn('已拦截', scene)
+            self.assertIn('class="result-cell"', scene)
+            privacy_block = re.search(r'<details id="privacy" open>.*?</details>', opened, re.S).group()
+            self.assertIn('class="scene-list"', privacy_block)
+            self.assertIn('>场景<', privacy_block)
+            collapsed = (root / 'site/agents/workbuddy/zh-CN.html').read_text('utf8')
+            self.assertNotRegex(collapsed, r'<details[^>]* open>')
+            system = (root / 'site/agents/workbuddy/system.zh-CN.html').read_text('utf8')
+            self.assertIn('<details id="system" open>', system)
+            self.assertIn('本分类场景收录中', system)
+            system_block = re.search(r'<details id="system" open>.*?</details>', system, re.S).group()
+            self.assertNotIn('class="scene-list"', system_block)
+            english = (root / 'site/agents/workbuddy/privacy.html').read_text('utf8')
+            self.assertIn('Camera Leak', english)
+            self.assertIn('href="privacy.zh-CN.html"', english)
+            css = (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8')
+            self.assertRegex(css, r'\.agent-score-page \.score\{[^}]*text-align:center')
+            self.assertRegex(css, r'\.agent-score-page \.result-cell\{[^}]*align-items:center')
 
 
 if __name__ == '__main__':

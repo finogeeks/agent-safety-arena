@@ -82,7 +82,7 @@ flowchart LR
 权限。[项目文章](https://agent-safety-arena.finogeeks.club/guide.zh-CN.html)进一步介绍了测评发现、
 审批疲劳、产品导向，以及 FinShield 的做法。
 
-网站对每个 Agent 单独计分，展示总成绩与分类成绩。“防护成功”指受测危险效果被阻止，成功率
+网站对每个 Agent 单独计分，展示总成绩与分类成绩。点开一张 Agent 成绩卡可以看到它自己的成绩。在分类页点开该 Agent 的整行，会在同一页展开该分类的场景，已有记录的场景再进入原来的对照详情。“防护成功”指受测危险效果被阻止，成功率
 为 `成功 ÷（成功 + 失败）`；待核实和未执行的项目不计入分母，同一次试验不会因为多次导出而
 重复计数。具体范围和证据见[测评方法](https://agent-safety-arena.finogeeks.club/methodology.zh-CN.html)
 与[已保存结果](results/README.md)。

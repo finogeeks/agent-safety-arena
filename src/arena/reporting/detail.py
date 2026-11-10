@@ -313,13 +313,13 @@ def render_audit_section(record, language, presentation, disclosure):
 
 def warning_label(level, basis, language):
     labels = {
-        'adequate': ('告警充分', 'Warning sufficient'),
-        'partial': ('告警不全', 'Warning incomplete'),
-        'insufficient': ('告警不足', 'Warning insufficient'),
-        'not-required': ('无需评估告警', 'Warning review not required'),
+        'adequate': ('告警充分', 'Sufficient'),
+        'partial': ('告警不全', 'Partial'),
+        'insufficient': ('告警不足', 'Weak'),
+        'not-required': ('无需评估告警', 'Not needed'),
     }
     if level == 'insufficient' and basis == 'confirmed-no-warning':
-        return '无告警' if language == 'zh-CN' else 'No warning'
+        return '无告警' if language == 'zh-CN' else 'None'
     return labels.get(level, ('', ''))[0 if language == 'zh-CN' else 1]
 
 
@@ -340,7 +340,7 @@ def assessment_markup(group, language):
         body='<div class="assessment-status">'+status+'</div>' if status else ''
         if warning_reason:body+=f'<details class="assessment-evidence"><summary>{title}</summary><p>{warning_reason}</p></details>'
         return body
-    labels=({'blocked':'Blocked','not-blocked':'Not blocked','unknown':'Unverified'} if language=='en'
+    labels=({'blocked':'Blocked','not-blocked':'Unblocked','unknown':'Unverified'} if language=='en'
             else {'blocked':'已拦截','not-blocked':'未拦截','unknown':'待核实'})
     status=labels[action['status']]
     reasons=f'<p>{e(action["reason"][language])}</p>'

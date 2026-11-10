@@ -27,11 +27,11 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             for route, expected, previous in (
-                ('index.html', 'Agent built-in sandbox', 'Default protection'),
+                ('index.html', 'Built-in sandbox', 'Agent built-in sandbox'),
                 ('zh-CN.html', 'Agent内置沙箱', '默认防护'),
-                ('interaction.html', 'Agent built-in sandbox', 'Default protection'),
+                ('interaction.html', 'Built-in sandbox', 'Agent built-in sandbox'),
                 ('interaction.zh-CN.html', 'Agent内置沙箱', '默认防护'),
-                ('cases/window-flood/index.html', 'Agent built-in sandbox', 'Default protection'),
+                ('cases/window-flood/index.html', 'Built-in sandbox', 'Agent built-in sandbox'),
                 ('cases/window-flood/zh-CN.html', 'Agent内置沙箱', '默认防护'),
             ):
                 html = (root / 'site' / route).read_text('utf8')
@@ -94,19 +94,15 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             for route in ('index.html', 'zh-CN.html'):
                 home = (root / 'site' / route).read_text('utf8')
-                self.assertIn('<details class="unrecorded-agents">', home)
-                visible, folded = home.split('<details class="unrecorded-agents">', 1)
-                self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', visible),
-                                 ['dsh', 'workbuddy', 'codex-cli'])
-                self.assertEqual(re.findall(r'<h3>([^<]+)</h3>', visible)[-3:],
-                                 ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI'])
-                self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', folded),
-                                 ['claude-cli', 'opencode-cli'])
-                for agent in ('claude-cli', 'opencode-cli'):
-                    self.assertIn(f'data-score-agent="{agent}"', home, agent)
-                self.assertNotIn('<details class="unrecorded-agents" open', home)
+                self.assertNotIn('<details class="unrecorded-agents">', home)
+                self.assertNotIn('opencode-cli', home)
+                self.assertNotIn('OpenCode CLI', home)
+                self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', home),
+                                 ['dsh', 'workbuddy', 'codex-cli', 'claude-cli'])
+                self.assertEqual(re.findall(r'<a class="agent-card"[^>]*>\s*<h3>([^<]+)</h3>', home),
+                                 ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI', 'Claude CLI'])
                 self.assertNotIn('agent-archive', home)
-                for card in re.findall(r'<article class="agent-card".*?</article>', home, re.S):
+                for card in re.findall(r'<a class="agent-card".*?</a>', home, re.S):
                     self.assertEqual(re.findall(r'class="agent-scope ([^"]+)"', card),
                                      ['overall', 'privacy', 'interaction', 'system', 'data'])
                     self.assertEqual(card.count('data-score-protection='), 10)
@@ -136,7 +132,7 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             home = (root / 'site/index.html').read_text('utf8')
             self.assertNotIn('No media available', home)
-            self.assertEqual(home.count('class="category-entry"'), 3)
+            self.assertEqual(home.count('class="category-entry"'), 4)
             categories = re.findall(r'data-category="([^"]+)"', home)
             self.assertEqual(categories, ['privacy', 'interaction', 'system', 'data'])
             self.assertEqual(home.count('data-media-state="empty"'), 3)
@@ -153,7 +149,7 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.record(results, agent='codex-cli', scenario='window-flood', paired=False)
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             table = (root / 'site/cases/window-flood/index.html').read_text('utf8')
-            table = table.split('class="case-table"', 1)[-1].split('</table>', 1)[0]
+            table = table.split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
             for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness'):
                 self.assertIn(label, table)
             self.assertIn('Not tested', table)
@@ -165,7 +161,7 @@ class SiteProductGateTests(unittest.TestCase):
             root = Path(folder)
             build_site(ROOT / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             path = root / 'site/cases/window-flood/index.html'
-            table = path.read_text('utf8').split('class="case-table"', 1)[-1].split('</table>', 1)[0]
+            table = path.read_text('utf8').split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
             for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy'):
                 self.assertIn(label, table, path.name)
 

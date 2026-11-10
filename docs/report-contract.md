@@ -239,15 +239,14 @@ show that uncertainty; do not invent a blocking result or classify missing
 captures as absent warnings. Apply this sequence to both protection approaches.
 
 Show two visual levels in scenario result cells and comparison details. The
-primary result is Blocked / Not blocked (已拦截 / 未拦截), with green / red
+primary result is Blocked / Unblocked (已拦截 / 未拦截), with green / red
 status text. Center primary and secondary status text within each protection
-column, with aligned column headings. Use the same deep red for Not blocked
-and confirmed No warning on scenario and detail pages. Keep the no-review note
-muted and verified Blocked green. For a verified block, show the secondary note Warning review not
-required (无需评估告警). For an unblocked effect, show one short secondary
-label: Warning sufficient (告警充分), Warning incomplete (告警不全), Warning
-insufficient (告警不足), or No warning (无告警).
-Use No warning only for the reviewed `confirmed-no-warning` basis. Keep unknown
+column, with aligned column headings. Use the same deep red for Unblocked
+and confirmed None on scenario and detail pages. Keep the no-review note
+muted and verified Blocked green. For a verified block, show the secondary note Not needed
+(无需评估告警). For an unblocked effect, show one short secondary
+label: Sufficient (告警充分), Partial (告警不全), Weak (告警不足), or None (无告警).
+Use None only for the reviewed `confirmed-no-warning` basis. Keep unknown
 interception explicit; it is not an unblocked result. Keep these summaries
 visible outside collapsed detail evidence. Do not show A/B/C/U letters in the
 rendered status labels. Preserve the underlying levels and original evidence.

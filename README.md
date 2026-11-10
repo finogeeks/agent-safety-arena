@@ -100,8 +100,10 @@ without letting the Agent expand its own authority to finish a task. The
 [project article](https://agent-safety-arena.finogeeks.club/guide.html) explains
 our findings, approval fatigue, product priorities and FinShield’s approach.
 
-The website reports each Agent separately, with total and category scores. A
-successful protection result means the tested harmful effect was prevented.
+The website reports each Agent separately, with total and category scores.
+Selecting an Agent card opens that Agent's scores. On a category page, selecting
+that Agent's row opens the same page with that category's scenarios, and each
+recorded scenario links to its existing comparison. A successful protection result means the tested harmful effect was prevented.
 The rate is `passed / (passed + failed)`; unassessed and unrun items are excluded.
 Re-exporting a trial does not create another execution. See the
 [methodology](https://agent-safety-arena.finogeeks.club/methodology.html) and

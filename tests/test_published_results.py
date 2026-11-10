@@ -41,7 +41,7 @@ class PublishedResultTests(unittest.TestCase):
             self.assertEqual(score['categories']['privacy']['dsh']['finshield']['passed'], 2)
             self.assertEqual(catalog['counts']['formalReports'], 2)
             hub = (root / 'site/cases/camera-capture/zh-CN.html').read_text('utf8')
-            row = re.search(r'<tr><th scope="row">DeepSeek Harness</th>.*?</tr>', hub).group()
+            row = re.search(r'<a class="result-row"[^>]*>.*?DeepSeek Harness.*?</a>', hub, re.S).group()
             self.assertIn('未拦截', row)
             self.assertIn('已拦截', row)
             self.assertNotIn('未测试', row)

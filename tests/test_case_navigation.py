@@ -93,8 +93,9 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertNotIn('High', intro)
                 self.assertEqual(intro.count('<p'), 1)
                 self.assertIn('class="coverage-table"', html)
-                self.assertIn('0%', html)
-                self.assertIn('100%', html)
+                self.assertIn('">0<', html)
+                self.assertIn('">100<', html)
+                self.assertNotIn('%', html)
                 self.assertNotIn('class="phase-label"', html)
                 self.assertNotIn('class="category-tabs"', html)
                 self.assertNotIn('class="pagination"', html)
@@ -178,17 +179,19 @@ class CaseNavigationTests(unittest.TestCase):
             self.fixed_record(root / 'results', scenario='window-flood', agent='dsh')
             build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             html = (root / 'site/cases/window-flood/zh-CN.html').read_text('utf8')
-            table = re.search(r'<table class="case-table">.*?</table>', html).group()
-            for value in ('未拦截', '已拦截', '未测试', '详情与证据'):
-                self.assertIn(value, table)
+            block = html.split('class="scene-list"', 1)[1].split('<footer', 1)[0]
+            for value in ('未拦截', '已拦截', '未测试'):
+                self.assertIn(value, block)
+            self.assertNotIn('详情与证据', block)
+            self.assertIn('<a class="result-row" href="../../window-flood/dsh/paired/zh-CN.html">', block)
             for value in ('Claude CLI', 'OpenCode CLI', 'Codex CLI'):
-                self.assertIn(value, table)
+                self.assertIn(value, block)
             for value in ('开发评测', '条件有差异或缺项', '受控文件丢失'):
                 self.assertNotIn(value, html)
             for value in ('%', '成功0 · 失败1', '成功1 · 失败0'):
-                self.assertNotIn(value, table)
-            self.assertIn('data-label="Agent内置沙箱"', table)
-            self.assertIn('data-label="FinShield"', table)
+                self.assertNotIn(value, block)
+            self.assertIn('data-label="Agent内置沙箱"', block)
+            self.assertIn('data-label="FinShield"', block)
             self.assertIn('把正在用的应用埋住', html)
             self.assertIn('../../window-flood/dsh/paired/zh-CN.html', html)
             self.assertNotIn('每个 Agent', html)

@@ -23,7 +23,7 @@ INDEX_FILE=re.compile(r'^[A-Za-z0-9][A-Za-z0-9._/-]*$')
 WORDS={
  'en':dict(sections=['01 What happened','02 Was it blocked','03 How we know',
                     '04 Prompt','05 Model reply','06 Reproduce and audit'],
-           native='Agent built-in sandbox',finshield='Built-in controls + FinShield',missing='Not run; no replacement evidence.',
+           native='Built-in sandbox',finshield='Built-in controls + FinShield',missing='Not run; no replacement evidence.',
            translation='Display translation — not the submitted text',original='Original',reply='Matched-turn public reply',
            supplement='Separate supplementary reply',limits='Limitations',synthetic='SYNTHETIC — not a live Agent or OS test',
            development='Development / exploratory evidence; excluded from formal counts',

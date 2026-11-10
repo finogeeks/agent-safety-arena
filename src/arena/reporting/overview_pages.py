@@ -43,6 +43,33 @@ class Pages:
     def report_path(self, row):
         return row['path'] + '/' + ('zh-CN.html' if self.zh else 'en.html')
 
+    def agent_page(self, agent_id, category=None, language=None):
+        zh = self.zh if language is None else language == 'zh-CN'
+        if category:
+            leaf = f'{category}.zh-CN.html' if zh else f'{category}.html'
+        else:
+            leaf = 'zh-CN.html' if zh else 'index.html'
+        return f'agents/{agent_id}/{leaf}'
+
+    def agent_locale(self, agent_id, category=None):
+        return self.agent_page(agent_id, category, 'en' if self.zh else 'zh-CN').rsplit('/', 1)[-1]
+
+    def listed_categories(self):
+        categories = [item for item in self.data['categories'] if item['id'] != 'unclassified']
+        if any(case['live'] and case['categoryId'] == 'unclassified' for case in self.data['cases']):
+            categories.append(dict(id='unclassified',
+                label={'en': 'Unclassified records', 'zh-CN': '待分类记录'},
+                description={'en': 'Recorded scenarios awaiting an explicit safety category.',
+                             'zh-CN': '已有记录但尚未指定安全分类的场景。'}))
+        return categories
+
+    def blank_score(self):
+        return {group: dict(passed=0, failed=0, unassessed=0, excluded=0, denominator=0, rate=None)
+                for group in ('native', 'finshield')}
+
+    def agent_category_scores(self, agent_id, category_id):
+        return self.scores['categories'].get(category_id, {}).get(agent_id) or self.blank_score()
+
     def badge(self, text, state='neutral'):
         return f'<span class="badge {self.e(state)}">{self.e(text)}</span>'
 
@@ -50,19 +77,23 @@ class Pages:
         protocol = self.data['protocol']
         return (protocol['label'] + ' · ' + protocol['reasoningEffort'].capitalize()) if protocol else self.t('模型见各记录', 'Model recorded per report')
 
-    def score(self, value, compact=False):
+    def score(self, value, compact=False, card=False):
         rate = value['rate']
-        label = '—' if rate is None else f'{rate:g}%'
+        label = '—' if rate is None else f'{rate:g}'
         state = 'unrated' if rate is None else 'pass' if rate == 100 else 'fail' if rate == 0 else 'mixed'
+        parts = []
         if value['denominator']:
-            detail = self.t(f'成功 {value["passed"]} · 失败 {value["failed"]}',
-                            f'{value["passed"]} passed · {value["failed"]} failed')
+            parts.append(self.t(f'成功 {value["passed"]} · 失败 {value["failed"]}',
+                                f'{value["passed"]} pass · {value["failed"]} fail' if card
+                                else f'{value["passed"]} passed · {value["failed"]} failed'))
+        elif value['excluded']:
+            parts.append(self.t('未纳入本轮评分', 'Excluded' if card else 'Outside score scope'))
+        elif not value['unassessed']:
+            parts.append(self.t('未测试', 'Untested' if card else 'Not tested'))
+        if card and len(parts) > 1 and not self.zh:
+            detail = parts[0] + ''.join(f'<span class="count-extra">{part}</span>' for part in parts[1:])
         else:
-            detail = self.t('未测试', 'Not tested') if not value['unassessed'] and not value['excluded'] else ''
-        if value['unassessed']:
-            detail += (' · ' if detail else '') + self.t(f'待核实 {value["unassessed"]}', f'{value["unassessed"]} unassessed')
-        if value['excluded']:
-            detail += (' · ' if detail else '') + self.t('未纳入本轮评分', 'Outside score scope')
+            detail = ' · '.join(parts)
         size = ' compact' if compact else ''
         return f'<div class="score{size}"><strong class="score-value {state}">{label}</strong><small>{detail}</small></div>'
 
@@ -81,7 +112,7 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261110c"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -93,13 +124,14 @@ class Pages:
                 f'<a href="{prefix}catalog.json">{t("汇总数据","Data")}</a>'
                 f'<a href="{prefix}site-manifest.json">{t("证据索引","Build manifest")}</a></div></footer>')
 
-    def agent_table(self, values, mini=False, agents=None):
+    def agent_table(self, values, mini=False, agents=None, category_id=None):
         t=self.t; e=self.e
         agents = agents or self.data['coverage']
         style='category-score-table' if mini else 'coverage-table'
-        text=f'<table class="{style}"><thead><tr><th>Agent</th><th>'+t('Agent内置沙箱','Agent built-in sandbox')+'</th><th>FinShield</th></tr></thead><tbody>'
+        text=f'<table class="{style}"><thead><tr><th>Agent</th><th>'+t('Agent内置沙箱','Built-in sandbox')+'</th><th>FinShield</th></tr></thead><tbody>'
         for agent in agents:
-            text+=f'<tr><th scope="row">{e(agent["label"][self.language])}</th>'
+            href = self.agent_page(agent['id'], category_id)
+            text+=f'<tr><th scope="row"><a class="row-link" href="{href}">{e(agent["label"][self.language])}</a></th>'
             for group in ('native','finshield'):
                 text+='<td>'+self.score(values[agent['id']][group],True)+'</td>'
             text+='</tr>'
@@ -108,43 +140,46 @@ class Pages:
     def scored(self, value):
         return bool(value['denominator'] or value['unassessed'] or value['excluded'])
 
-    def track(self, group, value, identity=None):
-        label = self.t('Agent内置沙箱', 'Agent built-in sandbox') if group == 'native' else 'FinShield'
-        attrs = f' data-score-scope="{identity}" data-score-protection="{group}"' if identity else ''
-        return f'<div class="scope-track"{attrs}><span>{label}</span>'+self.score(value, True)+'</div>'
+    def card_figure(self, value, overall=False):
+        rate = value['rate']
+        if rate is not None:
+            state = 'pass' if rate == 100 else 'fail' if rate == 0 else 'mixed'
+            return f'<b class="score-value {state}">{rate:g}</b>'
+        if value['excluded']:
+            return '<span class="dash">'+self.t('未纳入', 'Excluded')+'</span>'
+        if overall and not value['unassessed']:
+            return '<span class="dash">'+self.t('未测试', 'Untested')+'</span>'
+        return '<span class="dash">—</span>'
 
     def has_live_records(self, agent):
         return any(row['origin'] == 'live' and not row['archived']
                    and row['agentId'] in agent['recordAgentIds']
                    for row in self.data['reports'])
 
-    def home_agent_cards(self, *, recorded=True):
+    def home_agent_cards(self):
         t=self.t; e=self.e
         scopes=[('overall',t('总成绩','Overall'))]+[(category['id'],category['label'][self.language])
                                                   for category in self.data['categories']]
         text='<div class="agent-card-grid">'
         for agent in self.data['coverage']:
-            if self.has_live_records(agent) != recorded:
+            if agent['id'] == 'opencode-cli':
                 continue
-            text+=f'<article class="agent-card" data-score-agent="{e(agent["id"])}"><h3>{e(agent["label"][self.language])}</h3><div class="agent-card-scopes">'
+            overall = self.agent_page(agent['id'])
+            text+=f'<a class="agent-card" href="{overall}" data-score-agent="{e(agent["id"])}"><h3>{e(agent["label"][self.language])}</h3><div class="agent-card-table">'
+            text+='<div class="agent-card-head"><span class="scope-label"></span><span class="score-pair"><span>'+t('内置沙箱','Built-in')+'</span><span class="fs">FinShield</span></span></div>'
             for identity,label in scopes:
                 values=self.scores['agents'] if identity=='overall' else self.scores['categories'][identity]
-                heading=e(label) if identity=='overall' else f'<a href="{self.route(identity)}">{e(label)}</a>'
-                text+=f'<div class="agent-scope {identity}"><span class="scope-label">{heading}</span><div class="scope-scores">'
+                text+=f'<div class="agent-scope {identity}"><span class="scope-label">{e(label)}</span><span class="score-pair">'
                 for group in ('native','finshield'):
-                    text+=self.track(group, values[agent['id']][group], identity)
-                text+='</div></div>'
-            text+='</div></article>'
+                    mark=self.card_figure(values[agent['id']][group], identity=='overall')
+                    kind=' fs' if group=='finshield' else ''
+                    text+=f'<span class="scope-track{kind}" data-score-scope="{identity}" data-score-protection="{group}">{mark}</span>'
+                text+='</span></div>'
+            text+='</div></a>'
         return text+'</div>'
 
     def unrecorded_agents(self):
-        count = sum(not self.has_live_records(agent) for agent in self.data['coverage'])
-        if not count:
-            return ''
-        label = self.t('暂无结果的 Agent', 'Agents without results yet')
-        return ('<details class="unrecorded-agents"><summary>'
-                + self.e(label) + f' · {count}</summary>'
-                + self.home_agent_cards(recorded=False) + '</details>')
+        return ''
 
     def showcase(self):
         t=self.t; e=self.e
@@ -174,7 +209,7 @@ class Pages:
             body+=f'<p class="showcase-lead">{e(category["description"][self.language])}</p>'
             if row:
                 loading='eager' if index==0 else 'lazy'
-                body+='<div class="gif-labels"><span>'+t('Agent内置沙箱','Agent built-in sandbox')+'</span><span>FinShield</span></div>'
+                body+='<div class="gif-labels"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span>FinShield</span></div>'
                 body+=f'<div class="test-gif"><img src="{e(row["preview"]["path"])}" alt="{e(row["preview"]["caption"][self.language])}" loading="{loading}" decoding="async"></div>'
             body+='<span class="category-entry">'+t('查看场景','View scenarios')+' <span aria-hidden="true">→</span></span>'
             body+='</a>'
@@ -184,7 +219,7 @@ class Pages:
         t=self.t; e=self.e
         body=('<section class="intro"><div>'
             f'<h1>{t("Agent安全测评","Agent Safety Evaluation")}</h1>'
-            '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Agent built-in sandbox')+'</span><span>vs</span><span>FinShield</span></p>'
+            '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span>vs</span><span>FinShield</span></p>'
             f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a></div></section>')
         body+=self.showcase()
         body+='<section id="agent-scores" class="agent-scores"><div class="section-heading"><h2>'+t('测评结果','Evaluation results')+'</h2></div>'
@@ -223,7 +258,7 @@ class Pages:
         if category['id'] in self.scores['categories']:
             body += '<div class="section-heading"><h2>'+t('本分类总成绩','Category scores')+'</h2></div>'
             body += '<section class="panel agent-scores"><div class="table-scroll">'
-            body += self.agent_table(self.scores['categories'][category['id']])
+            body += self.agent_table(self.scores['categories'][category['id']], category_id=category['id'])
             body += '</div></section>'
         selected = cases[(page-1)*PAGE_SIZE:page*PAGE_SIZE]
         if not selected:
@@ -271,7 +306,7 @@ class Pages:
             counts = dict.fromkeys(labels, 0)
             for agent in self.data['coverage']:
                 counts[self.result_state(values[agent['id']][group])] += 1
-            text += f'<div data-protection="{group}"><span class="outcome-track">'+(t('Agent内置沙箱', 'Agent built-in sandbox') if group == 'native' else 'FinShield')+'</span><p>'
+            text += f'<div data-protection="{group}"><span class="outcome-track">'+(t('Agent内置沙箱', 'Built-in sandbox') if group == 'native' else 'FinShield')+'</span><p>'
             parts = []
             for state, count in counts.items():
                 if count:
@@ -299,48 +334,110 @@ class Pages:
         body += '<section class="page-intro">'
         body += f'<h1>{e(case["title"][self.language])}</h1><p class="lead">{e(case["description"][self.language])}</p></section>'
         body += '<div class="section-heading"><h2>'+t('各智能体的防护结果','Results by Agent')+'</h2></div>'
-        body += '<div class="panel table-scroll"><table class="case-table"><thead><tr><th>'+t('智能体','Agent')+'</th><th>'+t('Agent内置沙箱','Agent built-in sandbox')+'</th><th>FinShield</th><th>'+t('评测记录','Report')+'</th></tr></thead><tbody>'
+        body += ('<div class="scene-list"><div class="scene-head"><span>'+t('智能体','Agent')+'</span><span>'
+                 +t('Agent内置沙箱','Built-in sandbox')+'</span><span>FinShield</span></div>')
         displayed = set()
         for agent in self.data['coverage']:
-            candidates = [row for row in rows if row['agentId'] in agent['recordAgentIds'] and not row['archived'] and row['origin'] == 'live']
-            candidates.sort(key=lambda row: row['phase'] != self.phase)
-            active = [row for row in candidates if row['phase'] == self.phase]
-            preferred = active or candidates
-            row = next((row for row in preferred if row['paired']), preferred[0] if preferred else None)
-            scores = self.scores['cases'][case['id']][agent['id']]
-            body += f'<tr><th scope="row">{e(agent["label"][self.language])}</th>'
-            for group in ('native', 'finshield'):
-                label = t('Agent内置沙箱', 'Agent built-in sandbox') if group == 'native' else 'FinShield'
-                value = scores[group]
-                observed = row if row and self.result_state(value) == 'excluded' else None
-                display = value
-                if observed:
-                    state = observed['assessments'][group]['state']
-                    display = dict(value, passed=0, failed=0, unassessed=0, excluded=0)
-                    if state != 'not-run':
-                        key = {'blocked': 'passed', 'not-blocked': 'failed'}.get(state, 'unassessed')
-                        display[key] = 1
-                body += f'<td data-label="{label}">'+self.case_result(display)
-                body += self.case_warning(case, agent, group, display, observed)
-                if observed:
-                    body += self.case_scope_note(observed, group)
-                body += '</td>'
-            body += '<td data-label="'+t('评测记录', 'Report')+'">'
+            row = self.preferred_report(case, agent)
+            href = f'{prefix}{self.report_path(row)}' if row else ''
             if row:
                 displayed.add(row['path'])
-                body += f'<a href="{prefix}{self.report_path(row)}">{t("详情与证据","Details & evidence")} ↗</a>'
-            else: body += '—'
-            body += '</td></tr>'
-        body += '</tbody></table></div>'
+            body += self.result_row(e(agent['label'][self.language]), self.result_cells(case, agent, row), href)
+        body += '</div>'
         remaining = [row for row in rows if row['path'] not in displayed]
         if remaining:
             body += '<details class="archive"><summary>'+t('其他及早期报告','Other and earlier reports')+f' · {len(remaining)}</summary>'+self.report_links(remaining, prefix)+'</details>'
         return self.document(case['title'][self.language], body, 'index.html' if self.zh else 'zh-CN.html', prefix,
                              'refined-page case-page', case['categoryId'])
 
+    def preferred_report(self, case, agent):
+        candidates = [row for row in self.data['reports']
+                      if row['scenarioId'] == case['id'] and row['agentId'] in agent['recordAgentIds']
+                      and not row['archived'] and row['origin'] == 'live']
+        candidates.sort(key=lambda row: row['phase'] != self.phase)
+        active = [row for row in candidates if row['phase'] == self.phase]
+        preferred = active or candidates
+        return next((row for row in preferred if row['paired']), preferred[0] if preferred else None)
+
+    def shown_result(self, row, value, group):
+        observed = row if row and self.result_state(value) == 'excluded' else None
+        display = value
+        if observed:
+            state = observed['assessments'][group]['state']
+            display = dict(value, passed=0, failed=0, unassessed=0, excluded=0)
+            if state != 'not-run':
+                key = {'blocked': 'passed', 'not-blocked': 'failed'}.get(state, 'unassessed')
+                display[key] = 1
+        return display, observed
+
+    def result_cells(self, case, agent, row):
+        text = ''
+        scores = self.scores['cases'][case['id']][agent['id']]
+        for group in ('native', 'finshield'):
+            label = self.t('Agent内置沙箱', 'Built-in sandbox') if group == 'native' else 'FinShield'
+            display, observed = self.shown_result(row, scores[group], group)
+            text += f'<span class="result-cell" data-label="{label}">'+self.case_result(display)
+            text += self.case_warning(case, agent, group, display, observed)
+            if observed:
+                text += self.case_scope_note(observed, group)
+            text += '</span>'
+        return text
+
+    def result_row(self, name, cells, href, extra=''):
+        classes = (extra + ' ' if extra else '') + 'result-row'
+        body = f'<span class="name">{name}</span>{cells}'
+        if href:
+            return f'<a class="{classes}" href="{href}">{body}</a>'
+        return f'<div class="{classes}">{body}</div>'
+
+    def agent_scene(self, case, agent, prefix):
+        row = self.preferred_report(case, agent)
+        href = f'{prefix}{self.report_path(row)}' if row else ''
+        return self.result_row(self.e(case['title'][self.language]), self.result_cells(case, agent, row), href, 'agent-scene')
+
+    def live_cases(self, category_id):
+        cases = [case for case in self.data['cases'] if case['live'] and case['categoryId'] == category_id]
+        cases.sort(key=lambda case: (case.get('displayOrder') is None, case.get('displayOrder') or 0, case['id']))
+        return cases
+
+    def agent_score(self, agent, open_category=None):
+        t = self.t
+        e = self.e
+        prefix = '../../'
+        label = agent['label'][self.language]
+        body = self.trail([(prefix + self.home_path, t('首页', 'Home'))], label)
+        body += f'<section class="page-intro"><h1>{e(label)}</h1></section>'
+        body += '<div class="section-heading"><h2>'+t('总成绩', 'Overall')+'</h2></div><div class="score-strip">'
+        for group, name in (('native', t('Agent内置沙箱', 'Built-in sandbox')), ('finshield', 'FinShield')):
+            body += f'<div><span>{name}</span>'+self.score(self.scores['agents'][agent['id']][group])+'</div>'
+        body += '</div><div class="section-heading"><h2>'+t('分类成绩', 'Category scores')+'</h2></div>'
+        body += ('<div class="panel table-scroll"><table class="coverage-table agent-score-table"><thead><tr><th>'
+                 + t('分类', 'Category') + '</th><th>' + t('Agent内置沙箱', 'Built-in sandbox')
+                 + '</th><th>FinShield</th></tr></thead><tbody>')
+        for category in self.listed_categories():
+            identity = category['id']
+            opened = ' open' if identity == open_category else ''
+            values = self.agent_category_scores(agent['id'], identity)
+            cases = self.live_cases(identity)
+            if cases:
+                head = ('<div class="scene-head"><span>'+t('场景', 'Scenario')+'</span><span>'
+                        +t('Agent内置沙箱', 'Built-in sandbox')+'</span><span>FinShield</span></div>')
+                scenes = '<div class="scene-list">'+head+''.join(self.agent_scene(case, agent, prefix) for case in cases)+'</div>'
+            else:
+                scenes = '<p class="agent-empty">'+t('本分类场景收录中', 'Scenarios in this category are being collected')+'</p>'
+            body += f'<tr><td class="agent-category-cell" colspan="3"><details id="{e(identity)}"{opened}>'
+            body += '<summary class="agent-category"><span class="name">'+e(category['label'][self.language])+'</span>'
+            for group in ('native', 'finshield'):
+                body += self.score(values[group])
+            body += '</summary><div class="agent-scenes">'+scenes+'</div></details></td></tr>'
+        body += '</tbody></table></div>'
+        current = open_category if open_category and open_category != 'unclassified' else ''
+        return self.document(label, body, self.agent_locale(agent['id'], open_category), prefix,
+                             'refined-page agent-score-page', current)
+
     def case_result(self, value):
         if value['failed']:
-            return self.badge(self.t('未拦截', 'Not blocked'), 'not-blocked')
+            return self.badge(self.t('未拦截', 'Unblocked'), 'not-blocked')
         if value['unassessed']:
             return self.badge(self.t('待核实', 'Unverified'), 'unassessed')
         if value['passed']:
@@ -442,4 +539,8 @@ def render_pages(catalog):
                 output[renderer.route(category['id'], page)] = renderer.category(category, cases, page)
         for case in catalog['cases']:
             output[renderer.case_path(case['id'])] = renderer.case(case)
+        for agent in catalog['coverage']:
+            output[renderer.agent_page(agent['id'])] = renderer.agent_score(agent)
+            for category in renderer.listed_categories():
+                output[renderer.agent_page(agent['id'], category['id'])] = renderer.agent_score(agent, category['id'])
     return output

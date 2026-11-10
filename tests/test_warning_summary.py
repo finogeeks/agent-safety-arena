@@ -35,8 +35,8 @@ class WarningSummaryTests(unittest.TestCase):
     def build(self, root):
         build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
         html = (root / 'site/cases/window-flood/zh-CN.html').read_text('utf8')
-        native = re.search(r'<td data-label="Agent内置沙箱">(.*?)</td>', html).group(1)
-        protected = re.search(r'<td data-label="FinShield">(.*?)</td>', html).group(1)
+        native = html.split('data-label="Agent内置沙箱"', 1)[1].split('data-label="FinShield"', 1)[0]
+        protected = html.split('data-label="FinShield"', 1)[1].split('</a>', 1)[0]
         return native, protected, json.loads((root / 'site/catalog.json').read_text('utf8'))
 
     def test_existing_warning_presence_and_grades_are_visible_without_changing_scores(self):
@@ -74,12 +74,12 @@ class WarningSummaryTests(unittest.TestCase):
                     self.assertIn(label, visible)
                 english = (root / 'site' / path.relative_to(root / 'results').parent / 'en.html').read_text('utf8')
                 english_summary = english.split('id="section-2"')[1].split('</section>')[0]
-                english_labels = {'告警充分': 'Warning sufficient', '告警不全': 'Warning incomplete',
-                                  '告警不足': 'Warning insufficient', '无告警': 'No warning'}
+                english_labels = {'告警充分': 'Sufficient', '告警不全': 'Partial',
+                                  '告警不足': 'Weak', '无告警': 'None'}
                 if label:
                     self.assertIn(english_labels[label], english_summary)
                 self.assertNotIn('Pending review', english_summary)
-                self.assertIn('Warning review not required', english_summary)
+                self.assertIn('Not needed', english_summary)
                 self.assertNotRegex(english_summary, r'[ABCU] ·|\([ABCU]\)')
                 if basis == 'confirmed-no-warning':
                     self.assertIn('warning-absent', native)

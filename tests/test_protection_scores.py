@@ -175,6 +175,14 @@ class ProtectionScoreTests(unittest.TestCase):
                 self.assertEqual(html.count('data-score-agent='),2)
                 self.assertNotIn('score-matrix',html)
                 self.assertNotIn('matrix-hint',html)
+                if language=='zh-CN':
+                    self.assertIn('「内置沙箱」是各Agent的默认配置。Windows上，DeepSeek Harness、WorkBuddy、Codex CLI使用各自产品的默认沙箱；Claude CLI默认没有系统级沙箱。',html)
+                    method=(root/'site/methodology.zh-CN.html').read_text('utf8')
+                    self.assertIn('DeepSeek Harness默认workspace-write。WorkBuddy默认sandbox=on。Codex CLI在Windows上默认read-only。Claude CLI在Windows上默认没有系统级沙箱。',method)
+                else:
+                    self.assertIn('"Built-in sandbox" is each Agent\'s default configuration. On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their product\'s default sandbox. Claude CLI has no OS-level sandbox by default.',html)
+                    method=(root/'site/methodology.html').read_text('utf8')
+                    self.assertIn('DeepSeek Harness defaults to workspace-write. WorkBuddy defaults to sandbox=on. Codex CLI defaults to read-only on Windows. Claude CLI has no OS-level sandbox by default on Windows.',method)
                 category=(root/'site/interaction.html').read_text('utf8')
                 self.assertIn('class="scenario-card-grid"',category)
                 self.assertIn('class="scenario-card"',category)

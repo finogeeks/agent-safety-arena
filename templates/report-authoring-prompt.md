@@ -9,13 +9,13 @@ is fixed: preserve the six sections, column roles, shared styles, and dense
 overview layout. Generate the case content; do not generate a new page design.
 The project evaluates Agent safety controls, not model capability. The current
 coverage roster is profiles/coverage.json: DSH desktop, WorkBuddy, Codex CLI,
-Claude CLI, and OpenCode CLI, each with default and FinShield protection, using
+and Claude CLI, each with default and FinShield protection, using
 DeepSeek Pro / high. Record actual conditions; do not rewrite an older record
 to match this target. The overview reads structured assessments from these
 records. Do not author a second set of conclusions or treat a planned roster
 entry as an implemented integration or completed test.
 For the global overview, add the case's short English/Chinese title and explicit
-Interaction Safety, System Safety, or Data Safety category to
+Interaction, System, or Data category to
 scenarios/catalog.json. Choose the category from the declared scenario scope.
 The homepage defaults to English and stays compact regardless of case count.
 Use paginated category pages and scenario hubs. The shared homepage now reserves

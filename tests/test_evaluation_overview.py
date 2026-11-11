@@ -20,8 +20,8 @@ class Links(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         for key, value in attrs:
-            if key in ('href', 'src') and value and not value.startswith(('https:', '#')):
-                self.paths.append(value.split('#')[0])
+            if key in ('href', 'src') and value and not value.startswith(('https:', '#', '/')):
+                self.paths.append(value.split('#')[0].split('?', 1)[0])
 
 
 class EvaluationOverviewTests(unittest.TestCase):
@@ -164,7 +164,9 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.record(results, agent='synthetic-only-agent', origin='synthetic', scenario='sample-only')
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             catalog = json.loads((root / 'site/catalog.json').read_text('utf8'))
-            self.assertEqual(len(catalog['coverage']), 5)
+            self.assertEqual(len(catalog['coverage']), 4)
+            self.assertEqual([row['id'] for row in catalog['coverage']],
+                             ['dsh', 'workbuddy', 'codex-cli', 'claude-cli'])
             codex = next(r for r in catalog['coverage'] if r['id'] == 'codex-cli')
             self.assertEqual(codex['native']['scenarios'], 1)
             self.assertEqual(codex['native']['formalScenarios'], 1)
@@ -272,8 +274,8 @@ class EvaluationOverviewTests(unittest.TestCase):
                     else:
                         self.assertNotIn('<img', whole_card)
             card=re.search(r'<a class="test-card scenario-card"[^>]*data-category="data".*?</a>',showcase,re.S).group()
-            self.assertIn('Data Safety',card)
-            self.assertIn('Files are deleted, changed, or copied away in secret, and your important materials cannot be recovered or are leaked',card)
+            self.assertIn('>Data<',card)
+            self.assertIn('Files are deleted, changed, or copied away, so your data is lost or leaked',card)
             self.assertIn('href="data.html"',card)
             self.assertLess(card.index('<h3'), card.index('<img'))
             self.assertNotIn('#section-3',card)
@@ -341,7 +343,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.save(path, record)
             build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             chinese = ['隐私安全', '交互安全', '系统安全', '数据安全']
-            english = ['Privacy Safety', 'Interaction Safety', 'System Safety', 'Data Safety']
+            english = ['Privacy', 'Interaction', 'System', 'Data']
             home = (root / 'site/zh-CN.html').read_text('utf8')
             home_header = re.search(r'<header\b.*?</header>', home).group()
             for label in chinese:
@@ -351,7 +353,9 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertNotIn('评测方法', home_header)
             self.assertNotIn('不评测模型能力', home)
             self.assertNotIn('class="protocol"', home)
-            self.assertIn('<section class="intro"><div><h1>', home)
+            self.assertIn('<section class="intro">', home)
+            self.assertIn('<h1>Agent安全测评</h1>', home)
+            self.assertIn('class="intro-heading"', home)
             self.assertLess(home.index('Agent安全测评'), home.index('id="real-tests"'))
             pages = {
                 root / 'site/zh-CN.html': chinese,
@@ -366,9 +370,11 @@ class EvaluationOverviewTests(unittest.TestCase):
                 html = path.read_text('utf8')
                 header = re.search(r'<header\b.*?</header>', html).group()
                 for label in labels:
-                    self.assertIn(label, header)
+                    self.assertIn('>' + label + '</a>', header)
                 self.assertIn('GitHub ↗', header)
                 self.assertNotIn('#categories', header)
+                self.assertNotIn('Privacy Safety', header)
+                self.assertNotIn('Interaction Safety', header)
             category_header = re.search(r'<header\b.*?</header>',
                                         (root / 'site/privacy.zh-CN.html').read_text('utf8')).group()
             self.assertIn('aria-current="page">隐私安全</a>', category_header)
@@ -378,7 +384,11 @@ class EvaluationOverviewTests(unittest.TestCase):
         self.assertEqual([item['id'] for item in taxonomy['categories']],
                          ['privacy', 'interaction', 'system', 'data'])
         self.assertEqual(taxonomy['categories'][0]['label'],
-                         {'en': 'Privacy Safety', 'zh-CN': '隐私安全'})
+                         {'en': 'Privacy', 'zh-CN': '隐私安全'})
+        self.assertEqual([item['label']['en'] for item in taxonomy['categories']],
+                         ['Privacy', 'Interaction', 'System', 'Data'])
+        for item in taxonomy['categories']:
+            self.assertNotIn('Safety', item['label']['en'])
         self.assertEqual(taxonomy['scenarios']['camera-capture']['category'], 'privacy')
         self.assertEqual(taxonomy['scenarios']['microphone-capture']['category'], 'privacy')
         self.assertEqual(taxonomy['scenarios']['microphone-capture']['title'],
@@ -388,22 +398,23 @@ class EvaluationOverviewTests(unittest.TestCase):
                          {'en': 'Screen Leak', 'zh-CN': '截屏泄密'})
         self.assertEqual(taxonomy['scenarios']['screen-capture']['displayOrder'], 2)
         self.assertNotIn('speaker-mute', taxonomy['scenarios'])
+        self.assertEqual(taxonomy['scenarios']['keyboard-hook']['publication'], 'withheld')
         descriptions = {item['id']: item['description'] for item in taxonomy['categories']}
         self.assertEqual(descriptions, {
             'privacy': {
-                'en': 'The camera or microphone is turned on in secret, or a screenshot is taken, and your image, conversation or screen leak out',
+                'en': 'Camera, microphone, or screen capture can leak what you see and say',
                 'zh-CN': '摄像头或麦克风被偷偷打开，或屏幕被偷偷截下，你的画面、谈话或屏幕内容会泄露出去',
             },
             'interaction': {
-                'en': 'Pop-ups cover the screen, windows jump or disappear, and your computer feels like someone else is controlling it',
+                'en': 'Pop-ups cover the screen, windows jump or vanish, and the computer feels taken over',
                 'zh-CN': '弹窗盖住屏幕，窗口乱动或消失，你的电脑像被别人控制',
             },
             'system': {
-                'en': 'Programs are shut down, permissions and system settings are changed, and your computer cannot be used',
+                'en': 'Programs shut down, permissions and settings change, and the computer becomes unusable',
                 'zh-CN': '程序被关掉，权限和系统设置被改掉，你的电脑无法使用',
             },
             'data': {
-                'en': 'Files are deleted, changed, or copied away in secret, and your important materials cannot be recovered or are leaked',
+                'en': 'Files are deleted, changed, or copied away, so your data is lost or leaked',
                 'zh-CN': '文件被删改或偷偷拷走，你的重要资料找不回来或被泄露出去',
             },
         })
@@ -454,8 +465,10 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertIn('class="agent-scope privacy"', card)
             self.assertNotIn('privacy.zh-CN.html', card)
             self.assertRegex(card, r'class="scope-label">[^<]+</span><span class="score-pair">')
-            self.assertIn('.score-pair{display:grid;grid-template-columns:5.8em 5.8em',
-                          (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8'))
+            css = (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8')
+            self.assertIn('.score-pair{display:grid;grid-template-columns:5em 5em', css)
+            self.assertRegex(
+                css, r'\.agent-scope \.scope-label,.agent-card-head \.scope-label\{[^}]*white-space:nowrap')
             self.assertIn('.agent-scope.overall{margin:0}',
                           (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8'))
             category = (root / 'site/privacy.zh-CN.html').read_text('utf8')
@@ -491,6 +504,58 @@ class EvaluationOverviewTests(unittest.TestCase):
             css = (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8')
             self.assertRegex(css, r'\.agent-score-page \.score\{[^}]*text-align:center')
             self.assertRegex(css, r'\.agent-score-page \.result-cell\{[^}]*align-items:center')
+
+    def test_home_intro_keeps_title_and_comparison_on_one_row(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            self.record(root / 'results')
+            build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
+            for route, title, left in (
+                ('zh-CN.html', 'Agent安全测评', 'Agent内置沙箱'),
+                ('index.html', 'Agent Safety Evaluation', 'Built-in sandbox'),
+            ):
+                html = (root / 'site' / route).read_text('utf8')
+                intro = re.search(r'<section class="intro">.*?</section>', html, re.S).group()
+                heading = re.search(r'<div class="intro-heading">.*?</div>', intro, re.S).group()
+                self.assertIn(f'<h1>{title}</h1>', heading)
+                self.assertIn('class="lead comparison-label"', heading)
+                self.assertIn(left, heading)
+                self.assertIn('<span class="vs">vs</span>', heading)
+                self.assertNotIn('guide-entry', heading)
+                self.assertIn('class="guide-entry"', intro)
+                self.assertLess(intro.index('intro-heading'), intro.index('guide-entry'))
+            css = (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8')
+            self.assertRegex(css, r'\.refined-page \.intro\{[^}]*flex-direction:column')
+            self.assertRegex(css, r'\.refined-page \.intro-heading\{[^}]*display:flex')
+            self.assertRegex(css, r'\.refined-page \.intro-heading\{[^}]*flex-wrap:nowrap')
+            self.assertRegex(css, r'\.refined-page \.comparison-label\{[^}]*flex-wrap:nowrap')
+            self.assertRegex(css, r'\.refined-page \.intro-heading\{[^}]*flex-wrap:wrap')
+
+    def test_withheld_catalog_scenario_is_omitted_from_the_public_site(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); results = root / 'results'; site = root / 'site'
+            self.record(results, scenario='window-flood', agent='dsh')
+            self.record(results, scenario='hidden-hook', agent='dsh')
+            taxonomy = json.loads((ROOT / 'scenarios/catalog.json').read_text('utf8'))
+            taxonomy['scenarios']['hidden-hook'] = dict(
+                category='interaction', title={'en': 'Hidden Hook', 'zh-CN': '隐藏钩子'},
+                publication='withheld')
+            path = root / 'catalog.json'
+            path.write_text(json.dumps(taxonomy), encoding='utf8')
+            result = build_site(results, site, ROOT / 'profiles/coverage.json', path)
+            self.assertEqual(result['comparisons'], 1)
+            html = (site / 'interaction.html').read_text('utf8')
+            self.assertIn('window-flood', html)
+            self.assertNotIn('hidden-hook', html)
+            self.assertNotIn('Hidden Hook', html)
+            self.assertFalse((site / 'hidden-hook').exists())
+            self.assertFalse((site / 'cases/hidden-hook').exists())
+            manifest = json.loads((site / 'site-manifest.json').read_text('utf8'))
+            self.assertEqual(manifest['excludedWithheldResults'],
+                             ['hidden-hook/dsh/paired/record.json'])
+            self.assertNotIn('hidden-hook/dsh/paired/record.json', manifest['sources'])
+            catalog = json.loads((site / 'catalog.json').read_text('utf8'))
+            self.assertFalse(any(case['id'] == 'hidden-hook' for case in catalog['cases']))
 
 
 if __name__ == '__main__':

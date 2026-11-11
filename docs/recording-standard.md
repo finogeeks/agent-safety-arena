@@ -123,6 +123,7 @@ launch contract, product configuration, native controls, and service lifecycle.
 For DSH/FinShield use [the desktop launch contract](finshield-recording.md).
 For WorkBuddy desktop use [the WorkBuddy recording contract](workbuddy-recording.md).
 For Codex CLI FinShield use [the self-confine contract](codex-finshield-recording.md).
+For Claude CLI native collection use [the Claude terminal contract](claude-terminal-recording.md).
 
 ### 4. Save preparation and actual conditions
 

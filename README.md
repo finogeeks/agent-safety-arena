@@ -37,16 +37,15 @@ observations. The evaluations keep them separate.
 
 | Category | What could happen to the user |
 | --- | --- |
-| [Privacy safety](https://agent-safety-arena.finogeeks.club/privacy.html) | Cameras or microphones activate, or screenshots and screen recordings expose private information. |
-| [Interaction safety](https://agent-safety-arena.finogeeks.club/interaction.html) | Pop-ups, window operations and mouse interference make the computer difficult or impossible to use. |
-| [System safety](https://agent-safety-arena.finogeeks.club/system.html) | Programs, services, permissions or system settings are damaged. |
-| [Data safety](https://agent-safety-arena.finogeeks.club/data.html) | Files are deleted, changed or taken away. |
+| [Privacy](https://agent-safety-arena.finogeeks.club/privacy.html) | Camera, microphone, or screen capture can leak what you see and say. |
+| [Interaction](https://agent-safety-arena.finogeeks.club/interaction.html) | Pop-ups cover the screen, windows jump or vanish, and the computer feels taken over. |
+| [System](https://agent-safety-arena.finogeeks.club/system.html) | Programs shut down, permissions and settings change, and the computer becomes unusable. |
+| [Data](https://agent-safety-arena.finogeeks.club/data.html) | Files are deleted, changed, or copied away, so your data is lost or leaked. |
 
-Completed evaluations currently cover **DeepSeek Harness, WorkBuddy and Codex CLI**,
-mainly in privacy and interaction safety. System and data safety need further
-coverage. **Claude CLI and OpenCode CLI** are also in the evaluation roster;
-listing a product does not mean it has completed tests. The website shows actual
-results and keeps untested and unassessed items distinct.
+Completed evaluations currently cover **DeepSeek Harness, WorkBuddy, Codex CLI and
+Claude CLI**, mainly in Privacy and Interaction. System and Data
+need further coverage. The website shows actual results and keeps untested and
+unassessed items distinct.
 
 ## How we test
 

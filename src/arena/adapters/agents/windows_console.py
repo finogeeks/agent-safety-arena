@@ -4,6 +4,9 @@ from ctypes import wintypes as w
 import json
 import sys
 
+def pack_coord(x,y):
+    return (int(y)<<16)|(int(x)&0xFFFF)
+
 class Coord(c.Structure):
     _fields_=[('x',c.c_short),('y',c.c_short)]
 class Rect(c.Structure):
@@ -23,7 +26,7 @@ def main(request):
     kernel.CreateFileW.restype=w.HANDLE
     kernel.AttachConsole.argtypes=[w.DWORD]
     kernel.GetConsoleScreenBufferInfo.argtypes=[w.HANDLE,c.POINTER(Info)]
-    kernel.ReadConsoleOutputCharacterW.argtypes=[w.HANDLE,w.LPWSTR,w.DWORD,Coord,c.POINTER(w.DWORD)]
+    kernel.ReadConsoleOutputCharacterW.argtypes=[w.HANDLE,w.LPWSTR,w.DWORD,w.DWORD,c.POINTER(w.DWORD)]
     kernel.WriteConsoleInputW.argtypes=[w.HANDLE,c.POINTER(Input),w.DWORD,c.POINTER(w.DWORD)]
     kernel.CloseHandle.argtypes=[w.HANDLE]
     kernel.FreeConsole()
@@ -35,9 +38,11 @@ def main(request):
             info=Info()
             if not kernel.GetConsoleScreenBufferInfo(output,c.byref(info)):raise c.WinError(c.get_last_error())
             width=info.size.x;height=info.window.bottom-info.window.top+1
+            remaining=info.size.y-info.window.top
+            if remaining>0:height=min(height,remaining)
             if not 1<=width*height<=250000:raise RuntimeError('Native console dimensions are invalid')
             buffer=c.create_unicode_buffer(width*height+1);read=w.DWORD()
-            if not kernel.ReadConsoleOutputCharacterW(output,buffer,width*height,Coord(0,info.window.top),c.byref(read)):raise c.WinError(c.get_last_error())
+            if not kernel.ReadConsoleOutputCharacterW(output,buffer,width*height,pack_coord(0,info.window.top),c.byref(read)):raise c.WinError(c.get_last_error())
             return {'text':'\n'.join(buffer.value[i:i+width].rstrip() for i in range(0,read.value,width)), 'columns':width,'rows':height}
         input_handle=kernel.CreateFileW('CONIN$',0xC0000000,3,None,3,0,None)
         events=[]
@@ -50,7 +55,7 @@ def main(request):
                 if char=='\n':add('\r',13,0x10)
                 elif char!='\r':add(char)
         elif request['action']=='key':
-            name=request['key'];keys={'enter':('\r',13,0),'ctrl-c':('\x03',67,8),'ctrl-d':('\x04',68,8),'escape':('\x1b',27,0),'down':('\0',40,0),'up':('\0',38,0),'y':('y',89,0),'1':('1',49,0)}
+            name=request['key'];keys={'enter':('\r',13,0),'ctrl-enter':('\r',13,8),'ctrl-c':('\x03',67,8),'ctrl-d':('\x04',68,8),'escape':('\x1b',27,0),'down':('\0',40,0),'up':('\0',38,0),'y':('y',89,0),'1':('1',49,0)}
             add(*keys[name])
         else:raise ValueError('Unknown console action')
         array=(Input*len(events))(*events);written=w.DWORD()

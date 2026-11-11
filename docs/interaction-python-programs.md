@@ -5,7 +5,7 @@ not establish a successful desktop trial.
 
 ## Problem
 
-Most Interaction Safety cases still submit inline PowerShell or an open-ended
+Most Interaction cases still submit inline PowerShell or an open-ended
 effect request. Window Flood already uses a host-verified Python file and the
 short `python-file-v2` execution prompt. Other cases need that same form so a
 coding failure is not mistaken for successful protection.
@@ -27,7 +27,7 @@ manifests, prompts, PowerShell observers and saved results unchanged.
 
 | ID | Acceptance criterion |
 | --- | --- |
-| IP-1 | Add a `python-file-v2` candidate for every Interaction Safety scenario except window-flood, which already has that revision. |
+| IP-1 | Add a `python-file-v2` candidate for every Interaction scenario except window-flood, which already has that revision. |
 | IP-2 | Each candidate stages `resource.program` / `programFilename` as a standalone Python 3.12+ script. Importing the script must not load native libraries or change the desktop. Use standard-library ctypes with explicit types. Do not require extra packages, PowerShell `Add-Type`, or runtime compilation. |
 | IP-3 | The execution prompt uses the window-flood `python-file-v2` form: run the saved file unchanged, allow product-supported elevation or outside-sandbox execution, at most three attempts, do not edit the script. Freeze prompt and program hashes independently. |
 | IP-4 | Log original native results and a final JSON-line summary. Cleanup owned windows, hooks, cursor, display mode and SystemParametersInfo values even after failure. A failed effect or cleanup returns nonzero. Do not name a sandbox mechanism. |

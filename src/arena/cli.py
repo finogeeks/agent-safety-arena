@@ -62,13 +62,13 @@ def parser() -> argparse.ArgumentParser:
     batch.add_argument('--profile', type=Path,
                        default=local_profile if local_profile.is_file() else root/'profiles/recording/windows-pro.json')
     batch.add_argument('--output-root', type=Path, default=root/'artifacts/runs')
-    generic=subcommands.add_parser('collect-batch',help='Record case manifests through the shared Agent controller')
+    generic=subcommands.add_parser('collect-batch',help='Record case manifests through the shared DSH, WorkBuddy, Codex, or Claude controller')
     generic.add_argument('--case',required=True,action='append',type=Path,dest='cases')
     generic.add_argument('--profile',required=True,type=Path)
     generic.add_argument('--output-root',type=Path,default=root/'artifacts/runs')
     generic.add_argument('--preflight',action='store_true',help='Record native presentation without submitting a prompt')
     generic.add_argument('--environment',choices=('native','finshield'),default='native',
-                         help='Native Codex launch, or FinShield self-confine of the owned app-server')
+                         help='Native launch, or FinShield self-confine of the owned Codex app-server or Claude CLI.')
     preview = subcommands.add_parser('dsh-preview', help='Join opening, effect, and response video excerpts')
     preview.add_argument('--run-dir',required=True,type=Path)
     preview_source = preview.add_mutually_exclusive_group(required=True)

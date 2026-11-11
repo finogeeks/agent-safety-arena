@@ -21,6 +21,7 @@ PROFILE_FIELDS = {'schemaVersion', 'node', 'dshEntry', 'chrome', 'ffmpeg', 'desk
 TERMINAL_PROFILE_FIELDS = {'schemaVersion','agent','node','launchModule','launchConfig','wsModule','terminal',
     'ffmpeg','desktopTool','desktop','windowSize','theme','fontSize','timeout','confirmationMode',
     'finalHoldSeconds','captureSurface','screenRegion','approvalReview','windowState'}
+CLAUDE_PROFILE_FIELDS = TERMINAL_PROFILE_FIELDS - {'wsModule'}
 WORKBUDDY_PROFILE_FIELDS = {'schemaVersion','agent','node','workbuddyEntry','debugPort','ffmpeg','desktopTool',
     'desktop','windowSize','theme','fontSize','timeout','confirmationMode','finalHoldSeconds',
     'captureSurface','screenRegion','approvalReview','windowState','workspaceRoot'}
@@ -106,6 +107,9 @@ def load_profile(path):
     kind = profile.get('agent') if profile.get('schemaVersion') == 2 else None
     if kind == 'codex-cli':
         if set(profile) - {'approvalDelaySeconds', 'workspaceRoot', 'finshield', 'finshieldConfig'} != TERMINAL_PROFILE_FIELDS:
+            raise ValueError('Unsupported recording profile; credentials do not belong here')
+    elif kind == 'claude-cli':
+        if set(profile) - {'approvalDelaySeconds', 'workspaceRoot', 'finshield', 'finshieldConfig', 'wsModule'} != CLAUDE_PROFILE_FIELDS:
             raise ValueError('Unsupported recording profile; credentials do not belong here')
     elif kind == 'workbuddy':
         if set(profile) - {'modelId','finshield','finshieldConfig'} != WORKBUDDY_PROFILE_FIELDS:
@@ -361,6 +365,102 @@ class CodexRuntime:
         return state
 
 
+class ClaudeRuntime:
+    def __init__(self, profile):
+        self.profile = profile
+
+    def collect(self, config):
+        from arena.adapters.agents.claude_terminal import (
+            ClaudeTerminalAgent, ClaudeTerminalView, claude_confinement)
+        from arena.adapters.environments.windows_desktop import WindowsDesktop
+        from arena.adapters.environments.windows_job import WindowsJob
+        from arena.evidence.recording import DesktopRecorder
+        profile = self.profile
+        config['approval_delay_seconds'] = profile.get('approvalDelaySeconds', 5)
+        install_captured_approval_guard(config)
+        for field in ('node', 'terminal', 'ffmpeg', 'desktopTool'):
+            if not shutil.which(profile[field]):
+                raise ValueError('Native terminal dependency not found: ' + field)
+        for field in ('launchModule', 'launchConfig'):
+            if not Path(profile[field]).is_file():
+                raise ValueError('Native terminal launch file not found: ' + field)
+        if profile['captureSurface'] != 'desktop' or profile['approvalReview'] != 'local-file':
+            raise ValueError('Native CLI trials require desktop recording and exact local approval scope review')
+        root = native_workspace_root(profile)
+        if root:
+            config['workspace_root'] = root
+        confinement = None
+        if config.get('environment_adapter') == 'finshield':
+            confinement = claude_confinement(profile)
+            if not root:
+                raise ValueError('FinShield Claude trials require an existing workspaceRoot directory')
+        desktop = WindowsDesktop(profile['desktopTool'], profile['desktop'])
+        original = desktop.current()
+        boundary = WindowsJob()
+        browser = ClaudeTerminalView(profile, desktop)
+        agent = ClaudeTerminalAgent(profile, boundary, confinement=confinement)
+        recorder = DesktopRecorder(Path(profile['ffmpeg']), profile['screenRegion'])
+
+        def check_desktop():
+            import time
+            path = agent.directory / 'recording-interruptions.json'
+            if desktop.current() == profile['desktop']:
+                if getattr(recorder, 'paused', False):
+                    recorder.set_paused(False)
+                    if path.exists():
+                        rows = json.loads(path.read_text('utf8'))
+                        if rows and rows[-1].get('resumeAtUnixMs') is None:
+                            rows[-1]['resumeAtUnixMs'] = round(time.time() * 1000)
+                            save(path, rows)
+                return
+            if getattr(recorder, 'paused', False):
+                return
+            recorder.set_paused(True)
+            rows = json.loads(path.read_text('utf8')) if path.exists() else []
+            rows.append({'pausedAtUnixMs': round(time.time() * 1000), 'resumeAtUnixMs': None,
+                         'reason': 'Operator desktop changed', 'approvalInputWhilePaused': False,
+                         'observation': 'Recorder suspended; missing observation interval'})
+            save(path, rows)
+
+        config.update(agent_id='claude', region=profile['screenRegion'], approval_review='local-file',
+                      environment_check=check_desktop)
+        state = None
+        try:
+            desktop.switch(profile['desktop'])
+            desktop.operator_desktop = profile['desktop']
+            state = run_trial(config, agent=agent, browser=browser, recorder=recorder)
+        finally:
+            try:
+                recovery = boundary.close()
+                if state:
+                    save(Path(state['directory']) / 'process-recovery.json', recovery)
+                    state['addedProtection'] = bool(confinement)
+                    state['nativeWorkerBoundary'] = (
+                        'Windows Terminal owns the visible Claude process; '
+                        'the adapter Job holds a recovery observer process only')
+                    if confinement:
+                        state['recoveryBoundary'] = (
+                            'Owned process Job; FinSafe self-confine of the Claude CLI; '
+                            'supervisor-spawn workers can remain outside the Job')
+                    else:
+                        state['recoveryBoundary'] = state['nativeWorkerBoundary']
+                    if not recovery['recovered'] or recovery['observerError']:
+                        state['status'] = 'error'
+                        state['errors'].append('Owned process recovery or observation failed')
+            finally:
+                desktop.switch(original)
+        state['operatorDesktopBefore'] = original
+        state['operatorDesktopAfter'] = desktop.current()
+        interruptions = Path(state['directory']) / 'recording-interruptions.json'
+        if interruptions.exists():
+            state['recordingInterruptions'] = json.loads(interruptions.read_text('utf8'))
+            state['evidenceGaps'].append('Recording paused after a desktop switch; review observation continuity')
+            if state['status'] == 'completed':
+                state['status'] = 'incomplete'
+        save(Path(state['directory']) / 'run.json', state)
+        return state
+
+
 class WorkBuddyRuntime:
     def __init__(self, profile):
         self.profile = profile
@@ -451,6 +551,7 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
     save(directory/'batch.json', batch)
     runtime = runtime or (
         CodexRuntime(profile) if profile.get('agent') == 'codex-cli'
+        else ClaudeRuntime(profile) if profile.get('agent') == 'claude-cli'
         else WorkBuddyRuntime(profile) if profile.get('agent') == 'workbuddy'
         else DshRuntime(profile))
     for case, source in cases:

@@ -51,6 +51,7 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
     taxonomy = load_taxonomy(catalog_path)
 
     records = []
+    withheld = []
     for path in sorted(root.rglob('record.json')):
         relative = path.relative_to(root)
         if (not path.resolve().is_relative_to(root) or len(relative.parts) != 4
@@ -63,6 +64,9 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
         sources = resolve_public_media_sources(record['publicMedia'], path.parent)
         if any(not source.is_relative_to(path.parent.resolve()) for _, source in sources):
             raise ValueError(f'Media must stay inside its reviewed result: {relative.as_posix()}')
+        if taxonomy['scenarios'].get(record['scenarioId'], {}).get('publication') == 'withheld':
+            withheld.append(relative.as_posix())
+            continue
         records.append((path, relative, record))
     if not records:
         raise ValueError('No reviewed comparison record.json files found')
@@ -85,6 +89,7 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},
                         excludedReplayResults=[p.relative_to(root).as_posix() for p in sorted(root.rglob('result.json'))],
+                        excludedWithheldResults=withheld,
                         files={p.relative_to(staging).as_posix(): file_hash(p)
                                for p in sorted(staging.rglob('*')) if p.is_file()})
         (staging / 'site-manifest.json').write_text(

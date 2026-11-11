@@ -109,7 +109,7 @@ text and close after the declared prompt duration. Native sandbox isolation stay
 
 ## Out of scope
 
-Claude recording, AppSeam `app launch`, Codex suite planning, formal paired
+Claude recording (see [claude-terminal-recording.md](claude-terminal-recording.md)), AppSeam `app launch`, Codex suite planning, formal paired
 conclusions, factory-reset CLI settings, warning scoring during collection, and
 publication. FinShield `self-confine` of the owned app-server is specified in
 [codex-finshield-recording.md](codex-finshield-recording.md).

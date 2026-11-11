@@ -11,7 +11,7 @@ describe observable behavior. Decisions record choices and their consequences.
 | [primary-screen-capture-program.md](primary-screen-capture-program.md) | Defines literal full-primary-screen PNG screenshots, the saved-image-count observation, and the WorkBuddy recording suite. |
 | [device-scenario-programs.md](device-scenario-programs.md) | Defines generation-only fixed camera, microphone and screenshot scripts, prompts, observers and offline checks. The speaker-on Agent case is withdrawn. |
 | [window-flood-python-program.md](window-flood-python-program.md) | Defines the fixed window-flood Python source, execution prompt, ordinary-language generation prompt and their separate evidence roles. |
-| [interaction-python-programs.md](interaction-python-programs.md) | Defines python-file-v2 saved programs for the remaining Interaction Safety cases, following Window Flood. |
+| [interaction-python-programs.md](interaction-python-programs.md) | Defines python-file-v2 saved programs for the remaining Interaction cases, following Window Flood. |
 | [device-effect-display.md](device-effect-display.md) | Proposes controlled camera, microphone, screenshot and screen-recording displays with direct comparison and evidence limits. |
 | [device-safety-candidates.md](device-safety-candidates.md) | Lists unrecorded device cases and defines direct native / Job UI / FinShield preparation probes without an Agent or recording. |
 | [ime-state-fixture.md](ime-state-fixture.md) | Defines session input-language switching, the external read-only observer, restoration limits, and candidate verification. |
@@ -19,14 +19,16 @@ describe observable behavior. Decisions record choices and their consequences.
 | [mouse-speed-fixture.md](mouse-speed-fixture.md) | Defines an independent BASE/NOW pointer-speed panel and a later switcher, matching IME session form. |
 | [wheel-scroll-fixture.md](wheel-scroll-fixture.md) | Defines an independent BASE/NOW wheel-speed panel and a later switcher, matching mouse-speed form. |
 | [foreground-window-fixture.md](foreground-window-fixture.md) | Defines two overlapping owned windows that swap stacking order without Hide or minimize. |
-| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent scores, the per-Agent score page, four safety categories, folded unrecorded Agents, formal published results, and evidence links. |
+| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent scores, the per-Agent score page, four safety categories, the four-Agent public roster, withheld scenarios, formal published results, and evidence links. |
 | [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
 | [recording-standard.md](recording-standard.md) | Defines host-verified saved programs, short execution prompts, machine preparation, and shared recording. |
 | [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |
 | [reproduction-and-publishing.md](reproduction-and-publishing.md) | Defines installation, per-case dependency selection, result grouping, static checks, and offline site builds. |
 | [finshield-recording.md](finshield-recording.md) | Defines the existing FinShield desktop launcher and shared DSH collection boundary. |
 | [codex-terminal-recording.md](codex-terminal-recording.md) | Defines real Codex CLI terminal collection through the shared lifecycle, native defaults, evidence, and one-time approvals. |
+| [claude-terminal-recording.md](claude-terminal-recording.md) | Defines real Claude CLI terminal collection through the shared lifecycle, native defaults, native PowerShell execution, evidence, and first-option numbered-picker approvals. |
 | [codex-finshield-recording.md](codex-finshield-recording.md) | Defines Codex CLI FinShield via installed `finsafe self-confine` of the owned app-server. |
+| [claude-finshield-recording.md](claude-finshield-recording.md) | Defines Claude CLI FinShield via installed `finsafe self-confine` of the owned CLI, sharing the native PowerShell shell policy and leaving the protection policy unchanged. |
 | [workbuddy-recording.md](workbuddy-recording.md) | Gives the reusable WorkBuddy native/FinSafe procedure: sandbox-state checks, private desktop-1 capture, editing, review and result-page generation. |
 | [workbuddy-finshield-recording.md](workbuddy-finshield-recording.md) | Defines the installed FinSafe WorkBuddy launch, protected daemon verification, actual setting differences, and shared collection. |
 | [workbuddy-session-hooks.md](workbuddy-session-hooks.md) | Compares DSH HTTP and WorkBuddy CDP input/output channels, request matching, original tool-log recovery and privacy boundaries. |

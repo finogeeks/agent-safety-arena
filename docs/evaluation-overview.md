@@ -1,6 +1,6 @@
 # Evaluation overview
 
-Status: Homepage restoration, published-result classification, and per-Agent score pages, revised 2026-11-10.
+Status: Public roster without OpenCode CLI, withheld Keyboard Hook, and per-Agent score pages, revised 2026-11-11.
 
 ## Problem
 
@@ -11,8 +11,8 @@ With 100 scenarios, readers need a compact overview and category navigation.
 
 The global project evaluates Agent safety controls, not model capability. Use
 DeepSeek Pro (`deepseek-v4-pro`) / high for default and FinShield protection.
-The first roster is DeepSeek Harness, WorkBuddy, Codex CLI, Claude CLI, and OpenCode
-CLI. Do not divide or label Agents by country or region. Roster entries are
+The first roster is DeepSeek Harness, WorkBuddy, Codex CLI, and Claude CLI.
+Do not divide or label Agents by country or region. Roster entries are
 coverage goals, not proof of implemented integrations or completed evaluations.
 
 The existing `arena build-site` command generates English at `index.html`
@@ -30,7 +30,7 @@ configuration. On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their
 product defaults, and Claude CLI has no OS-level sandbox by default. The
 methodology page names those defaults: workspace-write, sandbox=on, read-only,
 and no OS-level sandbox. Chinese sentences put Chinese characters directly
-against adjacent Latin words. OpenCode CLI stays out of this note.
+against adjacent Latin words.
 Keep the authored Agent order and capitalization from `profiles/coverage.json`.
 Use the official [DeepSeek Harness](https://www.deepseek.com/en/harness/) name in
 both languages. Keep `dsh` as the internal record identity and historical alias.
@@ -42,7 +42,7 @@ flowchart LR
   R[Reviewed records and case metadata] --> O[Compact project overview]
   O --> C[Privacy, Interaction, System, Data categories]
   C --> P[20 scenarios per static page]
-  P --> H[Scenario hub: five Agents, two protection tracks]
+  P --> H[Scenario hub: four Agents, two protection tracks]
   H --> D[Original six-section comparison and evidence]
   O --> A[Agent score page]
   C --> A
@@ -65,11 +65,15 @@ Homepage order:
 
 1. Use Agent安全测评 / Agent Safety Evaluation as the title and Agent内置沙箱 vs
    FinShield / Built-in sandbox vs FinShield as the short comparison line.
-   Keep fixed-model metadata on the methodology page.
+   Keep that comparison on one line. Put the title and the comparison line on
+   one row. Put the guide link on the next row. On phones, wrap the comparison
+   under the title if the row does not fit. Keep fixed-model metadata on the
+   methodology page.
 2. A GIF showcase without a Real tests heading, with one card per category in authored
-   order: Privacy, Interaction, System, Data. Put the four cards in one row at
+   order: Privacy, Interaction, System, Data. English labels omit a Safety suffix;
+   Chinese keeps 隐私安全, 交互安全, 系统安全, and 数据安全. Put the four cards in one row at
    desktop widths. Each card introduces the category: its name and the authored
-   category description. Do not put a case title or Agent name on these cards.
+   category description. English descriptions stay short, parallel harm lines. Do not put a case title or Agent name on these cards.
    Put the name and description first, then the GIF. Use the rounded scenario-card
    style. Each whole card is one native link to its category page, including its
    title, description, GIF and whitespace. Do not nest links inside the card.
@@ -94,8 +98,7 @@ row in that score summary is one link to the Agent score page with this category
 
 The homepage restoration keeps cards with live records visible even when an
 Agent has no assessed or paired result. Claude CLI is shown with the recorded
-Agents. OpenCode CLI is omitted from the homepage until it is ready to show.
-Codex CLI and WorkBuddy stay visible when their records are unassessed or outside score scope.
+Agents. Codex CLI and WorkBuddy stay visible when their records are unassessed or outside score scope.
 Keep all four category media slots and all four score rows per Agent, including
 compact empty-category links. Omit repeated phase badges from the homepage title, score heading,
 and score cells; phase metadata remains in the data, methodology, and details.
@@ -161,7 +164,7 @@ tabs on a category page. Keep the scenario-card heading without a side caption
 about protection results or Agent counts. Generate previous/next and numbered
 static page links only when a category has more than one page. Each scenario
 links to a
-hub with the five Agents and two protection tracks. Prefer a paired report for
+hub with the four roster Agents and two protection tracks. Prefer a paired report for
 an Agent's displayed row; retain every other report as an expandable link. Do
 not synthesize a comparison by joining groups from unrelated reports. Empty
 categories stay visible and state that no reviewed recordings exist. Methodology,
@@ -221,17 +224,23 @@ identities without rewriting evidence. There are no region fields.
 (`id`, bilingual `label` and `description`), and `scenarios`. Category
 descriptions speak from the reader's harm, stay one short line, and do not end
 with a period. Each scenario entry
-has `category` and bilingual `title`, with optional bilingual `description` and
-nonnegative integer `displayOrder` (lower values appear first). Missing
+has `category` and bilingual `title`, with optional bilingual `description`,
+nonnegative integer `displayOrder` (lower values appear first), and optional
+`publication` (`public` or `withheld`; omitted means public). Missing
 descriptions fall back to the original report purpose; missing priorities sort
 after authored priorities. Category IDs, in authored order, are `privacy`,
-`interaction`, `system`, and `data`. Privacy Safety is first. Camera Leak
+`interaction`, `system`, and `data`. Privacy is first. Camera Leak
 (`camera-capture`), Microphone Leak (`microphone-capture`) and Screen Leak
 (`screen-capture`) belong to `privacy`. Membership is explicit authored
 metadata, never guessed from a filename or model reply. New cases must receive a
 category when authored.
 Unmapped recorded scenarios remain accessible through a small unclassified link;
 they do not silently enter a category. Synthetic examples remain separate.
+A catalog scenario may set `publication` to `withheld`. Keyboard Hook is withheld
+until a desktop-visible criterion is published. The builder still validates those
+records and lists their paths in `site-manifest.json` as `excludedWithheldResults`.
+It does not copy them into public pages, hubs, scores, or unclassified records.
+Original `results/` files stay unchanged.
 
 The CLI accepts `--coverage <file>` and `--catalog <file>`, defaulting to those
 repository files. Direct builder callers can omit them. Invalid metadata fails
@@ -289,9 +298,7 @@ Never merge different Agents into one protection score or average their rates.
 Each Agent's overall score uses only that Agent's assessed scenarios. Category
 scores use only that Agent's scenarios in the category. A scenario score remains
 separate for each Agent. The homepage shows DeepSeek Harness, WorkBuddy, Codex CLI, and Claude CLI in one
-row of four cards, including Claude CLI before it has a live record. OpenCode CLI
-stays in the roster for category tables and scenario hubs, and is omitted from
-the homepage cards. There is no combined all-Agent score. Category pages retain the Agent score summary.
+row of four cards. There is no combined all-Agent score. Category pages retain the Agent score summary.
 Category pages, scenario hubs, and methodology use the same compact
 breadcrumb as detail pages, with Home first:
 
@@ -356,14 +363,15 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-9 | Empty samples have no score; warnings do not change pass/fail; development and formal phases are not mixed. |
 | AC-10 | The homepage shows four category cards in one desktop row before scores, using the scenario-card style. Each entire card is one keyboard-accessible link to its localized category page, without nested links. Each shows the category name and authored description first, then an optional original GIF and a View scenarios arrow. Cards omit case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions. Empty slots stay honest. Synthetic media cannot replace live evidence. |
 | AC-11 | Localized cards show a name, purpose, two-track Agent outcome counts, and detail link without individual Agent scores or visible IDs; authored priority applies before pagination. Category scores are visible on entry. |
-| AC-12 | Scenario hubs show five Agent rows with combined result states. A recorded row is one link to its report, with the result and warning centered separately in each protection column. Hubs omit redundant single-case percentages or counts. Keep phase metadata, scoped effects and condition caveats in evidence details. Category and overall scores show the rate number without a percent sign, and keep the passed and failed counts. |
+| AC-12 | Scenario hubs show four Agent rows with combined result states. A recorded row is one link to its report, with the result and warning centered separately in each protection column. Hubs omit redundant single-case percentages or counts. Keep phase metadata, scoped effects and condition caveats in evidence details. Category and overall scores show the rate number without a percent sign, and keep the passed and failed counts. |
 | AC-13 | Desktop and phone home, category and hub pages use only 14px and 20px text with Microsoft YaHei and no added Chinese/Latin boundary spaces. |
 | AC-14 | Category introductions omit model/effort metadata. At 1280x900 the score table is at most 245px high and the first card row is fully visible. |
-| AC-15 | Privacy Safety is the first authored category. Camera Leak belongs to it. Detail breadcrumbs use that category. Homepage GIF slots are the four authored categories in order. Agent cards include all four category scores in authored order. Category pages do not repeat a four-category tab row. |
+| AC-15 | Privacy is the first authored category. English labels are Privacy, Interaction, System, and Data, without a Safety suffix. Camera Leak belongs to Privacy. Detail breadcrumbs use that category. Homepage GIF slots are the four authored categories in order. Agent cards include all four category scores in authored order. Category pages do not repeat a four-category tab row. |
 | AC-16 | Category, hub, methodology, and detail breadcrumbs start with Home. Every full-site header has the four category links, GitHub, and language, without Scenarios or Methodology. Standalone reports omit category links. The homepage uses the short protection-comparison subtitle and omits the fixed-model chip. |
-| AC-17 | Both homepage languages show DeepSeek Harness, WorkBuddy, Codex CLI, and Claude CLI as one row of cards, each with overall and four category score rows. OpenCode CLI is omitted from those cards and remains in category tables and scenario hubs. Four category cards retain reviewed GIFs and compact links where media is absent. Summary headings and cells omit phase badges and the unassessed count. The committed live reports use the maintainer-confirmed formal phase, with original observations unchanged. |
+| AC-17 | Both homepage languages show DeepSeek Harness, WorkBuddy, Codex CLI, and Claude CLI as one row of cards, each with overall and four category score rows. OpenCode CLI is absent from the roster, homepage, category tables, and scenario hubs. Four category cards retain reviewed GIFs and compact links where media is absent. Summary headings and cells omit phase badges and the unassessed count. The committed live reports use the maintainer-confirmed formal phase, with original observations unchanged. |
 | AC-18 | Native-track headings, score labels, and result columns use Built-in sandbox / Agent内置沙箱. The evaluation guide keeps Agent built-in sandbox. Original prompts, replies, tool logs and recorded settings remain unchanged. |
-| AC-19 | Each homepage Agent card is one link to that Agent's score page with every category collapsed. The card names 内置沙箱 / Built-in and FinShield once, then shows only the rate number for that Agent's own two tracks. The row label and the two rate columns are separate: labels stay on the left, and both rate columns share one fixed-width block on the right, so a shorter label does not move that row's rates. It omits percent signs and passed/failed counts. Category rows stay visible on the card and are not separate links. A category-table Agent row opens the same page with that category expanded. The category table centers the rate number and the count line separately. The page centers overall and category rates with their pass/fail lines, and centers scenario badges with their warning lines. A recorded scenario links to its existing comparison. An empty category says its scenarios are still being collected. |
+| AC-19 | Each homepage Agent card is one link to that Agent's score page with every category collapsed. The card names 内置沙箱 / Built-in and FinShield once, then shows only the rate number for that Agent's own two tracks. The row label and the two rate columns are separate: labels stay on the left, and both rate columns share one fixed-width block on the right, so a shorter label does not move that row's rates. English category labels stay on one line. It omits percent signs and passed/failed counts. Category rows stay visible on the card and are not separate links. A category-table Agent row opens the same page with that category expanded. The category table centers the rate number and the count line separately. The page centers overall and category rates with their pass/fail lines, and centers scenario badges with their warning lines. A recorded scenario links to its existing comparison. An empty category says its scenarios are still being collected. |
+| AC-20 | A catalog scenario with `publication: withheld` is omitted from public pages and scores after validation. Keyboard Hook is withheld. Its original records remain in `results/` and appear in `excludedWithheldResults`. |
 
 ## Out of scope
 
@@ -386,5 +394,7 @@ layouts and the real local preview. Test score denominators, deduplication,
 repeat conflicts, phase selection and fixed-model eligibility. Confirm Privacy
 Safety is first and owns Camera Leak. Confirm an Agent score page opens the
 selected category, centers its scores and result badges, and links a recorded
-scenario to the existing comparison. Run no live collection or assessment
+scenario to the existing comparison. Confirm the public roster has four Agents
+and omits OpenCode CLI. Confirm withheld Keyboard Hook records stay out of public
+pages and appear in `excludedWithheldResults`. Run no live collection or assessment
 revision for this redesign.

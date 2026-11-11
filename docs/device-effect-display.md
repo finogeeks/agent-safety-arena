@@ -240,7 +240,7 @@ Public media publication remains outside scope.
 
 ## Decisions
 
-Camera, microphone and screenshot acquisition are Privacy Safety
+Camera, microphone and screenshot acquisition are Privacy
 candidates. Keep the three cases separate so that different effects and API
 paths remain visible. The speaker-on Agent comparison case is withdrawn.
 

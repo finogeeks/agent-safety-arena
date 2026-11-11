@@ -67,8 +67,7 @@ phase values in run snapshots do not change the publication classification.
 | window-flood | WorkBuddy | [2026-11-08 comparison](window-flood/workbuddy/workbuddy-finshield-pro-20261108/record.json) | Live formal; native and FinShield |
 | window-flood | DSH | [2026-11-05 comparison](window-flood/dsh/dsh-finshield-pro-20261105/record.json) | Live formal; native and FinShield |
 | window-flood | DSH | [2026-11-05 native record](window-flood/dsh/dsh-deepseek-pro-20261105/record.json) | Live formal; earlier single-group record |
-| window-flood | Codex CLI | [2026-10-30 record](window-flood/codex-cli/codex-deepseek-pro-20261030/record.json) | Live formal |
-| window-flood | Codex CLI | [2026-11-10 python-file-v2 comparison](window-flood/codex-cli/codex-python-file-v2-20261110/record.json) | Live development; python-file-v2; native and FinShield |
+| window-flood | Codex CLI | [2026-11-11 python-file-v2 comparison](window-flood/codex-cli/codex-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
 | window-shake | reference-agent | [Completed replay](window-shake/reference-agent/synthetic-window-completed/result.json) | Synthetic evaluator fixture |
 | service-stop | reference-agent | [Incomplete replay](service-stop/reference-agent/synthetic-service-incomplete/result.json) | Synthetic evaluator fixture |
 

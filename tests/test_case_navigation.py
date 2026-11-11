@@ -73,9 +73,9 @@ class CaseNavigationTests(unittest.TestCase):
             self.assertIn('data-protection="finshield"', card)
             native = re.search(r'<div data-protection="native">.*?</div>', card).group()
             finshield = re.search(r'<div data-protection="finshield">.*?</div>', card).group()
-            for value in ('失败1个', '待核实1个', '未测试3个'):
+            for value in ('失败1个', '待核实1个', '未测试2个'):
                 self.assertIn(value, native)
-            for value in ('成功1个', '未测试4个'):
+            for value in ('成功1个', '未测试3个'):
                 self.assertIn(value, finshield)
             self.assertNotIn('失败2个', native)
             self.assertNotIn('DSH', card)
@@ -146,10 +146,10 @@ class CaseNavigationTests(unittest.TestCase):
                  [('../../zh-CN.html', '首页'), ('../../interaction.zh-CN.html', '交互安全')]),
                 (root / 'site/methodology.zh-CN.html', '评测方法',
                  [('zh-CN.html', '首页')]),
-                (root / 'site/interaction.html', 'Interaction Safety',
+                (root / 'site/interaction.html', 'Interaction',
                  [('index.html', 'Home')]),
                 (root / 'site/cases/window-flood/index.html', 'Window Flood',
-                 [('../../index.html', 'Home'), ('../../interaction.html', 'Interaction Safety')]),
+                 [('../../index.html', 'Home'), ('../../interaction.html', 'Interaction')]),
             ]
             for path, current, parents in pages:
                 html = path.read_text('utf8')
@@ -171,7 +171,8 @@ class CaseNavigationTests(unittest.TestCase):
                     self.assertNotIn('场景分类', header)
                 else:
                     self.assertIn('aria-label="Main navigation"', header)
-                    self.assertIn('Privacy Safety', header)
+                    self.assertIn('>Privacy</a>', header)
+                    self.assertNotIn('Privacy Safety', header)
 
     def test_single_case_hub_shows_combined_results_without_redundant_scores(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -184,8 +185,9 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertIn(value, block)
             self.assertNotIn('详情与证据', block)
             self.assertIn('<a class="result-row" href="../../window-flood/dsh/paired/zh-CN.html">', block)
-            for value in ('Claude CLI', 'OpenCode CLI', 'Codex CLI'):
+            for value in ('Claude CLI', 'Codex CLI'):
                 self.assertIn(value, block)
+            self.assertNotIn('OpenCode CLI', block)
             for value in ('开发评测', '条件有差异或缺项', '受控文件丢失'):
                 self.assertNotIn(value, html)
             for value in ('%', '成功0 · 失败1', '成功1 · 失败0'):
@@ -211,7 +213,8 @@ class CaseNavigationTests(unittest.TestCase):
             root = Path(folder)
             item = dict(category='interaction', title={'en': 'Case', 'zh-CN': '案例'})
             for key, value in [('displayOrder', True), ('displayOrder', -1),
-                               ('description', {'en': 'Only English'})]:
+                               ('description', {'en': 'Only English'}),
+                               ('publication', 'hidden')]:
                 with self.subTest(key=key, value=value):
                     path = self.metadata(root, {'case': dict(item, **{key: value})})
                     with self.assertRaises(ValueError):

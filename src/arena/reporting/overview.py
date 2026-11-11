@@ -43,11 +43,12 @@ def load_taxonomy(path=None):
     for identity, item in data['scenarios'].items():
         if (not re.fullmatch(r'[a-z0-9][a-z0-9-]*', identity) or not isinstance(item, dict)
                 or not {'category', 'title'}.issubset(item)
-                or set(item) - {'category', 'title', 'description', 'displayOrder'}
+                or set(item) - {'category', 'title', 'description', 'displayOrder', 'publication'}
                 or item['category'] not in ids or not bilingual_text(item['title'])
                 or ('description' in item and not bilingual_text(item['description']))
                 or ('displayOrder' in item and (type(item['displayOrder']) is not int
-                                               or item['displayOrder'] < 0))):
+                                               or item['displayOrder'] < 0))
+                or ('publication' in item and item['publication'] not in ('public', 'withheld'))):
             raise ValueError('Invalid scenario category or title')
     return data
 

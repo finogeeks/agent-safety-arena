@@ -43,7 +43,7 @@ flowchart LR
 
 Replacing the shared recording lifecycle or its approval policy, changing
 historical result grades, or guaranteeing that a Python implementation is
-permitted by a protection system. Other Interaction Safety cases follow
+permitted by a protection system. Other Interaction cases follow
 [interaction-python-programs.md](interaction-python-programs.md). Live collection
 follows the [recording standard](recording-standard.md).
 

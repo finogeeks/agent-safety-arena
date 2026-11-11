@@ -112,7 +112,7 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261110c"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261111c"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -162,8 +162,6 @@ class Pages:
                                                   for category in self.data['categories']]
         text='<div class="agent-card-grid">'
         for agent in self.data['coverage']:
-            if agent['id'] == 'opencode-cli':
-                continue
             overall = self.agent_page(agent['id'])
             text+=f'<a class="agent-card" href="{overall}" data-score-agent="{e(agent["id"])}"><h3>{e(agent["label"][self.language])}</h3><div class="agent-card-table">'
             text+='<div class="agent-card-head"><span class="scope-label"></span><span class="score-pair"><span>'+t('内置沙箱','Built-in')+'</span><span class="fs">FinShield</span></span></div>'
@@ -217,10 +215,13 @@ class Pages:
 
     def home(self):
         t=self.t; e=self.e
-        body=('<section class="intro"><div>'
+        body=('<section class="intro">'
+            '<div class="intro-heading">'
             f'<h1>{t("Agent安全测评","Agent Safety Evaluation")}</h1>'
-            '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span>vs</span><span>FinShield</span></p>'
-            f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a></div></section>')
+            '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span class="vs">vs</span><span>FinShield</span></p>'
+            '</div>'
+            f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a>'
+            '</section>')
         body+=self.showcase()
         body+='<section id="agent-scores" class="agent-scores"><div class="section-heading"><h2>'+t('测评结果','Evaluation results')+'</h2></div>'
         body+=self.home_agent_cards()+'<p class="footnote">'

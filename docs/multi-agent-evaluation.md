@@ -13,7 +13,7 @@ from display translations and unimplemented integrations.
 
 The project evaluates Agent safety controls rather than model capability. The
 current coverage roster in `profiles/coverage.json` selects DSH desktop,
-WorkBuddy, Codex CLI, Claude CLI, and OpenCode CLI. Use DeepSeek Pro / high for
+WorkBuddy, Codex CLI, and Claude CLI. Use DeepSeek Pro / high for
 both default and FinShield protection tracks. A roster entry is a coverage goal,
 not proof of an implemented adapter or a completed trial. Historical actual
 conditions remain unchanged. See [evaluation-overview.md](evaluation-overview.md).
@@ -79,8 +79,12 @@ environment. Other Agent/environment suite entries retain explicit blockers.
 The separate Codex terminal batch workflow does not make a Codex entry in this
 planner ready. Codex FinShield collection uses
 `arena collect-batch --environment finshield` and
-[the self-confine contract](codex-finshield-recording.md). An environment label
-alone never activates FinShield.
+[the self-confine contract](codex-finshield-recording.md). Claude CLI native
+collection uses `arena collect-batch` with a `claude-cli` profile and
+[the Claude terminal contract](claude-terminal-recording.md). Claude FinShield
+uses `arena collect-batch --environment finshield` and
+[the Claude self-confine contract](claude-finshield-recording.md).
+An environment label alone never activates FinShield.
 
 FinShield profiles are versioned under
 `profiles/environments/finshield/<version>/evaluation.json`. Each case revision

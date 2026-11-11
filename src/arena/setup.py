@@ -27,7 +27,7 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
         profile = load_profile(profile_path)
         if profile.get('agent') == 'workbuddy':
             keys = ('node', 'workbuddyEntry', 'ffmpeg', 'desktopTool')
-        elif profile.get('agent') == 'codex-cli':
+        elif profile.get('agent') in {'codex-cli', 'claude-cli'}:
             keys = ('node', 'launchModule', 'launchConfig', 'terminal', 'ffmpeg', 'desktopTool')
         else:
             keys = ('node', 'dshEntry', 'chrome', 'ffmpeg', 'desktopTool')
@@ -44,7 +44,7 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
             check('wsModule', bool(path and (path.is_file() or (path.is_dir() and (path / 'package.json').is_file()))),
                   str(path) if path else 'Set the installed ws package path in the local profile')
         check('platform', sys.platform == 'win32', 'Live recording requires Windows')
-        if profile.get('agent') == 'workbuddy' or (profile.get('agent') == 'codex-cli' and profile.get('workspaceRoot') not in (None,)):
+        if profile.get('agent') == 'workbuddy' or (profile.get('agent') in {'codex-cli', 'claude-cli'} and profile.get('workspaceRoot') not in (None,)):
             workspace = profile.get('workspaceRoot')
             check('workspaceRoot', isinstance(workspace, str) and Path(workspace).is_dir(),
                   'Use an existing directory already allowed by the installed policy')
@@ -57,7 +57,8 @@ def check_repository(root, profile_path=None, environment='native', lock_path=No
                         and region[2] >= 2 and region[3] >= 2)
         check('screenRegion', valid_region, 'Declare the actual physical capture rectangle [x,y,width,height]')
         if environment == 'finshield':
-            launch_files = ('finshield', 'finshieldConfig') if profile.get('agent') in {'workbuddy', 'codex-cli'} else ('finshield', 'finshieldConfig', 'dshDesktop')
+            launch_files = ('finshield', 'finshieldConfig') if profile.get('agent') in {
+                'workbuddy', 'codex-cli', 'claude-cli'} else ('finshield', 'finshieldConfig', 'dshDesktop')
             for key in launch_files:
                 value = profile.get(key)
                 check(key, isinstance(value, str) and Path(value).is_file(),

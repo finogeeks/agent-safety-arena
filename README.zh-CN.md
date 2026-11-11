@@ -36,9 +36,8 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全测评项目。我
 | [系统安全](https://agent-safety-arena.finogeeks.club/system.zh-CN.html) | 程序、服务、权限或系统设置被破坏。 |
 | [数据安全](https://agent-safety-arena.finogeeks.club/data.zh-CN.html) | 文件被删除、改动或带走。 |
 
-目前已完成的测评覆盖 **DeepSeek Harness、WorkBuddy 和 Codex CLI**，主要集中在隐私安全和
-交互安全，系统安全、数据安全还需要继续补齐。**Claude CLI、OpenCode CLI** 也在测评名录中；
-列入名录不代表已经测完。网站按实际结果展示，并区分“未测试”和“待核实”。
+目前已完成的测评覆盖 **DeepSeek Harness、WorkBuddy、Codex CLI 和 Claude CLI**，主要集中在隐私安全和
+交互安全，系统安全、数据安全还需要继续补齐。网站按实际结果展示，并区分“未测试”和“待核实”。
 
 ## 怎么测
 

@@ -15,8 +15,10 @@ explains the project, experiment design and supported conclusions.
   Chinese article into English with matching sections, paragraphs, examples,
   claim scope, takeaways and diagram labels. Preserve the Chinese source text.
 - AC-2: Full-site headers add 测评说明 / Evaluation guide after the four category
-  links and before GitHub. The homepage adds a short guide link below its
-  comparison subtitle. Footers link to the article and retain Method & reproduction.
+  links and before GitHub. The homepage puts the title and the comparison
+  subtitle on one row, and the guide link on the next row. On phones, wrap the
+  comparison under the title if the row does not fit. Footers link to the article
+  and retain Method & reproduction.
   Standalone report exports omit links to site pages that are absent.
 - AC-3: Cover Agent execution risk, Windows permissions, protection goals,
   fixed-program methods, reviewed results and the user-protection position.

@@ -97,7 +97,9 @@ reviewed comparison `record.json` files in the case/Agent/comparison hierarchy.
 It validates identities against directories and validates every record and media
 source before creating output. It reuses the current six-section report renderer
 without changing its layout, language rules, or private-value checks.
-An invalid record fails the build; it is never silently omitted.
+An invalid record fails the build; it is never silently omitted. Catalog
+scenarios with `publication: withheld` are validated, listed in
+`excludedWithheldResults`, and omitted from public pages.
 
 The builder writes a small linked catalog, per-comparison reports, and
 `site-manifest.json` with source/output hashes and `trialExecutions: 0`.
@@ -124,7 +126,7 @@ say "Not tested"; unresolved observations stay unassessed.
 | AC-1 | A clone installs into `.venv`; installation includes the Agent helper files. Bootstrap preserves an existing local profile. |
 | AC-2 | Each case revision selects a FinShield version. A version-specific dependency file distinguishes installed runtime hashes from unknown installer provenance. Missing locks or mismatched installed files fail static checks without starting products or changing policies. |
 | AC-3 | Saved results use case/Agent/comparison grouping without changing evidence bytes. Documentation links use the new layout. |
-| AC-4 | A static build succeeds without raw runs or credentials and exposes every discovered valid comparison. Invalid inputs and existing outputs fail explicitly. |
+| AC-4 | A static build succeeds without raw runs or credentials and exposes every discovered valid comparison that is not catalog-withheld. Withheld records are listed in the manifest. Invalid inputs and existing outputs fail explicitly. |
 | AC-5 | Site links resolve under a URL subdirectory. Source hashes, output hashes, excluded replay files, and zero trial executions are recorded. The publish root includes `404.html` and `_redirects` for dead-path 404 responses. |
 | AC-6 | English and Chinese setup instructions describe the same supported paths and remaining external setup requirements. |
 

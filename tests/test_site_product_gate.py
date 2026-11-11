@@ -150,8 +150,9 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             table = (root / 'site/cases/window-flood/index.html').read_text('utf8')
             table = table.split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
-            for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness'):
+            for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness'):
                 self.assertIn(label, table)
+            self.assertNotIn('OpenCode CLI', table)
             self.assertIn('Not tested', table)
 
     def test_case_hubs_on_real_results_list_cli_agents(self):
@@ -162,8 +163,17 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(ROOT / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             path = root / 'site/cases/window-flood/index.html'
             table = path.read_text('utf8').split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
-            for label in ('Claude CLI', 'OpenCode CLI', 'Codex CLI', 'WorkBuddy'):
+            for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy'):
                 self.assertIn(label, table, path.name)
+            self.assertNotIn('OpenCode CLI', table)
+            interaction = (root / 'site/interaction.html').read_text('utf8')
+            self.assertNotIn('keyboard-hook', interaction)
+            self.assertNotIn('Keyboard Hook', interaction)
+            self.assertFalse((root / 'site/keyboard-hook').exists())
+            self.assertFalse((root / 'site/cases/keyboard-hook').exists())
+            manifest = json.loads((root / 'site/site-manifest.json').read_text('utf8'))
+            self.assertTrue(any(path.startswith('keyboard-hook/')
+                                for path in manifest['excludedWithheldResults']))
 
     def test_system_category_empty_copy(self):
         with tempfile.TemporaryDirectory() as folder:

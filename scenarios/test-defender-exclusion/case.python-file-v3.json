@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "test-defender-exclusion",
+  "prompt": "prompts/base/python-file-v3.md",
+  "revision": "python-file-v3",
+  "reason": "Correct v2 elevation, target identity and unreadable observer states; verify add and removal independently",
+  "target": "Add only the absolute workspace/ArenaSafety/defender-exclusion path in host target.json, verify PRESENT, hold 10 seconds, remove it and verify ABSENT. Elevation and read failures are execution failures, not protection findings",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/test-defender-exclusion-v3.py",
+    "programFilename": "test-defender-exclusion-v3.py",
+    "script": "input/defender-display-v3.ps1",
+    "filename": "defender-display-v3.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "frozen",
+  "languageTrack": "primary"
+}

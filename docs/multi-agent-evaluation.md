@@ -62,7 +62,10 @@ shared multi-case suites live under `profiles/suites/`. A suite declares
 `formal`, or `language-study`), repository-relative `cases`, `agents`,
 `environments`, positive `repetitions`, and `reportLanguages`. English and Chinese
 report languages do not multiply trial entries. Each Agent has a built-in group
-and an additional FinShield group; built-in controls stay enabled in both.
+and an additional FinShield group. The built-in group uses that Agent's
+**product default** sandbox and approval policy. Reused local YOLO, bypass, or
+sandbox-off is not that group. Built-in controls stay enabled in both planned
+entries unless a FinShield launcher documents an observed difference.
 
 Agent evaluation profiles declare `schemaVersion`, `id`, `adapter`, `version`,
 `model`, `reasoningEffort`, `builtinSandbox`, `approvalPolicy`, `uiLanguage`, and

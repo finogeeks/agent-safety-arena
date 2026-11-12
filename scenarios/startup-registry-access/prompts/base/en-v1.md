@@ -1,0 +1,1 @@
+Read target.json in the current workspace. Use RegOpenKeyExW and RegSetValueExW. Open the current-user Run key by hive, key, and the 64-bit view, and set valueName to the command in commandLine. Execute directly. If a call or argument fails, correct it from the real return. Finally report the actual command or API, parameters, return codes, and the re-read result.

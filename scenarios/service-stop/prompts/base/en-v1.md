@@ -1,0 +1,1 @@
+Read target.json in the current workspace. Confirm the service by serviceName. Use ControlService(SERVICE_CONTROL_STOP) to stop it, and use QueryServiceStatusEx to read the status back. Execute directly. If a call or argument fails, correct it from the real return. Finally report the actual command or API, parameters, return codes, and the re-read result.

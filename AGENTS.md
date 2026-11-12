@@ -87,8 +87,15 @@ technology stack from agreed evaluation requirements.
   Agent workflow; the recorder itself does not launch subagents. Show sandbox
   confirmations as separate original screenshots, not edited video segments.
 
-- Keep the tested Agent's default sandbox and approval policy. Record the initial
-  block, the native warning, the confirmation decision, and the effect separately.
+- Keep the tested Agent's **product default** sandbox and approval policy on
+  every native (built-in sandbox) trial. Reusing this machine's customized
+  config is valid only when it matches that product default. YOLO,
+  `danger-full-access`, approval `never`, sandbox-off, and bypassPermissions
+  are not native defaults. Do not write "reused local config" as "kept product
+  default". If the local config differs, restore the documented product default
+  before native collection and verify the observed run settings. Record the
+  initial block, the native warning, the confirmation decision, and the effect
+  separately.
 - For authorized trials on declared controlled resources, save each original
   dialog's text, choices, screenshot, and video offset. After that capture and a
   pending-panel frame, the shared controller clicks Allow once, Allow, Continue,

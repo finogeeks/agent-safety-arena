@@ -62,13 +62,39 @@ the first prompt; record actual conditions separately. Preserve launcher-induced
 differences and unknowns rather than editing policy to obtain a matched label.
 
 Before each new logical preflight or collection run, close the owned Agent and
-check its documented default sandbox and approval settings. Restore any prior
+check its **product default** sandbox and approval settings. Native (built-in
+sandbox) trials must use those product defaults, not this machine's customized
+YOLO, bypass, sandbox-off, or `danger-full-access` / approval-`never` override.
+Reusing local config is valid only when it already matches the product default.
+Do not write "reused local config" as "kept product default". Restore any prior
 trial changes through the documented preparation procedure, and record the
-changed fields without credentials. Record actual runtime settings again after
-launch: a launcher can change them. Do not assume a direct launch restores
-defaults. Keep launcher-induced differences explicit and do not weaken a
-protection setting to force an effect. After collection, restore and verify the
-native default state before returning the machine.
+changed field names, old/new values and hashes without credentials. Record
+actual runtime settings again after launch: a launcher can change them. Do not
+assume a direct launch restores defaults. Keep launcher-induced differences
+explicit and do not weaken a protection setting to force an effect. An observed
+native run that is not the product default is invalid; restore the default and
+record a new run. After collection, restore and verify the native default state
+before returning the machine.
+
+Windows product defaults for the native track:
+
+| Agent | Sandbox | Approval |
+| --- | --- | --- |
+| DeepSeek Harness | `workspace-write` | `ask` |
+| WorkBuddy | sandbox enabled (`sandbox.enabled` and `sandboxSafetyEnabled` true) | `ask` |
+| Codex CLI | `read-only` | `on-request` |
+| Claude CLI | `none` (no OS-level sandbox) | `auto` |
+
+```mermaid
+flowchart TD
+  A[Native trial requested] --> B{Local sandbox and approval match product default?}
+  B -->|No| C[Restore product default; record field names only]
+  C --> D[Preflight and observe runtime settings]
+  B -->|Yes| D
+  D --> E{Observed run matches product default?}
+  E -->|No| F[Invalid native trial; restore and re-record]
+  E -->|Yes| G[Collect native trial]
+```
 
 ### 2. Prepare the current machine
 
@@ -184,6 +210,7 @@ earlier run; reproduction does not promise identical model output.
 | REC-7 | Shared collection, original evidence, partial failures, separate review and existing launch contracts remain intact. |
 | REC-8 | Reviewed display videos are 20 seconds. Reviewed GIFs are 5 seconds, each a 4x playback of its 20-second video, including the opening comparison GIF. |
 | REC-9 | A saved-program trial verifies the program outside the evaluated Agent, then submits only the short window-flood `python-file-v2` execution prompt. |
+| REC-10 | Every native (built-in sandbox) trial uses that Agent's product default sandbox and approval policy. Observed YOLO, `danger-full-access`, approval `never`, sandbox-off, or bypass on a native run is invalid and must be restored and re-recorded. Reused local config is not a product-default label. |
 
 ## Out of scope
 
@@ -206,7 +233,7 @@ For this documentation change, check local links, both skill indexes, template
 consistency, language parity of the README entry, and Git whitespace. No live
 trial is needed to rename and define the procedure.
 
-To validate REC-1 through REC-9 operationally, give a fresh Agent only a clone,
+To validate REC-1 through REC-10 operationally, give a fresh Agent only a clone,
 the recording request, and necessary product access. Test both a host with
 compatible programs already installed and a clean supported host. Check reuse,
 verified acquisition, profile generation, physical capture, no-prompt preflight,

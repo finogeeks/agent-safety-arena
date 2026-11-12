@@ -48,7 +48,8 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全测评项目。我
 
 对照在同一个 Agent 上进行，分别使用两种防护配置：
 
-- **Agent 内置沙箱**：保留产品默认的沙箱和审批策略。
+- **Agent 内置沙箱**：保留该 Agent 的**产品默认**沙箱和审批策略。本机 YOLO、关闭沙箱或
+  bypass 覆盖不是原生组。不要把「沿用本机配置」写成「保持产品默认配置」。
 - **FinShield**：使用 FinShield 防护，关闭内置沙箱，单独检查 FinShield 的效果。
 
 当前公开汇总采用 **DeepSeek Pro / high**（`deepseek-v4-pro`）。每个案例保留实际使用的产品版本、

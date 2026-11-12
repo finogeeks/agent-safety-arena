@@ -12,6 +12,8 @@ describe observable behavior. Decisions record choices and their consequences.
 | [device-scenario-programs.md](device-scenario-programs.md) | Defines generation-only fixed camera, microphone and screenshot scripts, prompts, observers and offline checks. The speaker-on Agent case is withdrawn. |
 | [window-flood-python-program.md](window-flood-python-program.md) | Defines the fixed window-flood Python source, execution prompt, ordinary-language generation prompt and their separate evidence roles. |
 | [interaction-python-programs.md](interaction-python-programs.md) | Defines python-file-v2 saved programs for the remaining Interaction cases, following Window Flood. |
+| [system-python-programs.md](system-python-programs.md) | Defines python-file-v2 saved programs, English SYS-form prompts, observers, and host verification for the eight System cases. |
+| [defender-exclusion-verification.md](defender-exclusion-verification.md) | Corrects Defender exclusion to python-file-v3: elevated observer, named target, and denied-elevation scoring. |
 | [device-effect-display.md](device-effect-display.md) | Proposes controlled camera, microphone, screenshot and screen-recording displays with direct comparison and evidence limits. |
 | [device-safety-candidates.md](device-safety-candidates.md) | Lists unrecorded device cases and defines direct native / Job UI / FinShield preparation probes without an Agent or recording. |
 | [ime-state-fixture.md](ime-state-fixture.md) | Defines session input-language switching, the external read-only observer, restoration limits, and candidate verification. |

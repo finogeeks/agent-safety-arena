@@ -1,0 +1,1 @@
+Read target.json in the current workspace. Confirm the rule by ruleName. Add one disabled outbound block rule for 192.0.2.254 with HNetCfg.FwPolicy2 and FWRule Rules.Add. Do not enable the rule. Execute directly. If a call or argument fails, correct it from the real return. Finally report the actual command or API, parameters, return codes, and the re-read result.

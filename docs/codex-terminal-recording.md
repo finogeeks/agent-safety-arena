@@ -43,7 +43,18 @@ approval, after capture and a recording checkpoint. This experimental transport
 is disclosed in evidence. Neither native Agent process receives sandbox, approval,
 instruction, tool, reasoning, search, or catalog overrides. The app server uses
 the same existing base configuration and model-only connection settings.
-The FinShield TUI sandbox flag is specified in
+Native collection must inherit Codex **product defaults**, not this machine's
+customized YOLO. On Windows the named native defaults are `sandboxMode`
+`read-only` and `approvalPolicy` `on-request`. Do not pass `--sandbox`,
+`-a never`, or `--dangerously-bypass-approvals-and-sandbox` on the native TUI.
+If `config.toml` sets `sandbox_mode = "danger-full-access"` or
+`approval_policy = "never"`, restore the product default while Codex is closed:
+remove those keys (or set `read-only` / `on-request`) and record only field
+names, old/new values and hashes. Keep `[windows] sandbox = "elevated"` as the
+Windows sandbox implementation; that key is not YOLO. Keep the model-only
+profile unchanged. Observed native `danger-full-access` or `never` is invalid;
+restore the default and record a new run. Do not write "reused local config" as
+"kept product default". The FinShield TUI sandbox flag is specified in
 [Codex FinShield recording](codex-finshield-recording.md).
 
 `arena collect-batch --case <case.json> --profile <profile.json>` shares
@@ -101,20 +112,34 @@ text and close after the declared prompt duration. Native sandbox isolation stay
 | ID | Acceptance criterion |
 | --- | --- |
 | T-1 | Real Codex interactive CLI output is displayed and recorded; no `exec` substitution. |
-| T-2 | Launch arguments contain only model connection settings and required owned transport paths, with native default policies inherited. |
+| T-2 | Launch arguments contain only model connection settings and required owned transport paths, with native **product default** policies inherited. Native TUI arguments include neither `--sandbox` nor `-a never`. |
 | T-3 | Preflight submits no prompt. The same shared trial lifecycle handles collection, completion, recording, and recovery. |
 | T-4 | Native approval text and an encoded pending frame precede a scope-matched one-time CLI choice; unresolved evidence receives no approval. |
 | T-5 | The original English case, terminal/native events, actual settings, effect observations, and recovery remain distinguishable. |
 | T-6 | The shared preview exporter produces the requested 20-second excerpt with provenance; failures remain available. |
+| T-7 | Observed native `sandboxMode` and `approvalPolicy` match the product default (`read-only` and `on-request` on Windows). YOLO, `danger-full-access`, or `never` invalidates the native trial. |
 
 ## Out of scope
 
 Claude recording (see [claude-terminal-recording.md](claude-terminal-recording.md)), AppSeam `app launch`, Codex suite planning, formal paired
-conclusions, factory-reset CLI settings, warning scoring during collection, and
-publication. FinShield `self-confine` of the owned app-server is specified in
+conclusions, a full factory reset of unrelated CLI settings, warning scoring
+during collection, and publication. Restoring `sandbox_mode` and
+`approval_policy` to the product default for a native trial is in scope.
+FinShield `self-confine` of the owned app-server is specified in
 [codex-finshield-recording.md](codex-finshield-recording.md).
 
 ## Decisions
+
+Terminal cleanup resolves the exact expected fragment file
+`<LOCALAPPDATA>/Microsoft/Windows Terminal/Fragments/Arena-<run-id>/profile.json`
+before comparing it with the owned fragment. Resolve the complete file on both
+sides: packaged Windows hosts can virtualize an existing file while leaving its
+ancestor root unresolved. Delete only that exact file and its now-empty owned
+directory. A mismatched file remains an error. This shared rule also applies
+to the inherited Claude terminal view.
+Close the stored owned window handle when the CLI changes its title, after
+verifying that the handle still belongs to the recorded window process. A
+changed title must not leave an old trial covering later recordings.
 
 Use the existing Windows desktop recorder and installed Windows Terminal.
 Use the installed `ws` package for the transparent local observation bridge.

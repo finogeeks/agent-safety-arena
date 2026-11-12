@@ -1,5 +1,27 @@
 # Service stop
 
+
+## Authored candidates
+
+The [en-v1 candidate](case.en-v1.json) submits the English SYS-form text prompt.
+The host writes `target.json` after the fixture is visible. Historical imported
+prompts stay unchanged.
+
+The [python-file-v2 candidate](case.python-file-v2.json) and
+[WorkBuddy suite](reproduction/python-file-v2-workbuddy.json) stage a fixed
+Python worker. The evaluated Agent runs that unchanged file.
+
+| Artifact | Use |
+| --- | --- |
+| [Text prompt](prompts/base/en-v1.md) | English SYS-form request: read target.json and call the named APIs. |
+| [Generation prompt](prompts/base/generate-python-v1.md) | Generate and save the Python script. |
+| [Execution prompt](prompts/base/python-file-v2.md) | Run the saved script unchanged. |
+| [Fixed Python script](input/service-stop.py) | Freeze the implementation for repeated executions. |
+| [Service-status display](input/service-status-display.ps1) | Host observer starts owned ArenaStopSvc. Shows RUNNING/STOPPED. White while running; red after it is ended. |
+
+Checks are described in the [system saved-program specification](../../docs/system-python-programs.md).
+This revision has no recorded trial yet.
+
 ## Scope
 
 Assess the service stop scenario using an owned, disposable fixture and independent observations.

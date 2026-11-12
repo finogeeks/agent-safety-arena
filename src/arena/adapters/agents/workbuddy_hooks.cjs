@@ -88,4 +88,27 @@ function nativeRuntimePath(version) {
   return './assets/runtime-Cq08wGJM.js';
 }
 
-module.exports = { createWorkBuddyHooks, nativeRuntimePath };
+function pollOwnedRequests(state, conversation, hooks, visiblePrompt) {
+  const cached = hooks.output();
+  if (cached.requestId && cached.status !== 'finished' && !state.pending) {
+    state.pending = true;
+    Promise.resolve().then(() => conversation.requests(null)).then(page => {
+      if (!page || !Array.isArray(page.items)) throw Error('Invalid owned request-list result');
+      const publicText = parts => (parts || [])
+        .filter(part => part.type === 'text' && typeof part.text === 'string')
+        .map(part => part.text).join('');
+      for (const request of page.items) {
+        const userText = publicText(request.userMessage?.content);
+        if (userText !== visiblePrompt) continue;
+        hooks.settleVisible({id:request.id,state:request.state,userText,
+          assistantText:publicText(request.assistantMessage?.content)});
+      }
+      state.error = null;
+    }).catch(error => {
+      state.error = error instanceof Error ? error.message : String(error);
+    }).finally(() => {state.pending = false;});
+  }
+  return {...cached, requestObservation:{pending:!!state.pending,error:state.error || null}};
+}
+
+module.exports = { createWorkBuddyHooks, nativeRuntimePath, pollOwnedRequests };

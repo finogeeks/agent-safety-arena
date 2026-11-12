@@ -11,6 +11,63 @@ from arena.adapters.agents.codex import CodexEventStream, approval_panel, model_
 from arena.adapters.agents.dsh import completion_for
 
 class CodexTerminalTests(unittest.TestCase):
+    def test_file_change_approval_uses_unique_pending_request_and_first_choice(self):
+        screen='Native edit preview\n+ synthetic text\n› 1. Yes, proceed (y)\n  2. No (esc)\n'
+        panel=approval_panel(screen,{'edit-1':{'method':'item/fileChange/requestApproval',
+            'itemId':'patch-1','grantRoot':'C:/OwnedLab/read-only'}})
+        self.assertIsNotNone(panel)
+        self.assertEqual(panel['oneTimeChoice'],'1. Yes, proceed (y)')
+        self.assertEqual(panel['key'],'edit-1')
+
+    def test_shared_trial_finishes_when_native_input_normalizes_windows_newlines(self):
+        from arena.runner.trial import run_trial
+        from test_dsh_recording import FakeAgent, FakeBrowser, FakeRecorder
+        calls=[]
+        class Agent(FakeAgent):
+            def submit(self,prompt,request_id):
+                self.stream=CodexEventStream();self.stream.prompt=prompt;self.stream.request_id=request_id
+                self.stream.feed('client',dict(id=1,method='thread/start',params={}))
+                self.stream.feed('server',dict(id=1,result=dict(thread=dict(id='main'))))
+                native=prompt.replace('\r\n','\n').replace('\r','\n').rstrip()
+                self.stream.feed('client',dict(id=2,method='turn/start',params=dict(threadId='main',input=[dict(type='text',text=native)])))
+                self.stream.feed('server',dict(method='turn/started',params=dict(threadId='main',turn=dict(id='turn'))))
+                self.stream.feed('server',dict(method='item/completed',params=dict(threadId='main',turnId='turn',item=dict(type='agentMessage',text='Finished the owned task.'))))
+                self.stream.feed('server',dict(method='turn/completed',params=dict(threadId='main',turn=dict(id='turn',status='completed'))))
+            def observe(self):return self.stream.events
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);prompt=root/'prompt.txt';prompt.write_bytes(b'First paragraph.\r\n\r\nSecond paragraph.\r\n')
+            agent=Agent(calls)
+            state=run_trial(dict(prompt=prompt,output_root=root/'runs',target='owned fixture',revision='direct-v1',reason='completion regression',timeout=1),
+                agent=agent,browser=FakeBrowser(calls),recorder=FakeRecorder(calls),sleep=lambda _:None)
+            self.assertEqual(state['status'],'completed')
+            self.assertEqual(agent.stream.admitted_prompt,'First paragraph.\n\nSecond paragraph.')
+            self.assertEqual((Path(state['directory'])/'agent-output.txt').read_text(),'Finished the owned task.')
+
+    def test_unique_native_panel_is_captured_when_ui_omits_shell_wrapper_and_reason(self):
+        screen = ('Would you like to run the following command?\nEnvironment: local\n'
+                  "$ Remove-Item -LiteralPath 'C:\\OwnedLab\\parent' -Recurse -Force\n"
+                  '\n› 1. Yes, proceed (y)\n  2. Yes, and do not ask again (p)\n  3. No (esc)')
+        pending = {'0': {'method':'item/commandExecution/requestApproval', 'reason':None,
+            'command':'"C:\\Tools\\pwsh.exe" -Command "Remove-Item -LiteralPath ..."'}}
+        panel = approval_panel(screen, pending)
+        self.assertIsNotNone(panel, 'Capture the original panel for the unique pending native request')
+        self.assertEqual(panel['oneTimeChoice'], '1. Yes, proceed (y)')
+
+    def test_one_time_input_does_not_require_live_panel_text_or_question_key_equality(self):
+        from arena.adapters.agents.codex_terminal import NativeTerminalView
+        from types import SimpleNamespace
+        browser = object.__new__(NativeTerminalView)
+        stream = SimpleNamespace(events=[])
+        browser.agent = SimpleNamespace(stream=stream, observe=lambda:None)
+        browser.choices = []
+        browser.snapshot = lambda:dict(dialogs=[dict(key='current-ui-key',
+            text='Updated wrapping\n› 1. Yes, proceed (y)', oneTimeChoice='1. Yes, proceed (y)')])
+        def console(action, **kwargs):
+            stream.events.append(dict(type='approval/decided',data=dict(id='current-ui-key',nativeDecision='accept')))
+        browser.console = console
+        decision = browser.choose_once('captured-ui-key', 'Original captured text', '1. Yes, proceed (y)')
+        self.assertEqual(decision['label'], '1. Yes, proceed (y)')
+
     def test_generic_batch_route_accepts_native_terminal_presentation_without_policy_fields(self):
         from arena.cli import parser
         self.assertIn('collect-batch',parser().format_help())
@@ -81,6 +138,10 @@ class CodexTerminalTests(unittest.TestCase):
         self.assertIn('model="deepseek-v4-pro"',arguments)
         self.assertNotIn('sandbox_mode', ' '.join(arguments))
         self.assertEqual(arguments,model_arguments({**profile,'tui':{'screen_reader_detection_done':True}}))
+        self.assertEqual(arguments,model_arguments({**profile,'tui':{
+            'screen_reader_detection_done':True,'model_availability_nux':{'gpt-6.1-sol':1}}}))
+        self.assertEqual(arguments,model_arguments({**profile,'tui':{
+            'model_availability_nux':{'gpt-6.1-sol':2}}}))
         with self.assertRaises(ValueError):model_arguments({**profile,'sandbox_mode':'danger-full-access'})
 
     def test_native_protocol_retains_only_public_completion_and_exact_turn(self):
@@ -110,7 +171,9 @@ class CodexTerminalTests(unittest.TestCase):
         self.assertIn('do not ask again',panel['text'])
         self.assertIsNone(approval_panel(screen,{**pending,'native-2':pending['native-1']}))
         self.assertIsNone(approval_panel(screen.replace('Yes, proceed (y)','Yes, for this session'),pending))
-        self.assertIsNone(approval_panel(screen.replace('echo fixture','different command'),pending))
+        # Scope is checked against the original native request by the controller.
+        # A product display rewrite must not suppress its original screenshot.
+        self.assertIsNotNone(approval_panel(screen.replace('echo fixture','different command'),pending))
 
     def test_native_long_command_panel_matches_its_unique_exact_reason(self):
         screen='Would you like to run the following command?\nEnvironment: local\nReason: Open only the controlled test windows?\n$ Add-Type ...\n[... 49 lines] ctrl+a view all\n› 1. Yes, proceed (y)\n  2. No, and tell Codex what to do differently (esc)\nPress enter to confirm or esc to cancel'
@@ -120,7 +183,7 @@ class CodexTerminalTests(unittest.TestCase):
         self.assertIsNotNone(panel)
         self.assertTrue(panel['commandTruncated'])
         self.assertEqual(panel['oneTimeChoice'],'1. Yes, proceed (y)')
-        self.assertIsNone(approval_panel(screen.replace('controlled test windows','unrelated files'),pending))
+        self.assertIsNotNone(approval_panel(screen.replace('controlled test windows','unrelated files'),pending))
 
     def test_native_title_generation_cannot_change_the_owned_trial_thread(self):
         stream=CodexEventStream();stream.request_id='request-1';stream.prompt='Hello'

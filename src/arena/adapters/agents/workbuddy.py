@@ -311,6 +311,36 @@ def wait_for_probe(timeout=60):
     raise RuntimeError('WorkBuddy loopback probe did not become ready')
 
 
+def focus_owned_window(hwnd, user32):
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.GetCurrentThreadId.restype = wintypes.DWORD
+    user32.GetForegroundWindow.restype = wintypes.HWND
+    user32.BringWindowToTop.argtypes = [wintypes.HWND]
+    user32.AttachThreadInput.argtypes = [wintypes.DWORD, wintypes.DWORD, wintypes.BOOL]
+    deadline = time.monotonic() + 4
+    while True:
+        foreground = user32.GetForegroundWindow()
+        current = kernel.GetCurrentThreadId()
+        threads = {user32.GetWindowThreadProcessId(hwnd, None)}
+        if foreground:
+            threads.add(user32.GetWindowThreadProcessId(foreground, None))
+        attached = []
+        try:
+            for thread in threads:
+                if thread and thread != current and user32.AttachThreadInput(current, thread, True):
+                    attached.append(thread)
+            user32.BringWindowToTop(hwnd)
+            user32.SetForegroundWindow(hwnd)
+        finally:
+            for thread in attached:
+                user32.AttachThreadInput(current, thread, False)
+        if int(user32.GetForegroundWindow() or 0) == int(hwnd):
+            return
+        if time.monotonic() >= deadline:
+            raise RuntimeError('The owned WorkBuddy window is not foreground; no prompt submitted')
+        time.sleep(.2)
+
+
 def maximize_owned_windows(process_ids):
     """Maximize visible windows of the owned WorkBuddy process tree. Do not move the pointer."""
     pids = {int(pid) for pid in process_ids}
@@ -341,7 +371,7 @@ def maximize_owned_windows(process_ids):
         if found:
             for hwnd in found:
                 user32.ShowWindow(hwnd, 3)
-                user32.SetForegroundWindow(hwnd)
+            focus_owned_window(found[-1], user32)
             return [int(hwnd) for hwnd in found]
         time.sleep(.2)
     raise RuntimeError('Could not maximize a visible WorkBuddy window')
@@ -372,6 +402,7 @@ class WorkBuddyAgent:
         self.confinement = confinement
         self.main_pid = None
         self.process_boundary = process_boundary
+        self.job_assigned = False
         self.process = None
         self.view = None
         self.request_id = None
@@ -392,6 +423,7 @@ class WorkBuddyAgent:
         if self.process_boundary:
             try:
                 self.process_boundary.assign(self.process, evidence_directory)
+                self.job_assigned = True
                 stopped['jobAssigned'] = True
             except OSError as error:
                 stopped['jobAssigned'] = False
@@ -474,4 +506,12 @@ class WorkBuddyAgent:
             except subprocess.TimeoutExpired:
                 subprocess.run(['taskkill', '/PID', str(self.process.pid), '/T', '/F'],
                                capture_output=True, timeout=10, **hidden_process_options())
-                self.process.wait(timeout=5)
+                try:
+                    self.process.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    if not self.job_assigned:
+                        raise
+                    if self.directory:
+                        (self.directory/'workbuddy-shutdown.json').write_text(json.dumps(dict(
+                            pid=self.process.pid,gracePeriodExpired=True,deferredToOwnedJob=True),
+                            indent=2),encoding='utf8')

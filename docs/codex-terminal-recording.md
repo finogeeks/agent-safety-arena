@@ -80,19 +80,38 @@ startup screens stop before prompt submission.
 Native conversation events are retained privately and mapped into the shared
 collection event contract. Keep original native message types alongside the
 normalized view. Do not log account/configuration responses or HTTP auth headers.
+Read native console text as a grid of screen cells. Wide Chinese characters
+must not shift later row boundaries or split the approval question and options.
+Keep the original screenshot authoritative. A text readback formatting failure
+must not add wording comparisons before the operator-authorized first choice.
 Credentials are resolved in the existing local launcher and stay in child memory.
 The exact admitted prompt is saved separately if the native composer changes
-trailing whitespace. No additional requests or prompt tuning occur during a run.
+line endings or trailing whitespace. For admission correlation only, normalize
+CRLF and CR to LF and remove trailing whitespace. Preserve all internal text.
+Retain the original prompt bytes and native input separately. Use the existing
+shared `completion_for` turn-end decision; do not wait on byte equality or UI
+appearance after the owned native turn has completed. No additional requests or
+prompt tuning occur during a run.
 
-For a matched native command approval, save original terminal text, choices,
-native request/command, screenshot, and video offset. A unique displayed one-time
-choice and pending native request must match. Reuse the existing local command
-scope review file. Missing frames, unmatched panels, changed text, and commands
-outside the resource boundary remain unresolved and receive no automatic input.
-Native long-command panels can show only a prefix. Retain the truncation marker
-and full native command separately. Match one unique request by its exact visible
-reason when the full command is not visible. Confirm the actual CLI response is
-one-time `accept`, not a session-wide permission change.
+The model-only connection profile can contain the product-persisted
+`tui.screen_reader_detection_done` and `tui.model_availability_nux` preferences.
+The latter maps model names to nonnegative integer display counters. Accept these
+UI-only records without sending them as model arguments. Continue to reject
+unknown terminal keys and sandbox or approval policy in the connection profile.
+
+For a native command approval, save original terminal text, choices, native
+request/command, screenshot, and video offset. Associate the product's original
+one-time choice with its unique pending native request. The UI can omit the shell
+wrapper or reason. Retain both original forms; do not require their text to be
+equal to capture the panel. Reuse the shared scope review and recording checkpoint.
+After capture, do not require live panel text or a UI question key to equal the
+capture. Select the first one-time choice with its native `y` hotkey, without
+comparing the selected-row wording. Retry a missed input without cancelling the turn. Confirm the
+native response is one-time `accept`, not a session-wide policy change. Missing
+captures, an ambiguous native request, or an out-of-scope operation remain unresolved.
+Apply the same original-capture and first-choice path to native file-change
+approval requests. Associate a unique pending native request and its visible
+one-time option without requiring a particular question heading or command body.
 
 For a captured panel, schedule its one-time choice five seconds after the first
 matched screen observation. Capture and encode the pending panel during this
@@ -172,6 +191,24 @@ Verification on 2026-10-30:
   live target remains unverified. The declared timer itself is covered by tests.
 
 ## References
+
+Verification on 2026-11-12 for the Data ancestor-deletion development recording:
+
+- RED: a unique approval with an omitted PowerShell wrapper was not captured;
+  a changed live panel text/key prevented input. Both regression tests failed
+  before the shared adapter correction.
+- RED: a shared trial with a CRLF multi-paragraph file prompt and LF native
+  input timed out although the owned native turn had completed.
+- GREEN: all 14 Codex adapter tests, 57 shared recording tests, 48 data-resource
+  tests and four terminal cleanup tests passed after the corrections.
+- LIVE: the same-case retry captured all three original approvals and shared
+  automation selected the one-time choice. The native turn completed. The
+  operator stopped the recorder after the end-correlation fault; raw controller
+  status remains cancelled. Reprocessing unchanged native wire with the repaired
+  shared mapper and completion_for records completed native status separately.
+  No extra Agent request was made for reconciliation. Owned data recovery passed.
+  Preserve this distinction in editing and reports; do not relabel the original
+  controller record as a clean automatic completion.
 
 - [Codex native remote terminal interface](https://learn.chatgpt.com/docs/app-server)
 - [Codex default configuration and profiles](https://learn.chatgpt.com/docs/config-file/config-advanced)

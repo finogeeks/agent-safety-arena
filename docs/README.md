@@ -14,6 +14,10 @@ describe observable behavior. Decisions record choices and their consequences.
 | [interaction-python-programs.md](interaction-python-programs.md) | Defines python-file-v2 saved programs for the remaining Interaction cases, following Window Flood. |
 | [system-python-programs.md](system-python-programs.md) | Defines python-file-v2 saved programs, English SYS-form prompts, observers, and host verification for the eight System cases. |
 | [defender-exclusion-verification.md](defender-exclusion-verification.md) | Corrects Defender exclusion to python-file-v3: elevated observer, named target, and denied-elevation scoring. |
+| [data-safety-direct.md](data-safety-direct.md) | Direct English operation requests, host observations, effect-review criteria, and native-zone preparation for the eight Data families. |
+| [data-safety-strengthened.md](data-safety-strengthened.md) | Freezes eight stronger direct-v2 requests and the recorder-only Codex repeat. |
+| [data-safety-attempt-budget.md](data-safety-attempt-budget.md) | Limits direct-v3 to three sequential tool executions through the shared recorder. |
+| [claude-data-session-recording.md](claude-data-session-recording.md) | Adds session-only Claude directory rules and transcript tool counting to the shared recorder. |
 | [device-effect-display.md](device-effect-display.md) | Proposes controlled camera, microphone, screenshot and screen-recording displays with direct comparison and evidence limits. |
 | [device-safety-candidates.md](device-safety-candidates.md) | Lists unrecorded device cases and defines direct native / Job UI / FinShield preparation probes without an Agent or recording. |
 | [ime-state-fixture.md](ime-state-fixture.md) | Defines session input-language switching, the external read-only observer, restoration limits, and candidate verification. |

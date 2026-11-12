@@ -3,6 +3,7 @@
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -11,6 +12,33 @@ import time
 import uuid
 
 from arena.adapters.agents.dsh import completion_for, scrub
+
+
+COLLECTED_STATUSES = frozenset({'completed', 'attempt-limit-reached'})
+
+
+def execution_budget(events, request_id, limit):
+    """Count distinct tool executions only after this request was admitted."""
+    start = next((index for index, row in enumerate(events)
+                  if row.get('type') == 'user/message'
+                  and row.get('data', {}).get('source', {}).get('rpcId') == request_id), None)
+    calls = {}
+    returned = set()
+    if start is not None:
+        for row in events[start+1:]:
+            data = row.get('data', {})
+            identity = data.get('callId')
+            if identity is None:
+                continue
+            identity = str(identity)
+            if row.get('type') == 'tool/call':
+                calls.setdefault(identity, row.get('seq'))
+            elif row.get('type') == 'tool/result':
+                returned.add(identity)
+    finished = [identity for identity in calls if identity in returned]
+    return dict(limit=limit, admitted=start is not None, started=len(calls),
+                returned=len(finished), callIds=list(calls), returnedCallIds=finished,
+                unadmittedCallsPresent=start is None and any(row.get('type') == 'tool/call' for row in events))
 
 
 def save(path, value):
@@ -28,13 +56,16 @@ def save(path, value):
             time.sleep(.1)
 
 
-def start_side_script(script, directory):
+def start_side_script(script, directory, workspace=None):
     stop = directory / 'side-stop'
     log_handle = (directory / 'side-script.log').open('w', encoding='utf-8')
+    environment = os.environ.copy()
+    if workspace is not None:
+        environment['ARENA_TRIAL_WORKSPACE'] = str(Path(workspace).resolve())
     process = subprocess.Popen(
         ['powershell.exe', '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', str(script),
          '-StopFile', str(stop)],
-        stdin=subprocess.DEVNULL, stdout=log_handle, stderr=subprocess.STDOUT,
+        stdin=subprocess.DEVNULL, stdout=log_handle, stderr=subprocess.STDOUT, env=environment,
         creationflags=subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP)
     process.side_log = log_handle
     ready = Path(str(stop) + '.pid')
@@ -76,6 +107,15 @@ def owned_workspace(parent, run_id):
     workspace = parent / ("arena-dsh-workspace-" + run_id[-8:] + "-" + uuid.uuid4().hex[:8])
     workspace.mkdir()
     return workspace
+
+
+def stage_input(source, workspace, directory):
+    source = Path(source)
+    if source.name.lower() in {'agents.md', 'claude.md'}:
+        raise ValueError('Input fixture must be data, not an Agent instruction file')
+    (directory/'input').mkdir()
+    shutil.copyfile(source, directory/'input'/source.name)
+    shutil.copyfile(source, workspace/source.name)
 
 
 def prepared_conflicts(expected, actual, environment_adapter):
@@ -315,6 +355,9 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
         raise ValueError("The prompt must contain text")
     if config["timeout"] <= 0:
         raise ValueError("timeout must be positive")
+    execution_limit = config.get('max_tool_executions')
+    if execution_limit is not None and (type(execution_limit) is not int or execution_limit < 1):
+        raise ValueError('max_tool_executions must be a positive integer')
     for key in ("target", "revision", "reason"):
         if not str(config.get(key, "")).strip():
             raise ValueError(f"{key} must be declared")
@@ -323,20 +366,18 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
     run_id = config.get('agent_id','dsh')+"-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S") + "-" + uuid.uuid4().hex[:8]
     directory = output_root / run_id
     directory.mkdir()
-    if config.get("workspace_root"):
+    resource = config.get('data_resource')
+    if resource is not None:
+        workspace = Path(resource.workspace)
+    elif config.get("workspace_root"):
         workspace = owned_workspace(config["workspace_root"], run_id)
     else:
         workspace_root = Path(tempfile.gettempdir()).resolve()
         workspace = Path(tempfile.mkdtemp(prefix="arena-dsh-workspace-" + run_id[-8:] + "-", dir=workspace_root))
     (directory / "confirmations").mkdir()
     (directory / "prompt.txt").write_bytes(prompt_bytes)
-    if config.get("input_file"):
-        source = Path(config["input_file"])
-        if source.name.lower() in {"agents.md", "claude.md"}:
-            raise ValueError("Input fixture must be data, not an Agent instruction file")
-        (directory / "input").mkdir()
-        shutil.copyfile(source, directory / "input" / source.name)
-        shutil.copyfile(source, workspace / source.name)
+    if config.get("input_file") and resource is None:
+        stage_input(config['input_file'], workspace, directory)
     state = {"schemaVersion": 1, "runId": run_id, "directory": str(directory), "status": "preparing",
              "createdAtUtc": datetime.now(timezone.utc).isoformat(), "revision": config["revision"],
              "reason": config["reason"], "target": config["target"], "errors": [], "evidenceGaps": [],
@@ -347,8 +388,13 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
                  promptStatus=config.get('prompt_status','legacy-unspecified'),
                  languageTrack=config.get('language_track','legacy-unspecified'))
     state["confirmationMode"] = confirmation_mode
+    if execution_limit is not None:
+        state['maxToolExecutions'] = execution_limit
     if config.get('case_id'):
         state['caseId'] = config['case_id']
+    if config.get('native_data_preparation'):
+        state['nativeDataPreparation'] = config['native_data_preparation']
+        state['nativeDataTrack'] = config.get('native_data_track', 'configured-native')
     save(directory / "run.json", state)
     print(f"Private Agent trial: {directory}", flush=True)
     started = clock()
@@ -361,6 +407,10 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
     side_process = None
     side_stop = None
     try:
+        if resource is not None:
+            resource.prepare(directory, workspace)
+            if config.get('input_file'):
+                stage_input(config['input_file'], workspace, directory)
         state.update(agent.prepare(workspace, browser, directory))
         expected = config.get('declared_conditions')
         if expected and not config.get('preflight_only'):
@@ -405,7 +455,8 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
             state['status'] = 'preflight-completed'
             return state
         if config.get('side_script'):
-            side_process, side_stop = start_side_script(Path(config['side_script']), directory)
+            display_workspace = directory if resource is not None and getattr(resource, 'direct', False) else workspace
+            side_process, side_stop = start_side_script(Path(config['side_script']), directory, workspace=display_workspace)
         # Mark attempted admission before the call: a transport error can follow acceptance.
         submitted = True
         state['promptSubmitted'] = True
@@ -417,6 +468,8 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
             recorder.check()
             events = agent.observe()
             save(directory / "native-events.json", events)
+            if resource is not None and getattr(resource, 'direct', False):
+                resource.capture_output('', events)
             for row in events:
                 data = row.get("data", {})
                 if row["type"] == "request/header":
@@ -429,16 +482,44 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
             confirmations.native(events)
             confirmations.capture(browser.snapshot())
             confirmations.persist()
+            budget = execution_budget(events, state['requestId'], execution_limit) if execution_limit else None
+            if budget is not None:
+                state['executionBudget'] = budget
+                save(directory/'execution-budget.json', budget)
+                if budget['started'] > execution_limit or budget['unadmittedCallsPresent']:
+                    state['status'] = 'attempt-limit-exceeded'
+                    state['collectionStopReason'] = 'extra tool call or unconfirmed request admission'
+                    state['evidenceGaps'].append('Execution ceiling could not be verified; inspect execution-budget.json')
+                    browser.screenshot(directory/'final-screen.png')
+                    break
             completion = completion_for(events, state["requestId"])
+            if completion or (budget and budget['returned'] >= execution_limit):
+                pending = [item for item in confirmations.items if not item.get('choice')
+                           and item.get('captureStatus') == 'captured' and item.get('uiKey')]
+                if pending and confirmation_mode == 'capture-then-allow-once':
+                    confirmations.auto_decide(recorder, sleep, config.get('approval_guard'))
+                    pending = [item for item in pending if not item.get('choice')]
+                if pending:
+                    if (directory/'stop').exists():
+                        state['status'] = 'cancelled'
+                        break
+                    if clock() - started >= config['timeout']:
+                        state['status'] = 'timeout'
+                        break
+                    sleep(.25)
+                    continue
             if completion:
                 state["completionState"] = completion["state"]
                 state["status"] = completion["state"]
                 if completion.get("error"):
                     state["errors"].append(scrub(json.dumps(completion["error"], ensure_ascii=False)))
                 (directory / "agent-output.txt").write_text(completion["text"], encoding="utf8")
+                if resource is not None and getattr(resource, 'direct', False):
+                    resource.capture_output(completion['text'], events)
                 browser.screenshot(directory / "final-screen.png")
                 confirmations.capture(browser.snapshot())
-                hold_end = clock() + config.get('final_hold_seconds', 0)
+                hold_seconds = 0 if budget and budget['returned'] >= execution_limit else config.get('final_hold_seconds', 0)
+                hold_end = clock() + hold_seconds
                 while clock() < hold_end:
                     if config.get('environment_check'):
                         config['environment_check']()
@@ -452,6 +533,12 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
                         confirmations.auto_decide(recorder, sleep, config.get('approval_guard'))
                     sleep(max(0, min(.25, hold_end-clock())))
                 browser.screenshot(directory / 'final-screen.png')
+                break
+            if budget and budget['returned'] >= execution_limit:
+                state['status'] = 'attempt-limit-reached'
+                state['collectionStopReason'] = 'declared tool-execution budget returned'
+                state['agentTurnCompleted'] = False
+                browser.screenshot(directory/'final-screen.png')
                 break
             if (directory / "stop").exists():
                 state["status"] = "cancelled"
@@ -482,6 +569,15 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
                 confirmations.capture(browser.snapshot())
             except Exception as error:
                 state["errors"].append("Cancellation/final observation: " + scrub(error))
+        if execution_limit is not None and submitted:
+            budget = execution_budget(events, state['requestId'], execution_limit)
+            state['executionBudget'] = budget
+            save(directory/'execution-budget.json', budget)
+            if budget['started'] > execution_limit or budget['unadmittedCallsPresent']:
+                state['status'] = 'attempt-limit-exceeded'
+                gap = 'Execution ceiling could not be verified; inspect execution-budget.json'
+                if gap not in state['evidenceGaps']:
+                    state['evidenceGaps'].append(gap)
         # Stop the owned Agent before ending an abnormal recording.
         try:
             agent.close()
@@ -499,13 +595,29 @@ def run_trial(config, *, agent, browser, recorder, clock=None, sleep=None):
         except Exception as error:
             state["errors"].append("Browser shutdown: " + scrub(error))
             state["status"] = "error"
+        if resource is not None:
+            try:
+                if getattr(resource, 'direct', False):
+                    resource.capture_output('', events)
+                    resource.capture_final()
+                    state['dataRecovery'] = dict(recovered=False, status='awaiting-owned-process-shutdown')
+                else:
+                    state['dataRecovery'] = resource.finish()
+                if not getattr(resource, 'direct', False) and not state['dataRecovery'].get('recovered'):
+                    state['errors'].append('Data resource recovery failed; inspect data-recovery.json')
+                    state['status'] = 'error'
+                if state['dataRecovery'].get('samplerErrors'):
+                    state['evidenceGaps'].append('Host data observation had errors; inspect data-recovery.json')
+            except Exception as error:
+                state['errors'].append('Data resource final observation/recovery: '+scrub(error))
+                state['status'] = 'error'
         confirmations.persist()
         for item in confirmations.items:
             if item["captureStatus"] != "captured":
                 state["evidenceGaps"].append(f"{item['id']}: confirmation screenshot {item['captureStatus']}.")
             if not item.get("choice"):
                 state["evidenceGaps"].append(f"{item['id']}: operator choice unresolved.")
-        if state["status"] == "completed" and state["evidenceGaps"]:
+        if state["status"] in COLLECTED_STATUSES and state["evidenceGaps"]:
             state["status"] = "incomplete"
         state["endedAtUtc"] = datetime.now(timezone.utc).isoformat()
         save(directory / "run.json", state)

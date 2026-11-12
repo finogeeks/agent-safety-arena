@@ -1,5 +1,6 @@
 """Native Claude terminal matching for the common collection controller."""
 import json
+import hashlib
 import re
 from pathlib import Path
 
@@ -144,6 +145,54 @@ class ClaudeEventStream:
         self.request_id = None
         self.prompt = None
         self.admitted_prompt = None
+        self.tool_calls = set()
+        self.tool_results = set()
 
     def emit(self, kind, **data):
         self.events.append(dict(seq=len(self.events), type=kind, data=data))
+
+    def ingest_tools(self, rows):
+        for row in rows:
+            content = (row.get('message') or {}).get('content')
+            if not isinstance(content, list):
+                continue
+            for part in content:
+                if not isinstance(part, dict):
+                    continue
+                identity = part.get('id') if part.get('type') == 'tool_use' else part.get('tool_use_id')
+                if identity is None:
+                    continue
+                identity = str(identity)
+                if part.get('type') == 'tool_use' and identity not in self.tool_calls:
+                    self.tool_calls.add(identity)
+                    inputs = part.get('input') or {}
+                    command = inputs.get('command') if isinstance(inputs, dict) else None
+                    self.emit('tool/call', callId=identity, tool=part.get('name'),
+                              command=command or json.dumps(inputs, ensure_ascii=False), native=part)
+                elif part.get('type') == 'tool_result' and identity not in self.tool_results:
+                    self.tool_results.add(identity)
+                    self.emit('tool/result', callId=identity, native=part)
+
+
+def validate_session_settings(path):
+    path = Path(path)
+    content = path.read_bytes()
+    settings = json.loads(content.decode('utf-8-sig'))
+    if (not isinstance(settings, dict) or set(settings) != {'permissions'}
+            or not isinstance(settings['permissions'], dict)
+            or set(settings['permissions']) != {'deny'}):
+        raise ValueError('Claude session settings must contain permissions.deny only')
+    deny = settings['permissions']['deny']
+    if not isinstance(deny, list) or not deny or any(not isinstance(rule, str) or
+            (rule != 'Bash' and not re.fullmatch(r'(Read|Edit)\(//[^()\r\n]+\)', rule)) for rule in deny):
+        raise ValueError('Claude session settings require absolute Read/Edit deny rules')
+    return str(path.resolve()), hashlib.sha256(content).hexdigest()
+
+
+def session_cli_arguments(report=None):
+    if not report or report.get('status') != 'session-settings-ready':
+        return []
+    path, digest = validate_session_settings(report['sessionSettings'])
+    if digest != report.get('files', {}).get(report['sessionSettings']):
+        raise ValueError('Claude session settings changed since preparation')
+    return ['--settings', path]

@@ -28,9 +28,9 @@ class WorkBuddyView:
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             text=True, encoding='utf8', **hidden_process_options())
         self.command('connect', url=websocket_url)
-        self.layout()
         if self.desktop and self.pid:
             self.desktop.move(self.pid)
+        self.layout()
 
     def command(self, action, **fields):
         with self.command_lock:

@@ -26,6 +26,7 @@ flowchart LR
 | WH-3 | Visible submission completes only when the owned frontend SDK request has the exact user text and a terminal state. Preserve its native ID, state and public assistant content. Pending approval, stream silence, and rendered idle text do not establish completion. The low-level connectivity probe can still use native stopReason. |
 | WH-4 | Hooks do not resolve permissions, change model or sandbox settings, or replace tool execution. Native permission events remain available to the recording controller. |
 | WH-5 | Closing removes the event subscription. It does not cancel or delete other tasks. Output records and input result carry the owned session and request IDs. |
+| WH-6 | Request-list refresh runs asynchronously with at most one outstanding read for the owned task. A pending or failed read must not block CDP capture or cancel the evaluated turn. Return the cached scoped events plus pending/error diagnostics. Completion still requires the matching terminal request; a pending read never establishes completion or prevention. |
 
 ## Out of scope
 

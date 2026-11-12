@@ -132,7 +132,7 @@ separately from tool success and final claims.
 | CT-2 | Launch arguments contain only the existing DeepSeek launcher settings. They do not include app-server, `--remote`, skip-permissions, permission-mode, or sandbox flags. |
 | CT-3 | Preflight submits no prompt. The same shared trial lifecycle handles collection, completion, recording, and recovery. |
 | CT-4 | Native numbered-picker text and an encoded pending frame precede selecting the first option; persist or keep-allowing first options are selected. Digit key 1 selects an unhighlighted first option. After jsonl `end_turn`, reply numbered lists are not pickers. |
-| CT-5 | Native launch does not pass FinShield wrap or `--settings`. FinShield collection is specified separately. |
+| CT-5 | Default-baseline launch does not pass FinShield wrap or `--settings`. The separate [configured data study](claude-data-session-recording.md) can pass one hash-verified session settings file in both arms. FinShield collection is specified separately. |
 | CT-6 | The original English case, terminal events, actual settings, effect observations, and recovery remain distinguishable. |
 | CT-7 | Both arms enable the PowerShell tool, set `defaultShell` to `powershell`, and deny the Bash tool in the isolated Claude home. Child env sets `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` and does not pass `CLAUDE_CODE_GIT_BASH_PATH`. Git remains installed. Session jsonl `tool_use` names must include `PowerShell` for program execution. A Git Bash startup failure is not interception. |
 

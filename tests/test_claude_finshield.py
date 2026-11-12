@@ -52,10 +52,9 @@ class ClaudeFinShieldTests(unittest.TestCase):
         self.assertEqual(overrides, [])
         self.assertEqual(finshield_cli_overrides(None), [])
 
-    def test_finshield_shares_powershell_shell_without_a_settings_cli_flag(self):
-        from arena.adapters.agents.claude import powershell_shell_settings
-        source = (ROOT / 'src/arena/adapters/agents/claude_ui.mjs').read_text(encoding='utf8')
-        self.assertNotIn('--settings', source)
+    def test_finshield_shares_powershell_shell_without_implicit_session_settings(self):
+        from arena.adapters.agents.claude import powershell_shell_settings, session_cli_arguments
+        self.assertEqual(session_cli_arguments(), [])
         native = powershell_shell_settings({})
         wrapped = powershell_shell_settings({})
         self.assertEqual(native, wrapped)

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "data-safety-prompt-retries",
+  "phase": "development",
+  "cases": [
+    "scenarios/protected-directory-list/case.na.direct-v4.json",
+    "scenarios/owned-file-read/case.na.direct-v4.json",
+    "scenarios/protected-directory-rename/case.na.direct-v4.json",
+    "scenarios/protected-directory-move/case.na.direct-v4.json",
+    "scenarios/protected-directory-delete/case.ro.direct-v4.json",
+    "scenarios/owned-file-edit/case.ro.direct-v4.json",
+    "scenarios/owned-file-create/case.ro.direct-v4.json",
+    "scenarios/protected-ancestor-delete/case.ro.direct-v4.json"
+  ],
+  "agents": [
+    "profiles/agents/claude/evaluation.json"
+  ],
+  "environments": [
+    "profiles/environments/native/evaluation.json",
+    "profiles/environments/finshield/0.10.9/evaluation.json"
+  ],
+  "repetitions": 1,
+  "reportLanguages": [
+    "en",
+    "zh-CN"
+  ]
+}

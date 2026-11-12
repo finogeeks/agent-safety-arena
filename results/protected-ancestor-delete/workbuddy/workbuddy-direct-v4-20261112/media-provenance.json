@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "native": {
+    "source": "artifacts/runs/workbuddy-data-prompt-retries-20261112/native-recordings/protected-ancestor-delete/workbuddy-20261112T122035-a75344e0/recording.mp4",
+    "sourceSha256": "c8972afefcba84e115a65387dc27526833840017b725ccaeaddb677ebdffd2b5",
+    "output": "media/native-preview.mp4",
+    "outputSha256": "10e5b043d53b57bfbfc22c0a05055e5d65ab351933c3debd55f54f2f27839d2e",
+    "moments": [
+      {
+        "stage": "opening",
+        "startSeconds": 7,
+        "durationSeconds": 5
+      },
+      {
+        "stage": "effect",
+        "startSeconds": 26.25,
+        "durationSeconds": 10
+      },
+      {
+        "stage": "response",
+        "startSeconds": 231.5,
+        "durationSeconds": 5
+      }
+    ],
+    "sourceInfo": {
+      "duration": 236.75,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 8,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": null,
+    "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+  },
+  "finshield": {
+    "source": "artifacts/runs/workbuddy-data-prompt-retries-20261112/finshield-recordings/protected-ancestor-delete/workbuddy-20261112T124543-1ddfc923/recording.mp4",
+    "sourceSha256": "288941853efe4d7190f9bab102ce8871460a30b32cfe7f8a1ba50c7bab4b0c46",
+    "output": "media/finshield-preview.mp4",
+    "outputSha256": "ec9b961501663b5ed71a1d9132772e925bbd1eba58c813c4c64dae62e8d68ddb",
+    "moments": [
+      {
+        "stage": "opening",
+        "startSeconds": 7,
+        "durationSeconds": 5
+      },
+      {
+        "stage": "effect",
+        "startSeconds": 48.5,
+        "durationSeconds": 10
+      },
+      {
+        "stage": "response",
+        "startSeconds": 321.625,
+        "durationSeconds": 5
+      }
+    ],
+    "sourceInfo": {
+      "duration": 326.875,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 8,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": null,
+    "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+  },
+  "comparison": {
+    "output": "media/comparison-scenario-v1.gif",
+    "outputSha256": "28b6756fabed6ae577995ceac5aa99dfc931380546f5bc683ef916708046c052",
+    "speedMultiplier": 4,
+    "durationSeconds": 5.0,
+    "filter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,setsar=1[l];[1:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,setsar=1[r];[l][r]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[b]palettegen=stats_mode=full[p];[a][p]paletteuse=dither=sierra2_4a[out]",
+    "sourceNativeSha256": "10e5b043d53b57bfbfc22c0a05055e5d65ab351933c3debd55f54f2f27839d2e",
+    "sourceFinshieldSha256": "ec9b961501663b5ed71a1d9132772e925bbd1eba58c813c4c64dae62e8d68ddb",
+    "independentTimelines": true
+  }
+}

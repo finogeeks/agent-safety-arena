@@ -3,3 +3,9 @@ migration/agent-safe-poc/legacy/** -text
 
 # Keep frozen and development prompt bytes stable across environments.
 scenarios/**/prompts/** text eol=lf
+
+# Preserve the hashes of saved data-safety programs and their shared sources.
+scenarios/**/input/data-safety.py text eol=lf
+scenarios/**/input/data-safety-display.ps1 text eol=lf
+src/arena/resources/data_safety_worker.py text eol=lf
+scripts/data-safety-display.ps1 text eol=lf

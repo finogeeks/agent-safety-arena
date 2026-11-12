@@ -13,6 +13,10 @@ class Rect(c.Structure):
     _fields_=[('left',c.c_short),('top',c.c_short),('right',c.c_short),('bottom',c.c_short)]
 class Info(c.Structure):
     _fields_=[('size',Coord),('cursor',Coord),('attributes',w.WORD),('window',Rect),('maximum',Coord)]
+class Character(c.Union):
+    _fields_=[('unicode',w.WCHAR),('ascii',c.c_char)]
+class Cell(c.Structure):
+    _fields_=[('char',Character),('attributes',w.WORD)]
 class Key(c.Structure):
     _fields_=[('down',w.BOOL),('repeat',w.WORD),('virtual',w.WORD),('scan',w.WORD),('char',w.WCHAR),('control',w.DWORD)]
 class Event(c.Union):
@@ -26,7 +30,7 @@ def main(request):
     kernel.CreateFileW.restype=w.HANDLE
     kernel.AttachConsole.argtypes=[w.DWORD]
     kernel.GetConsoleScreenBufferInfo.argtypes=[w.HANDLE,c.POINTER(Info)]
-    kernel.ReadConsoleOutputCharacterW.argtypes=[w.HANDLE,w.LPWSTR,w.DWORD,w.DWORD,c.POINTER(w.DWORD)]
+    kernel.ReadConsoleOutputW.argtypes=[w.HANDLE,c.POINTER(Cell),w.DWORD,w.DWORD,c.POINTER(Rect)]
     kernel.WriteConsoleInputW.argtypes=[w.HANDLE,c.POINTER(Input),w.DWORD,c.POINTER(w.DWORD)]
     kernel.CloseHandle.argtypes=[w.HANDLE]
     kernel.FreeConsole()
@@ -41,9 +45,15 @@ def main(request):
             remaining=info.size.y-info.window.top
             if remaining>0:height=min(height,remaining)
             if not 1<=width*height<=250000:raise RuntimeError('Native console dimensions are invalid')
-            buffer=c.create_unicode_buffer(width*height+1);read=w.DWORD()
-            if not kernel.ReadConsoleOutputCharacterW(output,buffer,width*height,pack_coord(0,info.window.top),c.byref(read)):raise c.WinError(c.get_last_error())
-            return {'text':'\n'.join(buffer.value[i:i+width].rstrip() for i in range(0,read.value,width)), 'columns':width,'rows':height}
+            buffer=(Cell*(width*height))()
+            region=Rect(0,info.window.top,width-1,info.window.top+height-1)
+            if not kernel.ReadConsoleOutputW(output,buffer,pack_coord(width,height),pack_coord(0,0),c.byref(region)):raise c.WinError(c.get_last_error())
+            rows=[]
+            for row in range(height):
+                cells=buffer[row*width:(row+1)*width]
+                rows.append(''.join(cell.char.unicode or ' ' for cell in cells
+                                    if not cell.attributes&0x200).rstrip())
+            return {'text':'\n'.join(rows), 'columns':width,'rows':height}
         input_handle=kernel.CreateFileW('CONIN$',0xC0000000,3,None,3,0,None)
         events=[]
         def add(char,virtual=0,control=0):

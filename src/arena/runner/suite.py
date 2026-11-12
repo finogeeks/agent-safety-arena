@@ -89,6 +89,10 @@ def build_plan(suite_path, root):
             if agent.get('recordingProfile'):
                 recording=local_file(root,agent['recordingProfile'])
                 inputs[agent['recordingProfile']]=digest(recording)
+                if resource.get('kind') == 'owned-data-tree':
+                    setup_path=json.loads(recording.read_text('utf8')).get('dataSetup')
+                    if not isinstance(setup_path,str) or not setup_path.strip() or not Path(setup_path).is_file():
+                        base_blockers.append('Configure local recording profile dataSetup for the owned data tree')
             if case.get('promptLanguage') not in {'en','zh-CN'}:
                 base_blockers.append('Legacy prompt language must be declared before paired collection')
             if suite['phase']=='formal' and case.get('promptStatus')!='frozen':

@@ -24,8 +24,9 @@ phase and displays the existing result as untested.
   heading. Empty categories keep a compact category link without a GIF frame or
   No media available panel. Keep protection labels aligned above available GIFs.
 - AC-4: The Chinese home title is Agent安全测评, followed by Agent内置沙箱 vs
-  FinShield. The result heading is 测评结果. English uses Agent Safety Evaluation,
-  Agent built-in sandbox vs FinShield, and Evaluation results.
+  FinShield. English uses Agent Safety Evaluation and Built-in sandbox vs
+  FinShield. Do not show a visible Evaluation results / 测评结果 heading on
+  either homepage. The scoring footnote stays after the GIF showcase.
 - AC-5: Preserve official Agent names and authored order. Fold only Agents with
   no live records. A recorded unresolved result is unassessed, never untested.
 - AC-6: The native track and the FinShield track are alternative protection

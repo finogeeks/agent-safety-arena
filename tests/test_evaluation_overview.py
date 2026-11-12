@@ -24,6 +24,13 @@ class Links(HTMLParser):
                 self.paths.append(value.split('#')[0].split('?', 1)[0])
 
 
+def section(html, identity):
+    match = re.search(rf'<section[^>]*\bid="{identity}".*?</section>', html, re.S)
+    if not match:
+        raise AssertionError('missing section ' + identity)
+    return match.group()
+
+
 class EvaluationOverviewTests(unittest.TestCase):
     def record(self, results, identity='paired', *, agent='sample-agent', paired=True,
                origin='live', scenario='controlled-delete'):
@@ -253,13 +260,13 @@ class EvaluationOverviewTests(unittest.TestCase):
             build_site(results,site,catalog_path=config)
             html=(site/'index.html').read_text('utf8')
             prefix='controlled-delete/sample-agent/paired/'
-            self.assertLess(html.index('id="real-tests"'),html.index('id="agent-scores"'))
+            self.assertLess(html.index('id="agent-scores"'),html.index('id="real-tests"'))
             self.assertIn('<img',html)
             self.assertIn(prefix+'media/comparison.gif',html)
-            showcase=html.split('id="real-tests"')[1].split('id="agent-scores"')[0]
+            showcase=section(html,'real-tests')
             for filename, suffix in [('index.html', ''), ('zh-CN.html', '.zh-CN')]:
                 localized = (site / filename).read_text('utf8')
-                showcase_html = localized.split('id="real-tests"')[1].split('id="agent-scores"')[0]
+                showcase_html = section(localized, 'real-tests')
                 cards = re.findall(r'<a class="test-card scenario-card"[^>]*>.*?</a>', showcase_html, re.S)
                 self.assertEqual(len(cards), 4, filename)
                 self.assertEqual(showcase_html.count('<a '), 4, 'One native link per entire card')
@@ -517,19 +524,75 @@ class EvaluationOverviewTests(unittest.TestCase):
                 html = (root / 'site' / route).read_text('utf8')
                 intro = re.search(r'<section class="intro">.*?</section>', html, re.S).group()
                 heading = re.search(r'<div class="intro-heading">.*?</div>', intro, re.S).group()
+                self.assertIn('class="intro-row"', intro)
                 self.assertIn(f'<h1>{title}</h1>', heading)
                 self.assertIn('class="lead comparison-label"', heading)
                 self.assertIn(left, heading)
                 self.assertIn('<span class="vs">vs</span>', heading)
                 self.assertNotIn('guide-entry', heading)
+                self.assertNotIn('os-switcher', heading)
                 self.assertIn('class="guide-entry"', intro)
-                self.assertLess(intro.index('intro-heading'), intro.index('guide-entry'))
+                self.assertLess(intro.index('intro-heading'), intro.index('os-switcher'))
+                self.assertLess(intro.index('os-switcher'), intro.index('guide-entry'))
+                self.assertLess(intro.index('os-switcher'), intro.index('</div></div><a class="guide-entry"'))
             css = (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8')
             self.assertRegex(css, r'\.refined-page \.intro\{[^}]*flex-direction:column')
+            self.assertRegex(css, r'\.refined-page \.intro-row\{[^}]*justify-content:space-between')
+            self.assertRegex(css, r'\.refined-page \.os-switcher\{[^}]*margin:0 0 0 auto')
             self.assertRegex(css, r'\.refined-page \.intro-heading\{[^}]*display:flex')
             self.assertRegex(css, r'\.refined-page \.intro-heading\{[^}]*flex-wrap:nowrap')
             self.assertRegex(css, r'\.refined-page \.comparison-label\{[^}]*flex-wrap:nowrap')
             self.assertRegex(css, r'\.refined-page \.intro-heading\{[^}]*flex-wrap:wrap')
+
+    def test_home_os_switcher_scores_first_and_pins_dsh_window_flood(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            results = root / 'results'
+            for scenario, agent, date in (
+                ('window-flood', 'codex-cli', '2026-11-12'),
+                ('window-flood', 'dsh', '2026-11-05'),
+                ('camera-capture', 'claude-cli', '2026-11-10'),
+            ):
+                path, record = self.record(results, scenario=scenario, agent=agent)
+                self.attach_gif(path, record)
+                record['presentation']['testedOn'] = {'date': date, 'timezone': 'UTC+08:00'}
+                for group in record['groups'].values():
+                    if group:
+                        group['conditions'].update(model='deepseek-v4-pro', reasoningEffort='high')
+                self.save(path, record)
+            build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
+            css = (root / 'site/catalog.css').read_text('utf8')
+            self.assertRegex(css, r'\.refined-page \.intro-row\{[^}]*justify-content:space-between')
+            self.assertRegex(css, r'\.refined-page \.os-switcher\{[^}]*margin:0 0 0 auto')
+            pages = (
+                ('index.html', 'Operating system', 'Not listed yet', 'Evaluation results',
+                 'Each Agent is scored separately'),
+                ('zh-CN.html', '操作系统', '尚未收录', '测评结果', '每个Agent独立计分'),
+            )
+            for route, os_label, unavailable, results_heading, footnote in pages:
+                html = (root / 'site' / route).read_text('utf8')
+                intro = re.search(r'<section class="intro">.*?</section>', html, re.S).group()
+                self.assertIn(f'aria-label="{os_label}"', intro)
+                self.assertIn('aria-pressed="true">Windows</button>', intro)
+                self.assertRegex(intro, r'<button type="button" disabled[^>]*>macOS</button>')
+                self.assertRegex(intro, r'<button type="button" disabled[^>]*>Linux</button>')
+                self.assertIn(unavailable, intro)
+                switcher = re.search(r'<div class="os-switcher"[^>]*>.*?</div>', intro, re.S).group()
+                self.assertNotIn('<a ', switcher)
+                self.assertNotIn('<h2>' + results_heading + '</h2>', html)
+                self.assertIn('aria-label="' + results_heading + '"', html)
+                self.assertLess(html.index('id="agent-scores"'), html.index('id="real-tests"'))
+                self.assertLess(html.index('id="real-tests"'), html.index('class="footnote"'))
+                self.assertGreater(html.index(footnote), html.index('id="real-tests"'))
+                self.assertLess(html.rindex('class="footnote"'), html.index('<footer>'))
+                interaction = re.search(
+                    r'<a class="test-card scenario-card"[^>]*data-category="interaction".*?</a>',
+                    html, re.S).group()
+                self.assertIn('window-flood/dsh/', interaction)
+                self.assertNotIn('window-flood/codex-cli/', interaction)
+                self.assertNotIn('DeepSeek Harness', interaction)
+                self.assertNotIn('onclick=', html)
+                self.assertNotIn('<script', html)
 
     def test_withheld_catalog_scenario_is_omitted_from_the_public_site(self):
         with tempfile.TemporaryDirectory() as folder:

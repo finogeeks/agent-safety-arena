@@ -112,7 +112,7 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261111c"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261112a"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -179,6 +179,26 @@ class Pages:
     def unrecorded_agents(self):
         return ''
 
+    def os_switcher(self):
+        t=self.t; e=self.e
+        unavailable=t('尚未收录','Not listed yet')
+        return ('<div class="os-switcher" role="group" aria-label="'+e(t('操作系统','Operating system'))+'">'
+            '<button type="button" aria-pressed="true">Windows</button>'
+            f'<button type="button" disabled title="{e(unavailable)}" aria-label="macOS, {e(unavailable)}">macOS</button>'
+            f'<button type="button" disabled title="{e(unavailable)}" aria-label="Linux, {e(unavailable)}">Linux</button>'
+            '</div>')
+
+    def showcase_choice(self, category_id, candidates, aliases):
+        pin={'interaction':('window-flood','dsh')}.get(category_id)
+        if pin:
+            scenario,agent_id=pin
+            pinned=[row for row in candidates
+                    if row['scenarioId']==scenario and aliases[row['agentId']]['id']==agent_id]
+            selected=next((row for row in pinned if row['phase']==self.phase), pinned[0] if pinned else None)
+            if selected:
+                return selected
+        return next((row for row in candidates if row['phase']==self.phase), candidates[0] if candidates else None)
+
     def showcase(self):
         t=self.t; e=self.e
         aliases={alias:agent for agent in self.data['coverage'] for alias in agent['recordAgentIds']}
@@ -195,7 +215,7 @@ class Pages:
                         condition['reasoningEffort']!=protocol['reasoningEffort'] for condition in row['models'].values()):
                     continue
                 candidates.append(row)
-            chosen[category['id']]=next((row for row in candidates if row['phase']==self.phase), candidates[0] if candidates else None)
+            chosen[category['id']]=self.showcase_choice(category['id'], candidates, aliases)
         categories=[item for item in self.data['categories'] if item['id']!='unclassified']
         body='<section id="real-tests" class="real-tests" aria-label="'+t('分类测评','Evaluation categories')+'"><div id="categories" class="showcase-grid">'
         for index,category in enumerate(categories):
@@ -215,21 +235,21 @@ class Pages:
 
     def home(self):
         t=self.t; e=self.e
-        body=('<section class="intro">'
+        footnote=t('每个 Agent 独立计分：成功 ÷（成功 + 失败）。待核实不计入分母。「内置沙箱」是各Agent的默认配置。Windows上，DeepSeek Harness、WorkBuddy、Codex CLI使用各自产品的默认沙箱；Claude CLI默认没有系统级沙箱。',
+                'Each Agent is scored separately: passed / (passed + failed). Unassessed items are excluded. "Built-in sandbox" is each Agent\'s default configuration. On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their product\'s default sandbox. Claude CLI has no OS-level sandbox by default.')
+        body=('<section class="intro"><div class="intro-row">'
             '<div class="intro-heading">'
             f'<h1>{t("Agent安全测评","Agent Safety Evaluation")}</h1>'
             '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span class="vs">vs</span><span>FinShield</span></p>'
-            '</div>'
+            '</div>'+self.os_switcher()+'</div>'
             f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a>'
             '</section>')
+        body+='<section id="agent-scores" class="agent-scores" aria-label="'+e(t('测评结果','Evaluation results'))+'">'
+        body+=self.home_agent_cards()+self.unrecorded_agents()+'</section>'
         body+=self.showcase()
-        body+='<section id="agent-scores" class="agent-scores"><div class="section-heading"><h2>'+t('测评结果','Evaluation results')+'</h2></div>'
-        body+=self.home_agent_cards()+'<p class="footnote">'
-        body+=t('每个 Agent 独立计分：成功 ÷（成功 + 失败）。待核实不计入分母。「内置沙箱」是各Agent的默认配置。Windows上，DeepSeek Harness、WorkBuddy、Codex CLI使用各自产品的默认沙箱；Claude CLI默认没有系统级沙箱。',
-                'Each Agent is scored separately: passed / (passed + failed). Unassessed items are excluded. "Built-in sandbox" is each Agent\'s default configuration. On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their product\'s default sandbox. Claude CLI has no OS-level sandbox by default.')+'</p>'
-        body+=self.unrecorded_agents()+'</section>'
         unknown=[case for case in self.data['cases'] if case['categoryId']=='unclassified']
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
+        body+='<p class="footnote">'+footnote+'</p>'
         return self.document(t('Agent安全测评','Agent Safety Evaluation'),body,'index.html' if self.zh else 'zh-CN.html',
                              page_class='refined-page')
 

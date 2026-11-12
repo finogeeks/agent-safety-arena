@@ -81,7 +81,7 @@ class ProtectionScoreTests(unittest.TestCase):
             self.assertTrue(all(item['reports'] for item in scores['items']))
             self.assertTrue(all('synthetic-agent' not in item['agentId'] for item in scores['items']))
             home=(root/'site/index.html').read_text('utf8')
-            for text in ('Evaluation results','50','100','Untested'):
+            for text in ('aria-label="Evaluation results"','50','100','Untested'):
                 self.assertIn(text,home)
             self.assertNotIn('%', home)
             self.assertNotIn('pass ·', home)

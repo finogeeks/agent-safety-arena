@@ -67,7 +67,8 @@ class PublishedResultTests(unittest.TestCase):
             ):
                 html = (root / 'site' / route).read_text('utf8')
                 self.assertIn('<h1>' + title + '</h1>', html)
-                self.assertIn('<h2>' + results + '</h2>', html)
+                self.assertNotIn('<h2>' + results + '</h2>', html)
+                self.assertIn('aria-label="' + results + '"', html)
                 self.assertNotIn(previous, html)
                 self.assertIn('class="test-gif"', html)
                 self.assertEqual(re.findall(r'data-category="([^"]+)"', html),

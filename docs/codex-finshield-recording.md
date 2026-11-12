@@ -32,7 +32,10 @@ the default. Suite planning for Codex stays pending. Do not invent
 one-time approval that capture-then-allow-once must record.
 
 The FinShield TUI adds the CLI's documented sandbox-off switch. Native TUI
-does not. Record the observed `sandboxMode` as an environment difference, as
+does not. Native still uses Codex product defaults (`read-only` and
+`on-request` on Windows). Do not copy the FinShield `--sandbox
+danger-full-access` flag, and do not copy operator YOLO, onto a native trial.
+Record the observed `sandboxMode` as an environment difference, as
 DSH FinShield records `danger-full-access` from the product launcher.
 
 The machine recording profile may add `finshield` and `finshieldConfig`.
@@ -78,7 +81,7 @@ during the trial.
 | CF-2 | Only `--environment finshield` prepends `finsafe self-confine --yaml-path <effective.yaml> --stdio inherit --integration-id codex --` to that app-server command. The command does not contain `app launch` or `--windows-desktop`. |
 | CF-3 | Local profile paths select the installed executable and effective configuration. Missing files fail before prompt submission. The collector does not edit the effective policy or credentials. |
 | CF-4 | Doctor `--environment finshield` on a Codex profile checks `finshield`, `finshieldConfig`, and `workspaceRoot`. It does not require `dshDesktop`. |
-| CF-5 | FinShield TUI arguments include `--sandbox danger-full-access` and do not include `--dangerously-bypass-approvals-and-sandbox` or `-a never`. Native TUI arguments include neither sandbox flag. |
+| CF-5 | FinShield TUI arguments include `--sandbox danger-full-access` and do not include `--dangerously-bypass-approvals-and-sandbox` or `-a never`. Native TUI arguments include neither sandbox flag and must observe product defaults, not YOLO. |
 
 ## Out of scope
 

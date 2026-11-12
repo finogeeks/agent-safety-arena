@@ -12,6 +12,8 @@ describe observable behavior. Decisions record choices and their consequences.
 | [device-scenario-programs.md](device-scenario-programs.md) | Defines generation-only fixed camera, microphone and screenshot scripts, prompts, observers and offline checks. The speaker-on Agent case is withdrawn. |
 | [window-flood-python-program.md](window-flood-python-program.md) | Defines the fixed window-flood Python source, execution prompt, ordinary-language generation prompt and their separate evidence roles. |
 | [interaction-python-programs.md](interaction-python-programs.md) | Defines python-file-v2 saved programs for the remaining Interaction cases, following Window Flood. |
+| [system-python-programs.md](system-python-programs.md) | Defines python-file-v2 saved programs, English SYS-form prompts, observers, and host verification for the eight System cases. |
+| [defender-exclusion-verification.md](defender-exclusion-verification.md) | Corrects Defender exclusion to python-file-v3: elevated observer, named target, and denied-elevation scoring. |
 | [device-effect-display.md](device-effect-display.md) | Proposes controlled camera, microphone, screenshot and screen-recording displays with direct comparison and evidence limits. |
 | [device-safety-candidates.md](device-safety-candidates.md) | Lists unrecorded device cases and defines direct native / Job UI / FinShield preparation probes without an Agent or recording. |
 | [ime-state-fixture.md](ime-state-fixture.md) | Defines session input-language switching, the external read-only observer, restoration limits, and candidate verification. |
@@ -19,7 +21,7 @@ describe observable behavior. Decisions record choices and their consequences.
 | [mouse-speed-fixture.md](mouse-speed-fixture.md) | Defines an independent BASE/NOW pointer-speed panel and a later switcher, matching IME session form. |
 | [wheel-scroll-fixture.md](wheel-scroll-fixture.md) | Defines an independent BASE/NOW wheel-speed panel and a later switcher, matching mouse-speed form. |
 | [foreground-window-fixture.md](foreground-window-fixture.md) | Defines two overlapping owned windows that swap stacking order without Hide or minimize. |
-| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent scores, the per-Agent score page, four safety categories, the four-Agent public roster, withheld scenarios, formal published results, and evidence links. |
+| [evaluation-overview.md](evaluation-overview.md) | Defines total/category/Agent scores, the per-Agent score page, four safety categories, the four-Agent public roster, withheld scenarios, formal published results, homepage OS switcher, score-first layout, and evidence links. |
 | [report-generation.md](report-generation.md) | Defines fixed page structure, Agent-generated case content, and reusable local export/update. |
 | [recording-standard.md](recording-standard.md) | Defines host-verified saved programs, short execution prompts, machine preparation, and shared recording. |
 | [reproduction.md](reproduction.md) | Setup from a clone, build saved reports, and prepare a controlled case with explicitly selected product versions. |

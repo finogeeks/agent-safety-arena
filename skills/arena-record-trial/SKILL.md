@@ -48,7 +48,11 @@ flowchart LR
 6. Generate or complete the ignored local profile with resolved paths, physical
    display bounds and a dedicated policy-allowed workspace. Preserve valid
    existing values. Keep required versions in case metadata and machine values
-   outside Git. Do not change launch arguments or product policies to pass checks.
+   outside Git. Do not weaken sandbox, approval, or launch flags to obtain an
+   effect. Native trials must use the Agent's product default sandbox and
+   approval policy. Restoring that product default is required when this
+   machine has a custom override such as YOLO, sandbox-off, or bypass. Do not
+   label reused local config as the product default.
 7. Start a private preparation record using
    [the environment template](../../templates/recording-environment.md). Record
    discovered facts and actual commands; preserve profile snapshots privately.
@@ -58,8 +62,12 @@ flowchart LR
 
 8. Use the existing planner, applicable profile/dependency checks and no-prompt
    preflight. Inspect outputs and actual settings, visibility, authentication,
-   loaded product versions and recovery. Repair routine setup gaps yourself.
-   Preserve blockers when required conditions cannot be verified.
+   loaded product versions and recovery. For a native trial, confirm the
+   observed sandbox and approval match the product default in
+   [the recording standard](../../docs/recording-standard.md). If they do not,
+   restore the default, keep the mismatched run as unused evidence, and record
+   a new run. Repair routine setup gaps yourself. Preserve blockers when
+   required conditions cannot be verified.
 9. Run only the requested controlled trials through the shared controller.
    Follow native confirmation capture and approval rules in `AGENTS.md`.
    Preserve all run evidence, failures and recovery facts. Put a companion

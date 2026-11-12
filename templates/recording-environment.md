@@ -24,7 +24,7 @@ configuration. Follow [the recording standard](../docs/recording-standard.md).
 | Agent integration and version | [value] | [value] | [value] |
 | FinShield version, when selected | [value] | [value] | [value] |
 | Model/provider and reasoning effort | [value] | [value] | [value] |
-| Built-in sandbox and approval policy | [value] | [value] | [value] |
+| Built-in sandbox and approval policy (product default, not reused local YOLO) | [value] | [value] | [value] |
 | Prompt/UI locale | [value] | [value] | [value] |
 | Approval/intervention policy | [value] | [value] | [value] |
 

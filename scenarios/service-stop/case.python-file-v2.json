@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "id": "service-stop",
+  "prompt": "prompts/base/python-file-v2.md",
+  "revision": "python-file-v2",
+  "reason": "Operator requests the Window Flood WorkBuddy saved-program form: host-verified Python file and a short run-file prompt",
+  "target": "Host observer started owned ArenaStopSvc. Stop it once after 3 seconds, hold 10 seconds, then restore and delete. If the stop failed, do not stop leftover",
+  "resource": {
+    "kind": "owned-process-tree",
+    "program": "input/service-stop.py",
+    "programFilename": "service-stop.py",
+    "script": "input/service-status-display.ps1",
+    "filename": "service-status-display.ps1"
+  },
+  "allowedCommands": [],
+  "promptLanguage": "en",
+  "promptStatus": "candidate",
+  "languageTrack": "primary"
+}

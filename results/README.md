@@ -68,6 +68,38 @@ phase values in run snapshots do not change the publication classification.
 | window-flood | DSH | [2026-11-05 comparison](window-flood/dsh/dsh-finshield-pro-20261105/record.json) | Live formal; native and FinShield |
 | window-flood | DSH | [2026-11-05 native record](window-flood/dsh/dsh-deepseek-pro-20261105/record.json) | Live formal; earlier single-group record |
 | window-flood | Codex CLI | [2026-11-11 python-file-v2 comparison](window-flood/codex-cli/codex-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| process-terminate | Claude CLI | [2026-11-11 python-file-v2 comparison](process-terminate/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| process-terminate | Codex CLI | [2026-11-12 python-file-v2 comparison](process-terminate/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| process-terminate | WorkBuddy | [2026-11-11 python-file-v2 comparison](process-terminate/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| process-terminate | DSH | [2026-11-11 python-file-v2 comparison](process-terminate/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| process-suspend | Claude CLI | [2026-11-11 python-file-v2 comparison](process-suspend/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| process-suspend | Codex CLI | [2026-11-12 python-file-v2 comparison](process-suspend/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| process-suspend | WorkBuddy | [2026-11-11 python-file-v2 comparison](process-suspend/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| process-suspend | DSH | [2026-11-11 python-file-v2 comparison](process-suspend/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| service-stop | Claude CLI | [2026-11-11 python-file-v2 comparison](service-stop/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| service-stop | Codex CLI | [2026-11-12 python-file-v2 comparison](service-stop/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| service-stop | WorkBuddy | [2026-11-11 python-file-v2 comparison](service-stop/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| service-stop | DSH | [2026-11-11 python-file-v2 comparison](service-stop/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| file-acl-grant | Claude CLI | [2026-11-11 python-file-v2 comparison](file-acl-grant/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| file-acl-grant | Codex CLI | [2026-11-12 python-file-v2 comparison](file-acl-grant/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| file-acl-grant | WorkBuddy | [2026-11-11 python-file-v2 comparison](file-acl-grant/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| file-acl-grant | DSH | [2026-11-11 python-file-v2 comparison](file-acl-grant/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| registry-value-write | Claude CLI | [2026-11-11 python-file-v2 comparison](registry-value-write/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| registry-value-write | Codex CLI | [2026-11-12 python-file-v2 comparison](registry-value-write/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| registry-value-write | WorkBuddy | [2026-11-11 python-file-v2 comparison](registry-value-write/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| registry-value-write | DSH | [2026-11-11 python-file-v2 comparison](registry-value-write/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| startup-registry-access | Claude CLI | [2026-11-11 python-file-v2 comparison](startup-registry-access/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| startup-registry-access | Codex CLI | [2026-11-12 python-file-v2 comparison](startup-registry-access/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| startup-registry-access | WorkBuddy | [2026-11-11 python-file-v2 comparison](startup-registry-access/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| startup-registry-access | DSH | [2026-11-11 python-file-v2 comparison](startup-registry-access/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| test-firewall-config | Claude CLI | [2026-11-11 python-file-v2 comparison](test-firewall-config/claude-cli/claude-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| test-firewall-config | Codex CLI | [2026-11-12 python-file-v2 comparison](test-firewall-config/codex-cli/codex-python-file-v2-20261112/record.json) | Live development; python-file-v2; native and FinShield |
+| test-firewall-config | WorkBuddy | [2026-11-11 python-file-v2 comparison](test-firewall-config/workbuddy/workbuddy-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| test-firewall-config | DSH | [2026-11-11 python-file-v2 comparison](test-firewall-config/dsh/dsh-python-file-v2-20261111/record.json) | Live development; python-file-v2; native and FinShield |
+| test-defender-exclusion | Claude CLI | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/claude-cli/claude-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
+| test-defender-exclusion | Codex CLI | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/codex-cli/codex-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
+| test-defender-exclusion | WorkBuddy | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/workbuddy/workbuddy-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
+| test-defender-exclusion | DSH | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/dsh/dsh-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
 | window-shake | reference-agent | [Completed replay](window-shake/reference-agent/synthetic-window-completed/result.json) | Synthetic evaluator fixture |
 | service-stop | reference-agent | [Incomplete replay](service-stop/reference-agent/synthetic-service-incomplete/result.json) | Synthetic evaluator fixture |
 

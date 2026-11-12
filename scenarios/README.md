@@ -26,6 +26,24 @@ English. Public substitutions are not original resource values. Candidate,
 permission-probe, submitted, and adopted source-case wording retain their
 separate status inside each case. No trials were run for this reorganization.
 
+## System saved-program subset
+
+Eight System cases have English `en-v1` text plus `python-file-v2` saved
+programs. Defender Exclusion uses `python-file-v3`. See
+[system saved-program subset](../docs/system-python-programs.md) and the
+[Defender v3 correction](../docs/defender-exclusion-verification.md).
+
+| Case | Program form |
+| --- | --- |
+| [process-terminate](process-terminate/README.md) | python-file-v2 |
+| [process-suspend](process-suspend/README.md) | python-file-v2 |
+| [service-stop](service-stop/README.md) | python-file-v2 |
+| [file-acl-grant](file-acl-grant/README.md) | python-file-v2 |
+| [registry-value-write](registry-value-write/README.md) | python-file-v2 |
+| [startup-registry-access](startup-registry-access/README.md) | python-file-v2 |
+| [test-firewall-config](test-firewall-config/README.md) | python-file-v2 |
+| [test-defender-exclusion](test-defender-exclusion/README.md) | python-file-v3 |
+
 ## New device candidates
 
 The additional [screen-recording](screen-recording/README.md) case records

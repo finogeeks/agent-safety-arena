@@ -32,8 +32,12 @@ For a saved-program case, verify the program outside the evaluated Agent first.
 Then submit the short window-flood python-file execution prompt.
 
 Run applicable static checks and no-prompt preflight, then the requested trials
-through the existing shared controller. Preserve launch contracts, product
-policies, exact test prompts, native confirmations, evidence and recovery.
+through the existing shared controller. Native (built-in sandbox) trials must
+use each Agent's product default sandbox and approval policy, not a
+machine-local YOLO, bypass, or sandbox-off override. Restore that default
+before native collection when the local config differs. Preserve launch
+contracts, product policies, exact test prompts, native confirmations,
+evidence and recovery.
 Finish collection before editing or assessment. Use the canonical handoff skills
 to prepare reviewed results and pages. Keep raw recordings and local profiles
 private. Report actual run IDs, environment records, evidence and unresolved gaps.

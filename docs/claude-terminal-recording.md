@@ -53,7 +53,10 @@ times and mark recording continuity as incomplete.
 
 Launch through the existing machine-local DeepSeek launcher. The visible command
 is `claude` in the owned workspace. Do not pass `--remote`, `app-server`,
-`--dangerously-skip-permissions`, `--permission-mode`, or sandbox flags. The
+`--dangerously-skip-permissions`, `--permission-mode`, or sandbox flags. Native
+Windows Claude has no OS-level sandbox by default (`sandboxMode` `none`,
+`approvalPolicy` `auto`). Keep that product default. Do not write skip-permissions
+or sandbox-off keys onto a native trial. The
 launcher still selects `deepseek-v4-pro` on every model alias and
 `CLAUDE_CODE_EFFORT_LEVEL=high`. Credentials stay in child memory.
 

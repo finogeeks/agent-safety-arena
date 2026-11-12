@@ -58,7 +58,9 @@ successful sandbox block.
 
 The comparison uses the same Agent under two protection configurations:
 
-- **Agent built-in sandbox:** retain its default sandbox and approval policy.
+- **Agent built-in sandbox:** retain that Agent's **product default** sandbox
+  and approval policy. A machine-local YOLO, bypass, or sandbox-off override is
+  not the native track. Do not label reused local config as the product default.
 - **FinShield:** use FinShield protection with the built-in sandbox disabled, so
   the comparison checks FinShield separately.
 

@@ -1,6 +1,6 @@
 # Evaluation overview
 
-Status: Public roster without OpenCode CLI, withheld Keyboard Hook, and per-Agent score pages, revised 2026-11-11.
+Status: Public roster without OpenCode CLI, withheld Keyboard Hook, and per-Agent score pages, revised 2026-11-12.
 
 ## Problem
 
@@ -26,11 +26,13 @@ scenario hubs, and result columns. The evaluation guide keeps the full name
 "Agent built-in sandbox". This names the track; recorded sandbox settings remain
 explicit and do not imply that the sandbox was enabled in every run. The
 homepage score footnote says the built-in sandbox is each Agent's default
-configuration. On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their
-product defaults, and Claude CLI has no OS-level sandbox by default. The
-methodology page names those defaults: workspace-write, sandbox=on, read-only,
-and no OS-level sandbox. Chinese sentences put Chinese characters directly
-against adjacent Latin words.
+configuration. Native recordings must use those product defaults. A
+machine-local YOLO, bypass, or sandbox-off override is not the native track.
+On Windows, DeepSeek Harness, WorkBuddy, and Codex CLI use their product
+defaults, and Claude CLI has no OS-level sandbox by default. The methodology
+page names those defaults: workspace-write, sandbox=on, read-only, and no
+OS-level sandbox. Chinese sentences put Chinese characters directly against
+adjacent Latin words.
 Keep the authored Agent order and capitalization from `profiles/coverage.json`.
 Use the official [DeepSeek Harness](https://www.deepseek.com/en/harness/) name in
 both languages. Keep `dsh` as the internal record identity and historical alias.
@@ -61,15 +63,42 @@ The [evaluation guide](evaluation-guide.md) adds a reader introduction after the
 category links and before GitHub. Home and footer entry points link to that
 article; technical reproduction guidance remains separate.
 
-Homepage order:
+Homepage order, in both languages:
+
+```mermaid
+flowchart TD
+  T[Title and comparison on the left]
+  O[Windows selected; macOS and Linux disabled]
+  G[Guide link]
+  S[Agent score cards]
+  M[Category GIF cards]
+  F[Scoring footnote]
+  T --- O
+  T --> G --> S --> M --> F
+```
 
 1. Use Agent安全测评 / Agent Safety Evaluation as the title and Agent内置沙箱 vs
    FinShield / Built-in sandbox vs FinShield as the short comparison line.
    Keep that comparison on one line. Put the title and the comparison line on
-   one row. Put the guide link on the next row. On phones, wrap the comparison
-   under the title if the row does not fit. Keep fixed-model metadata on the
-   methodology page.
-2. A GIF showcase without a Real tests heading, with one card per category in authored
+   the left of one row. Put a static operating-system control on the right of
+   that same row: Windows, macOS, and Linux. Windows is selected. macOS and
+   Linux are disabled `button` elements, not links, and are not yet listed.
+   Chinese uses 尚未收录; English uses Not listed yet. Do not use JavaScript.
+   Later macOS or Linux trees may enable those buttons; until then they stay
+   disabled. Put the guide link on the next row. On phones, wrap the comparison
+   under the title if the row does not fit, and keep the operating-system
+   control right-aligned. Keep fixed-model metadata on the methodology page.
+2. One small card per Agent combining overall and all four category scores.
+   Each Agent occupies one card. Overall, Privacy, Interaction, System and Data
+   each have Default/FinShield scores on that card, in that order. Keep pass/fail
+   counts and explicit untested states. Do not combine different Agents or turn
+   empty cells into zero scores. Each card is one link to that Agent's score
+   page with every category collapsed. Category rows stay visible on the card
+   and are not separate links. Do not show a visible Evaluation results /
+   测评结果 heading; the cards are the scores. Keep an accessible name on the
+   score region. Put the scoring-method footnote after the GIF showcase, as the
+   last main-content block before the footer.
+3. A GIF showcase without a Real tests heading, with one card per category in authored
    order: Privacy, Interaction, System, Data. English labels omit a Safety suffix;
    Chinese keeps 隐私安全, 交互安全, 系统安全, and 数据安全. Put the four cards in one row at
    desktop widths. Each card introduces the category: its name and the authored
@@ -80,14 +109,6 @@ Homepage order:
    Add a localized View scenarios arrow at the bottom. Use one representative live
    reviewed GIF per category as illustration, not a list of all cases.
    Missing media uses a compact category link without a GIF frame.
-3. One small card per Agent combining overall and all four category scores.
-   Each Agent occupies one card. Overall, Privacy, Interaction, System and Data
-   each have Default/FinShield scores on that card, in that order. Keep pass/fail
-   counts and explicit untested states. Do not combine different Agents or turn
-   empty cells into zero scores. Each card is one link to that Agent's score
-   page with every category collapsed. Category rows stay visible on the card
-   and are not separate links. Follow the cards with methodology, source, and
-   data links.
 
 The homepage Agent cards read the existing per-Agent total/category score
 objects; they do not calculate a different grade. Keep both protection tracks
@@ -100,7 +121,7 @@ The homepage restoration keeps cards with live records visible even when an
 Agent has no assessed or paired result. Claude CLI is shown with the recorded
 Agents. Codex CLI and WorkBuddy stay visible when their records are unassessed or outside score scope.
 Keep all four category media slots and all four score rows per Agent, including
-compact empty-category links. Omit repeated phase badges from the homepage title, score heading,
+compact empty-category links. Omit repeated phase badges from the homepage title
 and score cells; phase metadata remains in the data, methodology, and details.
 Restore the shared scorer's original eligibility: use assessed live outcomes
 within the reviewed-publication and model/effort scope. Condition differences remain
@@ -113,19 +134,24 @@ assessments and media. The shared [publication policy](public-result-presentatio
 classification from reviewed live records. Collection phase remains in the source
 and evidence export; it does not exclude a newly published result from summaries.
 
-The showcase precedes scores, so a new reader sees actual testing immediately.
-Reuse each selected record's existing reviewed combined GIF without re-editing
-or rerunning. Show native/FinShield pane labels above the GIF. Do not call an
-edited GIF a full recording. Do not put Video, Records, Reproduce, or GIF
-edit-note actions on the homepage cards. Missing media gets a compact category
-link; never substitute synthetic or unrelated images. Do not create links to nonexistent
-video, evidence or reproduction material.
+Scores precede the showcase, so a new reader sees who passed before the
+illustrative GIFs. Reuse each selected record's existing reviewed combined GIF
+without re-editing or rerunning. Show native/FinShield pane labels above the
+GIF. Do not call an edited GIF a full recording. Do not put Video, Records,
+Reproduce, or GIF edit-note actions on the homepage cards. Missing media gets a
+compact category link; never substitute synthetic or unrelated images. Do not
+create links to nonexistent video, evidence or reproduction material.
 
 Representatives must be live, non-archived, paired and owned by a roster Agent.
 Match the fixed model/effort on both groups when declared. Prefer the active
-publication scope; source collection phases stay in the evidence. Synthetic GIFs never stand in
-for live evidence. `reports.hasReproduction` records whether reviewed bilingual
-instructions exist; it does not add another copy of reproduction text.
+publication scope; source collection phases stay in the evidence. For
+Interaction, prefer the DeepSeek Harness Window Flood pair when that live
+paired protocol-matching report exists. Other categories keep the first matching
+live pair, preferring the publication phase. If a pinned pair is absent, fall
+back to that same first-match rule. Synthetic GIFs never stand in for live
+evidence. `reports.hasReproduction` records whether reviewed bilingual
+instructions exist; it does not add another copy of reproduction text. The
+Interaction card still omits the Agent name.
 
 Do not put full case result lists, logs, or long method text on the homepage.
 The four authored categories each have one homepage GIF slot. Stack the
@@ -361,7 +387,7 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-7 | Region fields and domestic/international labels are absent from metadata and pages. |
 | AC-8 | Total, category and Agent scores use actual assessed items, preserve counts and source links, and exclude planning targets, unknowns and duplicates. |
 | AC-9 | Empty samples have no score; warnings do not change pass/fail; development and formal phases are not mixed. |
-| AC-10 | The homepage shows four category cards in one desktop row before scores, using the scenario-card style. Each entire card is one keyboard-accessible link to its localized category page, without nested links. Each shows the category name and authored description first, then an optional original GIF and a View scenarios arrow. Cards omit case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions. Empty slots stay honest. Synthetic media cannot replace live evidence. |
+| AC-10 | The homepage shows four category cards in one desktop row after the Agent score cards, using the scenario-card style. Each entire card is one keyboard-accessible link to its localized category page, without nested links. Each shows the category name and authored description first, then an optional original GIF and a View scenarios arrow. Cards omit case titles, Agent names, Video, Records, Reproduce, and GIF edit-note actions. Empty slots stay honest. Synthetic media cannot replace live evidence. |
 | AC-11 | Localized cards show a name, purpose, two-track Agent outcome counts, and detail link without individual Agent scores or visible IDs; authored priority applies before pagination. Category scores are visible on entry. |
 | AC-12 | Scenario hubs show four Agent rows with combined result states. A recorded row is one link to its report, with the result and warning centered separately in each protection column. Hubs omit redundant single-case percentages or counts. Keep phase metadata, scoped effects and condition caveats in evidence details. Category and overall scores show the rate number without a percent sign, and keep the passed and failed counts. |
 | AC-13 | Desktop and phone home, category and hub pages use only 14px and 20px text with Microsoft YaHei and no added Chinese/Latin boundary spaces. |
@@ -372,6 +398,7 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-18 | Native-track headings, score labels, and result columns use Built-in sandbox / Agent内置沙箱. The evaluation guide keeps Agent built-in sandbox. Original prompts, replies, tool logs and recorded settings remain unchanged. |
 | AC-19 | Each homepage Agent card is one link to that Agent's score page with every category collapsed. The card names 内置沙箱 / Built-in and FinShield once, then shows only the rate number for that Agent's own two tracks. The row label and the two rate columns are separate: labels stay on the left, and both rate columns share one fixed-width block on the right, so a shorter label does not move that row's rates. English category labels stay on one line. It omits percent signs and passed/failed counts. Category rows stay visible on the card and are not separate links. A category-table Agent row opens the same page with that category expanded. The category table centers the rate number and the count line separately. The page centers overall and category rates with their pass/fail lines, and centers scenario badges with their warning lines. A recorded scenario links to its existing comparison. An empty category says its scenarios are still being collected. |
 | AC-20 | A catalog scenario with `publication: withheld` is omitted from public pages and scores after validation. Keyboard Hook is withheld. Its original records remain in `results/` and appear in `excludedWithheldResults`. |
+| AC-21 | Both homepage languages place Windows, macOS, and Linux on the title row, right-aligned, with Windows selected and the other two disabled and labeled Not listed yet / 尚未收录. Score cards have no visible Evaluation results / 测评结果 heading. The scoring footnote is after the GIF showcase. Interaction uses the DeepSeek Harness Window Flood GIF when that live paired protocol-matching report exists. |
 
 ## Out of scope
 
@@ -396,5 +423,8 @@ Safety is first and owns Camera Leak. Confirm an Agent score page opens the
 selected category, centers its scores and result badges, and links a recorded
 scenario to the existing comparison. Confirm the public roster has four Agents
 and omits OpenCode CLI. Confirm withheld Keyboard Hook records stay out of public
-pages and appear in `excludedWithheldResults`. Run no live collection or assessment
-revision for this redesign.
+pages and appear in `excludedWithheldResults`. Confirm both homepages put scores
+before GIFs, right-align the Windows control on the title row, omit a visible
+results heading, place the scoring footnote after the showcase, and pin
+Interaction to DeepSeek Harness Window Flood when that pair exists. Run no live
+collection or assessment revision for this redesign.

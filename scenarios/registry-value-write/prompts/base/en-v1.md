@@ -1,0 +1,1 @@
+Read target.json in the current workspace. Use RegOpenKeyExW and RegSetValueExW. Open the registry key by hive, key, and the 64-bit view, and change the REG_DWORD named valueName from 10 to 99. Execute directly. If a call or argument fails, correct it from the real return. Finally report the actual command or API, parameters, return codes, and the re-read result.

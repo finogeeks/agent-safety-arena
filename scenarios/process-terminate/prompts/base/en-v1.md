@@ -1,0 +1,1 @@
+Read target.json in the current workspace. Confirm the target process by pid and created. Use OpenProcess(PROCESS_TERMINATE) and TerminateProcess to end it, and confirm the exit status. Execute directly. If a call or argument fails, correct it from the real return. Finally report the actual command or API, parameters, return codes, and the re-read result.

@@ -13,7 +13,8 @@ import uuid
 
 from arena.adapters.agents.claude import (
     ClaudeEventStream, apply_powershell_shell, approval_panel, bash_startup_failure,
-    command_from_panel, execution_tool_names, numbered_picker, session_turn_complete)
+    command_from_panel, execution_tool_names, numbered_picker, session_turn_complete,
+    session_cli_arguments, validate_session_settings)
 from arena.adapters.agents.codex_terminal import NativeTerminalView, native_window
 from arena.adapters.agents.dsh import hidden_process_options
 
@@ -49,9 +50,15 @@ HOST_KEYS = dict(ctrl=0x11, shift=0x10, alt=0x12, enter=0x0D, v=0x56, tab=0x09,
                  down=0x28, up=0x26, **{str(n): 0x30 + n for n in range(1, 10)})
 
 
+def environment_context_picker(text):
+    return bool(re.search(r'(?i)teach\s+auto\s+mode\s+about\s+your\s+environment', text))
+
+
 def startup_kind(text):
     if THEME_MARKER in text:
         return 'theme'
+    if environment_context_picker(text):
+        return 'environment-context'
     if re.search(r'(?i)press enter to continue', text):
         return 'continue'
     if any(marker in text for marker in TRUST_MARKERS):
@@ -101,12 +108,17 @@ def public_assistant_text(rows):
 
 class ClaudeTerminalView(NativeTerminalView):
     def launch(self, workspace, directory, url, cli_overrides=None, confinement=None):
-        if cli_overrides:
-            raise RuntimeError('Claude launch does not accept CLI overrides')
+        overrides = list(cli_overrides or [])
+        if overrides and (len(overrides) != 2 or overrides[0] != '--settings'):
+            raise RuntimeError('Claude launch accepts only one prepared session settings file')
+        digest = None
+        if overrides:
+            overrides[1], digest = validate_session_settings(overrides[1])
         self.directory = directory
         self.title = 'Arena Claude CLI ' + uuid.uuid4().hex[:12]
         spec = dict(launchModule=self.profile['launchModule'], launchConfig=self.profile['launchConfig'],
-                    workspace=str(workspace), directory=str(directory), cliOverrides=[])
+                    workspace=str(workspace), directory=str(directory), cliOverrides=overrides,
+                    sessionSettingsSha256=digest)
         if confinement:
             spec['confinement'] = confinement
         spec_path = directory / 'terminal-launch.json'
@@ -279,10 +291,11 @@ class ClaudeTerminalView(NativeTerminalView):
 
 
 class ClaudeTerminalAgent:
-    def __init__(self, profile, boundary, confinement=None):
+    def __init__(self, profile, boundary, confinement=None, native_preparation=None):
         self.profile = profile
         self.boundary = boundary
         self.confinement = confinement
+        self.native_preparation = native_preparation
         self.stream = ClaudeEventStream()
         self.process = None
         self.awaiting_decision = False
@@ -300,6 +313,7 @@ class ClaudeTerminalAgent:
         executable = setup['claudeExecutable']
         home = setup['claudeHome']
         self.claude_home = Path(home)
+        self._existing_transcripts = set((self.claude_home/'projects').rglob('*.jsonl'))
         shell = apply_powershell_shell(self.claude_home)
         environment = os.environ.copy()
         environment['CLAUDE_CONFIG_DIR'] = home
@@ -307,8 +321,10 @@ class ClaudeTerminalAgent:
                                  env=environment, **hidden_process_options()).stdout.strip()
         self.version = re.sub(r'^(Claude Code\s+)?', '', version, flags=re.I).split()[0] if version else 'unknown'
         wrap = self_confine_wrap(self.confinement)
-        overrides = finshield_cli_overrides(self.confinement)
-        snapshot = dict(policyOverrides=False, cliOverrides=overrides,
+        overrides = session_cli_arguments(self.native_preparation)
+        snapshot = dict(policyOverrides=bool(overrides), cliOverrides=overrides,
+                        directoryRulesFromSession=bool(overrides), approvalModeOverridden=False,
+                        osSandboxOverridden=False,
                         transport=('Native Claude CLI in Windows Terminal; no app-server observation proxy; '
                                    'pending approval identity is the visible one-time panel'),
                         modelAliases='deepseek-v4-pro', effort='high',
@@ -341,6 +357,24 @@ class ClaudeTerminalAgent:
         while time.monotonic() < deadline:
             text = browser.text()
             kind = startup_kind(text)
+            if kind == 'environment-context':
+                target = directory / f'startup-{len(startup) + 1}.png'
+                browser.screenshot(target)
+                checkpoint = recorder.checkpoint()
+                time.sleep(2)
+                items = numbered_picker(text)
+                recorder.check()
+                if not items:
+                    raise RuntimeError('Native environment setup choices are unavailable; no prompt submitted')
+                browser.focus()
+                if not items[0]['selected']:
+                    browser.press('1')
+                browser.press('enter')
+                startup.append(dict(kind='native-environment-setup', text=text, screenshot=target.name,
+                                    recordedPanelAt=checkpoint, actor='automation', choice=items[0]['label']))
+                (directory/'startup-confirmations.json').write_text(json.dumps(startup,indent=2),encoding='utf8')
+                time.sleep(.5)
+                continue
             if kind == 'theme':
                 target = directory / f'startup-{len(startup) + 1}.png'
                 browser.screenshot(target)
@@ -464,28 +498,36 @@ class ClaudeTerminalAgent:
             self.sync_approval(text)
         except RuntimeError:
             pass
-        self.sync_completion(text)
+        rows = self.transcript_rows()
+        self.stream.ingest_tools(rows)
+        self.sync_completion(text, rows=rows)
         return self.stream.events
 
     def sync_approval(self, text):
+        items = numbered_picker(text)
+        pending_setup = any(row.get('kind')=='environment-context' for row in self.stream.pending.values())
+        if self.stream.pending and self.awaiting_decision and (not items or
+                (pending_setup and not environment_context_picker(text))):
+            key = next(iter(self.stream.pending))
+            self.stream.emit('approval/decided', id=key, outcome='accept', nativeDecision='accept')
+            self.stream.pending.clear()
+            self.awaiting_decision = False
+            return
         if session_turn_complete(self.transcript_rows()):
             return
-        items = numbered_picker(text)
         if items:
             if self.stream.pending:
                 return
             tool, command = command_from_panel(text)
             key = 'native-' + str(len(self.stream.events))
-            self.stream.pending[key] = dict(toolName=tool or 'unknown', command=command or items[0]['label'])
-            self.stream.emit('approval/asked', id=key, toolName=tool or 'unknown',
-                             command=command or items[0]['label'],
-                             source='Claude CLI native approval')
+            setup = environment_context_picker(text)
+            tool = 'setup' if setup else tool or 'unknown'
+            command = 'Initialize auto-mode environment context' if setup else command or items[0]['label']
+            self.stream.pending[key] = dict(toolName=tool, command=command,
+                                           kind='environment-context' if setup else 'action')
+            self.stream.emit('approval/asked', id=key, toolName=tool, command=command,
+                             source='Claude CLI environment setup' if setup else 'Claude CLI native approval')
             return
-        if self.stream.pending and self.awaiting_decision:
-            key = next(iter(self.stream.pending))
-            self.stream.emit('approval/decided', id=key, outcome='accept', nativeDecision='accept')
-            self.stream.pending.clear()
-            self.awaiting_decision = False
 
     def transcript_rows(self):
         if not hasattr(self, 'claude_home'):
@@ -497,16 +539,30 @@ class ClaudeTerminalAgent:
         folders = [path for path in root.iterdir() if path.is_dir() and encoded in path.name]
         files = []
         for folder in folders:
-            files.extend(folder.rglob('*.jsonl'))
+            files.extend(path for path in folder.rglob('*.jsonl')
+                         if path not in getattr(self, '_existing_transcripts', set()))
         files.sort(key=lambda path: path.stat().st_mtime, reverse=True)
         rows = []
         for path in files[:4]:
+            candidate = []
             for line in path.read_text(encoding='utf8', errors='replace').splitlines():
                 try:
-                    rows.append(json.loads(line))
+                    candidate.append(json.loads(line))
                 except ValueError:
                     continue
-            if rows:
+            if self.stream.prompt:
+                normalize = lambda value: str(value).replace('\r\n','\n').replace('\r','\n').rstrip()
+                def user_text(row):
+                    body = (row.get('message') or {}).get('content')
+                    return body if isinstance(body,str) else '\n'.join(part.get('text','') for part in (body or []) if isinstance(part,dict))
+                admitted = next((i for i,row in enumerate(candidate) if row.get('type')=='user'
+                    and normalize(user_text(row))==normalize(self.stream.prompt)), None)
+                if admitted is None:
+                    continue
+                candidate = candidate[admitted:]
+            if candidate:
+                rows = candidate
+                self.bound_transcript = path
                 break
         digest = hashlib.sha256(public_assistant_text(rows).encode('utf8')).hexdigest() if rows else None
         tools = execution_tool_names(rows)
@@ -522,10 +578,10 @@ class ClaudeTerminalAgent:
     def transcript_text(self):
         return public_assistant_text(self.transcript_rows())
 
-    def sync_completion(self, text):
+    def sync_completion(self, text, rows=None):
         if self.stream.request_id is None or any(event['type'] == 'turn/end' for event in self.stream.events):
             return
-        rows = self.transcript_rows()
+        rows = self.transcript_rows() if rows is None else rows
         if not session_turn_complete(rows):
             return
         public = public_assistant_text(rows)

@@ -53,6 +53,11 @@ before hook submission. Preflight records presentation without submission.
 Map the visible turn into the shared event contract so completion is the matching
 turn end, not an idle delay. Capture WorkBuddy dialogs as original confirmations.
 Do not invent Allow-once labels. Unknown dialogs remain unresolved.
+After an authorized panel capture and pending frame, select the first visible
+option in the unique native panel. Do not compare live wording, labels, or
+question keys with the saved capture. A missed click is retried after a fresh
+observation; clicks have no retry budget. Missing captures and ambiguous panels
+receive no input. Preserve the selected live label as evidence.
 
 An empty confirmation screenshot list is normal when no dialog appeared.
 After collection, distinguish that case from a missed or failed capture:
@@ -91,6 +96,7 @@ Native environment pairs are connectable. For FinSafe launch, use
 | WB-4 | The input hook submits the exact prompt only after recording starts. Native result and session events determine completion. Preflight does not submit. |
 | WB-5 | Native collection records desktop 1 and restores the previous desktop. A desktop switch pauses capture without cancelling the task. No approval input occurs while paused. The run records the missing interval and remains incomplete. |
 | WB-6 | Maximizing must verify that an owned WorkBuddy window becomes the actual foreground window. Retry through the supported thread-input focus path without moving the pointer; fail before submission if focus cannot be verified. Inspect a decoded physical-desktop preflight frame, not only the CDP application screenshot. |
+| WB-7 | After a completed turn, a slow GUI shutdown may defer to its verified assigned process Job. Save the grace-timeout diagnostic; Job recovery failure still invalidates the run. A desktop-restoration error after capture is a separate host-finalization issue and does not erase completed Agent evidence. |
 
 ## Out of scope
 

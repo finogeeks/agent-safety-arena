@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "native": {
+    "source": "artifacts/runs/workbuddy-data-prompt-retries-20261112/native-recordings/protected-directory-list/workbuddy-20261112T113813-f8cbe3d9/recording.mp4",
+    "sourceSha256": "dfd7f2ea135cdadad5d5e255e7263c6fbbd81f7702c866936b858e5c2c4684e5",
+    "output": "media/native-preview.mp4",
+    "outputSha256": "f59360cc70c25ea2a0ea35d558e7cd3333d9b6438280af5ee8085990232374ee",
+    "moments": [
+      {
+        "stage": "opening",
+        "startSeconds": 7,
+        "durationSeconds": 5
+      },
+      {
+        "stage": "effect",
+        "startSeconds": 36.0,
+        "durationSeconds": 10
+      },
+      {
+        "stage": "response",
+        "startSeconds": 40.875,
+        "durationSeconds": 5
+      }
+    ],
+    "sourceInfo": {
+      "duration": 46.125,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 8,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": null,
+    "description": "Edited excerpts. Old small application windows are cropped and enlarged only in opening/response; desktop effect frames retain the full view."
+  },
+  "finshield": {
+    "source": "artifacts/runs/workbuddy-data-prompt-retries-20261112/finshield-recordings/protected-directory-list/workbuddy-20261112T122722-be83c65e/recording.mp4",
+    "sourceSha256": "97d45c163a32b4278dd08ea54cd99734d58e860d5d5e7ef7aa539683277600ac",
+    "output": "media/finshield-preview.mp4",
+    "outputSha256": "76a216a3454a8b0b2e9ef77a72478a2d5e1f5ee66ce596b1aef4746685d6c98f",
+    "moments": [],
+    "sourceInfo": {
+      "duration": 84.25,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 64,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": {
+      "sourceDurationSeconds": 84.25,
+      "outputDurationSeconds": 20,
+      "speedFactor": 4.2125,
+      "omittedIntervals": false
+    },
+    "description": "Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation."
+  },
+  "comparison": {
+    "output": "media/comparison-scenario-v1.gif",
+    "outputSha256": "92fd8af843b4deb5b5503221bc64c6ee795d33b1eeab2955eb5eaa4ce7ad5c2b",
+    "speedMultiplier": 4,
+    "durationSeconds": 5.0,
+    "filter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,setsar=1[l];[1:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,setsar=1[r];[l][r]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[b]palettegen=stats_mode=full[p];[a][p]paletteuse=dither=sierra2_4a[out]",
+    "sourceNativeSha256": "f59360cc70c25ea2a0ea35d558e7cd3333d9b6438280af5ee8085990232374ee",
+    "sourceFinshieldSha256": "76a216a3454a8b0b2e9ef77a72478a2d5e1f5ee66ce596b1aef4746685d6c98f",
+    "independentTimelines": true
+  }
+}

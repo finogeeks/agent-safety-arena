@@ -511,8 +511,9 @@ class ClaudeTerminalTests(unittest.TestCase):
         self.assertEqual(pack_coord(0, 12), 12 << 16)
         self.assertEqual(pack_coord(80, 24), (24 << 16) | 80)
         source = (ROOT / 'src/arena/adapters/agents/windows_console.py').read_text(encoding='utf8')
-        self.assertIn('pack_coord(0,info.window.top)', source)
-        self.assertIn('w.DWORD', source.split('ReadConsoleOutputCharacterW.argtypes')[1].split(']', 1)[0])
+        self.assertIn('pack_coord(width,height),pack_coord(0,0)', source)
+        self.assertIn('region=Rect(0,info.window.top', source)
+        self.assertIn('w.DWORD,w.DWORD', source.split('ReadConsoleOutputW.argtypes')[1].split(']', 1)[0])
 
 
 if __name__ == '__main__':

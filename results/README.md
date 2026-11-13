@@ -100,6 +100,38 @@ phase values in run snapshots do not change the publication classification.
 | test-defender-exclusion | Codex CLI | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/codex-cli/codex-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
 | test-defender-exclusion | WorkBuddy | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/workbuddy/workbuddy-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
 | test-defender-exclusion | DSH | [2026-11-12 python-file-v3 comparison](test-defender-exclusion/dsh/dsh-python-file-v3-20261112/record.json) | Live development; python-file-v3; native and FinShield |
+| protected-directory-list | Codex CLI | [2026-11-12 direct-v2 comparison](protected-directory-list/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| owned-file-read | Codex CLI | [2026-11-12 direct-v2 comparison](owned-file-read/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| protected-directory-rename | Codex CLI | [2026-11-12 direct-v2 comparison](protected-directory-rename/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| protected-directory-move | Codex CLI | [2026-11-12 direct-v2 comparison](protected-directory-move/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| protected-directory-delete | Codex CLI | [2026-11-12 direct-v2 comparison](protected-directory-delete/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| owned-file-edit | Codex CLI | [2026-11-12 direct-v2 comparison](owned-file-edit/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| owned-file-create | Codex CLI | [2026-11-12 direct-v2 comparison](owned-file-create/codex-cli/codex-direct-v2-20261112/record.json) | Live development; direct-v2; configured-native and FinShield |
+| protected-ancestor-delete | Codex CLI | [2026-11-12 direct-v3 comparison](protected-ancestor-delete/codex-cli/codex-direct-v3-20261112/record.json) | Live development; direct-v3; configured-native and FinShield |
+| protected-directory-list | Claude CLI | [2026-11-12 direct-v4 comparison](protected-directory-list/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-list | WorkBuddy | [2026-11-12 direct-v4 comparison](protected-directory-list/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-list | DeepSeek Harness | [2026-11-12 direct-v4 comparison](protected-directory-list/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| owned-file-read | Claude CLI | [2026-11-12 direct-v4 comparison](owned-file-read/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| owned-file-read | WorkBuddy | [2026-11-12 direct-v4 comparison](owned-file-read/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| owned-file-read | DeepSeek Harness | [2026-11-12 direct-v4 comparison](owned-file-read/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| protected-directory-rename | Claude CLI | [2026-11-12 direct-v4 comparison](protected-directory-rename/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-rename | WorkBuddy | [2026-11-12 direct-v4 comparison](protected-directory-rename/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-rename | DeepSeek Harness | [2026-11-12 direct-v4 comparison](protected-directory-rename/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| protected-directory-move | Claude CLI | [2026-11-12 direct-v4 comparison](protected-directory-move/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-move | WorkBuddy | [2026-11-12 direct-v4 comparison](protected-directory-move/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-move | DeepSeek Harness | [2026-11-12 direct-v4 comparison](protected-directory-move/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| protected-directory-delete | Claude CLI | [2026-11-12 direct-v4 comparison](protected-directory-delete/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-delete | WorkBuddy | [2026-11-12 direct-v4 comparison](protected-directory-delete/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-directory-delete | DeepSeek Harness | [2026-11-12 direct-v4 comparison](protected-directory-delete/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| owned-file-edit | Claude CLI | [2026-11-12 direct-v4 comparison](owned-file-edit/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| owned-file-edit | WorkBuddy | [2026-11-12 direct-v4 comparison](owned-file-edit/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| owned-file-edit | DeepSeek Harness | [2026-11-12 direct-v4 comparison](owned-file-edit/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| owned-file-create | Claude CLI | [2026-11-12 direct-v4 comparison](owned-file-create/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| owned-file-create | WorkBuddy | [2026-11-12 direct-v4 comparison](owned-file-create/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| owned-file-create | DeepSeek Harness | [2026-11-12 direct-v4 comparison](owned-file-create/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
+| protected-ancestor-delete | Claude CLI | [2026-11-12 direct-v4 comparison](protected-ancestor-delete/claude-cli/claude-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-ancestor-delete | WorkBuddy | [2026-11-12 direct-v4 comparison](protected-ancestor-delete/workbuddy/workbuddy-direct-v4-20261112/record.json) | Live development; direct-v4; configured-native and FinShield |
+| protected-ancestor-delete | DeepSeek Harness | [2026-11-12 direct-v4 comparison](protected-ancestor-delete/dsh/dsh-direct-v4-20261112/record.json) | Live development; direct-v4; native and FinShield |
 | window-shake | reference-agent | [Completed replay](window-shake/reference-agent/synthetic-window-completed/result.json) | Synthetic evaluator fixture |
 | service-stop | reference-agent | [Incomplete replay](service-stop/reference-agent/synthetic-service-incomplete/result.json) | Synthetic evaluator fixture |
 

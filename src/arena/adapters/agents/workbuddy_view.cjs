@@ -1,7 +1,7 @@
 // Observe the owned WorkBuddy renderer over loopback CDP.
 // Do not move the operator pointer. Do not rewrite dialog wording.
 const readline = require('node:readline');
-const { createWorkBuddyHooks, nativeRuntimePath } = require('./workbuddy_hooks.cjs');
+const { createWorkBuddyHooks, nativeRuntimePath, pollOwnedRequests } = require('./workbuddy_hooks.cjs');
 
 let socket;
 let sequence = 0;
@@ -245,19 +245,9 @@ async function dispatch(request) {
       return await dispatch({ action: 'send' });
     }
     case 'hook-output':
-      return await evaluate(`(async()=>{
-        const hooks=window.__arenaSessionHooks;
-        if(hooks.output().requestId){
-          const page=await window.__arenaOwnedHookConversation.requests(null);
-          const publicText=parts=>(parts||[]).filter(p=>p.type==='text'&&typeof p.text==='string').map(p=>p.text).join('');
-          for(const r of page.items){
-            const userText=publicText(r.userMessage?.content);
-            if(userText!==window.__arenaVisiblePrompt)continue;
-            hooks.settleVisible({id:r.id,state:r.state,userText,assistantText:publicText(r.assistantMessage?.content)});
-          }
-        }
-        return hooks.output();
-      })()`);
+      return await evaluate(`(${pollOwnedRequests.toString()})(
+        window.__arenaRequestPollState ||= {}, window.__arenaOwnedHookConversation,
+        window.__arenaSessionHooks, window.__arenaVisiblePrompt)`);
     case 'hook-cancel':
       return await evaluate(`window.__arenaOwnedHookClient.invoke('session:cancel',window.__arenaOwnedHookSessionId)`);
     case 'hide-account':
@@ -291,17 +281,25 @@ async function dispatch(request) {
     case 'view':
       return await evaluate('(' + viewInPage.toString() + ')()');
     case 'choose-once': {
-      const wanted = (request.label || 'Allow once').trim();
       const result = await evaluate(`(()=>{
-        const panels=[...document.querySelectorAll('[role="dialog"],[role="alertdialog"],._container_uq4jg_42')];
-        const panel=panels.find(p=>p.innerText===${JSON.stringify(request.text)});
-        if(!panel||panel.getBoundingClientRect().height===0)return false;
+        const selector='[role="dialog"],[role="alertdialog"],._container_uq4jg_42';
+        const panels=[...document.querySelectorAll(selector)].filter(p=>{
+          const r=p.getBoundingClientRect(),s=getComputedStyle(p);
+          return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none'&&!p.parentElement?.closest(selector);
+        });
+        if(panels.length!==1)return false;
+        const panel=panels[0];
         const labelOf=b=>b.querySelector('[class*="_optionLabel_"]')?.innerText?.trim()||document.getElementById(b.getAttribute('aria-labelledby'))?.innerText?.trim()||b.innerText?.trim()||b.getAttribute('aria-label');
-        const buttons=[...panel.querySelectorAll('button')].filter(b=>!b.disabled&&labelOf(b)===${JSON.stringify(wanted)});
-        if(buttons.length!==1)return false;
+        const visible=[...panel.querySelectorAll('button')].filter(b=>{
+          const r=b.getBoundingClientRect();
+          return !b.disabled&&b.getAttribute('aria-disabled')!=='true'&&r.width>0&&r.height>0;
+        });
+        const options=visible.filter(b=>b.querySelector('[class*="_optionLabel_"]'));
+        const buttons=options.length?options:visible.filter(b=>b.innerText?.trim());
+        if(!buttons.length)return false;
         const label=labelOf(buttons[0]),at=Date.now();buttons[0].click();return {label,at};
       })()`);
-      if (!result) throw Error('Captured native approval changed or has no unique continue choice');
+      if (!result) throw Error('Native approval has no unique visible panel and first option; refresh and retry');
       return result;
     }
     case 'screenshot': {

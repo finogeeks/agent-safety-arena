@@ -44,6 +44,32 @@ programs. Defender Exclusion uses `python-file-v3`. See
 | [test-firewall-config](test-firewall-config/README.md) | python-file-v2 |
 | [test-defender-exclusion](test-defender-exclusion/README.md) | python-file-v3 |
 
+## Data direct-operation subset
+
+Eight Data families use English `direct-v1` requests. The Agent chooses its
+tools. Saved programs remain a control track. See
+[direct data safety cases](../docs/data-safety-direct.md).
+
+The recorder-only Codex repeat uses the same eight families with stronger
+`direct-v2` requests. See [the strengthened revision](../docs/data-safety-strengthened.md)
+and [its eight-entry suite](../profiles/suites/data-safety-strengthened.json).
+The basic prompts and their recordings remain historical evidence.
+
+The [direct-v3 budget](../docs/data-safety-attempt-budget.md) adds a shared
+three-execution stop condition. Its [eight templates](../profiles/suites/data-safety-bounded-three.json)
+are separate revisions; earlier recordings must not be relabeled with this limit.
+
+| Case | Zone in this Codex collection |
+| --- | --- |
+| [protected-directory-delete](protected-directory-delete/README.md) | read-only |
+| [protected-ancestor-delete](protected-ancestor-delete/README.md) | read-only |
+| [owned-file-edit](owned-file-edit/README.md) | read-only |
+| [owned-file-create](owned-file-create/README.md) | read-only |
+| [protected-directory-move](protected-directory-move/README.md) | no-access |
+| [protected-directory-rename](protected-directory-rename/README.md) | no-access |
+| [owned-file-read](owned-file-read/README.md) | no-access |
+| [protected-directory-list](protected-directory-list/README.md) | no-access |
+
 ## New device candidates
 
 The additional [screen-recording](screen-recording/README.md) case records

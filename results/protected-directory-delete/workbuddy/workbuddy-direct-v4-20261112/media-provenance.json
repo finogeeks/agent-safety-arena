@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "native": {
+    "source": "artifacts/runs/workbuddy-data-prompt-retries-20261112/native-recordings/protected-directory-delete/workbuddy-20261112T121119-cee3d327/recording.mp4",
+    "sourceSha256": "548d95694739a35d38984840bbd85111eb7bdaaecfce18e1ef8c26db363d3e17",
+    "output": "media/native-preview.mp4",
+    "outputSha256": "f317d3b477a3407f813ea5ba1ed8ae37055a1abc21be1988b07536c653100604",
+    "moments": [],
+    "sourceInfo": {
+      "duration": 203.0,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 64,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": {
+      "sourceDurationSeconds": 203.0,
+      "outputDurationSeconds": 20,
+      "speedFactor": 10.15,
+      "omittedIntervals": false
+    },
+    "description": "Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation."
+  },
+  "finshield": {
+    "source": "artifacts/runs/workbuddy-data-prompt-retries-20261112/finshield-recordings/protected-directory-delete/workbuddy-20261112T123641-f5f7f4cf/recording.mp4",
+    "sourceSha256": "3b4b99f0209cbaca69cd4c347e3a535254b5b9090a633324c331ca5634b37eff",
+    "output": "media/finshield-preview.mp4",
+    "outputSha256": "ecb0772ef9e802dc7c307af19e692095a3589caa553cebb2c7a58a8e9054d752",
+    "moments": [],
+    "sourceInfo": {
+      "duration": 252.25,
+      "width": 3840,
+      "height": 2160
+    },
+    "outputInfo": {
+      "duration": 20.0,
+      "width": 1920,
+      "height": 1080
+    },
+    "timingNormalization": {
+      "fps": 64,
+      "finalFrameExtension": "Only to the requested output end"
+    },
+    "fullTimeline": {
+      "sourceDurationSeconds": 252.25,
+      "outputDurationSeconds": 20,
+      "speedFactor": 12.6125,
+      "omittedIntervals": false
+    },
+    "description": "Complete captured timeline, continuously scaled to 20 seconds; full frame, no cuts or concatenation."
+  },
+  "comparison": {
+    "output": "media/comparison-scenario-v1.gif",
+    "outputSha256": "43d8846a83b86d64b1082ca71338beb992b02a77db4a6914daf6b690bd06701d",
+    "speedMultiplier": 4,
+    "durationSeconds": 5.0,
+    "filter": "[0:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,setsar=1[l];[1:v]setpts=(PTS-STARTPTS)/4,fps=16,scale=640:360:flags=lanczos,setsar=1[r];[l][r]hstack=inputs=2:shortest=1,trim=duration=5,split[a][b];[b]palettegen=stats_mode=full[p];[a][p]paletteuse=dither=sierra2_4a[out]",
+    "sourceNativeSha256": "f317d3b477a3407f813ea5ba1ed8ae37055a1abc21be1988b07536c653100604",
+    "sourceFinshieldSha256": "ecb0772ef9e802dc7c307af19e692095a3589caa553cebb2c7a58a8e9054d752",
+    "independentTimelines": true
+  }
+}

@@ -2,15 +2,23 @@
 import {readFile,writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
 const spec=JSON.parse(await readFile(process.argv[2],'utf8'));
 await writeFile(spec.directory+'/terminal-wrapper-started.json',JSON.stringify({pid:process.pid,at:Date.now()})+'\n');
-if (Array.isArray(spec.cliOverrides) && spec.cliOverrides.length) {
-  console.error('Claude launch does not accept CLI overrides.');
-  process.exit(1);
+const extras=spec.cliOverrides??[];
+if (!Array.isArray(extras) || (extras.length &&
+    (extras.length!==2 || extras[0]!=='--settings' || typeof extras[1]!=='string'))) {
+  throw new Error('Claude launch accepts only a prepared session settings file.');
+}
+if (extras.length) {
+  const bytes=await readFile(extras[1]);
+  if (createHash('sha256').update(bytes).digest('hex')!==spec.sessionSettingsSha256) {
+    throw new Error('Prepared Claude session settings changed.');
+  }
 }
 const module=await import(pathToFileURL(spec.launchModule).href);
 const config=JSON.parse(await readFile(spec.launchConfig,'utf8'));
-const launch=module.makeLaunch('claude',[],process.env,config,await module.resolveKey(config));
+const launch=module.makeLaunch('claude',extras,process.env,config,await module.resolveKey(config));
 launch.env.CLAUDE_CODE_USE_POWERSHELL_TOOL='1';
 delete launch.env.CLAUDE_CODE_GIT_BASH_PATH;
 let executable=launch.executable;

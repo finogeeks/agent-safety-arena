@@ -2,12 +2,21 @@
 import json
 import re
 
+def admission_text(text):
+    """Compare composer transport changes without changing admitted evidence."""
+    return text.replace('\r\n','\n').replace('\r','\n').rstrip()
+
 def model_arguments(profile):
     required={'model','model_provider','model_providers'}
     if not required.issubset(profile) or set(profile)-required-{'tui','projects'}:
         raise ValueError('The Codex profile must contain only model connection settings')
-    if set(profile.get('tui',{}))-{'screen_reader_detection_done'}:
+    tui=profile.get('tui',{})
+    if set(tui)-{'screen_reader_detection_done','model_availability_nux'}:
         raise ValueError('Unexpected native terminal preferences in the model profile')
+    nux=tui.get('model_availability_nux',{})
+    if (not isinstance(nux,dict) or any(not isinstance(k,str) or not k
+            or type(v) is not int or v<0 for k,v in nux.items())):
+        raise ValueError('Unexpected model availability UI preferences')
     if any(set(value)!={'trust_level'} or value['trust_level'] not in {'trusted','untrusted'}
            for value in profile.get('projects',{}).values()):
         raise ValueError('Unexpected project policy overrides in the model profile')
@@ -27,12 +36,10 @@ def approval_panel(text, pending):
     if len(pending)!=1:
         return None
     key,request=next(iter(pending.items()))
-    if request.get('method')!='item/commandExecution/requestApproval':
+    if request.get('method') not in {'item/commandExecution/requestApproval','item/fileChange/requestApproval'}:
         return None
     marker='Would you like to run the following command?'
-    if marker not in text:
-        return None
-    panel=text[text.index(marker):].strip()
+    panel=(text[text.index(marker):] if marker in text else text).strip()
     choices=[re.sub(r'^[\s›>]+','',line).strip() for line in panel.splitlines()
              if re.match(r'^[\s›>]*[1-9]\.\s',line)]
     once=[label for label in choices if re.fullmatch(r'1\. Yes, proceed \(y\)',label)]
@@ -41,9 +48,11 @@ def approval_panel(text, pending):
     full_match=isinstance(command,str) and compact(command) in compact(panel)
     reason=request.get('reason')
     reason_match=isinstance(reason,str) and bool(reason.strip()) and compact('Reason:'+reason) in compact(panel)
-    if not once or not isinstance(command,str) or not (full_match or reason_match):
+    if len(once)!=1:
         return None
-    return dict(key=key,native=True,text=panel,choices=choices,oneTimeChoice=once[0],busy=False,commandTruncated=not full_match)
+    return dict(key=key,native=True,text=panel,choices=choices,oneTimeChoice=once[0],busy=False,
+                commandTruncated=not full_match, reasonVisible=reason_match,
+                association='unique-pending-native-request')
 
 class CodexEventStream:
     def __init__(self):
@@ -91,7 +100,7 @@ class CodexEventStream:
         if self.thread_id and params.get('threadId') and params['threadId']!=self.thread_id:return
         if method=='turn/started':
             turn=params['turn']['id'];self.emit('turn/start',turn=turn)
-            if self.prompt is not None and self.turn_input is not None and self.turn_input.rstrip()==self.prompt.rstrip():
+            if self.prompt is not None and self.turn_input is not None and admission_text(self.turn_input)==admission_text(self.prompt):
                 self.admitted_prompt=self.turn_input
                 self.emit('user/message',content=[{'type':'text','text':self.turn_input}],source={'rpcId':self.request_id})
         elif method in {'item/started','item/completed'}:

@@ -148,21 +148,24 @@ class NativeTerminalView:
         return dict(title=self.title,dialogs=[panel] if panel else [],choices=choices,uiLanguage='en',terminalText=text)
 
     def screenshot(self, path, key=None):
-        if key and not any(d['key']==key for d in self.snapshot()['dialogs']):return False
+        if key and len(self.snapshot()['dialogs'])!=1:return False
         x,y,width,height=self.profile['screenRegion']
         result=subprocess.run([self.profile['ffmpeg'],'-hide_banner','-loglevel','error','-n',
             '-f','gdigrab','-offset_x',str(x),'-offset_y',str(y),'-video_size',f'{width}x{height}',
             '-i','desktop','-frames:v','1','-threads','1',str(path)],capture_output=True,timeout=15,**hidden_process_options())
         if result.returncode:raise RuntimeError('The terminal screenshot failed: '+result.stderr.decode(errors='replace')[:300])
-        if key and not any(d['key']==key for d in self.snapshot()['dialogs']):return False
+        if key and len(self.snapshot()['dialogs'])!=1:return False
         return {'at':round(time.time()*1000)}
 
     def choose_once(self, key, text, label=None):
-        panel=next((d for d in self.snapshot()['dialogs'] if d['key']==key and d['text']==text),None)
-        if panel is None:raise RuntimeError('The captured native CLI approval changed; no choice made')
+        panels=self.snapshot()['dialogs']
+        if len(panels)!=1:raise RuntimeError('The native CLI has no unique pending one-time choice; retry after capture')
+        panel=panels[0]
+        key=panel['key']
         at=round(time.time()*1000)
-        selected=re.search(r'(?m)^\s*[›>]\s*1\. Yes, proceed \(y\)\s*$',panel['text'])
-        self.console('key',key='enter' if selected else 'y')
+        # The native y hotkey selects the first one-time option directly.
+        # Do not compare captured/live wording or the selected-row marker.
+        self.console('key',key='y')
         deadline=time.monotonic()+10
         while time.monotonic()<deadline:
             self.agent.observe()
@@ -176,6 +179,15 @@ class NativeTerminalView:
 
     def close(self):
         found=native_window(self.title) if hasattr(self,'title') else None
+        if not found and self.handle and self.pid:
+            user=c.WinDLL('user32',use_last_error=True)
+            user.IsWindow.argtypes=[w.HWND]
+            user.GetWindowThreadProcessId.argtypes=[w.HWND,c.POINTER(w.DWORD)]
+            owner=w.DWORD()
+            if user.IsWindow(self.handle):
+                user.GetWindowThreadProcessId(self.handle,c.byref(owner))
+                if owner.value==self.pid:
+                    found=(self.handle,self.pid)
         if found:
             user=c.WinDLL('user32',use_last_error=True)
             user.PostMessageW.argtypes=[w.HWND,w.UINT,w.WPARAM,w.LPARAM]
@@ -183,7 +195,8 @@ class NativeTerminalView:
         if self.fragment:
             expected=Path(os.environ['LOCALAPPDATA'])/'Microsoft/Windows Terminal/Fragments'
             target=self.fragment.resolve()
-            if target.parent.parent!=expected.resolve() or not target.parent.name.startswith('Arena-'):
+            expected_file=(expected/('Arena-'+self.directory.name)/'profile.json').resolve()
+            if target!=expected_file:
                 raise RuntimeError('Owned terminal fragment is outside the cleanup boundary')
             target.unlink(missing_ok=True);target.parent.rmdir()
 

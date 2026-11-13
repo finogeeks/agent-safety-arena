@@ -8,7 +8,7 @@ import tempfile
 from types import SimpleNamespace
 import uuid
 
-from arena.runner.trial import run_trial, save
+from arena.runner.trial import run_trial, save, COLLECTED_STATUSES
 
 
 CASE_FIELDS = {'schemaVersion', 'id', 'prompt', 'revision', 'reason', 'target', 'resource', 'allowedCommands'}
@@ -43,6 +43,12 @@ def native_workspace_root(profile):
     return str(Path(root).resolve())
 
 
+def close_owned_boundary(boundary, config):
+    result = boundary.close()
+    config['data_process_shutdown'] = bool(result.get('recovered') and not result.get('observerError'))
+    return result
+
+
 def contained(root, relative):
     path = (root / relative).resolve()
     if not path.is_relative_to(root) or not path.is_file():
@@ -67,12 +73,32 @@ def load_case(path):
         if not isinstance(case[name], str) or not case[name].strip():
             raise ValueError('Case text fields must be nonempty')
     resource = case['resource']
-    if isinstance(resource, dict) and resource.get('kind') == 'owned-process-tree':
+    if isinstance(resource, dict) and resource.get('kind') in {'owned-process-tree', 'owned-data-tree'}:
         fields = set(resource)
         observer_fields = {'script', 'filename'} if 'script' in resource else set()
         program_fields = {'program', 'programFilename'} if 'program' in resource else set()
-        if fields != {'kind'} | observer_fields | program_fields:
+        data_fields = {'operation', 'zone', 'variant'} if resource['kind'] == 'owned-data-tree' else set()
+        if data_fields and 'execution' in resource:
+            data_fields.add('execution')
+        if data_fields and 'maxToolExecutions' in resource:
+            data_fields.add('maxToolExecutions')
+        if fields != {'kind'} | observer_fields | program_fields | data_fields:
             raise ValueError('Unsupported owned-process-tree resource')
+        if data_fields:
+            from arena.resources.data_safety_worker import CASES, VARIANTS, ZONES
+            operation = resource['operation']
+            execution = resource.get('execution', 'saved-program')
+            if 'maxToolExecutions' in resource and (execution != 'direct'
+                    or type(resource['maxToolExecutions']) is not int or resource['maxToolExecutions'] < 1):
+                raise ValueError('maxToolExecutions requires a direct data case and a positive integer')
+            if (execution not in {'direct', 'saved-program'}
+                    or (execution == 'direct' and program_fields)
+                    or (execution == 'direct' and resource['variant'] != 'default')
+                    or (execution == 'saved-program' and not program_fields)
+                    or operation not in VARIANTS or resource['variant'] not in VARIANTS[operation]
+                    or resource['zone'] not in ZONES or CASES[operation] != case['id']
+                    or not observer_fields):
+                raise ValueError('Unsupported data operation, zone, variant, or case identity')
         if 'filename' in resource:
             filename = resource['filename']
             if Path(filename).name != filename or not filename or filename.lower() in {'agents.md', 'claude.md'}:
@@ -104,6 +130,12 @@ def load_case(path):
 
 def load_profile(path):
     profile = json.loads(Path(path).read_text('utf8'))
+    data_setup = profile.pop('dataSetup', None)
+    native_preparation = profile.pop('dataNativePreparation', None)
+    if native_preparation is not None and (not isinstance(native_preparation, str) or not native_preparation.strip()):
+        raise ValueError('dataNativePreparation must reference an external native preparation report')
+    if data_setup is not None and (not isinstance(data_setup, str) or not data_setup.strip()):
+        raise ValueError('dataSetup must reference the local data preparation JSON')
     kind = profile.get('agent') if profile.get('schemaVersion') == 2 else None
     if kind == 'codex-cli':
         if set(profile) - {'approvalDelaySeconds', 'workspaceRoot', 'finshield', 'finshieldConfig'} != TERMINAL_PROFILE_FIELDS:
@@ -140,6 +172,10 @@ def load_profile(path):
         raise ValueError('Browser scale factor must be between 1 and 3')
     if profile.get('browserLanguage') not in (None,'en-US','zh-CN'):
         raise ValueError('Unsupported recording browser language')
+    if data_setup is not None:
+        profile['dataSetup'] = data_setup
+    if native_preparation is not None:
+        profile['dataNativePreparation'] = native_preparation
     return profile
 
 
@@ -155,12 +191,12 @@ def prepare_case(case, source, output_root, resource_root=None):
     language = dict(prompt_language=case.get('promptLanguage','und'),
                     prompt_status=case.get('promptStatus','legacy-unspecified'),
                     language_track=case.get('languageTrack','legacy-unspecified'))
-    if case['resource'].get('kind') == 'owned-process-tree':
+    if case['resource'].get('kind') in {'owned-process-tree', 'owned-data-tree'}:
         prompt = setup/'prompt.txt'
         shutil.copyfile(contained(source.parent, case['prompt']), prompt)
         save(setup/'case.json', case)
         script = None
-        recorded = dict(kind='owned-process-tree')
+        recorded = dict(kind=case['resource']['kind'])
         if 'script' in case['resource']:
             script = contained(source.parent, case['resource']['script'])
             shutil.copyfile(script, setup/'fixture')
@@ -178,6 +214,14 @@ def prepare_case(case, source, output_root, resource_root=None):
                       process_resource=True, **language)
         if script is not None:
             config['side_script'] = script
+        if case['resource']['kind'] == 'owned-data-tree':
+            descriptor = {key:case['resource'][key] for key in ('operation', 'zone', 'variant')}
+            descriptor['execution'] = case['resource'].get('execution', 'saved-program')
+            config['data_case'] = dict(caseId=case['id'], **descriptor)
+            recorded.update(descriptor)
+            if 'maxToolExecutions' in case['resource']:
+                config['max_tool_executions'] = case['resource']['maxToolExecutions']
+                recorded['maxToolExecutions'] = case['resource']['maxToolExecutions']
         return config, recorded, setup
     fixture = contained(source.parent, case['resource']['fixture'])
     filename = case['resource']['filename']
@@ -274,7 +318,7 @@ class DshRuntime:
         finally:
             try:
                 if boundary:
-                    recovery = boundary.close()
+                    recovery = close_owned_boundary(boundary, config)
                     if state:
                         state['addedProtection'] = True
                         if not recovery['recovered'] or recovery['observerError']:
@@ -345,7 +389,7 @@ class CodexRuntime:
             state=run_trial(config,agent=agent,browser=browser,recorder=recorder)
         finally:
             try:
-                recovery=boundary.close()
+                recovery=close_owned_boundary(boundary, config)
                 if state:
                     save(Path(state['directory'])/'process-recovery.json',recovery)
                     state['addedProtection']=True
@@ -360,7 +404,7 @@ class CodexRuntime:
         if interruptions.exists():
             state['recordingInterruptions']=json.loads(interruptions.read_text('utf8'))
             state['evidenceGaps'].append('Recording paused after a desktop switch; review observation continuity')
-            if state['status']=='completed':state['status']='incomplete'
+            if state['status'] in COLLECTED_STATUSES:state['status']='incomplete'
         save(Path(state['directory'])/'run.json',state)
         return state
 
@@ -398,7 +442,8 @@ class ClaudeRuntime:
         original = desktop.current()
         boundary = WindowsJob()
         browser = ClaudeTerminalView(profile, desktop)
-        agent = ClaudeTerminalAgent(profile, boundary, confinement=confinement)
+        agent = ClaudeTerminalAgent(profile, boundary, confinement=confinement,
+                                    native_preparation=config.get('native_data_preparation'))
         recorder = DesktopRecorder(Path(profile['ffmpeg']), profile['screenRegion'])
 
         def check_desktop():
@@ -431,7 +476,7 @@ class ClaudeRuntime:
             state = run_trial(config, agent=agent, browser=browser, recorder=recorder)
         finally:
             try:
-                recovery = boundary.close()
+                recovery = close_owned_boundary(boundary, config)
                 if state:
                     save(Path(state['directory']) / 'process-recovery.json', recovery)
                     state['addedProtection'] = bool(confinement)
@@ -455,10 +500,26 @@ class ClaudeRuntime:
         if interruptions.exists():
             state['recordingInterruptions'] = json.loads(interruptions.read_text('utf8'))
             state['evidenceGaps'].append('Recording paused after a desktop switch; review observation continuity')
-            if state['status'] == 'completed':
+            if state['status'] in COLLECTED_STATUSES:
                 state['status'] = 'incomplete'
         save(Path(state['directory']) / 'run.json', state)
         return state
+
+
+def restore_workbuddy_operator_desktop(desktop, original, state):
+    try:
+        desktop.switch(original)
+    except RuntimeError as error:
+        if state is None:
+            raise
+        state.setdefault('hostFinalizationIssues', []).append('Operator desktop restoration: '+str(error))
+    if state is not None:
+        state['operatorDesktopBefore'] = original
+        try:
+            state['operatorDesktopAfter'] = desktop.current()
+        except RuntimeError as error:
+            state['operatorDesktopAfter'] = None
+            state.setdefault('hostFinalizationIssues', []).append('Operator desktop observation: '+str(error))
 
 
 class WorkBuddyRuntime:
@@ -516,7 +577,7 @@ class WorkBuddyRuntime:
             state = run_trial(config, agent=agent, browser=browser, recorder=recorder)
         finally:
             try:
-                recovery = boundary.close()
+                recovery = close_owned_boundary(boundary, config)
                 if state:
                     save(Path(state['directory']) / 'process-recovery.json', recovery)
                     state['addedProtection'] = bool(confinement)
@@ -525,14 +586,12 @@ class WorkBuddyRuntime:
                         state['status'] = 'error'
                         state['errors'].append('Process recovery or observation failed')
             finally:
-                desktop.switch(original)
-        state['operatorDesktopBefore'] = original
-        state['operatorDesktopAfter'] = desktop.current()
+                restore_workbuddy_operator_desktop(desktop, original, state)
         interruptions = Path(state['directory'])/'recording-interruptions.json'
         if interruptions.exists():
             state['recordingInterruptions'] = json.loads(interruptions.read_text(encoding='utf8'))
             state['evidenceGaps'].append('Recording paused after a desktop switch; observation coverage is incomplete')
-            if state['status'] == 'completed':
+            if state['status'] in COLLECTED_STATUSES:
                 state['status'] = 'incomplete'
         save(Path(state['directory']) / 'run.json', state)
         return state
@@ -556,6 +615,9 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
         else DshRuntime(profile))
     for case, source in cases:
         setup = None
+        config = None
+        state = None
+        row = None
         try:
             config, resource, setup = prepare_case(case, source, output_root, resource_root)
             config.update(timeout=profile['timeout'], confirmation_mode=profile['confirmationMode'],
@@ -565,13 +627,47 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
                 config['environment_adapter'] = condition.get('environmentAdapter')
             elif environment_adapter:
                 config['environment_adapter'] = environment_adapter
+            if resource.get('kind') == 'owned-data-tree':
+                from arena.resources.data_safety import DataResource
+                if not profile.get('dataSetup'):
+                    raise ValueError('Data trials require a local recording profile dataSetup path')
+                config['data_resource'] = DataResource(profile['dataSetup'], config['data_case'],
+                    finshield=config.get('environment_adapter') == 'finshield')
+                if config['data_resource'].direct:
+                    prompt_path = Path(config['prompt'])
+                    prompt_path.write_text(config['data_resource'].render_prompt(prompt_path.read_text('utf8')),
+                                           encoding='utf8')
+                if profile.get('dataNativePreparation'):
+                    native = json.loads(Path(profile['dataNativePreparation']).read_text('utf8'))
+                    if condition or (config.get('environment_adapter') == 'finshield' and native.get('agent') not in {'claude','workbuddy'}):
+                        raise ValueError('Configured native zones require a separate configured-native study, not the product-default or compatibility-launch matrix')
+                    if native.get('agent') != {'codex-cli':'codex','claude-cli':'claude','workbuddy':'workbuddy'}.get(profile.get('agent')):
+                        raise ValueError('Native preparation Agent differs from the recording profile')
+                    if Path(native['labRoot']).resolve() != config['data_resource'].workspace:
+                        raise ValueError('Native preparation lab differs from dataSetup')
+                    if native.get('status') not in {'configuration-generated', 'file-tool-settings-applied', 'session-settings-ready', 'verified-ui-settings'}:
+                        raise ValueError('Native preparation is unsupported, restored, or pending a manual UI step')
+                    if native.get('agent') == 'workbuddy' and (native.get('status') != 'verified-ui-settings' or not native.get('applied')):
+                        raise ValueError('WorkBuddy directory rules require installed UI verification')
+                    if native['agent']=='claude' and native.get('status')!='session-settings-ready' and not native.get('applied'):
+                        raise ValueError('Claude project file-tool rules have not been applied')
+                    for filename, digest in native['files'].items():
+                        if hashlib.sha256(Path(filename).read_bytes()).hexdigest() != digest:
+                            raise ValueError('Native preparation file changed: '+filename)
+                    config['native_data_preparation'] = native
+                    config['native_data_track'] = ('configured-compatibility-finshield'
+                        if config.get('environment_adapter')=='finshield' and native['agent']=='workbuddy'
+                        else 'configured-native-plus-finshield'
+                        if config.get('environment_adapter')=='finshield' else 'configured-native')
+                elif profile.get('agent') == 'claude-cli' and (config['data_resource'].workspace/'.claude/settings.local.json').exists():
+                    raise ValueError('Review or restore lab Claude project settings before claiming a product-default baseline')
             state = runtime.collect(config)
             run_dir = Path(state['directory'])
             if condition:
                 from arena.runner.suite import record_conditions
                 record_conditions(state, condition, profile)
             observation = dict(resource)
-            if resource.get('kind') != 'owned-process-tree':
+            if resource.get('kind') not in {'owned-process-tree', 'owned-data-tree'}:
                 target = Path(resource['target']) if resource['placement'] == 'external' else Path(state['workspacePath'])/resource['filename']
                 observation.update(target=str(target), existsAfterTrial=target.exists())
                 if target.is_file():
@@ -581,15 +677,48 @@ def collect_batch(case_paths, profile, output_root, *, runtime=None, resource_ro
             if (setup/'fixture').exists():
                 shutil.copyfile(setup/'fixture', run_dir/'original-fixture')
             save(run_dir/'recording-profile.json', profile)
-            batch['cases'].append(dict(caseId=case['id'], runId=state['runId'], status=state['status'], directory=str(run_dir)))
+            row = dict(caseId=case['id'], runId=state['runId'], status=state['status'], directory=str(run_dir))
+            batch['cases'].append(row)
         except Exception as error:
             row = dict(caseId=case['id'], status='error', error=str(error))
             if setup is not None:
                 row['setupDirectory'] = str(setup)
             batch['cases'].append(row)
+        finally:
+            data = config.get('data_resource') if config else None
+            if data is not None and data.direct and data.prepared:
+                try:
+                    if not config.get('data_process_shutdown'):
+                        data.capture_final()
+                        recovery = dict(recovered=False, status='pending-process-shutdown',
+                            errors=['Owned process shutdown was not confirmed; fixture not restored'])
+                        save(data.directory/'data-recovery.json', recovery)
+                    else:
+                        recovery = data.finish()
+                    row['dataRecovery'] = recovery
+                    if state is not None:
+                        state['dataRecovery'] = recovery
+                    if not recovery.get('recovered'):
+                        row['status'] = 'error'
+                        if state is not None:
+                            state['status'] = 'error'
+                            state['errors'].append('Data recovery incomplete; inspect data-recovery.json')
+                    if recovery.get('samplerErrors') and state is not None:
+                        state['evidenceGaps'].append('Host data observation had errors; inspect data-recovery.json')
+                        if state['status'] in COLLECTED_STATUSES:
+                            state['status'] = 'incomplete'
+                            row['status'] = 'incomplete'
+                    if state is not None:
+                        save(Path(state['directory'])/'run.json', state)
+                except Exception as error:
+                    row.update(status='error', dataRecovery=dict(recovered=False, error=str(error)))
+                    if state is not None:
+                        state.update(status='error', dataRecovery=row['dataRecovery'])
+                        state['errors'].append('Data recovery finalization: '+str(error))
+                        save(Path(state['directory'])/'run.json', state)
         save(directory/'batch.json', batch)
-    expected_status = 'preflight-completed' if preflight else 'completed'
+    expected_status = {'preflight-completed'} if preflight else COLLECTED_STATUSES
     batch.update(phase='preflight-completed' if preflight else 'collected',
-                 status='completed' if all(row['status']==expected_status for row in batch['cases']) else 'incomplete')
+                 status='completed' if all(row['status'] in expected_status for row in batch['cases']) else 'incomplete')
     save(directory/'batch.json', batch)
     return batch

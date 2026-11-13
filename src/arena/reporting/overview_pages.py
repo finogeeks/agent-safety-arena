@@ -1,9 +1,11 @@
 """Compact global overview, category pagination, and per-scenario navigation."""
 from html import escape
+import json
 from math import ceil
+from pathlib import Path
 import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
-from arena.reporting.guide import guide_head, load_guide, render_guide
+from arena.reporting.guide import guide_head, load_guide, reading_minutes, render_guide
 from arena.reporting.search import page_head
 
 PAGE_SIZE = 20
@@ -110,13 +112,14 @@ class Pages:
         header = site_header_markup(self.language, prefix + self.home_path, opposite,
                                     t('English', '中文'), categories=categories,
                                     current_category=current_category, brand_mark=True,
-                                    guide_href=prefix + self.route('guide'), current_guide='guide-page' in page_class)
+                                    guide_href=prefix + self.route('articles'),
+                                    current_guide=any(name in page_class for name in ('guide-page', 'articles-page')))
         if routes and not extra_head:
             extra_head = page_head(title, description, self.language, routes, kind=kind)
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261113a"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261113b"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -243,7 +246,7 @@ class Pages:
             '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span class="vs">vs</span><span>FinShield</span></p>'
             '</div>'+self.os_switcher()+'</div>'
             '<div class="intro-actions">'
-            f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a>'
+            f'<a class="guide-entry" href="{self.route("articles")}">'+e(t('方法与发现','Methods & Findings'))+' →</a>'
             '<label class="comparison-control" for="finshield-compare">'
             '<input type="checkbox" id="finshield-compare" aria-controls="agent-scores real-tests">'
             '<span>'+t('显示FinShield对照','Show FinShield comparison')+'</span></label></div></section>')
@@ -258,6 +261,47 @@ class Pages:
                              description=t('公开测评AI Agent在Windows上的隐私、交互、系统与数据安全。查看内置沙箱实测、FinShield对照、原始证据和复现方法。',
                                 'Public AI Agent safety evaluations on Windows: privacy, interaction, system and data protection, built-in sandbox tests, FinShield comparisons and reproducible evidence.'))
 
+    def articles(self):
+        t = self.t; e = self.e
+        library = json.loads((Path(__file__).resolve().parents[3] / 'templates/article-library.json').read_text('utf8'))
+        overview = load_guide()
+        title = t('方法与发现', 'Methods & Findings')
+        body = self.trail([(self.home_path, t('首页', 'Home'))], title)
+        body += ('<div class="article-library"><header class="library-intro"><h1>' + e(title)
+                 + '</h1><p>' + e(library['summary'][self.language]) + '</p></header>')
+        body += ('<article class="featured-article" aria-labelledby="overview-title">'
+                 '<div class="article-kicker"><span>' + t('评测综述', 'Evaluation overview')
+                 + '</span><span class="reading-start">' + t('从这里开始', 'Start here') + '</span></div>'
+                 '<h2 id="overview-title"><a href="' + self.route('guide') + '">'
+                 + e(overview['title'][self.language]) + '</a></h2><p>'
+                 + e(library['overviewSummary'][self.language]) + '</p><div class="featured-footer">'
+                 '<a class="article-read" href="' + self.route('guide') + '">'
+                 + t('阅读综述', 'Read the overview') + ' <span aria-hidden="true">→</span></a>'
+                 '<div class="article-meta"><span>' + t('更新于 ', 'Updated ')
+                 + '<time datetime="' + e(overview['metadata']['updated']) + '">'
+                 + e(overview['metadata']['updated']) + '</time></span><span>'
+                 + t(f'约{reading_minutes(overview, self.language)}分钟阅读',
+                     f'{reading_minutes(overview, self.language)} min read') + '</span></div></div></article>')
+        body += ('<section class="technical-series" aria-labelledby="series-title">'
+                 '<div class="series-heading"><h2 id="series-title">' + t('技术专题', 'Technical articles')
+                 + '</h2><p>' + t('围绕一个具体问题，展开案例背后的设计与判断。',
+                                  'One question at a time: the design and reasoning behind the cases.')
+                 + '</p></div><div class="article-grid">')
+        for topic in library['topics']:
+            body += ('<article class="planned-article"><div class="article-kicker"><span>'
+                     + e(topic['category'][self.language]) + '</span><span class="planned-status">'
+                     + t('计划中', 'Planned') + '</span></div><h3>' + e(topic['title'][self.language])
+                     + '</h3><p>' + e(topic['summary'][self.language]) + '</p></article>')
+        body += ('</div></section><aside class="library-reference"><div><h2>'
+                 + t('方法与复现', 'Methodology and reproduction') + '</h2><p>'
+                 + t('查看评分口径、运行条件与证据边界。', 'Check scoring rules, run conditions and evidence limits.')
+                 + '</p></div><a href="' + self.method_path + '">' + t('查看参考说明', 'Read the reference')
+                 + ' <span aria-hidden="true">→</span></a></aside></div>')
+        return self.document(title, body, self.route('articles').replace('.zh-CN', '') if self.zh else 'articles.zh-CN.html',
+                             page_class='refined-page articles-page',
+                             routes={'en': 'articles.html', 'zh-CN': 'articles.zh-CN.html'},
+                             description=library['summary'][self.language])
+
     def guide(self):
         content = load_guide()
         agents = [agent for agent in self.data['coverage'] if self.has_live_records(agent)]
@@ -270,7 +314,9 @@ class Pages:
         evidence = '<div class="guide-examples">' + links + '</div>' if links else ''
         evidence += ('<p class="guide-method-link"><a href="' + self.method_path + '">'
                      + self.t('查看详细方法与复现条件', 'Read the detailed methodology and reproduction conditions') + ' →</a></p>')
-        body = self.trail([(self.home_path, self.t('首页', 'Home'))], self.t('测评说明', 'Evaluation guide'))
+        body = self.trail([(self.home_path, self.t('首页', 'Home')),
+                           (self.route('articles'), self.t('方法与发现', 'Methods & Findings'))],
+                          self.t('评测综述', 'Evaluation overview'))
         body += render_guide(content, self.language, results, evidence)
         return self.document(content.get('metadata', {}).get('seoTitle', content['title'])[self.language], body,
                              'guide.html' if self.zh else 'guide.zh-CN.html',
@@ -569,6 +615,7 @@ def render_pages(catalog):
         if language == 'en': output['en.html'] = output['index.html']
         output[renderer.method_path] = renderer.methodology()
         output[renderer.route('guide')] = renderer.guide()
+        output[renderer.route('articles')] = renderer.articles()
         categories = list(catalog['categories'])
         if any(case['categoryId'] == 'unclassified' for case in catalog['cases']):
             categories.append(dict(id='unclassified', label={'en':'Unclassified records','zh-CN':'待分类记录'},

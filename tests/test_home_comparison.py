@@ -78,12 +78,32 @@ class HomeComparisonTests(unittest.TestCase):
                 self.assertEqual(re.findall(r'href="([^"]+)"', footer), ['https://finaios.ai'])
                 header = re.search(r'<header.*?</header>', html, re.S).group()
                 self.assertIn('github.com/finogeeks/agent-safety-arena', header)
-                self.assertIn('guide', header)
+                self.assertIn('articles', header)
                 if route not in ('index.html', 'zh-CN.html'):
                     self.assertNotIn('id="finshield-compare"', html)
         for filename in ('guide.html', 'guide.zh-CN.html', 'methodology.html',
                          'methodology.zh-CN.html', 'catalog.json', 'site-manifest.json'):
             self.assertTrue((self.site / filename).is_file(), filename)
+
+    def test_home_keeps_article_entry_in_header_and_below_inline_title(self):
+        for route, guide, label in (
+            ('index.html', 'articles.html', 'Methods &amp; Findings'),
+            ('en.html', 'articles.html', 'Methods &amp; Findings'),
+            ('zh-CN.html', 'articles.zh-CN.html', '方法与发现'),
+        ):
+            with self.subTest(route=route):
+                html = (self.site / route).read_text('utf8')
+                header = re.search(r'<header.*?</header>', html, re.S).group()
+                actions = re.search(r'<div class="intro-actions">.*?</div>', html, re.S).group()
+                self.assertEqual(html.count(f'href="{guide}"'), 2)
+                self.assertIn(f'href="{guide}">{label}</a>', header)
+                self.assertLess(header.index(f'href="{guide}"'), header.index('GitHub'))
+                self.assertIn(f'class="guide-entry" href="{guide}">{label} →</a>', actions)
+                self.assertLess(actions.index('guide-entry'), actions.index('comparison-control'))
+                self.assertIn('class="intro-heading"><h1>', html)
+        for route in ('interaction.html', 'guide.html', 'agents/dsh/index.html'):
+            header = re.search(r'<header.*?</header>', (self.site / route).read_text('utf8'), re.S).group()
+            self.assertIn('Methods &amp; Findings</a>', header)
 
 
 if __name__ == '__main__':

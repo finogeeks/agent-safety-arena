@@ -18,6 +18,8 @@ def reading_minutes(content, language):
         if isinstance(value, dict):
             if language in value:
                 yield value[language]
+                for key in ('items', 'links'):
+                    yield from strings(value.get(key, []))
             else:
                 for item in value.values():
                     yield from strings(item)
@@ -56,7 +58,18 @@ def render_guide(content, language, results_html, evidence_html):
         return escape(str(value[language]), quote=True)
 
     def paragraphs(values):
-        return ''.join('<p>' + text(value) + '</p>' for value in values)
+        body = ''
+        for value in values:
+            prose = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text(value))
+            links = ''.join(' <a href="' + escape(link['href'], quote=True) + '">'
+                            + text(link['label']) + '</a>' for link in value.get('links', []))
+            body += '<p>' + prose + links + '</p>'
+            if value.get('items'):
+                body += '<ul class="guide-categories">' + ''.join(
+                    '<li><strong>' + text(item['label']) + '</strong>'
+                    + ('：' if language == 'zh-CN' else ': ') + text(item['body']) + '</li>'
+                    for item in value['items']) + '</ul>'
+        return body
 
     def priority_diagram(diagram):
         figure = '<figure class="guide-priority-diagram"><div class="priority-grid">'

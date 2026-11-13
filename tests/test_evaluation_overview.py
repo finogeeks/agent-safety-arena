@@ -379,6 +379,7 @@ class EvaluationOverviewTests(unittest.TestCase):
                 header = re.search(r'<header\b.*?</header>', html).group()
                 for label in labels:
                     self.assertIn('>' + label + '</a>', header)
+                self.assertIn('方法与发现' if labels == chinese else 'Methods &amp; Findings', header)
                 self.assertIn('GitHub ↗', header)
                 self.assertNotIn('#categories', header)
                 self.assertNotIn('Privacy Safety', header)

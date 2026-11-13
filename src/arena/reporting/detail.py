@@ -72,6 +72,23 @@ details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cu
 .condition-banner{margin:0 0 14px;padding:12px 14px;border:1px solid #ead7b0;border-radius:8px;background:#faf7ee;color:#6a5a3c;line-height:1.55}
 .report-return{display:inline-block;margin:12px 0 0}
 @media(max-width:760px){.pair{grid-template-columns:1fr}main,.bar,.site-bar{padding-left:16px;padding-right:16px}.panel{padding:16px}.bar small{display:none}.site-nav{width:100%;order:3;margin:0;padding-top:8px;border-top:1px solid #dde3eb}.nav{gap:15px}th,td{padding:8px 6px}th:first-child{width:22%}.empty{min-height:130px}}
+/* Shared navigation: categories beside the brand, article and utilities on the right. */
+.site-header .site-bar{max-width:1200px;display:flex;align-items:center;flex-wrap:wrap;gap:24px;min-height:68px;margin:auto;padding:12px 30px}
+.site-header .brand{white-space:nowrap;flex-shrink:0}
+.site-header .site-nav{display:flex;align-items:center;flex:1;width:auto;margin:0;justify-content:flex-start;gap:12px 24px;flex-wrap:nowrap}
+.site-header .site-nav a{white-space:nowrap;padding:6px 0}
+.site-header .site-nav a[href*="articles"]{margin-left:auto}
+.site-header .site-bar .locale{padding-left:24px;border-left:1px solid #e2e7ef;white-space:nowrap}
+@media(max-width:960px){
+ .site-header .site-bar{gap:8px 20px}
+ .site-header .site-nav{flex-basis:100%;width:100%;order:3;gap:8px 20px;padding-top:8px;border-top:1px solid #e2e7ef;flex-wrap:wrap}
+ .site-header .site-bar .locale{margin-left:auto}
+}
+@media(max-width:600px){
+ .site-header .site-bar{padding-left:17px;padding-right:17px}
+ .site-header .site-nav{gap:4px 16px}
+}
+
 """
 
 JS = """document.addEventListener('click',async event=>{const b=event.target.closest('[data-copy]');if(!b)return;const t=document.getElementById(b.dataset.copy);if(!t)return;try{if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(t.textContent)}else{const r=document.createRange();r.selectNodeContents(t);const s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges()}b.textContent=b.dataset.copied}catch{t.focus()}});
@@ -120,7 +137,7 @@ def site_header_markup(language, home_href, locale_href, locale_label, categorie
         nav += f'<a href="{e(item["href"])}"{current}>{nav_label(item["label"])}</a>'
     if guide_href:
         current = ' aria-current="page"' if current_guide else ''
-        label = '测评说明' if language == 'zh-CN' else 'Evaluation guide'
+        label = e('方法与发现' if language == 'zh-CN' else 'Methods & Findings')
         nav += f'<a href="{e(guide_href)}"{current}>{label}</a>'
     nav += f'<a href="{GITHUB_HREF}">GitHub ↗</a></nav>'
     locale = f'<a class="locale" href="{e(locale_href)}" lang="{locale_lang}">{e(locale_label)}</a>'

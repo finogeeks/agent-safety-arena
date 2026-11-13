@@ -63,11 +63,37 @@ show Home, category, scenario, and Agent details. Standalone report exports omit
 category links because those parents are absent. Do not put Scenarios or
 Methodology in the header; keep methodology on its own page.
 The [evaluation guide](evaluation-guide.md) adds a reader introduction after the
-category links and before GitHub. The home entry point links to that article;
+category links and before GitHub. The home entry points link to the [article directory](article-library.md);
 technical reproduction guidance remains separate. Shared overview footers show
 only Agent Safety Arena and the FinAI OS brand link. Remove the Evaluation guide,
 Method & reproduction, GitHub, Data and Build manifest footer links, but keep
 their pages and files available at the existing addresses.
+
+Shared navigation revision, 2026-11-13:
+
+- Keep the existing colors, type, score cards and GIFs. Apply
+  the header change to all full-site pages; preserve their body layouts.
+- Follow the owner's selected header sketch: brand and the four categories
+  form one left-aligned group; Methods & Findings starts the right-hand group,
+  followed by GitHub and the language switch. Do not float the categories in
+  the center. Use full Chinese category labels (隐私安全, 交互安全, 系统安全,
+  数据安全) on every page. Keep a quiet divider before the language switch and
+  visible text links when navigation wraps on narrow screens.
+- Keep 方法与发现 / Methods & Findings in every full-site header and below the
+  homepage title. Both entries use the same [article directory](article-library.md) destination. Both remain visible in either comparison state.
+- Preserve the inline title and built-in sandbox subtitle. Preserve the OS
+  controls on the right and the next row's left article link and right comparison
+  checkbox. The checkbox remains unchecked on entry.
+- This revision changes no article or report body content, scoring, evidence,
+  media, or publication. Verify both languages, keyboard comparison switching,
+  desktop and phone navigation on home, category, article, Agent, case and report
+  pages. Preserve non-home content outside the header.
+
+The navigation keeps visible text links in the expected header location, following
+[NN/g's menu-design checklist](https://www.nngroup.com/articles/menu-design/).
+The left/right grouping follows the owner's selected sketch, not a universal
+requirement of that guidance. The article entry stays visible below the title
+in both comparison states.
 
 Homepage order, in both languages:
 

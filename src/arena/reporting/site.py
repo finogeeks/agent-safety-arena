@@ -9,6 +9,7 @@ from arena.evidence.media import resolve_public_media_sources
 from arena.reporting import bilingual
 from arena.reporting.overview import load_roster, load_taxonomy, make_catalog
 from arena.reporting.overview_pages import render_pages
+from arena.reporting.search import write_discovery
 
 
 def file_hash(path):
@@ -25,6 +26,7 @@ def report_navigation(catalog, relative, record):
                     {language: record['agentId'] for language in ('en', 'zh-CN')})
     prefix = '../' * len(relative.parent.parts)
     return {language: dict(categoryLabel=category['label'][language],
+        searchRoutes={locale: relative.parent.as_posix() + '/' + locale + '.html' for locale in ('en', 'zh-CN')},
         categoryHref=prefix + case['categoryId'] + ('.zh-CN' if language == 'zh-CN' else '') + '.html',
         caseLabel=case['title'][language],
         caseHref=prefix + 'cases/' + case['id'] + ('/zh-CN.html' if language == 'zh-CN' else '/index.html'),
@@ -86,6 +88,14 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
         static_assets = ('catalog.css', '404.html', '_redirects')
         for filename in static_assets:
             (staging / filename).write_bytes(Path(__file__).with_name(filename).read_bytes())
+        # Synthetic examples stay public but are not promoted as live evaluations.
+        excluded_routes = [row['path'] + '/' + locale + '.html'
+                           for row in catalog['reports'] if row['origin'] != 'live'
+                           for locale in ('en', 'zh-CN')]
+        excluded_routes += ['cases/' + case['id'] + '/' + leaf
+                            for case in catalog['cases'] if not case['live']
+                            for leaf in ('index.html', 'zh-CN.html')]
+        write_discovery(staging, excluded_routes)
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},
                         excludedReplayResults=[p.relative_to(root).as_posix() for p in sorted(root.rglob('result.json'))],

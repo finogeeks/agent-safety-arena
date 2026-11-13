@@ -2,6 +2,10 @@
 
 Status: Accepted local article draft, 2026-11-09.
 
+Search discovery uses the canonical host `https://safety.finaios.ai`.
+[AI search discovery](ai-search-discovery.md) changes metadata only; visible
+article text and its authored date remain unchanged.
+
 ## Problem
 
 First-time readers can inspect scores and recordings but need an article that

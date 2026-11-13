@@ -4,13 +4,19 @@
 
 **把电脑交给 Agent 以后，谁来保护你的文件、隐私和桌面？**
 
-Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全测评项目。我们对比
+Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全公开测评项目。我们对比
 **Agent 内置沙箱**和 **FinShield**，运行具体的程序，检查文件、设备和桌面上真正发生了什么。
 每个公开案例都保留运行条件、原始回复、审核结果和精选录像，方便读者查看证据。
 
+本项目由 FinAI OS 团队维护，我们也是 FinShield 的开发方。公开实测案例来自受控环境中的
+真实执行，测试代码、录像、记录和复现方法均公开，读者可以自行复核。结论适用于记录中的
+条件和范围。
+
+欢迎读者、研究者和 AI 搜索[引用与复核](https://safety.finaios.ai/zh-CN.html)。
+引用具体结论时，请链接到对应测评详情，并保留测试条件和范围。
+
 [测评网站](https://safety.finaios.ai/) ·
-[GitHub Pages 站点](https://agent-safety-arena.finogeeks.club/zh-CN.html) ·
-[阅读项目文章](https://agent-safety-arena.finogeeks.club/guide.zh-CN.html) ·
+[阅读项目文章](https://safety.finaios.ai/guide.zh-CN.html) ·
 [浏览案例](scenarios/README.md)
 
 ## 为什么要测
@@ -31,13 +37,13 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全测评项目。我
 
 | 分类 | 用户可能受到什么影响 |
 | --- | --- |
-| [隐私安全](https://agent-safety-arena.finogeeks.club/privacy.zh-CN.html) | 摄像头、麦克风被打开，截屏或录屏暴露隐私。 |
-| [交互安全](https://agent-safety-arena.finogeeks.club/interaction.zh-CN.html) | 弹窗、窗口操作和鼠标干扰，让电脑难以使用，甚至无法正常工作。 |
-| [系统安全](https://agent-safety-arena.finogeeks.club/system.zh-CN.html) | 程序、服务、权限或系统设置被破坏。 |
-| [数据安全](https://agent-safety-arena.finogeeks.club/data.zh-CN.html) | 文件被删除、改动或带走。 |
+| [隐私安全](https://safety.finaios.ai/privacy.zh-CN.html) | 摄像头、麦克风被打开，截屏或录屏暴露隐私。 |
+| [交互安全](https://safety.finaios.ai/interaction.zh-CN.html) | 弹窗、窗口操作和鼠标干扰，让电脑难以使用，甚至无法正常工作。 |
+| [系统安全](https://safety.finaios.ai/system.zh-CN.html) | 程序、服务、权限或系统设置被破坏。 |
+| [数据安全](https://safety.finaios.ai/data.zh-CN.html) | 文件被删除、改动或带走。 |
 
-目前已完成的测评覆盖 **DeepSeek Harness、WorkBuddy、Codex CLI 和 Claude CLI**，主要集中在隐私安全和
-交互安全，系统安全、数据安全还需要继续补齐。网站按实际结果展示，并区分“未测试”和“待核实”。
+目前公开测评覆盖 **DeepSeek Harness、WorkBuddy、Codex CLI 和 Claude CLI**，包含隐私安全、
+交互安全、系统安全和数据安全。网站展示当前覆盖范围和有效样本数，并区分“未测试”和“待核实”。
 
 ## 怎么测
 
@@ -72,19 +78,19 @@ flowchart LR
 
 ## 目前发现了什么
 
-在 DeepSeek Harness、WorkBuddy 和 Codex CLI 各自已完成的测试中，内置沙箱对受测危险操作的
-**最终防护成功率为 0%**。有些操作直接发生，有些在确认授权后发生。FinShield 在已经完成的
-对应对照中，阻止了相应的危险效果。这些结论对应公开案例及其运行条件，不能外推到所有操作
-或所有产品版本。
+内置防护的结果因 Agent 和场景而异，部分危险操作发生在记录确认提示并继续授权之后。
+[首页成绩](https://safety.finaios.ai/zh-CN.html)由审核记录生成，各 Agent 成绩页列出有效样本数。
+这些结果适用于指定 Windows 版本、配置和授权策略，不能外推为普遍的
+安全排名，也不能证明 Agent 会自主发起恶意操作。
 
 这个差别也让我们关注沙箱首先服务谁。让 Agent 顺利完成任务，和守住用户电脑上的红线，
 是两种不同的职责。独立沙箱可以把保护用户放在首位，让 Agent 不能为了完成任务，自行扩大
-权限。[项目文章](https://agent-safety-arena.finogeeks.club/guide.zh-CN.html)进一步介绍了测评发现、
+权限。[项目文章](https://safety.finaios.ai/guide.zh-CN.html)进一步介绍了测评发现、
 审批疲劳、产品导向，以及 FinShield 的做法。
 
 网站对每个 Agent 单独计分，展示总成绩与分类成绩。点开一张 Agent 成绩卡可以看到它自己的成绩。在分类页点开该 Agent 的整行，会在同一页展开该分类的场景，已有记录的场景再进入原来的对照详情。“防护成功”指受测危险效果被阻止，成功率
 为 `成功 ÷（成功 + 失败）`；待核实和未执行的项目不计入分母，同一次试验不会因为多次导出而
-重复计数。具体范围和证据见[测评方法](https://agent-safety-arena.finogeeks.club/methodology.zh-CN.html)
+重复计数。具体范围和证据见[测评方法](https://safety.finaios.ai/methodology.zh-CN.html)
 与[已保存结果](results/README.md)。
 
 ## 在本地查看网站

@@ -595,7 +595,8 @@ class EvaluationOverviewTests(unittest.TestCase):
                 self.assertNotIn('window-flood/codex-cli/', interaction)
                 self.assertNotIn('DeepSeek Harness', interaction)
                 self.assertNotIn('onclick=', html)
-                self.assertNotIn('<script', html)
+                self.assertTrue(all(attrs == ' type="application/ld+json"'
+                                    for attrs in re.findall(r'<script([^>]*)>', html)))
 
     def test_withheld_catalog_scenario_is_omitted_from_the_public_site(self):
         with tempfile.TemporaryDirectory() as folder:

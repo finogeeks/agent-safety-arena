@@ -8,6 +8,10 @@ New reviewed live records can retain a development collection phase. The detail
 then calls a published result unofficial, while the summary selects another
 phase and displays the existing result as untested.
 
+Search metadata follows [AI search discovery](ai-search-discovery.md).
+Visible content, publication eligibility, scores, source records and media
+remain unchanged.
+
 ## Behavior
 
 - AC-1: A validated record with `reviewStatus: reviewed`, `evidenceOrigin: live`

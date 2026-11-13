@@ -4,6 +4,7 @@ import json
 from math import ceil
 from pathlib import Path
 import re
+from arena.reporting.search import page_head, SITE_URL
 
 
 def load_guide():
@@ -35,27 +36,11 @@ def guide_head(content, language):
     metadata = content.get('metadata')
     if not metadata:
         return ''
-    site = metadata['siteUrl'].rstrip('/')
+    site = metadata.get('siteUrl', SITE_URL).rstrip('/')
     routes = {'en': 'guide.html', 'zh-CN': 'guide.zh-CN.html'}
     canonical = site + '/' + routes[language]
     title = metadata.get('seoTitle', content['title'])[language]
     description = metadata['description'][language]
-    tags = [('name', 'description', description),
-            ('property', 'og:type', 'article'),
-            ('property', 'og:title', title),
-            ('property', 'og:description', description),
-            ('property', 'og:url', canonical),
-            ('property', 'og:site_name', metadata['author']),
-            ('property', 'og:locale', 'zh_CN' if language == 'zh-CN' else 'en_US'),
-            ('property', 'article:modified_time', metadata['updated']),
-            ('name', 'twitter:card', 'summary')]
-    head = ''.join('<meta ' + attribute + '="' + escape(name, quote=True)
-                   + '" content="' + escape(value, quote=True) + '">'
-                   for attribute, name, value in tags)
-    head += '<link rel="canonical" href="' + escape(canonical, quote=True) + '">'
-    head += ''.join('<link rel="alternate" hreflang="' + locale + '" href="'
-                    + escape(site + '/' + route, quote=True) + '">'
-                    for locale, route in routes.items())
     schema = {'@context': 'https://schema.org', '@type': 'BlogPosting',
               'headline': content['title'][language], 'description': description,
               'url': canonical, 'mainEntityOfPage': canonical,
@@ -63,8 +48,7 @@ def guide_head(content, language):
               'dateModified': metadata['updated'], 'inLanguage': language,
               'keywords': metadata['keywords'][language],
               'timeRequired': 'PT' + str(reading_minutes(content, language)) + 'M'}
-    serialized = json.dumps(schema, ensure_ascii=False).replace('<', r'\u003c')
-    return head + '<script type="application/ld+json">' + serialized + '</script>'
+    return page_head(title, description, language, routes, kind='BlogPosting', schema=schema, site=site)
 
 
 def render_guide(content, language, results_html, evidence_html):

@@ -2,6 +2,9 @@
 
 Status: Opt-in homepage comparison and compact footer, revised 2026-11-13.
 
+[AI search discovery](ai-search-discovery.md) adds localized search metadata.
+All visible page content, GIFs, styles and comparison controls remain unchanged.
+
 ## Problem
 
 The first draft put coverage, media, results, and methods on one long page.

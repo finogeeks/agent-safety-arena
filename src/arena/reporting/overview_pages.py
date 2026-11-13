@@ -4,6 +4,7 @@ from math import ceil
 import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
 from arena.reporting.guide import guide_head, load_guide, render_guide
+from arena.reporting.search import page_head
 
 PAGE_SIZE = 20
 
@@ -100,7 +101,8 @@ class Pages:
     def trail(self, crumbs, current):
         return breadcrumb_markup(self.language, crumbs, current)
 
-    def document(self, title, body, opposite, prefix='', page_class='', current_category='', extra_head=''):
+    def document(self, title, body, opposite, prefix='', page_class='', current_category='', extra_head='',
+                 *, routes=None, description='', kind='CollectionPage'):
         t = self.t; e = self.e
         categories = [dict(id=item['id'], href=prefix + self.route(item['id']),
                            label=item['label'][self.language])
@@ -109,10 +111,12 @@ class Pages:
                                     t('English', '中文'), categories=categories,
                                     current_category=current_category, brand_mark=True,
                                     guide_href=prefix + self.route('guide'), current_guide='guide-page' in page_class)
+        if routes and not extra_head:
+            extra_head = page_head(title, description, self.language, routes, kind=kind)
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261113a"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261113b"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -225,6 +229,15 @@ class Pages:
                 body+=f'<div class="test-gif"><img src="{e(row["preview"]["path"])}" alt="" loading="{loading}" decoding="async">'
                 body+='<span class="sr-only native-preview-description">'+t('Agent内置沙箱实测节选，显示原对照动图左侧。','Built-in sandbox excerpt, showing the left pane of the original comparison GIF.')+'</span>'
                 body+='<span class="sr-only comparison-preview-description">'+e(row['preview']['caption'][self.language])+'</span></div>'
+                scenario = next(case for case in self.data['cases'] if case['id'] == row['scenarioId'])
+                states = {'blocked':t('已阻止受测效果','Effect prevented'),
+                          'not-blocked':t('未拦截','Not blocked')}
+                labels = {group:states.get(row['assessments'][group]['state'], row['assessments'][group]['label'][self.language])
+                          for group in ('native','finshield')}
+                body += '<p class="small-note showcase-caption">'+e(scenario['title'][self.language])+' · '
+                body += e(aliases[row['agentId']]['label'][self.language])+'</p>'
+                body += '<p class="small-note showcase-caption">'+t('内置防护：','Built-in: ')+e(labels['native'])
+                body += '<span class="comparison-preview-description"> · FinShield: '+e(labels['finshield'])+'</span></p>'
             body+='<span class="category-entry">'+t('查看场景','View scenarios')+' <span aria-hidden="true">→</span></span>'
             body+='</a>'
         return body+'</div></section>'
@@ -238,6 +251,8 @@ class Pages:
             f'<h1>{t("Agent安全测评","Agent Safety Evaluation")}</h1>'
             '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span class="vs">vs</span><span>FinShield</span></p>'
             '</div>'+self.os_switcher()+'</div>'
+            '<p class="small-note">'+t('AI Agent安全公开测评：真实执行，检验Windows沙箱的保护边界。测试代码、录像和复现方法公开，欢迎引用与复核。',
+                'Public AI Agent safety evaluations: real Windows sandbox tests, with public code, recordings and reproduction methods. Citations and independent checks are welcome.')+'</p>'
             '<div class="intro-actions">'
             f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a>'
             '<label class="comparison-control" for="finshield-compare">'
@@ -248,9 +263,30 @@ class Pages:
         body+=self.showcase()
         unknown=[case for case in self.data['cases'] if case['categoryId']=='unclassified']
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
-        body+='<p class="footnote">'+footnote+'</p>'
-        return self.document(t('Agent安全测评','Agent Safety Evaluation'),body,'index.html' if self.zh else 'zh-CN.html',
-                             page_class='refined-page home-page')
+        body+='<p class="footnote">'+footnote+' <a href="'+self.route('guide')+'#cite">'+t('引用与复核','Cite and verify')+'</a></p>'
+        return self.document(t('AI Agent安全公开测评：Windows沙箱实测与对照','Public AI Agent safety evaluation: Windows sandbox tests'),body,'index.html' if self.zh else 'zh-CN.html',
+                             page_class='refined-page home-page', routes={'en':'index.html','zh-CN':'zh-CN.html'},
+                             description=t('公开测评AI Agent在Windows上的隐私、交互、系统与数据安全。查看内置沙箱实测、FinShield对照、原始证据和复现方法。',
+                                'Public AI Agent safety evaluations on Windows: privacy, interaction, system and data protection, built-in sandbox tests, FinShield comparisons and reproducible evidence.'))
+
+    def current_findings(self):
+        t = self.t; e = self.e
+        body = '<aside class="current-findings" aria-label="'+t('当前公开测评结果','Current public evaluation results')+'">'
+        body += '<p>'+t('以下摘要与首页使用同一份公开记录生成。成功数/有效样本数仅描述已评估场景，不代表所有操作的安全概率。',
+            'This summary uses the same public records as the homepage. Passed/assessed counts describe evaluated scenarios, not the probability of safety for all operations.')+'</p><ul>'
+        for agent in self.data['coverage']:
+            if not self.has_live_records(agent):
+                continue
+            parts = []
+            for group, label in [('native', t('内置防护', 'Built-in controls')), ('finshield', 'FinShield')]:
+                score = self.scores['agents'][agent['id']][group]
+                value = (f'{score["passed"]}/{score["denominator"]} ({score["rate"]:g}%)' if score['rate'] is not None
+                         else t('暂无有效样本', 'No assessed samples'))
+                parts.append(label + ': ' + value)
+            body += '<li><a href="'+self.agent_page(agent['id'])+'">'+e(agent['label'][self.language])+'</a> — '+e('; '.join(parts))+'</li>'
+        body += '</ul><p><a href="'+self.method_path+'">'+t('测评方法与复现条件','Method and reproduction conditions')+'</a> · '
+        body += '<a href="catalog.json">'+t('公开测评数据','Public evaluation data')+'</a></p>'
+        return body+'</aside>'
 
     def guide(self):
         content = load_guide()
@@ -265,7 +301,7 @@ class Pages:
         evidence += ('<p class="guide-method-link"><a href="' + self.method_path + '">'
                      + self.t('查看详细方法与复现条件', 'Read the detailed methodology and reproduction conditions') + ' →</a></p>')
         body = self.trail([(self.home_path, self.t('首页', 'Home'))], self.t('测评说明', 'Evaluation guide'))
-        body += render_guide(content, self.language, results, evidence)
+        body += render_guide(content, self.language, results, evidence, self.current_findings())
         return self.document(content.get('metadata', {}).get('seoTitle', content['title'])[self.language], body,
                              'guide.html' if self.zh else 'guide.zh-CN.html',
                              page_class='refined-page guide-page', extra_head=guide_head(content, self.language))
@@ -308,8 +344,14 @@ class Pages:
             if page < pages: body += f'<a rel="next" href="{self.route(category["id"], page+1)}">{t("下一页","Next")} →</a>'
             body += '</nav>'
         opposite = category['id'] + (f'-{page}' if page > 1 else '') + ('' if self.zh else '.zh-CN') + '.html'
-        return self.document(title, body, opposite, page_class='refined-page category-page',
-                             current_category=category['id'])
+        routes = {'en': category['id'] + (f'-{page}' if page > 1 else '') + '.html',
+                  'zh-CN': category['id'] + (f'-{page}' if page > 1 else '') + '.zh-CN.html'}
+        search_title = title + t('：AI Agent沙箱公开测评', ': public AI Agent sandbox evaluations')
+        if page > 1:
+            search_title += t(f' · 第{page}页', f' · Page {page}')
+        return self.document(search_title, body, opposite, page_class='refined-page category-page',
+                             current_category=category['id'], routes=routes,
+                             description=category['description'][self.language] + t(' 查看场景结果、沙箱对照与原始证据。',' Explore scenario results, sandbox comparisons and original evidence.'))
 
     @staticmethod
     def result_state(value):
@@ -369,7 +411,9 @@ class Pages:
         if remaining:
             body += '<details class="archive"><summary>'+t('其他及早期报告','Other and earlier reports')+f' · {len(remaining)}</summary>'+self.report_links(remaining, prefix)+'</details>'
         return self.document(case['title'][self.language], body, 'index.html' if self.zh else 'zh-CN.html', prefix,
-                             'refined-page case-page', case['categoryId'])
+                             'refined-page case-page', case['categoryId'],
+                             routes={'en':f'cases/{case["id"]}/index.html','zh-CN':f'cases/{case["id"]}/zh-CN.html'},
+                             description=case['description'][self.language])
 
     def preferred_report(self, case, agent):
         candidates = [row for row in self.data['reports']
@@ -453,8 +497,11 @@ class Pages:
             body += '</summary><div class="agent-scenes">'+scenes+'</div></details></td></tr>'
         body += '</tbody></table></div>'
         current = open_category if open_category and open_category != 'unclassified' else ''
-        return self.document(label, body, self.agent_locale(agent['id'], open_category), prefix,
-                             'refined-page agent-score-page', current)
+        return self.document(label + t('：AI安全与沙箱公开测评', ': public AI safety and sandbox evaluations'), body, self.agent_locale(agent['id'], open_category), prefix,
+                             'refined-page agent-score-page', current,
+                             routes={language:self.agent_page(agent['id'], language=language) for language in ('en','zh-CN')},
+                             description=label + t('在Windows上的公开安全测评：查看内置防护和FinShield的场景成绩、实际配置与可复查证据。',
+                                ' public safety evaluations on Windows: built-in controls and FinShield scenario results, recorded configurations and verifiable evidence.'))
 
     def case_result(self, value):
         if value['failed']:
@@ -539,7 +586,9 @@ class Pages:
             ('synthetic', [r for r in self.data['reports'] if r['origin']=='synthetic'], t('合成示例，不计入实测','Synthetic examples, excluded from live coverage'))]:
             if selected: body += f'<details id="{identity}" class="archive"><summary>{title} · {len(selected)}</summary>'+self.report_links(selected)+'</details>'
         return self.document(t('评测方法','Methodology'), body, 'methodology.html' if self.zh else 'methodology.zh-CN.html',
-                             page_class='refined-page')
+                             page_class='refined-page', routes={'en':'methodology.html','zh-CN':'methodology.zh-CN.html'}, kind='WebPage',
+                             description=t('AI Agent安全公开测评的方法、固定程序对照、授权策略、评分口径与复现条件。区分沙箱拦截、危险效果和风险预警。',
+                                'Public AI Agent safety evaluation methods: fixed-program comparisons, approval policy, scoring and reproduction. Separate sandbox interception, harmful effects and warnings.'))
 
 
 def render_pages(catalog):

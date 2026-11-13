@@ -286,8 +286,8 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertIn('href="data.html"',card)
             self.assertLess(card.index('<h3'), card.index('<img'))
             self.assertNotIn('#section-3',card)
-            self.assertNotIn('Controlled deletion',showcase)
-            self.assertNotIn('>sample-agent<',showcase)
+            self.assertIn('showcase-caption',showcase)
+            self.assertIn('sample-agent',showcase)
             self.assertNotIn('class="test-title"',html)
             self.assertNotIn('class="test-actions"',html)
             self.assertNotIn('class="showcase-note"',html)
@@ -593,9 +593,10 @@ class EvaluationOverviewTests(unittest.TestCase):
                     html, re.S).group()
                 self.assertIn('window-flood/dsh/', interaction)
                 self.assertNotIn('window-flood/codex-cli/', interaction)
-                self.assertNotIn('DeepSeek Harness', interaction)
+                self.assertIn('DeepSeek Harness', interaction)
                 self.assertNotIn('onclick=', html)
-                self.assertNotIn('<script', html)
+                self.assertTrue(all(attrs == ' type="application/ld+json"'
+                                    for attrs in re.findall(r'<script([^>]*)>', html)))
 
     def test_withheld_catalog_scenario_is_omitted_from_the_public_site(self):
         with tempfile.TemporaryDirectory() as folder:

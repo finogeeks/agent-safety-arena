@@ -10,6 +10,10 @@ phase and displays the existing result as untested.
 
 ## Behavior
 
+Search metadata, readable captions and citation links follow
+[AI search discovery](ai-search-discovery.md). These additions do not change
+publication eligibility, scores, source records or media.
+
 - AC-1: A validated record with `reviewStatus: reviewed`, `evidenceOrigin: live`
   and a development or formal source phase is a public evaluation result. Use
   the formal publication bucket for all such records. Language studies and

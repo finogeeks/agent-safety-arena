@@ -70,20 +70,20 @@
       },
       "paragraphs": [
         {
-          "zh-CN": "目前，我们围绕DeepSeek Harness、WorkBuddy和Codex CLI开展测评，已经完成的测试主要集中在隐私安全和交互安全，包括摄像头、麦克风、截屏、录屏，以及弹窗、窗口和鼠标干扰等操作。不同Agent的覆盖范围还没有完全对齐，系统安全和数据安全也还有待补齐。",
-          "en": "We are currently evaluating DeepSeek Harness, WorkBuddy and Codex CLI. The completed tests mainly cover Privacy and Interaction, including camera and microphone access, screenshots, screen recording, pop-ups, and interference with windows and the mouse. Coverage is not yet the same for every Agent, and System and Data still need to be filled in."
+          "zh-CN": "我们公开测评DeepSeek Harness、WorkBuddy、Codex CLI和Claude CLI在Windows上的安全边界，覆盖隐私安全、交互安全、系统安全和数据安全。案例保留实际运行条件、原始回复、审核结果和精选录像；当前覆盖范围和有效样本数见下方自动生成的摘要。",
+          "en": "We publish evaluations of the Windows safety boundaries of DeepSeek Harness, WorkBuddy, Codex CLI and Claude CLI across Privacy, Interaction, System and Data. Cases retain actual run conditions, original responses, reviewed findings and selected recordings. The generated summary below shows current coverage and assessed sample counts."
         },
         {
-          "zh-CN": "真正让我们大吃一惊的是：在DeepSeek Harness、WorkBuddy和Codex CLI各自已经完成的测试中，内置沙箱对受测危险操作的最终防护成功率是0%。摄像头被打开、声音被录下、屏幕被截取或录制，弹窗和窗口干扰让电脑无法正常使用——这些危险操作最终都没有被挡住。放到日常电脑上，受到影响的就是用户的私人谈话、工作资料和正常工作。",
-          "en": "What really shocked us was this: in the tests completed for each of DeepSeek Harness, WorkBuddy and Codex CLI, the built-in sandboxes had a final prevention rate of 0% for the tested harmful operations. Cameras opened, audio was recorded, screens were captured or recorded, and pop-ups and window interference made the computer unusable. None of these harmful operations was ultimately stopped. On an everyday computer, that would put the user’s private conversations, work materials and ability to work at risk."
+          "zh-CN": "内置防护的结果因Agent和场景而异。在部分受测场景中，摄像头、屏幕、桌面或文件操作仍然发生，有些发生在记录确认提示并继续授权之后。这些结果描述的是指定版本、配置和授权策略下的危险效果，不证明Agent会自主发起恶意操作，也不能外推为产品在所有任务中的安全概率。",
+          "en": "Built-in protection results differ by Agent and scenario. In some tested scenarios, camera, screen, desktop or file operations still occurred, sometimes after an approval prompt was captured and permission was granted. These results describe harmful effects under specified versions, configurations and approval policy. They do not establish autonomous malicious intent or the probability of safety across all tasks."
         },
         {
           "zh-CN": "有些操作虽然弹出了确认框，但提示没有把危害讲清楚。用户看到的是一条命令、一次权限申请，却未必知道，点下“允许”之后，摄像头会被打开、屏幕会被录下，或者桌面会变得无法使用。弹窗本身也容易让人麻木。Anthropic公布的数据显示，Claude Code的权限请求有97%被用户批准。在另一项包含1,053名付费测试者的受控实验中，面对明确危险的命令，也只有13.6%的测试者选择拦下。频繁要求确认，并不意味着用户会认真判断每一次操作的风险。",
           "en": "Some operations did show an approval dialog, but the prompt did not explain the harm clearly. Users saw a command or a permission request, without necessarily knowing that clicking “Allow” would open the camera, record the screen or make the desktop unusable. The prompts themselves can also wear people down. According to figures published by Anthropic, users approve 97% of Claude Code permission requests. In a separate controlled experiment with 1,053 paid testers, only 13.6% chose to stop a clearly dangerous command. Asking for confirmation frequently does not mean users will carefully judge the risk of every operation."
         },
         {
-          "zh-CN": "警示没有讲清后果，用户又习惯了点击通过，确认框就容易变成完成任务前顺手点掉的一步。在我们的测评中，按事先约定的策略继续授权后，危险操作仍然发生。提醒出现了，但用户的隐私和电脑并没有得到应有的保护。相比之下，FinShield在已经完成的对照中，阻止了相应的危险操作。",
-          "en": "When warnings do not explain the consequences and users are used to approving requests, the dialog can become just another thing to click away before a task is done. In our evaluations, harmful operations still occurred after we continued granting approval under the policy agreed in advance. A warning appeared, but the user’s privacy and computer did not receive the protection they should have. In contrast, FinShield stopped the corresponding harmful operations in the completed comparisons."
+          "zh-CN": "确认框是否充分解释风险，与授权后是否阻止危险效果，是两个问题。本项目分别记录初始拦截、风险提示、授权过程和最终效果。FinShield与内置防护的当前结果由同一份公开记录汇总，具体差异应结合对应案例和复现条件查看。",
+          "en": "Whether a prompt explains the risk and whether a harmful effect is prevented after approval are separate questions. We record initial interception, warning, approval and final effect separately. Current FinShield and built-in protection results are summarized from the same public records; inspect each case and its reproduction conditions when comparing them."
         }
       ],
       "links": [
@@ -222,15 +222,14 @@
   "references": [],
   "metadata": {
     "author": "Agent Safety Arena",
-    "updated": "2026-11-09",
-    "siteUrl": "https://agent-safety-arena.finogeeks.club",
+    "updated": "2026-11-13",
     "seoTitle": {
-      "zh-CN": "AI Agent安全测评：内置沙箱与FinShield",
-      "en": "AI Agent safety evaluation: built-in sandboxes and FinShield"
+      "zh-CN": "AI Agent安全公开测评指南：Windows沙箱、方法与证据",
+      "en": "Public AI Agent safety evaluation guide: Windows sandboxes, methods and evidence"
     },
     "description": {
-      "zh-CN": "Agent Safety Arena对比Agent内置沙箱与FinShield，介绍AI Agent权限风险、Windows沙箱、固定程序测评方法和已完成场景的防护结果，分析独立第三方沙箱的价值。",
-      "en": "Agent Safety Arena compares Agent built-in sandboxes with FinShield, covering AI Agent permission risks, Windows sandboxing, fixed-program evaluation methods, protection results in completed scenarios and the value of independent third-party sandboxes."
+      "zh-CN": "了解Agent Safety Arena的AI安全公开测评：Windows沙箱、固定程序对照、授权策略、当前防护结果及可复查证据，明确内置防护与FinShield的测试范围和局限。",
+      "en": "Understand Agent Safety Arena public AI safety evaluations: Windows sandboxes, fixed-program comparisons, approval policy, current results and verifiable evidence, with the scope and limits of built-in controls and FinShield."
     },
     "keywords": {
       "zh-CN": [
@@ -270,8 +269,8 @@
         "en": "Harmful operations still occurred with built-in sandboxes."
       },
       "body": {
-        "zh-CN": "在各Agent已完成的受测场景中，内置沙箱的最终防护成功率为0%；FinShield则在已完成的对应对照中，阻止了这些危险操作。",
-        "en": "In the tested scenarios completed for each Agent, built-in sandboxes had a final prevention rate of 0%. FinShield stopped these harmful operations in the completed corresponding comparisons."
+        "zh-CN": "内置防护的结果因Agent和场景而异。部分危险效果发生在明确授权之后；拦截结果、风险提示和授权过程需分别查看，最新成绩以公开记录生成的摘要为准。",
+        "en": "Built-in protection results vary by Agent and scenario. Some harmful effects occur after explicit approval. Read interception, warnings and approvals separately; current scores come from the published records."
       }
     },
     {
@@ -284,5 +283,19 @@
         "en": "Keeping the Agent working toward task completion and holding the lines that protect the user’s computer are different priorities. This gives independent third-party sandboxes their value: putting user protection first and keeping permission limits separate from the Agent’s task execution."
       }
     }
-  ]
+  ],
+  "disclosure": {
+    "zh-CN": "Agent Safety Arena由FinAI OS团队维护，我们也是FinShield的开发方。这里发布的实测案例来自受控环境中的真实执行，测评结果有公开的测试代码、录像、记录和复现方法支撑，读者可以自行复核。结果仅适用于记录中的版本、配置、授权策略和测试范围。",
+    "en": "Agent Safety Arena is maintained by the FinAI OS team, which also develops FinShield. Published live evaluations come from real executions in controlled environments, supported by public test code, recordings, records and reproduction methods that readers can inspect and reproduce. Results apply to the recorded versions, configurations, approval policy and test scope."
+  },
+  "citation": {
+    "title": {
+      "zh-CN": "引用与复核",
+      "en": "Cite and verify"
+    },
+    "body": {
+      "zh-CN": "欢迎读者、研究者和AI搜索引用本项目的公开测评与证据。引用具体结论时，请使用对应测评详情中的“引用本次测评”链接，并保留Agent及版本、操作系统、配置、授权策略、测试日期和样本范围。详情同时提供原始证据入口；项目源码包含测试代码与复现方法。请区分实测事实、风险提示和作者分析。",
+      "en": "Readers, researchers and AI search services are welcome to cite our public evaluations and evidence. For a specific finding, use the “Cite this evaluation” link in its detail page and retain the Agent and version, operating system, configuration, approval policy, test date and sample scope. Details link to original evidence; the repository contains test code and reproduction methods. Distinguish observed findings, warnings and author analysis."
+    }
+  }
 }

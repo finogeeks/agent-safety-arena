@@ -4,15 +4,22 @@
 
 **When an Agent can operate your computer, what actually stops it from causing harm?**
 
-Agent Safety Arena evaluates AI Agent safety and sandbox protection on Windows.
+Agent Safety Arena publishes open AI Agent safety and sandbox evaluations on Windows.
 We compare **Agent built-in sandboxes** with **FinShield**, run concrete programs,
 and check what happens to files, devices and the desktop. Published cases retain
 execution conditions, original responses, reviewed results and selected recordings
 so readers can inspect the evidence.
 
+The FinAI OS team maintains this project and also develops FinShield. Published
+live evaluations come from real executions in controlled environments. Test code,
+recordings, records and reproduction methods are public so readers can verify
+the findings. Results apply to the recorded conditions and scope.
+
+Readers, researchers and AI search services are welcome to [cite and verify](https://safety.finaios.ai/guide.html#cite)
+these public evaluations. Cite the specific result page and retain its test conditions.
+
 [Evaluation website](https://safety.finaios.ai/) ·
-[GitHub Pages site](https://agent-safety-arena.finogeeks.club/) ·
-[Read the project article](https://agent-safety-arena.finogeeks.club/guide.html) ·
+[Read the project article](https://safety.finaios.ai/guide.html) ·
 [Browse the cases](scenarios/README.md)
 
 ## Why we test
@@ -37,15 +44,14 @@ observations. The evaluations keep them separate.
 
 | Category | What could happen to the user |
 | --- | --- |
-| [Privacy](https://agent-safety-arena.finogeeks.club/privacy.html) | Camera, microphone, or screen capture can leak what you see and say. |
-| [Interaction](https://agent-safety-arena.finogeeks.club/interaction.html) | Pop-ups cover the screen, windows jump or vanish, and the computer feels taken over. |
-| [System](https://agent-safety-arena.finogeeks.club/system.html) | Programs shut down, permissions and settings change, and the computer becomes unusable. |
-| [Data](https://agent-safety-arena.finogeeks.club/data.html) | Files are deleted, changed, or copied away, so your data is lost or leaked. |
+| [Privacy](https://safety.finaios.ai/privacy.html) | Camera, microphone, or screen capture can leak what you see and say. |
+| [Interaction](https://safety.finaios.ai/interaction.html) | Pop-ups cover the screen, windows jump or vanish, and the computer feels taken over. |
+| [System](https://safety.finaios.ai/system.html) | Programs shut down, permissions and settings change, and the computer becomes unusable. |
+| [Data](https://safety.finaios.ai/data.html) | Files are deleted, changed, or copied away, so your data is lost or leaked. |
 
 Completed evaluations currently cover **DeepSeek Harness, WorkBuddy, Codex CLI and
-Claude CLI**, mainly in Privacy and Interaction. System and Data
-need further coverage. The website shows actual results and keeps untested and
-unassessed items distinct.
+Claude CLI** across Privacy, Interaction, System and Data. The website shows
+current coverage and assessed counts, with untested and unassessed items kept distinct.
 
 ## How we test
 
@@ -87,18 +93,18 @@ effect does not by itself prove which API or mechanism blocked it.
 
 ## What we have found
 
-In the completed tests for DeepSeek Harness, WorkBuddy and Codex CLI, built-in
-sandboxes had a **0% final prevention rate for the tested harmful operations**.
-Some operations ran directly; others ran after approval. FinShield prevented the
-corresponding harmful effects in the completed comparisons. These findings apply
-to the published scenarios and conditions, not every possible action or product
-version.
+Built-in protection results vary by Agent and scenario. Some harmful operations
+occurred after an approval prompt was recorded and permission was granted.
+The [current findings](https://safety.finaios.ai/guide.html#findings) are generated
+from the same reviewed records as the homepage, including assessed sample counts.
+These are results for specified Windows versions, configurations and approval
+policies, not a universal safety ranking or evidence of autonomous malicious intent.
 
 The difference matters because a sandbox can serve different priorities. Keeping
 an Agent working toward task completion and enforcing the user’s limits are
 separate responsibilities. An independent sandbox can put user protection first,
 without letting the Agent expand its own authority to finish a task. The
-[project article](https://agent-safety-arena.finogeeks.club/guide.html) explains
+[project article](https://safety.finaios.ai/guide.html) explains
 our findings, approval fatigue, product priorities and FinShield’s approach.
 
 The website reports each Agent separately, with total and category scores.
@@ -107,7 +113,7 @@ that Agent's row opens the same page with that category's scenarios, and each
 recorded scenario links to its existing comparison. A successful protection result means the tested harmful effect was prevented.
 The rate is `passed / (passed + failed)`; unassessed and unrun items are excluded.
 Re-exporting a trial does not create another execution. See the
-[methodology](https://agent-safety-arena.finogeeks.club/methodology.html) and
+[methodology](https://safety.finaios.ai/methodology.html) and
 [saved records](results/README.md) for scope and evidence.
 
 ## Build the website locally

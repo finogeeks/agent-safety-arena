@@ -357,7 +357,7 @@ def assessment_markup(group, language):
     return body+'<details class="assessment-evidence"><summary>'+('Assessment basis' if language=='en' else '评估依据')+'</summary>'+reasons+'</details>'
 
 
-def shell(title, language, body, dense=False, home_href='index.html', navigation=None):
+def shell(title, language, body, dense=False, home_href='index.html', navigation=None, extra_head=''):
     ui=TEXT[language]
     categories=(navigation or {}).get('categories')
     header=site_header_markup(language, home_href, ui['locale_path'], ui['locale'],
@@ -366,7 +366,7 @@ def shell(title, language, body, dense=False, home_href='index.html', navigation
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\' blob:; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
-        f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css">'
+        +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css">'
         +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
         +header+'<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
@@ -440,9 +440,16 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
     else:
         body = '' if dense else f'<a class="fine" href="index.html">← {ui["back"]}</a>'
     title=page_title(text['title'])
+    document_title = title
     body += '<div class="hero">'
     if not dense:body+=f'<div class="eyebrow">{e(record["agentId"])} / {e(record["scenarioId"])}</div>'
     body+=f'<h1>{e(title)}</h1><p class="lead">{e(text["purpose"])}</p>'
+    evaluation_scope = ('Controlled tests on declared resources, with recorded approvals. Results apply only to the tested versions and configurations; effect prevention and warning quality are assessed separately.'
+             if language == 'en' else '使用已声明的受控资源，保留授权过程。结果仅适用于受测版本与配置；危险效果是否被阻止、风险提示是否充分，分别评估。')
+    if record['evidenceOrigin'] != 'live':
+        evaluation_scope = ('Synthetic example, not a live evaluation or evidence of product safety.' if language == 'en'
+                            else '合成示例，不是真实测评，也不作为产品安全性的证据。')
+    body += '<p class="evaluation-scope fine">'+e(evaluation_scope)+'</p>'
     phase=ui['development'] if record['phase']!='formal' else record['phase']
     if compact:
         chips=[f'{label}：{value}' for label,value in header_metadata(record,language)]
@@ -582,8 +589,19 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
         evidence_body+=f'<p><a href="evidence.json">{ui["evidence_note"]}</a></p>'
         if compact:
             evidence_body+=''.join(f'<p><a href="{e(name)}">{e(name)}</a></p>' for name in presentation.get('evidenceFiles',[]))
+    if navigation and navigation.get('searchRoutes'):
+        from arena.reporting.search import SITE_URL
+        citation_url = SITE_URL + '/' + navigation['searchRoutes'][language]
+        label = 'Cite this evaluation' if language == 'en' else '引用本次测评'
+        evidence_label = 'Original evidence' if language == 'en' else '原始证据'
+        evidence_body += '<p class="citation" id="cite">'+label+': <a href="'+e(citation_url)+'">'+e(document_title)+'</a>'
+        evidence_body += ' · <a href="evidence.json">'+evidence_label+'</a></p>'
     body+=section(6,evidence_body)
     if navigation:
         body += f'<a class="report-return" href="{e(navigation["caseHref"])}">← '+('返回场景评测' if language == 'zh-CN' else 'Back to scenario')+'</a>'
     body+=f'<footer>{ui["hash_label"]}: {e(evidence_hash)}</footer>'
-    return shell(title,language,body,dense,navigation['homeHref'] if navigation else 'index.html', navigation)
+    extra_head = ''
+    if navigation and navigation.get('searchRoutes'):
+        from arena.reporting.search import page_head
+        extra_head = page_head(document_title, text['purpose'] + ' ' + evaluation_scope, language, navigation['searchRoutes'])
+    return shell(document_title,language,body,dense,navigation['homeHref'] if navigation else 'index.html', navigation, extra_head)

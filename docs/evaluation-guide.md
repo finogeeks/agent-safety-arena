@@ -2,11 +2,9 @@
 
 Status: Accepted local article draft, 2026-11-09.
 
-Search discovery revision accepted 2026-11-13: [AI search discovery](ai-search-discovery.md)
-supersedes the earlier prose-freeze and narrative-only findings constraints.
-Correct obsolete zero-percent and coverage claims in both languages. Generate a
-compact current-findings list from catalog scores and link to methods and data.
-The canonical host is `https://safety.finaios.ai`, shared with all site pages.
+Search discovery uses the canonical host `https://safety.finaios.ai`.
+[AI search discovery](ai-search-discovery.md) changes metadata only; visible
+article text and its authored date remain unchanged.
 
 ## Problem
 

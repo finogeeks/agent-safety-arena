@@ -51,7 +51,7 @@ def guide_head(content, language):
     return page_head(title, description, language, routes, kind='BlogPosting', schema=schema, site=site)
 
 
-def render_guide(content, language, results_html, evidence_html, findings_html=''):
+def render_guide(content, language, results_html, evidence_html):
     def text(value):
         return escape(str(value[language]), quote=True)
 
@@ -88,8 +88,6 @@ def render_guide(content, language, results_html, evidence_html, findings_html='
                  + '">' + escape(metadata['updated']) + '</time></span><span>'
                  + duration + '</span></div>')
     body += '</header>'
-    if content.get('disclosure'):
-        body += '<aside class="guide-disclosure"><p>'+text(content['disclosure'])+'</p></aside>'
     if content.get('takeaways'):
         label = '核心结论' if language == 'zh-CN' else 'Key takeaways'
         subtitle = '<span>Key takeaways</span>' if language == 'zh-CN' else ''
@@ -107,8 +105,6 @@ def render_guide(content, language, results_html, evidence_html, findings_html='
     for section in sections:
         body += '<section class="guide-section" id="' + escape(section['id'], quote=True) + '">'
         body += '<h2>' + text(section['title']) + '</h2>' + paragraphs(section.get('paragraphs', []))
-        if section['id'] == 'findings':
-            body += findings_html
         if section.get('diagram'):
             body += priority_diagram(section['diagram'])
         if section.get('steps'):
@@ -121,11 +117,4 @@ def render_guide(content, language, results_html, evidence_html, findings_html='
                 '<li><a href="' + escape(link['href'], quote=True) + '">' + text(link['label']) + '</a></li>'
                 for link in section['links']) + '</ul>'
         body += '</section>'
-    if content.get('citation'):
-        citation = content['citation']
-        body += '<section class="guide-section" id="cite"><h2>'+text(citation['title'])+'</h2>'
-        body += '<p>'+text(citation['body'])+'</p>'
-        route = 'zh-CN.html' if language == 'zh-CN' else 'index.html'
-        body += '<p><a href="'+SITE_URL+'/'+route+'">Agent Safety Arena</a> · '
-        body += '<a href="https://github.com/finogeeks/agent-safety-arena">GitHub</a></p></section>'
     return body + '</article>'

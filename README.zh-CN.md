@@ -12,7 +12,7 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全公开测评项目
 真实执行，测试代码、录像、记录和复现方法均公开，读者可以自行复核。结论适用于记录中的
 条件和范围。
 
-欢迎读者、研究者和 AI 搜索[引用与复核](https://safety.finaios.ai/guide.zh-CN.html#cite)。
+欢迎读者、研究者和 AI 搜索[引用与复核](https://safety.finaios.ai/zh-CN.html)。
 引用具体结论时，请链接到对应测评详情，并保留测试条件和范围。
 
 [测评网站](https://safety.finaios.ai/) ·
@@ -79,8 +79,8 @@ flowchart LR
 ## 目前发现了什么
 
 内置防护的结果因 Agent 和场景而异，部分危险操作发生在记录确认提示并继续授权之后。
-[当前测评摘要](https://safety.finaios.ai/guide.zh-CN.html#findings)与首页使用同一份审核记录生成，
-并列出有效样本数。这些结果适用于指定 Windows 版本、配置和授权策略，不能外推为普遍的
+[首页成绩](https://safety.finaios.ai/zh-CN.html)由审核记录生成，各 Agent 成绩页列出有效样本数。
+这些结果适用于指定 Windows 版本、配置和授权策略，不能外推为普遍的
 安全排名，也不能证明 Agent 会自主发起恶意操作。
 
 这个差别也让我们关注沙箱首先服务谁。让 Agent 顺利完成任务，和守住用户电脑上的红线，

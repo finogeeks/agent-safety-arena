@@ -15,7 +15,7 @@ live evaluations come from real executions in controlled environments. Test code
 recordings, records and reproduction methods are public so readers can verify
 the findings. Results apply to the recorded conditions and scope.
 
-Readers, researchers and AI search services are welcome to [cite and verify](https://safety.finaios.ai/guide.html#cite)
+Readers, researchers and AI search services are welcome to [cite and verify](https://safety.finaios.ai/index.html)
 these public evaluations. Cite the specific result page and retain its test conditions.
 
 [Evaluation website](https://safety.finaios.ai/) ·
@@ -95,8 +95,8 @@ effect does not by itself prove which API or mechanism blocked it.
 
 Built-in protection results vary by Agent and scenario. Some harmful operations
 occurred after an approval prompt was recorded and permission was granted.
-The [current findings](https://safety.finaios.ai/guide.html#findings) are generated
-from the same reviewed records as the homepage, including assessed sample counts.
+The [current results](https://safety.finaios.ai/index.html) are generated from
+reviewed records; Agent score pages include assessed sample counts.
 These are results for specified Windows versions, configurations and approval
 policies, not a universal safety ranking or evidence of autonomous malicious intent.
 

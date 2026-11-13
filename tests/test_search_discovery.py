@@ -105,52 +105,25 @@ class SearchDiscoveryTests(unittest.TestCase):
             self.assertTrue(parser.can_fetch(bot, HOST + '/zh-CN.html'), bot)
         self.assertEqual(parser.site_maps(), [HOST + '/sitemap.xml'])
 
-    def test_current_findings_and_visible_caption_use_catalog_not_fixed_claims(self):
-        guide = self.html('guide.html')
-        self.assertIn('current-findings', guide)
-        self.assertIn('0/1', guide)
-        self.assertIn('1/1', guide)
-        self.assertIn('href="agents/dsh/index.html"', guide)
-        self.assertIn('also develops FinShield', guide)
-        self.assertIn('real executions', guide)
-        self.assertIn('href="methodology.html"', guide)
-        home = self.html('zh-CN.html')
-        self.assertIn('公开测评', home)
-        self.assertIn('AI Agent', home)
-        self.assertIn('showcase-caption', home)
-        self.assertIn('内置防护：未拦截', home)
-        # A changed assessed outcome must update article figures on the next build.
-        self.record['groups']['native']['interceptionAssessment'] = self.record['groups']['finshield']['interceptionAssessment']
-        self.fixture.save(self.source, self.record)
-        build_site(self.root / 'results', self.root / 'updated')
-        changed = (self.root / 'updated/guide.html').read_text('utf8')
-        summary = re.search(r'<aside class="current-findings".*?</aside>', changed, re.S)[0]
-        self.assertNotIn('0/1', summary)
-        self.assertIn('1/1', summary)
+    def test_search_metadata_preserves_existing_visible_pages(self):
+        home = self.html('zh-CN.html').split('<body', 1)[1]
+        for added in ('真实执行，检验Windows沙箱', 'showcase-caption', '#cite'):
+            self.assertNotIn(added, home)
+        guide = self.html('guide.zh-CN.html').split('<body', 1)[1]
+        for added in ('guide-disclosure', 'current-findings', 'id="cite"'):
+            self.assertNotIn(added, guide)
+        detail = self.html('camera-capture/dsh/paired/en.html').split('<body', 1)[1]
+        self.assertNotIn('evaluation-scope', detail)
+        self.assertNotIn('class="citation"', detail)
 
-    def test_detail_scope_is_visible_and_standalone_has_no_invented_url(self):
+    def test_detail_metadata_and_standalone_have_correct_public_identity(self):
         detail = self.html('camera-capture/dsh/paired/en.html')
-        self.assertRegex(detail, r'class="[^"]*\bevaluation-scope\b')
-        self.assertIn('recorded approvals', detail)
         self.assertIn('<title>Controlled deletion &lt;fixture&gt; · Agent Safety Arena</title>', detail)
-        self.assertIn('recorded approvals', Head(detail).meta['description'])
         export_reports(self.source, self.root / 'standalone')
         self.assertEqual(Head((self.root / 'standalone/en.html').read_text('utf8')).canonical(), [])
         packet = self.site / 'camera-capture/dsh/paired/evidence.json'
         standalone = self.root / 'standalone/evidence.json'
         self.assertEqual(packet.read_bytes(), standalone.read_bytes())
-
-    def test_public_pages_welcome_citations_with_real_permanent_evidence_links(self):
-        guide = self.html('guide.zh-CN.html')
-        self.assertIn('id="cite"', guide)
-        self.assertIn('欢迎读者、研究者和AI搜索引用', guide)
-        detail = self.html('camera-capture/dsh/paired/en.html')
-        citation = re.search(r'<p class="citation".*?</p>', detail, re.S)
-        self.assertIsNotNone(citation, 'Every published comparison needs a citation link')
-        self.assertIn('href="' + HOST + '/camera-capture/dsh/paired/en.html"', citation[0])
-        self.assertIn('href="evidence.json"', citation[0])
-        self.assertNotIn('noindex', detail)
-        self.assertNotIn('nosnippet', detail)
 
     def test_page_metadata_escapes_markup_and_pagination_keeps_its_identity(self):
         from arena.reporting.search import page_head

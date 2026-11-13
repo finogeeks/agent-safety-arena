@@ -2,10 +2,8 @@
 
 Status: Opt-in homepage comparison and compact footer, revised 2026-11-13.
 
-Search revision: [AI search discovery](ai-search-discovery.md) adds localized
-metadata, a short public-evaluation introduction, reviewed GIF captions and a
-citation link. It retains the existing layout, visible heading and comparison
-default. The browser title describes public AI safety and Windows sandbox tests.
+[AI search discovery](ai-search-discovery.md) adds localized search metadata.
+All visible page content, GIFs, styles and comparison controls remain unchanged.
 
 ## Problem
 

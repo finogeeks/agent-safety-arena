@@ -25,28 +25,19 @@ approval behavior, historical records, and current protection results.
   Do not invent `lastmod` from build time.
   Generate `robots.txt` with public crawling allowed and an absolute sitemap URL.
   Keep existing training preferences unchanged: this task adds no training opt-out.
-- AC-3: Keep the homepage layout, GIFs and opt-in FinShield comparison. Add a
-  short visible introduction emphasizing public AI safety and Windows sandbox
-  testing. Each GIF has a visible scenario and native assessment caption;
-  comparison captions follow the checkbox. These labels come from the same
-  reviewed report as the GIF. Do not add unsupported conclusions to media.
-- AC-4: Remove obsolete blanket zero-percent and incomplete-coverage claims.
-  Generate the guide's current result summary from the same catalog and score
-  scope as the homepage, with assessed counts, rates and Agent-page links.
-  Keep unknown results explicit. Do not copy live percentages into authored prose.
-  README versions describe the scope and link to current results.
-- AC-5: Keep version/date/configuration/evidence information in detail pages.
-  Add a short, visible scope note: controlled resources, recorded approvals,
-  tested versions only, and separate effects from warnings. Metadata describes
-  this same scope. Standalone exports must not invent a public canonical URL.
-- AC-6: Disclose the project and FinShield relationship in the guide. Link the
-  methodology and source data from relevant article content, without restoring
-  the removed footer links. State that the public live cases are real controlled
-  executions, with public code, recordings, records and reproduction methods.
-  Welcome readers, researchers and AI search citations. Each published detail
-  provides its canonical citation link and original evidence link. Citation
-  guidance retains test conditions and scope. Preserve evidence bytes and
-  source assessments.
+- AC-3: Preserve all visible website content, layout, styles, GIFs and the
+  opt-in FinShield comparison. The owner deferred all visible page changes.
+- AC-4: Update both README versions to describe public evaluations, current
+  coverage and links to generated homepage results. Preserve guide prose and
+  its authored date; editorial corrections to website text are deferred.
+- AC-5: Preserve existing detail content and evidence links. Metadata uses the
+  existing purpose text. Standalone exports must not invent a canonical URL.
+- AC-6: Disclose the FinAI OS and FinShield relationship in both README files.
+  Explain that public live cases are real controlled executions with public
+  code, recordings, records and reproduction methods. Welcome readers,
+  researchers and AI search citations, retaining test conditions and scope.
+  Canonical metadata supplies stable result URLs. Preserve evidence bytes
+  and source assessments; do not add visible citation sections or controls.
 - AC-7: Document official platform requirements, unsupported claims, rollout
   checks and measurement. Browser checks cover the existing comparison at
   desktop and mobile widths. No live Agent trials are needed.
@@ -64,7 +55,8 @@ flowchart LR
 
 ## Out of scope
 
-New trial executions, altered scores, paid GEO placements, ranking guarantees,
+Visible website edits, new trial executions, altered scores, paid GEO placements,
+ranking guarantees,
 bulk question pages, hidden bot-only copy, training-policy changes and automatic
 search queries. DNS, CDN rules, site-owner verification and analytics require
 the actual hosting or analytics account. Do not fake verification tokens or
@@ -122,11 +114,11 @@ Agent and scenario pages. Do not create many near-identical keyword pages.
 ## Tests
 
 - `tests/test_search_discovery.py`: metadata, canonical/alternate pairs,
-  pagination and aliases, sitemap filtering, robots policy, dynamic findings,
+  pagination and aliases, sitemap filtering, robots policy, preserved page content,
   standalone exports, and unchanged source/evidence bytes (AC-1/2/4/5/6).
 - Existing overview, guide, comparison, navigation and site tests: preserved
   content, layout contract, media and manifest integrity (AC-3/5/6).
 - Local Edge inspection at desktop and mobile widths, with checkbox off/on:
-  captions, GIF display, readable summaries and no new horizontal overflow.
+  existing GIF display, comparison controls and no horizontal overflow.
 - Live host/webmaster/analytics checks are recorded separately from local
   validation. A local pass does not prove indexing or AI citation (AC-7).

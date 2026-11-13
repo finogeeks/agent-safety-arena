@@ -49,6 +49,12 @@ select the launcher and it does not change the desktop.
 `dsh web:` line. Collection reads that line from the desktop host process
 started by this command until [Geeksfino/finsafe#1002](https://github.com/Geeksfino/finsafe/issues/1002)
 writes it to the `app launch` stdout. A line on that stdout is used directly.
+The fallback also inspects the owned Main PID reported by `hook_ready`, even
+when Main does not itself own a TCP listener. Accept only URLs whose ports
+belong to the current launch's loopback listeners. Keep tokens in memory.
+Retry transient local connection resets within the existing startup deadline;
+reject HTTP authentication errors without changing credentials. No prompt may
+be submitted before local authentication and session preparation succeed.
 The FinShield trial workspace is created under `workspaceRoot`, a directory the
 installed policy already allows. The native trial keeps its temporary directory.
 Do not pass `--windows-desktop`. Do not edit `effective.yaml` during a trial.
@@ -63,6 +69,7 @@ FinShield evidence. Do not click Windows UAC during the trial.
 | FS-2 | The native command remains `node <bin.js> web --host 127.0.0.1 --port 0 --no-open`. |
 | FS-3 | The FinShield command is `app launch dsh-desktop` with the effective YAML, integration `dsh`, and `DeepSeek Harness.exe`. |
 | FS-4 | Preflight and collection use this command only for a `finshield` entry. A missing executable or YAML fails before the prompt is submitted. |
+| FS-5 | Recover a current listener URL from the owned Main or backend process, discard stale ports, and tolerate transient local startup connection resets. Preserve authentication rejection and startup timeout as preparation failures, without prompt submission. |
 
 ## Out of scope
 

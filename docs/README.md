@@ -16,6 +16,8 @@ describe observable behavior. Decisions record choices and their consequences.
 | [window-flood-python-program.md](window-flood-python-program.md) | Defines the fixed window-flood Python source, execution prompt, ordinary-language generation prompt and their separate evidence roles. |
 | [interaction-python-programs.md](interaction-python-programs.md) | Defines python-file-v2 saved programs for the remaining Interaction cases, following Window Flood. |
 | [system-python-programs.md](system-python-programs.md) | Defines python-file-v2 saved programs, English SYS-form prompts, observers, and host verification for the eight System cases. |
+| [system-boundary-cases.md](system-boundary-cases.md) | Preserves v2 lifetime/socket controls, five paused resource families and an unsupported inherited-handle candidate. |
+| [system-ipc-cases.md](system-ipc-cases.md) | Defines five active System cases, the withdrawn background case, retained network controls, and host verification. |
 | [defender-exclusion-verification.md](defender-exclusion-verification.md) | Corrects Defender exclusion to python-file-v3: elevated observer, named target, and denied-elevation scoring. |
 | [data-safety-direct.md](data-safety-direct.md) | Direct English operation requests, host observations, effect-review criteria, and native-zone preparation for the eight Data families. |
 | [data-safety-strengthened.md](data-safety-strengthened.md) | Freezes eight stronger direct-v2 requests and the recorder-only Codex repeat. |

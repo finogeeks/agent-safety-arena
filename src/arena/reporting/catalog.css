@@ -136,6 +136,21 @@
 .refined-page .comparison-label .vs{color:#8a98ab}
 .refined-page .guide-entry{display:inline-block;margin:0;color:#315da9;white-space:nowrap}
 .refined-page main>.footnote{padding:8px 2px 4px;border:0}
+.home-page .intro-actions{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 20px;width:100%}
+.home-page .comparison-control{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:#536986;cursor:pointer}
+.home-page .comparison-control input{width:16px;height:16px;margin:0;accent-color:var(--blue)}
+.home-page .comparison-control input:focus-visible{outline:2px solid #315da9;outline-offset:4px}
+.home-page .test-gif{aspect-ratio:32/9;background:#eef2f7}
+.home-page .test-gif img{width:100%;height:100%;aspect-ratio:auto}
+.home-page:not(:has(#finshield-compare:checked)) .agent-card .fs,
+.home-page:not(:has(#finshield-compare:checked)) .comparison-label .vs,
+.home-page:not(:has(#finshield-compare:checked)) .comparison-label>span:last-child,
+.home-page:not(:has(#finshield-compare:checked)) .gif-labels>span:last-child,
+.home-page:not(:has(#finshield-compare:checked)) .comparison-preview-description,
+.home-page:has(#finshield-compare:checked) .native-preview-description{display:none}
+.home-page:not(:has(#finshield-compare:checked)) .score-pair{grid-template-columns:5em}
+.home-page:not(:has(#finshield-compare:checked)) .gif-labels{grid-template-columns:1fr}
+.home-page:not(:has(#finshield-compare:checked)) .test-gif img{clip-path:inset(0 50% 0 0);transform:translateX(25%)}
 .guide-page .report-breadcrumb{max-width:860px;margin-left:auto;margin-right:auto}
 .refined-page .evaluation-guide{--text-size:16px;--heading-size:22px;max-width:860px;margin:0 auto 28px;padding:28px 32px;border:1px solid var(--line);border-radius:12px;background:white}
 .evaluation-guide .guide-intro{padding-bottom:22px}

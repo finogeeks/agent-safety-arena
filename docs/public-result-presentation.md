@@ -23,9 +23,10 @@ phase and displays the existing result as untested.
 - AC-3: Keep all four category cards and reviewed GIFs. Remove the Real tests
   heading. Empty categories keep a compact category link without a GIF frame or
   No media available panel. Keep protection labels aligned above available GIFs.
-- AC-4: The Chinese home title is Agent安全测评, followed by Agent内置沙箱 vs
-  FinShield. English uses Agent Safety Evaluation and Built-in sandbox vs
-  FinShield. Do not show a visible Evaluation results / 测评结果 heading on
+- AC-4: The Chinese home title is Agent安全测评, followed by Agent内置沙箱.
+  English uses Agent Safety Evaluation and Built-in sandbox. The homepage
+  comparison checkbox adds vs FinShield, its score column and its GIF pane;
+  it is unchecked on entry. Do not show a visible Evaluation results / 测评结果 heading on
   either homepage. The scoring footnote stays after the GIF showcase.
 - AC-5: Preserve official Agent names and authored order. Fold only Agents with
   no live records. A recorded unresolved result is unassessed, never untested.

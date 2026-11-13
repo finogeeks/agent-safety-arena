@@ -1,10 +1,10 @@
 # Evaluation guide article
 
-Status: Accepted local article draft, 2026-11-09.
+Status: Accepted bilingual article revision, 2026-11-13.
 
 Search discovery uses the canonical host `https://safety.finaios.ai`.
 [AI search discovery](ai-search-discovery.md) changes metadata only; visible
-article text and its authored date remain unchanged.
+article revisions update the authored date to match the approved content.
 
 ## Problem
 
@@ -18,9 +18,11 @@ explains the project, experiment design and supported conclusions.
   footer, Home breadcrumb and working language switch. Translate the current
   Chinese article into English with matching sections, paragraphs, examples,
   claim scope, takeaways and diagram labels. Preserve the Chinese source text.
-- AC-2: Full-site headers add 测评说明 / Evaluation guide after the four category
-  links and before GitHub. The homepage puts the title and the comparison
-  subtitle on one row, and the guide link on the next row. On phones, wrap the
+- AC-2: All full-site headers add 方法与发现 / Methods & Findings after the four
+  category links and before GitHub. The homepage also keeps this entry on the
+  row below the inline title and
+  comparison subtitle, opposite the comparison checkbox. Both entries open the
+  [article directory](article-library.md); the overview keeps its existing URL. On phones, wrap the
   comparison under the title if the row does not fit. The shared footer keeps
   only the brand line; the header and homepage retain the article links.
   Standalone report exports omit links to site pages that are absent.
@@ -29,7 +31,7 @@ explains the project, experiment design and supported conclusions.
   Treat the virus analogy as a metaphor and distinguish observed results from
   claims about vendor intent or universal protection. Keep only sources that support
   a specific technical analysis; omit general reading lists from the opening and method.
-  Use five narrative sections: why we test; the fixed-program method; progress,
+  Use five narrative sections: why we test; fixed-program and direct-task methods; progress,
   findings, harms and approval fatigue; a macro analysis of product priorities
   and tradeoffs; and the recorded Windows FinShield implementation. Keep product
   priority analysis distinct from observed findings and avoid attributing the
@@ -66,10 +68,11 @@ explains the project, experiment design and supported conclusions.
 - AC-8: Present the article as a site-native technical blog: title, summary,
   project byline, authored update date, estimated reading time, the three
   user-approved takeaways, a lightweight five-link contents navigation, and five
-  narrative sections. Consolidate the 33 approved paragraphs to 19 (3/4/4/5/3)
-  by joining adjacent paragraphs only. Preserve every original sentence, its order,
-  the section titles and the approved introduction summary. Do not rewrite prose
-  or remove repetition during this layout change. Place the diagram after the independent-value
+  narrative sections. Use the exact Chinese chapter copy in
+  [evaluation-guide-revision.md](evaluation-guide-revision.md), with matching
+  English paragraphs. Keep the four safety categories as a bulleted list after
+  the opening paragraph in section two. Preserve the approved emphasis and
+  inline report link in section three. Place the diagram after the independent-value
   discussion. Retain the site's header, font family, colors, cards and footer.
   Use readable article typography and one-column phone layouts.
 - AC-9: Add a descriptive search title and description, self-canonical and language
@@ -79,6 +82,19 @@ explains the project, experiment design and supported conclusions.
   duration from visible authored text. Escape HTML and script-closing text.
   Use relevant keywords naturally in visible copy and schema keywords, without
   repetition or promises about search rankings. No special GEO schema is required.
+
+- AC-10: Section three defines final protection rate as the proportion of valid,
+  assessed scenarios in which the target harmful effect was ultimately prevented,
+  calculated per Agent under the declared approval policy. Keep initial blocks,
+  warnings and final effects separate. Do not count invalid attempts or missing
+  evidence as successes. Preserve the four-Agent, 33-scenario scope, the Anthropic
+  study context and the scoped FinShield comparison. Replace the obsolete all-zero
+  takeaway. Summary and search description cover both task designs and the metric.
+- AC-11: Paragraph objects can attach bilingual `items` (label and body) and
+  `links` (href and label). Render items as an unordered list immediately after
+  the paragraph and links inside that paragraph. Support paired `**` emphasis
+  in paragraph text, escaping authored text before formatting. Include item and
+  link text in reading-time estimates. Preserve the surrounding article layout.
 
 ```mermaid
 flowchart LR

@@ -26,8 +26,8 @@ class EvaluationGuideTests(unittest.TestCase):
             before = path.read_bytes()
             build_site(root / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             for language, route, label, home in (
-                ('zh-CN', 'guide.zh-CN.html', '测评说明', 'zh-CN.html'),
-                ('en', 'guide.html', 'Evaluation guide', 'index.html'),
+                ('zh-CN', 'guide.zh-CN.html', '方法与发现', 'zh-CN.html'),
+                ('en', 'guide.html', 'Methods &amp; Findings', 'index.html'),
             ):
                 page = root / 'site' / route
                 self.assertTrue(page.is_file(), route)
@@ -49,11 +49,12 @@ class EvaluationGuideTests(unittest.TestCase):
                 homepage = (root / 'site' / home).read_text('utf8')
                 self.assertIn('">100<', homepage)
                 self.assertNotIn('%', homepage)
-                self.assertIn('class="guide-entry" href="' + route + '"', homepage)
+                directory = route.replace('guide', 'articles')
+                self.assertIn('class="guide-entry" href="' + directory + '"', homepage)
                 header = re.search(r'<header.*?</header>', homepage).group()
-                self.assertLess(header.index('href="' + route + '"'), header.index('GitHub'))
+                self.assertLess(header.index('href="' + directory + '"'), header.index('GitHub'))
             detail = (root / 'site/camera-capture/dsh/paired/zh-CN.html').read_text('utf8')
-            self.assertIn('href="../../../guide.zh-CN.html"', detail)
+            self.assertIn('href="../../../articles.zh-CN.html"', detail)
             export_reports(path, root / 'standalone')
             standalone = (root / 'standalone/en.html').read_text('utf8')
             self.assertNotIn('href="guide.html"', standalone)
@@ -107,6 +108,25 @@ class EvaluationGuideTests(unittest.TestCase):
         html = render_guide(content, 'en', '', '')
         self.assertNotIn('<script>', html)
         self.assertIn('&lt;script&gt;', html)
+
+    def test_category_list_inline_source_and_emphasis_keep_reading_order(self):
+        from arena.reporting.guide import render_guide, reading_minutes
+        content = {'title': {'en': 'Guide'}, 'summary': {'en': 'Summary'},
+                   'sections': [{'id': 'method', 'title': {'en': 'Method'}, 'paragraphs': [
+                       {'en': 'Four **categories** <script>:',
+                        'items': [{'label': {'en': 'Privacy <b>'},
+                                   'body': {'en': 'Watch the camera.'}}]},
+                       {'en': 'Observe the effect.', 'links': [
+                           {'href': 'https://example.com/report', 'label': {'en': 'Read <source>'}}]}
+                   ]}]}
+        html = render_guide(content, 'en', '', '')
+        self.assertIn('<strong>categories</strong> &lt;script&gt;', html)
+        self.assertIn('<ul class="guide-categories"><li><strong>Privacy &lt;b&gt;</strong>', html)
+        self.assertLess(html.index('guide-categories'), html.index('Observe the effect.'))
+        self.assertIn('Observe the effect. <a href="https://example.com/report">Read &lt;source&gt;</a></p>', html)
+        self.assertNotIn('<script>', html)
+        content['sections'][0]['paragraphs'][0]['items'][0]['body']['en'] = 'word ' * 1100
+        self.assertGreaterEqual(reading_minutes(content, 'en'), 5)
 
 
 if __name__ == '__main__':

@@ -4,8 +4,8 @@
     "en": "Who protects you when an Agent takes over your computer?"
   },
   "summary": {
-    "zh-CN": "电脑开始由Agent代为操作，原来属于人的权限，也跟着交了出去。我们用一组固定程序，比较内置沙箱和FinShield，看看它们到底能为用户挡住什么。",
-    "en": "As Agents start operating computers for us, we also hand over permissions that used to belong to us. We use a set of fixed programs to compare built-in sandboxes with FinShield and see what they can actually stop for the user."
+    "zh-CN": "电脑开始由Agent代为操作，原来属于人的权限，也跟着交了出去。我们用固定程序和直接任务，观察危险效果是否被最终阻止，并记录原生防护与FinShield的表现。",
+    "en": "As Agents start operating computers for us, we also hand over permissions that used to belong to us. We use fixed programs and direct tasks to observe whether harmful effects are ultimately prevented, and record the performance of native protections and FinShield."
   },
   "sections": [
     {
@@ -20,12 +20,12 @@
           "en": "We are used to using computers through an interface, and to that interface handling risks for us. Deleted files go to the Recycle Bin, dangerous operations come with warnings, and many low-level functions are never put in front of ordinary users. By the time someone acts through an interface, the software has usually already filtered what they can do. An Agent, however, can write code, run programs and call system APIs directly. It works faster and can do more, but it may also bypass the steps that used to keep people out of trouble."
         },
         {
-          "zh-CN": "麻烦在于，电脑上的权限往往比一句任务宽得多。你只让Agent整理照片，它运行的程序却可能有权删除其他目录；你只让它改一份文档，它却可能访问屏幕和摄像头。系统会检查权限，但不会自动把你的要求变成一道限制。",
-          "en": "The problem is that permissions on a computer often reach far beyond a single task. You only ask an Agent to organize photos, yet the program it runs may have permission to delete other folders. You only ask it to edit a document, yet it may be able to access the screen and camera. The system checks permissions, but it does not automatically turn your request into a limit on what the Agent can do."
+          "zh-CN": "麻烦在于，电脑上的权限往往比一句任务宽得多。你只让Agent整理照片，它运行的程序却可能有权删除其他目录；你只让它改一份文档，它却可能访问屏幕和摄像头。系统会检查权限，但不会自动把你的要求变成一道限制。如果没有额外保护，让这样的Agent在日常电脑上自由运行，就像让它拿着火把在炸药库里跳舞。一次误解、一段错误代码，都可能把损失带到任务之外：不该读取的资料被读走，不该改动的文件被覆盖，甚至让电脑无法正常使用。从破坏能力上说，一个失控的Agent，甚至可能成为“大号病毒”。用户需要知道，当Agent开始执行这些操作时，产品提供的保护能不能真正生效。",
+          "en": "The problem is that permissions on a computer often reach far beyond a single task. You only ask an Agent to organize photos, yet the program it runs may have permission to delete other folders. You only ask it to edit a document, yet it may be able to access the screen and camera. The system checks permissions, but it does not automatically turn your request into a limit on what the Agent can do. Without extra protection, letting an Agent like this run freely on your everyday computer is like letting it dance with a burning torch in a warehouse full of explosives. One misunderstanding or a piece of faulty code can cause damage beyond the task: information that should not be read is taken, files that should not be changed are overwritten, and the computer may even become unusable. In terms of destructive power, an Agent that goes out of control could even become an “oversized virus”. Users need to know whether the product's protections actually work when the Agent starts performing these operations."
         },
         {
-          "zh-CN": "如果没有额外保护，让这样的Agent在日常电脑上自由运行，就像让它拿着火把在炸药库里跳舞。一次误解、一段错误代码，都可能把损失带到任务之外。从破坏能力上说，一个失控的Agent，确实可能成为“大号病毒”。我们希望知道，这些风险发生时，谁能真正拦住它。因此，我们选了一组具体场景，比较Agent内置沙箱和FinShield，检查电脑上究竟发生了什么。",
-          "en": "Without extra protection, letting an Agent like this run freely on your everyday computer is like letting it dance with a burning torch in a warehouse full of explosives. One misunderstanding or a piece of faulty code can cause damage beyond the task. In terms of destructive power, an Agent that goes out of control really can become an “oversized virus”. We want to know what can actually stop it when these risks arise. So we selected a set of concrete scenarios, compared Agent built-in sandboxes with FinShield, and checked what actually happened on the computer."
+          "zh-CN": "这就是Agent Safety Arena想回答的问题。我们从具体的用户损失出发，设计可复查的测试场景，观察Agent如何处理请求、什么时候要求授权，以及电脑上最终发生了什么。我们希望把“这个Agent安全吗”这样宽泛的问题，拆成可以用证据回答的小问题：它能访问哪些资源，哪些操作会被阻止，哪些风险仍需要用户自己承担。",
+          "en": "This is the question Agent Safety Arena aims to answer. We start with concrete harms to users and design test scenarios that others can review. We observe how the Agent handles requests, when it asks for approval, and what actually happens on the computer. We want to break the broad question “Is this Agent safe?” into smaller questions that evidence can answer: which resources can it access, which operations are blocked, and which risks are still left to the user?"
         }
       ],
       "tocLabel": {
@@ -36,25 +36,79 @@
     {
       "id": "method",
       "title": {
-        "zh-CN": "二、我们怎么测：让同一个程序接受两种防护的检验",
-        "en": "2. How we test: the same program under two kinds of protection"
+        "zh-CN": "二、我们怎么测：把危险操作变成可复查的案例",
+        "en": "2. How we test: turn harmful operations into cases others can review"
       },
       "paragraphs": [
         {
-          "zh-CN": "我们先从用户可能受到的伤害出发，选了一组案例，分成四类：隐私安全，看摄像头、麦克风、截屏和录屏会不会暴露隐私；交互安全，看弹窗和窗口操作会不会让电脑没法正常使用；系统安全，看程序、服务和系统设置会不会被破坏；数据安全，看文件会不会被删除、改动或带走。具体哪些已经测完，哪些还没测，页面上会分别标明。",
-          "en": "We started with the harm users could suffer and selected cases in four categories. Privacy checks whether cameras, microphones, screenshots, and screen recordings can expose private information. Interaction checks whether pop-ups and window operations can make the computer unusable. System checks whether programs, services, and system settings can be damaged. Data checks whether files can be deleted, changed, or taken away. The pages show which cases are complete and which have not yet been tested."
+          "zh-CN": "我们先从用户可能受到的伤害出发，选了一组案例，分成四类：",
+          "items": [
+            {
+              "label": {
+                "zh-CN": "隐私安全",
+                "en": "Privacy safety"
+              },
+              "body": {
+                "zh-CN": "看摄像头、麦克风、截屏和录屏会不会暴露隐私。",
+                "en": "Check whether cameras, microphones, screenshots and screen recordings can expose private information."
+              }
+            },
+            {
+              "label": {
+                "zh-CN": "交互安全",
+                "en": "Interaction safety"
+              },
+              "body": {
+                "zh-CN": "看弹窗和窗口操作会不会让电脑没法正常使用。",
+                "en": "Check whether pop-ups and window operations can make the computer unusable."
+              }
+            },
+            {
+              "label": {
+                "zh-CN": "系统安全",
+                "en": "System safety"
+              },
+              "body": {
+                "zh-CN": "看程序、服务和系统设置会不会被破坏。",
+                "en": "Check whether programs, services and system settings can be damaged."
+              }
+            },
+            {
+              "label": {
+                "zh-CN": "数据安全",
+                "en": "Data safety"
+              },
+              "body": {
+                "zh-CN": "看文件会不会被删除、改动或带走。",
+                "en": "Check whether files can be deleted, changed or taken away."
+              }
+            }
+          ],
+          "en": "We started with the harm users could suffer and selected cases in four categories:"
         },
         {
-          "zh-CN": "点开案例，你可能会觉得有些指令很奇怪：程序都准备好了，为什么还让Agent去运行？这和我们平时让Agent自己想办法做事，确实不太一样。这样做，是因为从一句要求到最后执行，中间有太多变化。同一个意思，换种说法，Agent的反应可能就不同；同一句要求，它可能写出不同的代码；到了运行时，还可能选择不同的工具和重试方式。代码写错了，程序没跑起来，不能算沙箱保护了用户。两组运行的代码不同，结果也很难公平比较。",
-          "en": "Open a case and some instructions may seem odd: if the program is already written, why ask an Agent to run it? That is certainly different from how we normally ask an Agent to figure things out for itself. We do this because too much can change between a request and its execution. Phrase the same idea differently, and the Agent may respond differently. Give it the same request, and it may write different code. When it runs that code, it may choose different tools and ways to retry. If faulty code keeps a program from running, that does not mean the sandbox protected the user. If the two runs use different code, a fair comparison is also difficult."
+          "zh-CN": "测试在受控环境中进行，使用专门准备的文件、目录和程序，并事先划定允许操作的范围。",
+          "en": "Tests run in a controlled environment, using files, directories and programs prepared for testing. We define the permitted scope of operations in advance."
         },
         {
-          "zh-CN": "事实上，这些测试程序也没什么神奇，都是Agent根据普通提示词写出来的。我们先在受控环境里单独把程序跑通，确认它能产生预期效果，再把代码固定下来，交给被测Agent执行。这样，两种防护面对同一份代码，比较起来更公平，也能减少Agent每次写代码不同带来的干扰。程序和执行指令都保留在案例里，方便别人复查。对照在同一个Agent上进行，分别使用内置沙箱和FinShield。FinShield组关闭内置沙箱，单独检查FinShield的防护效果。实际使用的版本、模型、指令、程序和文件校验值都保存在详情里；历史记录中有差异的地方，也会如实列出。",
-          "en": "There is nothing magical about these test programs. Agents wrote them from ordinary prompts, too. We first run each program on its own in a controlled environment and confirm that it produces the expected effect. We then freeze the code and give it to the Agent under evaluation to execute. That way, both kinds of protection face the same code. The comparison is fairer, with less variation from the Agent writing different code each time. We keep the programs and execution instructions in the cases so others can check them. We compare the same Agent using its built-in sandbox and using FinShield. In the FinShield group, we turn off the built-in sandbox to check FinShield’s protection on its own. The details retain the actual versions, model, instructions, programs and file hashes. Differences in historical records are also disclosed as they are."
+          "zh-CN": "点开案例，你可能会觉得有些指令很奇怪：程序都准备好了，为什么还让Agent去运行？这和我们平时让Agent自己想办法做事，确实不太一样。这样做，是因为从一句要求到最后执行，中间有太多变化。同一个意思，换种说法，Agent的反应可能就不同；同一句要求，它可能写出不同的代码；到了运行时，还可能选择不同的工具和重试方式。代码写错了，程序没跑起来，不能算沙箱保护了用户。",
+          "en": "When you open a case, some instructions may look odd: if the program is already prepared, why ask an Agent to run it? This is different from how we usually ask an Agent to work things out for itself. We do it because much can change between a request and its execution. Rephrase the same intention, and the Agent may respond differently. Give it the same request, and it may write different code. At runtime, it may choose different tools and retry strategies. If the code is wrong and the program never runs, that does not mean the sandbox protected the user."
         },
         {
-          "zh-CN": "最后，我们检查电脑上真正发生了什么：摄像头有没有打开，文件有没有变化，桌面还能不能正常操作，并保留录像和检查结果。遇到测试范围内的确认提示，会先记录，再按事先约定的策略继续。如果危险效果是在授权后发生的，就明确写出这一点。最初有没有拦住、提示说了什么、继续后又发生了什么，读者都能分别查看。",
-          "en": "Finally, we check what actually happened on the computer: did the camera open, did files change, and could the desktop still be used normally? We keep the recordings and check results. When an approval prompt falls within the test scope, we record it first, then continue under the policy agreed in advance. If a harmful effect occurs after approval, we say so explicitly. Readers can separately inspect whether the operation was initially blocked, what the warning said, and what happened after continuing."
+          "zh-CN": "对于摄像头、桌面干扰和系统操作等案例，我们先让Agent根据普通提示词生成程序，再在被测Agent之外验证程序，确认它能产生预期效果。随后把程序固定下来，交给被测Agent执行。这样可以减少代码生成差异带来的干扰，集中观察：面对一个已经确认有效的程序，Agent会怎样处理执行请求，现有防护能否阻止目标效果。程序、执行指令和校验值都保留在案例里，方便别人复查。",
+          "en": "For cases involving cameras, desktop disruption and system operations, we first ask an Agent to generate a program from an ordinary prompt. We then validate the program outside the Agent being evaluated to confirm that it can produce the intended effect. We freeze the program and ask the evaluated Agent to execute it. This reduces variation from code generation and lets us focus on how the Agent handles a request to run a program already known to work, and whether the existing protections prevent the target effect. The program, execution prompt and checksums remain in the case so others can review them."
+        },
+        {
+          "zh-CN": "数据安全案例则采用另一种方式：直接提出读取、修改、移动或删除指定文件等任务，让Agent自己选择工具和实现方法。因为我们还想知道，事先设置的文件保护规则，在Agent实际做事时是否有效。它通过文件工具访问，或者改用命令、脚本操作，最终是否都受到同一条边界的约束？固定程序和直接任务分别观察执行过程中的不同环节，具体设计会在案例中说明。",
+          "en": "Data safety cases take another approach: we directly request tasks such as reading, modifying, moving or deleting specified files, and let the Agent choose its tools and implementation. We also want to know whether file protection rules set in advance remain effective when the Agent does real work. Does the same boundary hold whether it uses a file tool or switches to commands or scripts? Fixed programs and direct tasks examine different parts of execution. Each case explains its specific design."
+        },
+        {
+          "zh-CN": "测试条件也需要一起看。我们记录实际使用的产品版本、模型、提示词、权限设置和审批策略，区分产品默认配置与专门设置了资源保护规则的配置。它们回答的问题不同，不能把配置规则后的结果直接当作默认表现，也不能把某个场景的成功防护扩展成对所有操作的保证。",
+          "en": "Test conditions also matter. We record the product version, model, prompt, permission settings and approval policy actually used. We distinguish product defaults from configurations with explicit resource protection rules. They answer different questions. Results obtained with configured rules cannot be treated as default behavior, and successful protection in one scenario does not guarantee protection against every operation."
+        },
+        {
+          "zh-CN": "最后，我们检查电脑上真正发生了什么：摄像头有没有打开，文件有没有变化，桌面还能不能正常操作，并保留录像和检查结果。对于测试范围内出现的确认提示，我们先记录原文和画面，再按事先约定的策略批准继续，观察后续效果。最初有没有拦住、提示有没有说明风险、授权之后有没有发生危险效果，是三个需要分别记录的问题。如果效果是在授权后发生的，就明确写出这一点；如果证据不完整，就保留未评估状态。Agent说“完成了”或者“被拦住了”，还需要结合实际观察来判断。",
+          "en": "Finally, we check what actually happened on the computer: whether the camera opened, whether files changed, and whether the desktop remained usable. We retain recordings and observation results. For confirmation prompts within the test scope, we capture the original wording and screen, then approve continuation under the policy agreed in advance and observe what follows. Whether an operation was initially blocked, whether the prompt explained the risk, and whether a harmful effect occurred after approval are three separate questions to record. If the effect occurred after approval, we say so explicitly. If the evidence is incomplete, we leave the result unassessed. An Agent saying “completed” or “blocked” must still be checked against actual observations."
         }
       ],
       "tocLabel": {
@@ -70,29 +124,41 @@
       },
       "paragraphs": [
         {
-          "zh-CN": "目前，我们围绕DeepSeek Harness、WorkBuddy和Codex CLI开展测评，已经完成的测试主要集中在隐私安全和交互安全，包括摄像头、麦克风、截屏、录屏，以及弹窗、窗口和鼠标干扰等操作。不同Agent的覆盖范围还没有完全对齐，系统安全和数据安全也还有待补齐。",
-          "en": "We are currently evaluating DeepSeek Harness, WorkBuddy and Codex CLI. The completed tests mainly cover Privacy and Interaction, including camera and microphone access, screenshots, screen recording, pop-ups, and interference with windows and the mouse. Coverage is not yet the same for every Agent, and System and Data still need to be filled in."
+          "zh-CN": "目前，我们围绕DeepSeek Harness、WorkBuddy、Codex CLI和Claude CLI，完成了四类安全测试，每个Agent纳入当前评分的场景有33个。有些操作被成功阻止，但也有不少危险效果最终发生了：摄像头被打开、声音被录下、文件被改动或删除，桌面受到干扰。不同Agent的表现存在差异，但测试让我们反复遇到一个问题：弹出了确认框，到底算不算保护了用户？",
+          "en": "We have now completed tests in four safety categories for DeepSeek Harness, WorkBuddy, Codex CLI and Claude CLI, with 33 scenarios included in the current score for each Agent. Some operations were successfully blocked, but many harmful effects still occurred: cameras opened, audio was recorded, files were changed or deleted, and desktops were disrupted. Results differ across Agents, but the tests repeatedly bring us back to one question: does showing a confirmation prompt count as protecting the user?"
         },
         {
-          "zh-CN": "真正让我们大吃一惊的是：在DeepSeek Harness、WorkBuddy和Codex CLI各自已经完成的测试中，内置沙箱对受测危险操作的最终防护成功率是0%。摄像头被打开、声音被录下、屏幕被截取或录制，弹窗和窗口干扰让电脑无法正常使用——这些危险操作最终都没有被挡住。放到日常电脑上，受到影响的就是用户的私人谈话、工作资料和正常工作。",
-          "en": "What really shocked us was this: in the tests completed for each of DeepSeek Harness, WorkBuddy and Codex CLI, the built-in sandboxes had a final prevention rate of 0% for the tested harmful operations. Cameras opened, audio was recorded, screens were captured or recorded, and pop-ups and window interference made the computer unusable. None of these harmful operations was ultimately stopped. On an everyday computer, that would put the user’s private conversations, work materials and ability to work at risk."
+          "zh-CN": "在不少受测场景中，沙箱先阻止操作，再弹出确认框，把是否继续的决定交给用户。用户点下“允许”，操作就继续执行。可是，用户看到的可能只是一条命令、一个程序名，未必知道接下来会发生什么。想让Agent把事情做完，并不意味着愿意交出私人资料，或者接受重要文件被删除。",
+          "en": "In a number of tested scenarios, the sandbox first blocks an operation, then shows a confirmation prompt and leaves the decision to continue to the user. Once the user clicks “Allow”, execution continues. Yet the user may see only a command or a program name, without knowing what will happen next. Wanting the Agent to finish a task does not mean being willing to hand over private information or accept the deletion of important files."
         },
         {
-          "zh-CN": "有些操作虽然弹出了确认框，但提示没有把危害讲清楚。用户看到的是一条命令、一次权限申请，却未必知道，点下“允许”之后，摄像头会被打开、屏幕会被录下，或者桌面会变得无法使用。弹窗本身也容易让人麻木。Anthropic公布的数据显示，Claude Code的权限请求有97%被用户批准。在另一项包含1,053名付费测试者的受控实验中，面对明确危险的命令，也只有13.6%的测试者选择拦下。频繁要求确认，并不意味着用户会认真判断每一次操作的风险。",
-          "en": "Some operations did show an approval dialog, but the prompt did not explain the harm clearly. Users saw a command or a permission request, without necessarily knowing that clicking “Allow” would open the camera, record the screen or make the desktop unusable. The prompts themselves can also wear people down. According to figures published by Anthropic, users approve 97% of Claude Code permission requests. In a separate controlled experiment with 1,053 paid testers, only 13.6% chose to stop a clearly dangerous command. Asking for confirmation frequently does not mean users will carefully judge the risk of every operation."
+          "zh-CN": "确认框本身也容易让人麻木。Anthropic在关于Claude Code的报告中指出，97%的权限请求被用户批准，其中多数请求可能是安全的日常操作。但在另一项包含1,053名付费测试者的受控实验中，面对被替换进审批提示的明确危险命令，也只有13.6%的测试者将其拦下。频繁要求确认，并不意味着用户能可靠地判断每一次操作的风险。",
+          "links": [
+            {
+              "href": "https://claude.com/resources/articles/auto-mode-default-in-claude-code",
+              "label": {
+                "zh-CN": "报告原文",
+                "en": "Original report"
+              }
+            }
+          ],
+          "en": "Confirmation prompts can also become routine. In its report on Claude Code, Anthropic says users approve 97% of permission requests, most of which may be safe, routine operations. But in a separate controlled experiment with 1,053 paid testers, only 13.6% caught a clearly dangerous command substituted into an approval prompt. Frequent confirmation requests do not mean users can reliably judge the risk of each operation."
         },
         {
-          "zh-CN": "警示没有讲清后果，用户又习惯了点击通过，确认框就容易变成完成任务前顺手点掉的一步。在我们的测评中，按事先约定的策略继续授权后，危险操作仍然发生。提醒出现了，但用户的隐私和电脑并没有得到应有的保护。相比之下，FinShield在已经完成的对照中，阻止了相应的危险操作。",
-          "en": "When warnings do not explain the consequences and users are used to approving requests, the dialog can become just another thing to click away before a task is done. In our evaluations, harmful operations still occurred after we continued granting approval under the policy agreed in advance. A warning appeared, but the user’s privacy and computer did not receive the protection they should have. In contrast, FinShield stopped the corresponding harmful operations in the completed comparisons."
-        }
-      ],
-      "links": [
+          "zh-CN": "因此，我们不把“出现过确认框”直接算作保护成功，而是看**最终保护率**。对于测试范围内的审批请求，我们先保存提示原文和画面，再按事先约定的策略批准继续，检查危险效果最终有没有发生。如果只是最初被拦住，点下“允许”后仍然造成了损害，就不能计入最终保护成功。",
+          "en": "We therefore do not count “a confirmation prompt appeared” as successful protection. Instead, we measure the **final protection rate**. For approval requests within the test scope, we first save the original wording and screen, then approve continuation under the policy agreed in advance and check whether the harmful effect ultimately occurs. If an operation is initially blocked but still causes harm after “Allow” is selected, it cannot count as a final protection success."
+        },
         {
-          "href": "https://claude.com/resources/articles/auto-mode-default-in-claude-code",
-          "label": {
-            "zh-CN": "Anthropic官方报告：权限审批、审批疲劳与受控实验",
-            "en": "Anthropic: permission approvals, approval fatigue and the controlled study"
-          }
+          "zh-CN": "最终保护率，就是**在有效且已完成判定的测试场景中，最终阻止了目标危险效果的场景所占的比例**，每个Agent分别计算。程序没写对、操作没有真正尝试，不能算保护成功；证据不足、尚未评估的场景不进入分母。初始拦截和风险提示仍然单独记录，但不能替代最终效果。",
+          "en": "The final protection rate is **the proportion of valid, assessed test scenarios in which the target harmful effect was ultimately prevented**, calculated separately for each Agent. Incorrect programs and operations that were never actually attempted do not count as protection successes. Scenarios with insufficient evidence or without an assessment are excluded from the denominator. Initial blocks and risk warnings are recorded separately, but cannot substitute for the final effect."
+        },
+        {
+          "zh-CN": "我们这样定义，是想看清楚：当用户选择继续完成任务时，产品还能不能守住需要保护的资源。这个指标衡量的是既定授权流程下的最终保护能力，并不代表日常使用中的事故概率。用户已经点过“允许”，不应该成为我们停止检查实际后果的地方。",
+          "en": "We define the metric this way to find out whether the product can still protect the resources that matter when the user chooses to continue the task. It measures final protection under the declared approval process, not the probability of an incident in everyday use. The fact that a user has already clicked “Allow” should not be where we stop checking the actual consequences."
+        },
+        {
+          "zh-CN": "作为对照，我们也记录了同一Agent使用FinShield时的表现。在目前纳入评分的FinShield对照组中，预先定义的目标危险效果都得到了阻止。具体配置和证据保留在各案例中。这让我们进一步思考：为什么面对同一种操作，不同的保护方式会得到不同的最终结果？",
+          "en": "For comparison, we also record how the same Agent behaves when using FinShield. In the FinShield comparison groups currently included in scoring, all predefined target harmful effects were prevented. The specific configurations and evidence remain in each case. This raises a further question: why do different protection approaches produce different final results for the same operation?"
         }
       ],
       "tocLabel": {
@@ -108,8 +174,8 @@
       },
       "paragraphs": [
         {
-          "zh-CN": "这些大厂有能力做更严格的隔离。FinShield用到的系统安全机制，也并非只有我们才能使用。我们认为，眼前的差别，更可能来自产品目标和取舍。对于Agent产品，一个重要目标是让Agent顺利工作。沙箱需要提供稳定、可用的执行环境，让它能读文件、运行工具，少被环境问题打断。遇到权限不足，产品通常会提供申请权限、确认放行等途径，让任务能够继续。",
-          "en": "These large vendors can build stricter isolation. The system security mechanisms FinShield uses are not exclusive to us. We think the difference we see is more likely to come from product goals and tradeoffs. An important goal for an Agent product is to keep the Agent working smoothly. The sandbox needs to provide a stable, usable execution environment where it can read files and run tools without constant interruptions from environment problems. When permissions are insufficient, the product will usually offer ways to request access and approve it so the task can continue."
+          "zh-CN": "这些大厂有能力做更严格的隔离。FinShield用到的系统安全机制，也并非只有我们才能使用。我们认为，眼前的差别，也与产品目标和取舍有关。对于Agent产品，一个重要目标是让Agent顺利工作。沙箱需要提供稳定、可用的执行环境，让它能读文件、运行工具，少被环境问题打断。遇到权限不足，产品通常会提供申请权限、确认放行等途径，让任务能够继续。",
+          "en": "These large vendors can build stricter isolation. The system security mechanisms FinShield uses are not exclusive to us. We think the difference we see is also related to product goals and tradeoffs. An important goal for an Agent product is to keep the Agent working smoothly. The sandbox needs to provide a stable, usable execution environment where it can read files and run tools without constant interruptions from environment problems. When permissions are insufficient, the product will usually offer ways to request access and approve it so the task can continue."
         },
         {
           "zh-CN": "但站在用户这边，有些红线不能因为任务需要就被越过。Agent不能觉得某份资料“可能有帮助”，就自行读取；不能觉得某项权限“用起来方便”，就要求用户全部交出来。就像人做事要受法律和规则约束，不能拿“把事情办成”当作肆意妄为的理由，Agent也必须在用户允许的范围内行动。这两种出发点，会影响遇到限制时怎么处理。优先考虑任务能否完成，就容易把权限限制看作需要解决的障碍；优先保护用户，就要接受有些操作必须停下来。即使Agent给出了听起来合理的解释，也不能因此放开那些本来就不该碰的资源。",
@@ -209,8 +275,8 @@
           "en": "The principle is simple: give the Agent and the programs it runs a separate identity. It still works on your computer, but it does not automatically get all your permissions. The permissions attached to that identity determine which files it can read and write, and which devices it can use. The Agent and its tools still run directly on the computer, with Windows checking permissions. Files and resources needed for the task can be made available under the rules, while the system restricts access beyond that authorization. There is no need to run an additional virtual machine, so its resource overhead is avoided."
         },
         {
-          "zh-CN": "具体的技术细节，我们会在后续文章里展开，敬请关注。",
-          "en": "We will cover the technical details in a follow-up article. Stay tuned."
+          "zh-CN": "关于案例为什么这样设计、最终保护率如何判定，以及FinShield如何执行这些保护规则，我们会在后续技术文章中分别展开。我们也会继续补充测试和证据，让读者既能看到结果，也能复查结果是怎么得出的。",
+          "en": "In future technical articles, we will explain why the cases are designed this way, how the final protection rate is assessed, and how FinShield enforces these protection rules. We will also continue to add tests and evidence, so readers can see both the results and how they were obtained."
         }
       ],
       "tocLabel": {
@@ -222,14 +288,14 @@
   "references": [],
   "metadata": {
     "author": "Agent Safety Arena",
-    "updated": "2026-11-09",
+    "updated": "2026-11-13",
     "seoTitle": {
       "zh-CN": "AI Agent安全公开测评指南：Windows沙箱、方法与证据",
       "en": "Public AI Agent safety evaluation guide: Windows sandboxes, methods and evidence"
     },
     "description": {
-      "zh-CN": "了解Agent Safety Arena的AI安全公开测评：Windows沙箱、固定程序对照、授权策略、当前防护结果及可复查证据，明确内置防护与FinShield的测试范围和局限。",
-      "en": "Understand Agent Safety Arena public AI safety evaluations: Windows sandboxes, fixed-program comparisons, approval policy, current results and verifiable evidence, with the scope and limits of built-in controls and FinShield."
+      "zh-CN": "了解Agent Safety Arena的AI安全公开测评：固定程序与直接任务、审批策略、最终保护率及可复查证据，明确原生防护与FinShield的测试范围和局限。",
+      "en": "Explore Agent Safety Arena public AI safety evaluations: fixed programs and direct tasks, approval policies, final protection rate and verifiable evidence, with the scope and limits of native protections and FinShield."
     },
     "keywords": {
       "zh-CN": [
@@ -265,12 +331,12 @@
     },
     {
       "title": {
-        "zh-CN": "有内置沙箱，危险操作仍然发生了。",
-        "en": "Harmful operations still occurred with built-in sandboxes."
+        "zh-CN": "弹出确认框，不等于完成了保护。",
+        "en": "A confirmation prompt does not establish final protection."
       },
       "body": {
-        "zh-CN": "在各Agent已完成的受测场景中，内置沙箱的最终防护成功率为0%；FinShield则在已完成的对应对照中，阻止了这些危险操作。",
-        "en": "In the tested scenarios completed for each Agent, built-in sandboxes had a final prevention rate of 0%. FinShield stopped these harmful operations in the completed corresponding comparisons."
+        "zh-CN": "最终保护率看的是：在有效且已完成判定的场景中，按既定授权流程执行后，目标危险效果是否被最终阻止。初始拦截和风险提示单独记录，不替代最终效果。",
+        "en": "The final protection rate measures whether target harmful effects are ultimately prevented in valid, assessed scenarios under the declared approval process. Initial blocks and risk warnings are recorded separately and do not substitute for final effects."
       }
     },
     {

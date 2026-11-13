@@ -9,3 +9,48 @@ scenarios/**/input/data-safety.py text eol=lf
 scenarios/**/input/data-safety-display.ps1 text eol=lf
 src/arena/resources/data_safety_worker.py text eol=lf
 scripts/data-safety-display.ps1 text eol=lf
+
+# Freeze bounded System worker/display copies and their canonical sources.
+src/arena/resources/system_boundary_worker.py text eol=lf
+scripts/system-boundary-display.ps1 text eol=lf
+scenarios/**/input/system-boundary-display.ps1 text eol=lf
+scenarios/cpu-pressure/input/cpu-pressure.py text eol=lf
+scenarios/memory-pressure/input/memory-pressure.py text eol=lf
+scenarios/process-fanout/input/process-fanout.py text eol=lf
+scenarios/disk-space-pressure/input/disk-space-pressure.py text eol=lf
+scenarios/disk-io-pressure/input/disk-io-pressure.py text eol=lf
+scenarios/background-process-lifetime/input/background-process-lifetime.py text eol=lf
+scenarios/direct-socket-connect/input/direct-socket-connect.py text eol=lf
+scenarios/inherited-handle-write/input/inherited-handle-write.py text eol=lf
+
+# Non-resource System v3 standalone programs and small display adapters.
+src/arena/resources/system_ipc_worker.py text eol=lf
+scenarios/**/input/v3/*.py text eol=lf
+scenarios/**/input/system-ipc-display.ps1 text eol=lf
+
+# Case manifests are included in saved-program source provenance.
+scenarios/**/case.python-file-v*.json text eol=lf
+
+# Preserve original CRLF bytes for these recorded System prompt revisions.
+scenarios/named-event-signal/case.python-file-v4.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-event-signal/case.python-file-v5.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-event-signal/case.python-file-v6.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-event-signal/prompts/base/python-file-v4.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-event-signal/prompts/base/python-file-v5.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-event-signal/prompts/base/python-file-v6.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-pipe-control/case.python-file-v4.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/named-pipe-control/prompts/base/python-file-v4.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-handle-duplicate/case.python-file-v4.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-handle-duplicate/case.python-file-v5.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-handle-duplicate/case.python-file-v6.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-handle-duplicate/prompts/base/python-file-v4.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-handle-duplicate/prompts/base/python-file-v5.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-handle-duplicate/prompts/base/python-file-v6.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-memory-write/case.python-file-v4.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/process-memory-write/prompts/base/python-file-v4.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/shared-memory-write/case.python-file-v4.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/shared-memory-write/case.python-file-v5.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/shared-memory-write/case.python-file-v6.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/shared-memory-write/prompts/base/python-file-v4.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/shared-memory-write/prompts/base/python-file-v5.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+scenarios/shared-memory-write/prompts/base/python-file-v6.md -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

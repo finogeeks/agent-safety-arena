@@ -66,7 +66,7 @@ def _loopback_urls(blob):
     return found
 
 
-def loopback_url_in(blob):
+def loopback_url_in(blob, allowed_ports=None):
     """Return the one DSH loopback URL in a host output buffer."""
     if not isinstance(blob, (bytes, bytearray)) or not blob:
         return None
@@ -87,6 +87,8 @@ def loopback_url_in(blob):
             index += 2
         found.update(_loopback_urls("".join(chars).encode("ascii")))
         start = at + len(prefix)
+    if allowed_ports is not None:
+        found = {url for url in found if urllib.parse.urlsplit(url).port in allowed_ports}
     if len(found) != 1:
         return None
     return next(iter(found))
@@ -133,7 +135,7 @@ def _descendant_pids(root):
     return list(seen)
 
 
-def _process_url(pid):
+def _process_url(pid, allowed_ports=None):
     import ctypes
     from ctypes import wintypes
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
@@ -169,7 +171,7 @@ def _process_url(pid):
                     read = ctypes.c_size_t()
                     if kernel32.ReadProcessMemory(process, ctypes.c_void_p(base + offset), buffer, step, ctypes.byref(read)) and read.value:
                         chunk = previous + bytes(buffer[:read.value])
-                        url = loopback_url_in(chunk)
+                        url = loopback_url_in(chunk, allowed_ports=allowed_ports)
                         if url:
                             return url
                         previous = chunk[-512:]
@@ -180,26 +182,43 @@ def _process_url(pid):
     return None
 
 
-def _listening_pids(pids):
+def _listening_ports(pids):
     wanted = {str(pid) for pid in pids}
     try:
         output = subprocess.check_output(["netstat", "-ano", "-p", "tcp"], text=True, errors="replace")
     except (OSError, subprocess.CalledProcessError):
-        return []
-    found = []
+        return {}
+    found = {}
     for line in output.splitlines():
         parts = line.split()
-        if len(parts) >= 5 and parts[3] == "LISTENING" and parts[1].startswith("127.0.0.1:") and parts[4] in wanted:
-            found.append(int(parts[4]))
+        if (len(parts) >= 5 and parts[3] == "LISTENING" and parts[4] in wanted
+                and parts[1].startswith(("127.0.0.1:", "0.0.0.0:", "[::1]:", "[::]:"))):
+            try:
+                port = int(parts[1].rsplit(":", 1)[1])
+            except ValueError:
+                continue
+            if 1 <= port <= 65535:
+                found.setdefault(int(parts[4]), set()).add(port)
     return found
 
 
-def desktop_host_url(root_pid):
+def _listening_pids(pids):
+    return list(_listening_ports(pids))
+
+
+def desktop_host_url(root_pid, main_pid=None):
     """Read the one loopback URL from the desktop host started by root_pid."""
-    listeners = _listening_pids(_descendant_pids(root_pid))
+    owned = _descendant_pids(root_pid)
+    listeners = _listening_ports(owned)
     if not listeners:
         return None
-    found = {url for url in (_process_url(pid) for pid in listeners) if url}
+    ports = set().union(*listeners.values())
+    candidates = list(dict.fromkeys(([main_pid] if main_pid in owned else []) + list(listeners)))
+    found = set()
+    for pid in candidates:
+        url = _process_url(pid, allowed_ports=ports)
+        if url and urllib.parse.urlsplit(url).port in ports:
+            found.add(url)
     if len(found) != 1:
         return None
     return next(iter(found))
@@ -271,6 +290,7 @@ class DshAgent:
         self.process = None
         self.session_id = None
         self.preferences = preferences or {}
+        self.desktop_main_pid = None
         self.process_boundary = process_boundary
         self.opener = urllib.request.build_opener(
             urllib.request.ProxyHandler({}), LocalRedirect(),
@@ -283,6 +303,12 @@ class DshAgent:
                 if match:
                     ready.put(match.group())
                 elif "hook_ready" in line and "true" in line:
+                    try:
+                        launch = json.loads(line)
+                        if isinstance(launch, dict) and type(launch.get("main_pid")) is int and launch["main_pid"] > 0:
+                            self.desktop_main_pid = launch["main_pid"]
+                    except (ValueError, TypeError):
+                        pass
                     ready.put("hook-ready")
                 log.write(scrub(line))
                 log.flush()
@@ -330,18 +356,24 @@ class DshAgent:
             elif item:
                 authenticated_url = item
             if authenticated_url is None and hook_ready and self.confinement and time.monotonic() + 1 <= deadline:
-                authenticated_url = desktop_host_url(self.process.pid)
+                authenticated_url = desktop_host_url(self.process.pid, main_pid=self.desktop_main_pid)
                 if authenticated_url is None:
                     time.sleep(1)
         parsed = urllib.parse.urlsplit(authenticated_url)
         if parsed.hostname != "127.0.0.1" or parsed.scheme != "http" or not parsed.port:
             raise ValueError("DSH must use its owned loopback listener")
         self.base = f"http://127.0.0.1:{parsed.port}"
-        try:
-            with self.opener.open(authenticated_url, timeout=15) as response:
-                response.read()
-        except (urllib.error.URLError, OSError) as error:
-            raise RuntimeError(f"DSH authentication failed: {scrub(error)}") from None
+        while True:
+            try:
+                with self.opener.open(authenticated_url, timeout=max(.1, min(15, deadline-time.monotonic()))) as response:
+                    response.read()
+                break
+            except urllib.error.HTTPError as error:
+                raise RuntimeError(f"DSH authentication failed: {scrub(error)}") from None
+            except (urllib.error.URLError, OSError) as error:
+                if self.process.poll() is not None or time.monotonic() >= deadline:
+                    raise RuntimeError(f"DSH authentication failed: {scrub(error)}") from None
+                time.sleep(.2)
         for namespace, values in self.preferences.items():
             if namespace not in {'ui-theme', 'agent-default-model'}:
                 raise ValueError('Unsupported recording preference namespace')

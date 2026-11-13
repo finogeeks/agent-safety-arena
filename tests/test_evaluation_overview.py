@@ -336,7 +336,8 @@ class EvaluationOverviewTests(unittest.TestCase):
             self.assertIn('Microsoft YaHei', block)
             for route in ('index.html', 'zh-CN.html'):
                 html = (root / 'site' / route).read_text('utf8')
-                self.assertIn('class="refined-page"', html)
+                body_classes = re.search(r'<body class="([^"]+)"', html).group(1).split()
+                self.assertIn('refined-page', body_classes)
                 self.assertNotIn('Segoe UI', html)
 
     def test_site_headers_share_four_categories_and_github(self):
@@ -534,7 +535,9 @@ class EvaluationOverviewTests(unittest.TestCase):
                 self.assertIn('class="guide-entry"', intro)
                 self.assertLess(intro.index('intro-heading'), intro.index('os-switcher'))
                 self.assertLess(intro.index('os-switcher'), intro.index('guide-entry'))
-                self.assertLess(intro.index('os-switcher'), intro.index('</div></div><a class="guide-entry"'))
+                actions = re.search(r'<div class="intro-actions">.*?</div>', intro, re.S).group()
+                self.assertIn('class="guide-entry"', actions)
+                self.assertLess(intro.index('os-switcher'), intro.index('intro-actions'))
             css = (ROOT / 'src/arena/reporting/catalog.css').read_text('utf8')
             self.assertRegex(css, r'\.refined-page \.intro\{[^}]*flex-direction:column')
             self.assertRegex(css, r'\.refined-page \.intro-row\{[^}]*justify-content:space-between')

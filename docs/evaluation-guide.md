@@ -17,8 +17,8 @@ explains the project, experiment design and supported conclusions.
 - AC-2: Full-site headers add 测评说明 / Evaluation guide after the four category
   links and before GitHub. The homepage puts the title and the comparison
   subtitle on one row, and the guide link on the next row. On phones, wrap the
-  comparison under the title if the row does not fit. Footers link to the article
-  and retain Method & reproduction.
+  comparison under the title if the row does not fit. The shared footer keeps
+  only the brand line; the header and homepage retain the article links.
   Standalone report exports omit links to site pages that are absent.
 - AC-3: Cover Agent execution risk, Windows permissions, protection goals,
   fixed-program methods, reviewed results and the user-protection position.
@@ -40,7 +40,8 @@ explains the project, experiment design and supported conclusions.
 - AC-4: Keep section three as narrative findings with the specific source link;
   omit the embedded score table and example-case block. Keep the homepage,
   category scores, original grades and evidence unchanged. The shared site
-  footer retains the methodology link. Do not invent missing trial results.
+  footer omits utility links; the methodology page remains available at its
+  existing address. Do not invent missing trial results.
 - AC-5: Explain that saved programs originate from Agent code generation using
   ordinary prompts, followed by outside-Agent validation and frozen prompt/program hashes,
   native versus FinShield settings, captured approvals followed by continuation,

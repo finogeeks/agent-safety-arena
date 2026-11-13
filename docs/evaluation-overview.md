@@ -1,6 +1,6 @@
 # Evaluation overview
 
-Status: Public roster without OpenCode CLI, withheld Keyboard Hook, and per-Agent score pages, revised 2026-11-12.
+Status: Opt-in homepage comparison and compact footer, revised 2026-11-13.
 
 ## Problem
 
@@ -49,7 +49,7 @@ flowchart LR
   O --> A[Agent score page]
   C --> A
   A --> D
-  O --> M[Separate methodology and reproduction page]
+  O --> G[Evaluation guide]
 ```
 
 Every full-site page uses the same header: brand, the four authored category
@@ -58,10 +58,13 @@ header link with `aria-current="page"`. Hub and detail pages keep those four
 links so a reader can change category without returning home. Breadcrumbs still
 show Home, category, scenario, and Agent details. Standalone report exports omit
 category links because those parents are absent. Do not put Scenarios or
-Methodology in the header; keep methodology in the footer and on its own page.
+Methodology in the header; keep methodology on its own page.
 The [evaluation guide](evaluation-guide.md) adds a reader introduction after the
-category links and before GitHub. Home and footer entry points link to that
-article; technical reproduction guidance remains separate.
+category links and before GitHub. The home entry point links to that article;
+technical reproduction guidance remains separate. Shared overview footers show
+only Agent Safety Arena and the FinAI OS brand link. Remove the Evaluation guide,
+Method & reproduction, GitHub, Data and Build manifest footer links, but keep
+their pages and files available at the existing addresses.
 
 Homepage order, in both languages:
 
@@ -69,7 +72,7 @@ Homepage order, in both languages:
 flowchart TD
   T[Title and comparison on the left]
   O[Windows selected; macOS and Linux disabled]
-  G[Guide link]
+  G[Guide link and comparison checkbox]
   S[Agent score cards]
   M[Category GIF cards]
   F[Scoring footnote]
@@ -77,15 +80,17 @@ flowchart TD
   T --> G --> S --> M --> F
 ```
 
-1. Use Agent安全测评 / Agent Safety Evaluation as the title and Agent内置沙箱 vs
-   FinShield / Built-in sandbox vs FinShield as the short comparison line.
+1. Use Agent安全测评 / Agent Safety Evaluation as the title. Initially show only
+   Agent内置沙箱 / Built-in sandbox in the short comparison line. Show vs FinShield
+   when the reader enables the comparison checkbox.
    Keep that comparison on one line. Put the title and the comparison line on
    the left of one row. Put a static operating-system control on the right of
    that same row: Windows, macOS, and Linux. Windows is selected. macOS and
    Linux are disabled `button` elements, not links, and are not yet listed.
    Chinese uses 尚未收录; English uses Not listed yet. Do not use JavaScript.
    Later macOS or Linux trees may enable those buttons; until then they stay
-   disabled. Put the guide link on the next row. On phones, wrap the comparison
+   disabled. Put the guide link and the unchecked 显示FinShield对照 /
+   Show FinShield comparison checkbox on the next row. On phones, wrap the comparison
    under the title if the row does not fit, and keep the operating-system
    control right-aligned. Keep fixed-model metadata on the methodology page.
 2. One small card per Agent combining overall and all four category scores.
@@ -111,8 +116,10 @@ flowchart TD
    Missing media uses a compact category link without a GIF frame.
 
 The homepage Agent cards read the existing per-Agent total/category score
-objects; they do not calculate a different grade. Keep both protection tracks
-and all four categories visible on each card. Stack the cards on small
+objects; they do not calculate a different grade. Keep all four categories
+visible on each card. Initially show only the native score column. The checkbox
+reveals the existing FinShield column without changing values or card order.
+Stack the cards on small
 screens. Do not hide category results behind navigation. Category pages
 retain a compact category score summary and a scenario card grid. Each Agent
 row in that score summary is one link to the Agent score page with this category open. The rate and the count line are centered separately in each protection column.
@@ -134,10 +141,24 @@ assessments and media. The shared [publication policy](public-result-presentatio
 classification from reviewed live records. Collection phase remains in the source
 and evidence export; it does not exclude a newly published result from summaries.
 
+The comparison checkbox controls only the homepage subtitle, score columns and
+GIF panes. Use a native labelled checkbox and CSS; retain `script-src 'none'`.
+The default preview clips the right half of the original side-by-side GIF and
+centers its native pane in the existing frame. Checking the control restores
+the full GIF and both pane labels. Preserve frame height, source media bytes,
+category links and score calculations. Accessible descriptions match the visible
+mode. Category, Agent and evidence pages continue to show both tracks.
+
+```mermaid
+flowchart LR
+  N[Native scores and GIF panes] -->|Enable comparison| C[Both score columns and GIF panes]
+  C -->|Disable comparison| N
+```
+
 Scores precede the showcase, so a new reader sees who passed before the
 illustrative GIFs. Reuse each selected record's existing reviewed combined GIF
-without re-editing or rerunning. Show native/FinShield pane labels above the
-GIF. Do not call an edited GIF a full recording. Do not put Video, Records,
+without re-editing or rerunning. Show labels for the currently visible panes
+above the GIF. Do not call an edited GIF a full recording. Do not put Video, Records,
 Reproduce, or GIF edit-note actions on the homepage cards. Missing media gets a
 compact category link; never substitute synthetic or unrelated images. Do not
 create links to nonexistent video, evidence or reproduction material.
@@ -155,7 +176,7 @@ Interaction card still omits the Agent name.
 
 Do not put full case result lists, logs, or long method text on the homepage.
 The four authored categories each have one homepage GIF slot. Stack the
-showcase on phones and keep both protection tracks visible on each Agent card.
+showcase on phones and let the same checkbox show or hide the FinShield track.
 
 Category pages group reports by scenario and contain at most 20 scenario cards.
 Each card has its localized name, one sentence describing the action and its
@@ -399,6 +420,8 @@ remains the evidence source; no raw recordings or local profile is needed.
 | AC-19 | Each homepage Agent card is one link to that Agent's score page with every category collapsed. The card names 内置沙箱 / Built-in and FinShield once, then shows only the rate number for that Agent's own two tracks. The row label and the two rate columns are separate: labels stay on the left, and both rate columns share one fixed-width block on the right, so a shorter label does not move that row's rates. English category labels stay on one line. It omits percent signs and passed/failed counts. Category rows stay visible on the card and are not separate links. A category-table Agent row opens the same page with that category expanded. The category table centers the rate number and the count line separately. The page centers overall and category rates with their pass/fail lines, and centers scenario badges with their warning lines. A recorded scenario links to its existing comparison. An empty category says its scenarios are still being collected. |
 | AC-20 | A catalog scenario with `publication: withheld` is omitted from public pages and scores after validation. Keyboard Hook is withheld. Its original records remain in `results/` and appear in `excludedWithheldResults`. |
 | AC-21 | Both homepage languages place Windows, macOS, and Linux on the title row, right-aligned, with Windows selected and the other two disabled and labeled Not listed yet / 尚未收录. Score cards have no visible Evaluation results / 测评结果 heading. The scoring footnote is after the GIF showcase. Interaction uses the DeepSeek Harness Window Flood GIF when that live paired protocol-matching report exists. |
+| AC-22 | Both homepage languages and the English alias have an unchecked, keyboard-accessible Show FinShield comparison checkbox beside the guide link. It reveals or hides the FinShield subtitle, score column, GIF pane and corresponding accessible description without JavaScript, layout reordering, media edits or score changes. |
+| AC-23 | Shared overview footers retain only the brand line. Header navigation and the guide, methodology, catalog and manifest files remain available. |
 
 ## Out of scope
 
@@ -426,5 +449,10 @@ and omits OpenCode CLI. Confirm withheld Keyboard Hook records stay out of publi
 pages and appear in `excludedWithheldResults`. Confirm both homepages put scores
 before GIFs, right-align the Windows control on the title row, omit a visible
 results heading, place the scoring footnote after the showcase, and pin
-Interaction to DeepSeek Harness Window Flood when that pair exists. Run no live
+Interaction to DeepSeek Harness Window Flood when that pair exists.
+`tests.test_home_comparison` checks AC-22/23 output, evidence preservation,
+localized labels and retained destinations. Browser checks cover unchecked,
+checked and unchecked-again states, keyboard activation, desktop and phone
+overflow, GIF frame sizes and category-page isolation with JavaScript disabled.
+Run no live
 collection or assessment revision for this redesign.

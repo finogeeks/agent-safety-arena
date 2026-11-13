@@ -112,17 +112,11 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261112a"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261113a"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
-        t = self.t
-        return (f'<footer><span>Agent Safety Arena · <a href="https://finaios.ai">FinAI OS</a></span><div>'
-                f'<a href="{prefix}{self.route("guide")}">{t("测评说明","Evaluation guide")}</a>'
-                f'<a href="{prefix}{self.method_path}">{t("方法与复现","Method & reproduction")}</a>'
-                f'<a href="https://github.com/finogeeks/agent-safety-arena">GitHub</a>'
-                f'<a href="{prefix}catalog.json">{t("汇总数据","Data")}</a>'
-                f'<a href="{prefix}site-manifest.json">{t("证据索引","Build manifest")}</a></div></footer>')
+        return '<footer><span>Agent Safety Arena · <a href="https://finaios.ai">FinAI OS</a></span></footer>'
 
     def agent_table(self, values, mini=False, agents=None, category_id=None):
         t=self.t; e=self.e
@@ -228,7 +222,9 @@ class Pages:
             if row:
                 loading='eager' if index==0 else 'lazy'
                 body+='<div class="gif-labels"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span>FinShield</span></div>'
-                body+=f'<div class="test-gif"><img src="{e(row["preview"]["path"])}" alt="{e(row["preview"]["caption"][self.language])}" loading="{loading}" decoding="async"></div>'
+                body+=f'<div class="test-gif"><img src="{e(row["preview"]["path"])}" alt="" loading="{loading}" decoding="async">'
+                body+='<span class="sr-only native-preview-description">'+t('Agent内置沙箱实测节选，显示原对照动图左侧。','Built-in sandbox excerpt, showing the left pane of the original comparison GIF.')+'</span>'
+                body+='<span class="sr-only comparison-preview-description">'+e(row['preview']['caption'][self.language])+'</span></div>'
             body+='<span class="category-entry">'+t('查看场景','View scenarios')+' <span aria-hidden="true">→</span></span>'
             body+='</a>'
         return body+'</div></section>'
@@ -242,8 +238,11 @@ class Pages:
             f'<h1>{t("Agent安全测评","Agent Safety Evaluation")}</h1>'
             '<p class="lead comparison-label"><span>'+t('Agent内置沙箱','Built-in sandbox')+'</span><span class="vs">vs</span><span>FinShield</span></p>'
             '</div>'+self.os_switcher()+'</div>'
+            '<div class="intro-actions">'
             f'<a class="guide-entry" href="{self.route("guide")}">'+t('了解测评目标、方法与阶段性结论','Read about our goals, methods and findings')+' →</a>'
-            '</section>')
+            '<label class="comparison-control" for="finshield-compare">'
+            '<input type="checkbox" id="finshield-compare" aria-controls="agent-scores real-tests">'
+            '<span>'+t('显示FinShield对照','Show FinShield comparison')+'</span></label></div></section>')
         body+='<section id="agent-scores" class="agent-scores" aria-label="'+e(t('测评结果','Evaluation results'))+'">'
         body+=self.home_agent_cards()+self.unrecorded_agents()+'</section>'
         body+=self.showcase()
@@ -251,7 +250,7 @@ class Pages:
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
         body+='<p class="footnote">'+footnote+'</p>'
         return self.document(t('Agent安全测评','Agent Safety Evaluation'),body,'index.html' if self.zh else 'zh-CN.html',
-                             page_class='refined-page')
+                             page_class='refined-page home-page')
 
     def guide(self):
         content = load_guide()

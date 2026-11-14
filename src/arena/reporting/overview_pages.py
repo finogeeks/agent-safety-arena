@@ -7,6 +7,7 @@ import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
 from arena.reporting.guide import guide_head, load_guide, reading_minutes, render_guide
 from arena.reporting.search import page_head
+from arena.reporting.articles import load_articles, render_markdown
 
 PAGE_SIZE = 20
 
@@ -118,8 +119,8 @@ class Pages:
             extra_head = page_head(title, description, self.language, routes, kind=kind)
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
-            '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261113b"></head><body class="{page_class}">'
+            '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261114a"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -287,6 +288,12 @@ class Pages:
                  + '</h2><p>' + t('围绕一个具体问题，展开案例背后的设计与判断。',
                                   'One question at a time: the design and reasoning behind the cases.')
                  + '</p></div><div class="article-grid">')
+        for article in load_articles():
+            body += ('<article class="published-article"><div class="article-kicker"><span>'
+                     + e(article['category'][self.language]) + '</span><time datetime="'
+                     + e(article['date']) + '">' + e(article['date']) + '</time></div><h3><a href="'
+                     + self.route(article['slug']) + '">' + e(article['title'][self.language])
+                     + '</a></h3><p>' + e(article['summary'][self.language]) + '</p></article>')
         for topic in library['topics']:
             body += ('<article class="planned-article"><div class="article-kicker"><span>'
                      + e(topic['category'][self.language]) + '</span><span class="planned-status">'
@@ -301,6 +308,26 @@ class Pages:
                              page_class='refined-page articles-page',
                              routes={'en': 'articles.html', 'zh-CN': 'articles.zh-CN.html'},
                              description=library['summary'][self.language])
+
+    def published_article(self, article):
+        title = article['title'][self.language]
+        routes = {lang: article['slug'] + ('.zh-CN' if lang == 'zh-CN' else '') + '.html'
+                  for lang in ('en', 'zh-CN')}
+        markdown_name = article['slug'] + '.' + self.language + '.md'
+        body = self.trail([(self.home_path, self.t('首页', 'Home')),
+                           (self.route('articles'), self.t('方法与发现', 'Methods & Findings'))], title)
+        meta = ('<div class="guide-meta"><span>Agent Safety Arena</span><time datetime="'
+                + escape(article['date']) + '">' + escape(article['date']) + '</time><span>'
+                + self.t('AI 辅助编辑', 'AI-assisted editing') + '</span><a href="' + markdown_name
+                + '">Markdown</a></div>')
+        prose = render_markdown(article['source'][self.language]).replace('</h1>', '</h1>' + meta, 1)
+        body += '<article class="evaluation-guide published-prose">' + prose + '</article>'
+        head = page_head(title, article['summary'][self.language], self.language, routes,
+                         kind='BlogPosting', schema={'headline': title, 'datePublished': article['date'],
+                         'dateModified': article['date'],
+                         'author': {'@type': 'Organization', 'name': 'Agent Safety Arena'}})
+        return self.document(title, body, routes['en' if self.zh else 'zh-CN'],
+                             page_class='refined-page guide-page', extra_head=head)
 
     def guide(self):
         content = load_guide()
@@ -616,6 +643,9 @@ def render_pages(catalog):
         output[renderer.method_path] = renderer.methodology()
         output[renderer.route('guide')] = renderer.guide()
         output[renderer.route('articles')] = renderer.articles()
+        for article in load_articles():
+            output[renderer.route(article['slug'])] = renderer.published_article(article)
+            output[article['slug'] + '.' + language + '.md'] = article['source'][language]
         categories = list(catalog['categories'])
         if any(case['categoryId'] == 'unclassified' for case in catalog['cases']):
             categories.append(dict(id='unclassified', label={'en':'Unclassified records','zh-CN':'待分类记录'},

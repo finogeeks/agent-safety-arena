@@ -26,20 +26,30 @@ evaluation gains a series of technical articles.
 - AC-5: Provide matching bilingual routes, language switches, canonical URLs
   and CollectionPage metadata. Keep article bodies, trial evidence and scores
   unchanged. Add both directory routes to generated discovery and manifests.
+- AC-6: Publish the approved privacy article at `agent-privacy.html` and
+  `agent-privacy.zh-CN.html`. Keep one Markdown source per language under
+  `articles/`. Render the same title, paragraphs, prompts, links and original
+  media for the website and external publications. Export each unchanged
+  Markdown file beside its HTML page for reuse and content verification.
+- AC-7: List published articles before planned topics, with dates and links.
+  Use the existing article layout, responsive images, language navigation,
+  directory breadcrumb and BlogPosting metadata. Never replace reviewed media.
 
 ```mermaid
 flowchart TD
   N[Header or homepage entry] --> D[Methods and findings]
   D --> O[Published overview]
   D --> T[Planned technical topics]
+  D --> P[Published privacy article in English and Chinese]
   D --> R[Methodology reference]
   O --> D
 ```
 
 ## Out of scope
 
-Writing the technical series, revising the overview, changing evaluation
-results, search/filter controls, and publication to an external service.
+Revising the overview, changing evaluation results, and search/filter controls.
+External publication uses the same approved language source but is an operator
+workflow, not a website build action.
 
 ## Decisions
 
@@ -49,11 +59,23 @@ by its content file. The directory is a static page; the short initial list
 does not need filters. Follow [evaluation-guide.md](evaluation-guide.md) for
 the overview and [evaluation-overview.md](evaluation-overview.md) for site navigation.
 
+Published entries in `templates/article-library.json` own the slug, date and
+directory summary. The Markdown file owns the title and body. Support the
+article's authored Markdown subset: headings, paragraphs, quotations, emphasis,
+inline code, HTTPS links, images and horizontal rules. Escape raw HTML and
+reject unsafe URL schemes. Article images retain their original public Safety
+URLs on every platform. Allow that origin in the image content policy, so a
+partial site export can display evidence that was not included in its inputs.
+These article media require access to the public site; report assets stay local.
+No model calls or trial executions occur during publication.
+
 ## Tests
 
 - `test_article_directory_routes_and_publication_states`: AC-1 through AC-5,
   including existing article content and working local links.
 - Existing homepage and article tests: preserve comparison controls and guide
   metadata while routing navigation through the directory.
+- Published article tests: bilingual routes, exact Markdown exports, discovery,
+  preserved content and media, and escaped HTML/unsafe links: AC-6 and AC-7.
 - Browser checks at desktop and phone widths: visible navigation, two/one
   column topic layout, no horizontal overflow and working language links.

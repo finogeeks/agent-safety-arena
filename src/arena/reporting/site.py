@@ -83,7 +83,7 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
         for filename, content in render_pages(catalog).items():
             target = staging / filename
             target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_text(content, encoding='utf8')
+            target.write_text(content, encoding='utf8', newline='\n')
         (staging / 'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
         static_assets = ('catalog.css', '404.html', '_redirects')
         for filename in static_assets:

@@ -38,7 +38,7 @@ def inline(text):
 def render_markdown(source):
     blocks = []
     section = 0
-    for block in re.split(r'\n\s*\n', source.strip()):
+    for block in re.split(r'\n\s*\n', source.replace('\r\n', '\n').strip()):
         if block == '---':
             blocks.append('<hr>')
         elif match := re.fullmatch(r'!\[([^\]]*)\]\(([^\s)]+)\)', block):
@@ -71,7 +71,7 @@ def load_articles():
             raise ValueError('Invalid article slug')
         item = dict(entry, source={}, title={})
         for language in ('en', 'zh-CN'):
-            source = (ROOT / 'articles' / (entry['slug'] + '.' + language + '.md')).read_text('utf8')
+            source = (ROOT / 'articles' / (entry['slug'] + '.' + language + '.md')).read_bytes().decode('utf8')
             if not source.startswith('# '):
                 raise ValueError('Article must begin with its title')
             item['source'][language] = source

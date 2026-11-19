@@ -69,10 +69,12 @@ URLs on every platform. Allow that origin in the image content policy, so a
 partial site export can display evidence that was not included in its inputs.
 The sandbox article starts with a numbered Markdown list under “Key takeaways”
 or “核心结论”. The site displays the list in the guide's takeaway panel and
-builds chapter navigation from the following level-two headings. On wide
-screens the navigation stays beside the text. On phones it precedes the
-chapters. Each chapter groups its trailing source links in a disclosure. A
-reviewed image with a Markdown title uses that title as its visible caption
+uses the short, localized `tocLabels` for its contents links. Like the guide,
+it places these links before its numbered, single-column sections
+on desktop and mobile. The header shows the author, date and reading time.
+It omits the editing credit and Markdown link. Headings keep their authored
+numbering in both languages. Each chapter groups its trailing source links in
+a disclosure. A reviewed image with a Markdown title uses that title as its visible caption
 and links to the full-size original.
 These article media require access to the public site; report assets stay local.
 No model calls or trial executions occur during publication.

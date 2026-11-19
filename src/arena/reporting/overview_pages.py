@@ -5,7 +5,7 @@ from math import ceil
 from pathlib import Path
 import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
-from arena.reporting.guide import guide_head, load_guide, reading_minutes, render_guide, text_reading_minutes
+from arena.reporting.guide import guide_meta, guide_head, load_guide, reading_minutes, render_guide, text_reading_minutes
 from arena.reporting.search import page_head
 from arena.reporting.articles import load_articles, render_article_body
 
@@ -126,7 +126,7 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261119d"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261120a"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -350,12 +350,17 @@ class Pages:
         markdown_name = article['slug'] + '.' + self.language + '.md'
         body = self.trail([(self.home_path, self.t('首页', 'Home')),
                            (self.route('articles'), self.t('方法与发现', 'Methods & Findings'))], title)
-        meta = ('<div class="guide-meta"><span>Agent Safety Arena</span><time datetime="'
-                + escape(article['date']) + '">' + escape(article['date']) + '</time><span>'
-                + self.t('AI 辅助编辑', 'AI-assisted editing') + '</span><a href="' + markdown_name
-                + '">Markdown</a></div>')
+        if article['slug'] == 'agent-sandbox':
+            visible = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', article['source'][self.language])
+            meta = guide_meta('Agent Safety Arena', article['date'], text_reading_minutes(visible), self.language)
+        else:
+            meta = ('<div class="guide-meta"><span>Agent Safety Arena</span><time datetime="'
+                    + escape(article['date']) + '">' + escape(article['date']) + '</time><span>'
+                    + self.t('AI 辅助编辑', 'AI-assisted editing') + '</span><a href="' + markdown_name
+                    + '">Markdown</a></div>')
         prose = render_article_body(article['source'][self.language], self.language,
-                                    article['summary'][self.language], meta)
+                                    article['summary'][self.language], meta,
+                                    article.get('tocLabels', {}).get(self.language))
         body += '<article class="evaluation-guide published-prose">' + prose + '</article>'
         head = page_head(title, article['summary'][self.language], self.language, routes,
                          kind='BlogPosting', schema={'headline': title, 'datePublished': article['date'],

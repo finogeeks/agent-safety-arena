@@ -57,6 +57,21 @@ def guide_head(content, language):
     return page_head(title, description, language, routes, kind='BlogPosting', schema=schema, site=site)
 
 
+def guide_meta(author, date, minutes, language):
+    updated = '更新于 ' if language == 'zh-CN' else 'Updated '
+    duration = f'约 {minutes} 分钟阅读' if language == 'zh-CN' else f'{minutes} min read'
+    return ('<div class="guide-meta"><span>' + escape(author) + '</span><span>'
+            + updated + '<time datetime="' + escape(date, quote=True) + '">'
+            + escape(date) + '</time></span><span>' + duration + '</span></div>')
+
+
+def guide_toc(links, language):
+    label, title = ('文章目录', '本文目录') if language == 'zh-CN' else ('Article contents', 'In this article')
+    return (f'<nav class="guide-toc" aria-label="{label}"><span>{title}</span>'
+            + ''.join(f'<a href="#{escape(anchor, quote=True)}">{escape(text)}</a>'
+                      for anchor, text in links) + '</nav>')
+
+
 def render_guide(content, language, results_html, evidence_html):
     def text(value):
         return escape(str(value[language]), quote=True)
@@ -97,13 +112,7 @@ def render_guide(content, language, results_html, evidence_html):
             '<p class="guide-summary">' + text(content['summary']) + '</p>')
     if content.get('metadata'):
         metadata = content['metadata']
-        minutes = str(reading_minutes(content, language))
-        updated_label = '更新于 ' if language == 'zh-CN' else 'Updated '
-        duration = '约 ' + minutes + ' 分钟阅读' if language == 'zh-CN' else minutes + ' min read'
-        body += ('<div class="guide-meta"><span>' + escape(metadata['author']) + '</span>'
-                 '<span>' + updated_label + '<time datetime="' + escape(metadata['updated'], quote=True)
-                 + '">' + escape(metadata['updated']) + '</time></span><span>'
-                 + duration + '</span></div>')
+        body += guide_meta(metadata['author'], metadata['updated'], reading_minutes(content, language), language)
     body += '</header>'
     if content.get('takeaways'):
         label = '核心结论' if language == 'zh-CN' else 'Key takeaways'
@@ -115,10 +124,8 @@ def render_guide(content, language, results_html, evidence_html):
         body += '</ol></aside>'
     sections = content['sections']
     if sections:
-        body += '<nav class="guide-toc" aria-label="' + ('文章目录' if language == 'zh-CN' else 'Article contents') + '">'
-        body += '<span>' + ('本文目录' if language == 'zh-CN' else 'In this article') + '</span>'
-        body += ''.join('<a href="#' + escape(section['id'], quote=True) + '">'
-                        + text(section.get('tocLabel', section['title'])) + '</a>' for section in sections) + '</nav>'
+        body += guide_toc([(section['id'], section.get('tocLabel', section['title'])[language])
+                           for section in sections], language)
     for section in sections:
         body += '<section class="guide-section" id="' + escape(section['id'], quote=True) + '">'
         body += '<h2>' + text(section['title']) + '</h2>' + paragraphs(section.get('paragraphs', []))

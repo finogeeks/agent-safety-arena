@@ -6,6 +6,7 @@ import re
 from urllib.parse import urlsplit
 
 from arena.reporting.search import SITE_URL
+from arena.reporting.guide import guide_toc
 
 ROOT = Path(__file__).resolve().parents[3]
 INLINE = re.compile(r'`([^`]+)`|\[([^\]]+)\]\(([^\s)]+)\)|\*\*(.+?)\*\*|\*([^*]+)\*')
@@ -70,23 +71,19 @@ def render_markdown(source):
 TRAILING_SOURCES = re.compile(r'\s*((?:\[[^\]]+\]\(https://[^\s)]+\)(?:\s*·\s*)?)+)$')
 
 
-def render_chapters(blocks, language):
-    contents_label = '本文目录' if language == 'zh-CN' else 'In this article'
+def render_chapters(blocks, language, toc_labels):
     sources_label = '本章资料与实测' if language == 'zh-CN' else 'Sources and test records'
     navigation = []
     sections = []
     chapters = re.split(r'(?m)^## ', '\n\n'.join(blocks))
+    if toc_labels is not None and len(toc_labels) != len(chapters) - 1:
+        raise ValueError('Provide one contents label per article chapter')
     if chapters[0].strip():
         sections.append(render_markdown(chapters[0]))
     for number, chapter in enumerate(chapters[1:], 1):
         heading, _, content = chapter.partition('\n\n')
-        parts = re.fullmatch(r'(第[一二三四五六七八九十]+章|\d+\.)\s+(.+)', heading)
-        title = parts[2] if parts else heading
-        chapter_label = parts[1] if parts else str(number)
-        if language == 'en' and parts:
-            chapter_label = f'Chapter {number}'
         anchor = f'section-{number}'
-        navigation.append(f'<li><a href="#{anchor}">{inline(title)}</a></li>')
+        navigation.append((anchor, heading if toc_labels is None else toc_labels[number - 1]))
         paragraphs = []
         sources = []
         for block in re.split(r'\n\s*\n', content.strip()):
@@ -100,17 +97,14 @@ def render_chapters(blocks, language):
             items = ''.join('<li>' + inline(source) + '</li>' for source in sources)
             prose += (f'<details class="chapter-sources"><summary>{sources_label} ({len(sources)})'
                       f'</summary><ul>{items}</ul></details>')
-        sections.append(f'<section class="article-chapter" id="{anchor}"><h2>'
-                        f'<span class="chapter-label">{escape(chapter_label)}</span>{inline(title)}</h2>'
+        sections.append(f'<section class="guide-section" id="{anchor}"><h2>{inline(heading)}</h2>'
                         + prose + '</section>')
-    contents = (f'<nav class="guide-toc" aria-label="{contents_label}"><strong>{contents_label}</strong>'
-                + '<ol>' + ''.join(navigation) + '</ol></nav>')
-    return '<div class="chapter-layout">' + contents + '<div>' + ''.join(sections) + '</div></div>'
+    return guide_toc(navigation, language) + ''.join(sections)
 
 
-def render_article_body(source, language, summary, meta):
+def render_article_body(source, language, summary, meta, toc_labels=None):
     """Give articles with an authored takeaway list the guide's introduction and contents."""
-    blocks = re.split(r'\n\s*\n', source.strip())
+    blocks = re.split(r'\n\s*\n', source.replace('\r\n', '\n').strip())
     label = '核心结论' if language == 'zh-CN' else 'Key takeaways'
     if len(blocks) < 4 or blocks[1] != '## ' + label:
         return render_markdown(source).replace('</h1>', '</h1>' + meta, 1)
@@ -125,7 +119,7 @@ def render_article_body(source, language, summary, meta):
              + ('<span>Key takeaways</span>' if language == 'zh-CN' else '') + '</h2><ol>')
     for item in blocks[2].splitlines():
         aside += '<li>' + inline(item.split('. ', 1)[1]) + '</li>'
-    return intro + aside + '</ol></aside>' + render_chapters(blocks[3:], language)
+    return intro + aside + '</ol></aside>' + render_chapters(blocks[3:], language, toc_labels)
 
 
 def load_articles():

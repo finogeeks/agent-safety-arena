@@ -14,7 +14,7 @@
 
 2008 年，Chrome 的设计者又往前想了一步。负责显示网页、执行网页脚本的渲染进程，是 Chrome 自己写的。可一旦恶意网页利用漏洞接管了它，**代码还是 Chrome 写的，发号施令的人却换了。** 为此，Chrome 在 Windows 上把渲染进程关进沙箱，只给它很少的权限。即使攻击者控制了它，操作系统仍然能限制它读写本地文件。键盘、鼠标和窗口又是另一回事，文件权限管不到它们。为此，Chrome 还把这个进程和用户正在使用的桌面隔开，限制它接触用户的输入和其他程序的窗口。[Chromium 团队 2008 年的设计说明](https://blog.chromium.org/2008/10/new-approach-to-browser-security-google.html)
 
-还有一道关在沙箱外面。渲染进程拿不到用户保存在浏览器里的密码，能不能请浏览器进程替它拿？即使请求来自 Chrome 自己的代码，浏览器也得核对发出请求的页面有没有资格使用这份密码。论坛页面就算自称是邮箱登录页，也不能拿到邮箱密码。**沙箱里的程序自己能做什么、能请别人代办什么，两头都得管。** [Chromium 对已失控渲染进程的防护说明](https://chromium.googlesource.com/chromium/src/+/main/docs/security/compromised-renderers.md#passwords)
+还有一道关在沙箱外面。渲染进程拿不到用户保存在浏览器里的密码，能不能请浏览器进程替它拿？即使请求来自 Chrome 自己的代码，浏览器也得核对发出请求的页面有没有资格使用这份密码。论坛页面就算自称是邮箱登录页，也不能拿到邮箱密码。**沙箱里的程序自己能做什么、能请别人代办什么，两头都得管。** [Chromium 对已失控渲染进程的防护说明](https://github.com/chromium/chromium/blob/main/docs/security/compromised-renderers.md#passwords)
 
 ## 第三章　Agent 的半包沙箱，漏掉了哪些基本防护？
 

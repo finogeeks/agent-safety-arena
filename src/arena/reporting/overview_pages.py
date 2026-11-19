@@ -7,7 +7,7 @@ import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
 from arena.reporting.guide import guide_head, load_guide, reading_minutes, render_guide, text_reading_minutes
 from arena.reporting.search import page_head
-from arena.reporting.articles import load_articles, render_markdown
+from arena.reporting.articles import load_articles, render_article_body
 
 PAGE_SIZE = 20
 
@@ -354,7 +354,8 @@ class Pages:
                 + escape(article['date']) + '">' + escape(article['date']) + '</time><span>'
                 + self.t('AI 辅助编辑', 'AI-assisted editing') + '</span><a href="' + markdown_name
                 + '">Markdown</a></div>')
-        prose = render_markdown(article['source'][self.language]).replace('</h1>', '</h1>' + meta, 1)
+        prose = render_article_body(article['source'][self.language], self.language,
+                                    article['summary'][self.language], meta)
         body += '<article class="evaluation-guide published-prose">' + prose + '</article>'
         head = page_head(title, article['summary'][self.language], self.language, routes,
                          kind='BlogPosting', schema={'headline': title, 'datePublished': article['date'],

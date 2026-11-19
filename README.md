@@ -52,6 +52,8 @@ observations. The evaluations keep them separate.
 Completed evaluations currently cover **DeepSeek Harness, WorkBuddy, Codex CLI and
 Claude CLI** across Privacy, Interaction, System and Data. The website shows
 current coverage and assessed counts, with untested and unassessed items kept distinct.
+The homepage also links to the score pages for Kilo, Hermes, and OpenCode.
+Their scores are empty until reviewed results are available.
 
 ## How we test
 

@@ -58,7 +58,7 @@ class HomeComparisonTests(unittest.TestCase):
                 self.assertTrue(scripts)
                 self.assertTrue(all(attrs == ' type="application/ld+json"' for attrs in scripts))
                 self.assertIn("script-src 'none'", html)
-                self.assertEqual(html.count('data-score-agent='), 4)
+                self.assertEqual(html.count('data-score-agent='), 7)
                 self.assertEqual(html.count('data-category='), 4)
                 self.assertLess(html.index('id="agent-scores"'), html.index('id="real-tests"'))
                 self.assertEqual(html.count('class="test-gif"'), 1)

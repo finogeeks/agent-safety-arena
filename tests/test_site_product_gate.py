@@ -78,7 +78,7 @@ class SiteProductGateTests(unittest.TestCase):
             self.assertEqual(scores['finshield']['rate'], 100)
             self.assertTrue(catalog['reports'][0]['conditionsDiffer'])
 
-    def test_recorded_agents_visible_and_only_unrecorded_roster_entries_folded(self):
+    def test_home_score_table_has_linked_agent_rows_and_empty_scores_in_both_languages(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -92,21 +92,59 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.record(results, agent='dsh')
             self.fixture.record(results, agent='workbuddy')
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
-            for route in ('index.html', 'zh-CN.html'):
+            for route, leaf, untested in (('index.html', 'index.html', 'Not tested'),
+                                           ('en.html', 'index.html', 'Not tested'),
+                                           ('zh-CN.html', 'zh-CN.html', '未测试')):
                 home = (root / 'site' / route).read_text('utf8')
-                self.assertNotIn('<details class="unrecorded-agents">', home)
-                self.assertNotIn('opencode-cli', home)
-                self.assertNotIn('OpenCode CLI', home)
-                self.assertEqual(re.findall(r'data-score-agent="([^"]+)"', home),
-                                 ['dsh', 'workbuddy', 'codex-cli', 'claude-cli'])
-                self.assertEqual(re.findall(r'<a class="agent-card"[^>]*>\s*<h3>([^<]+)</h3>', home),
-                                 ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI', 'Claude CLI'])
-                self.assertNotIn('agent-archive', home)
-                for card in re.findall(r'<a class="agent-card".*?</a>', home, re.S):
-                    self.assertEqual(re.findall(r'class="agent-scope ([^"]+)"', card),
-                                     ['overall', 'privacy', 'interaction', 'system', 'data'])
-                    self.assertEqual(card.count('data-score-protection='), 10)
+                table = re.search(r'<table class="home-score-table".*?</table>', home, re.S)
+                self.assertIsNotNone(table)
+                table = table.group()
+                columns = ['overall', 'privacy', 'interaction', 'system', 'data']
+                self.assertEqual(re.findall(r'<th scope="col" data-score-scope="([^"]+)"', table), columns)
+                rows = dict(re.findall(r'<tr data-score-agent="([^"]+)">(.*?)</tr>', table, re.S))
+                self.assertEqual(list(rows),
+                                 ['dsh', 'workbuddy', 'codex-cli', 'claude-cli', 'kilo', 'hermes', 'opencode-cli'])
+                self.assertEqual(re.findall(r'<th scope="row"><a [^>]*>([^<]+)</a>', table),
+                                 ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI', 'Claude CLI', 'Kilo', 'Hermes', 'OpenCode'])
+                for row in rows.values():
+                    self.assertEqual(row.count('<th scope="row">'), 1)
+                    self.assertEqual(re.findall(r'<td data-score-scope="([^"]+)"', row), columns)
+                    self.assertEqual(row.count('data-score-protection='), 10)
+                for agent_id, label in (('kilo', 'Kilo'), ('hermes', 'Hermes'), ('opencode-cli', 'OpenCode')):
+                    target = f'agents/{agent_id}/{leaf}'
+                    self.assertIn(f'<th scope="row"><a href="{target}">{label}</a></th>', rows[agent_id])
+                    cells = re.findall(r'<td .*?</td>', rows[agent_id], re.S)
+                    self.assertEqual(len(cells), 5)
+                    self.assertTrue(all(cell.count('<span class="dash">—</span>') == 2 for cell in cells))
+                    detail = (root / 'site' / target).read_text('utf8')
+                    self.assertIn(f'<h1>{label}</h1>', detail)
+                    self.assertIn(untested, detail)
                 self.assertNotIn('class="phase-label"', home)
+
+    def test_preview_comparison_rows_require_live_evidence(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            results = root / 'results'
+            self.fixture.record(results, scenario='window-flood', agent='dsh')
+            self.fixture.record(results, scenario='window-flood', agent='hermes', origin='synthetic')
+            path, record = self.fixture.record(results, scenario='window-flood', agent='opencode')
+            for group in record['groups'].values():
+                group['conditions'].update(model='deepseek-v4-pro', reasoningEffort='high')
+            self.fixture.save(path, record)
+            site = root / 'site'
+            build_site(results, site, ROOT / 'profiles/coverage.json')
+            category = (site / 'interaction.html').read_text('utf8')
+            hub = (site / 'cases/window-flood/index.html').read_text('utf8').split('<details class="archive">')[0]
+            for html in (category, hub):
+                self.assertIn('OpenCode', html)
+                self.assertNotIn('Kilo', html)
+                self.assertNotIn('Hermes', html)
+            scores = json.loads((site / 'catalog.json').read_text('utf8'))['scores']['formal']['agents']
+            for agent in ('kilo', 'hermes'):
+                for group in ('native', 'finshield'):
+                    self.assertEqual(scores[agent][group]['denominator'], 0)
+                    self.assertIsNone(scores[agent][group]['rate'])
+            self.assertEqual(scores['opencode-cli']['native']['denominator'], 1)
 
     def test_committed_live_reports_have_formal_publication_without_rewriting_collection_phase(self):
         records = list((ROOT / 'results').rglob('record.json'))
@@ -152,7 +190,8 @@ class SiteProductGateTests(unittest.TestCase):
             table = table.split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
             for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness'):
                 self.assertIn(label, table)
-            self.assertNotIn('OpenCode CLI', table)
+            for label in ('Kilo', 'Hermes', 'OpenCode'):
+                self.assertNotIn(label, table)
             self.assertIn('Not tested', table)
 
     def test_case_hubs_on_real_results_list_cli_agents(self):
@@ -165,7 +204,8 @@ class SiteProductGateTests(unittest.TestCase):
             table = path.read_text('utf8').split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
             for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy'):
                 self.assertIn(label, table, path.name)
-            self.assertNotIn('OpenCode CLI', table)
+            for label in ('Kilo', 'Hermes', 'OpenCode'):
+                self.assertNotIn(label, table)
             interaction = (root / 'site/interaction.html').read_text('utf8')
             self.assertNotIn('keyboard-hook', interaction)
             self.assertNotIn('Keyboard Hook', interaction)

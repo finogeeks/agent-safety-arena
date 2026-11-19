@@ -5,7 +5,7 @@ from math import ceil
 from pathlib import Path
 import re
 from arena.reporting.detail import breadcrumb_markup, site_header_markup, warning_label
-from arena.reporting.guide import guide_head, load_guide, reading_minutes, render_guide
+from arena.reporting.guide import guide_head, load_guide, reading_minutes, render_guide, text_reading_minutes
 from arena.reporting.search import page_head
 from arena.reporting.articles import load_articles, render_markdown
 
@@ -286,29 +286,43 @@ class Pages:
         t = self.t; e = self.e
         library = json.loads((Path(__file__).resolve().parents[3] / 'templates/article-library.json').read_text('utf8'))
         overview = load_guide()
+        articles = [{
+            'slug': 'guide', 'title': overview['title'], 'date': overview['metadata']['updated'],
+            'category': {'zh-CN': '评测综述', 'en': 'Evaluation overview'},
+            'summary': library['overviewSummary'],
+        }, *load_articles()]
+        featured_slug = library.get('featuredSlug', 'guide')
+        featured = next(article for article in articles if article['slug'] == featured_slug)
+        featured_url = self.route(featured_slug)
+        if featured_slug == 'guide':
+            minutes = reading_minutes(overview, self.language)
+        else:
+            prose = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', featured['source'][self.language])
+            minutes = text_reading_minutes(prose)
         title = t('方法与发现', 'Methods & Findings')
         body = self.trail([(self.home_path, t('首页', 'Home'))], title)
         body += ('<div class="article-library"><header class="library-intro"><h1>' + e(title)
                  + '</h1><p>' + e(library['summary'][self.language]) + '</p></header>')
-        body += ('<article class="featured-article" aria-labelledby="overview-title">'
-                 '<div class="article-kicker"><span>' + t('评测综述', 'Evaluation overview')
+        body += ('<article class="featured-article" aria-labelledby="featured-title">'
+                 '<div class="article-kicker"><span>' + e(featured['category'][self.language])
                  + '</span><span class="reading-start">' + t('从这里开始', 'Start here') + '</span></div>'
-                 '<h2 id="overview-title"><a href="' + self.route('guide') + '">'
-                 + e(overview['title'][self.language]) + '</a></h2><p>'
-                 + e(library['overviewSummary'][self.language]) + '</p><div class="featured-footer">'
-                 '<a class="article-read" href="' + self.route('guide') + '">'
-                 + t('阅读综述', 'Read the overview') + ' <span aria-hidden="true">→</span></a>'
+                 '<h2 id="featured-title"><a href="' + featured_url + '">'
+                 + e(featured['title'][self.language]) + '</a></h2><p>'
+                 + e(featured['summary'][self.language]) + '</p><div class="featured-footer">'
+                 '<a class="article-read" href="' + featured_url + '">'
+                 + t('阅读文章', 'Read the article') + ' <span aria-hidden="true">→</span></a>'
                  '<div class="article-meta"><span>' + t('更新于 ', 'Updated ')
-                 + '<time datetime="' + e(overview['metadata']['updated']) + '">'
-                 + e(overview['metadata']['updated']) + '</time></span><span>'
-                 + t(f'约{reading_minutes(overview, self.language)}分钟阅读',
-                     f'{reading_minutes(overview, self.language)} min read') + '</span></div></div></article>')
+                 + '<time datetime="' + e(featured['date']) + '">'
+                 + e(featured['date']) + '</time></span><span>'
+                 + t(f'约{minutes}分钟阅读', f'{minutes} min read') + '</span></div></div></article>')
         body += ('<section class="technical-series" aria-labelledby="series-title">'
                  '<div class="series-heading"><h2 id="series-title">' + t('技术专题', 'Technical articles')
                  + '</h2><p>' + t('围绕一个具体问题，展开案例背后的设计与判断。',
                                   'One question at a time: the design and reasoning behind the cases.')
                  + '</p></div><div class="article-grid">')
-        for article in load_articles():
+        for article in articles:
+            if article['slug'] == featured_slug:
+                continue
             body += ('<article class="published-article"><div class="article-kicker"><span>'
                      + e(article['category'][self.language]) + '</span><time datetime="'
                      + e(article['date']) + '">' + e(article['date']) + '</time></div><h3><a href="'

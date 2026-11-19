@@ -6,7 +6,7 @@
 2. **For your data, partial protection can be as good as none.** WorkBuddy stopped a deletion in one test. In another, it let a program give people permission to delete a file they previously had no right to delete.
 3. **Even after you click “Allow,” the product is still responsible for protecting you.** If I ask an agent to organize a spreadsheet, that’s all I’ve authorized. Keeping my computer safe shouldn’t depend on my reading every line of code it runs.
 
-## 1. Partial protection, complete peace of mind
+## 1. Complete peace of mind, almost no protection
 
 **Say “sandbox” and the first thing that comes to mind is safety.** You picture a program running in a space set apart. Even if something goes wrong inside, a boundary limits what it can do to the rest of your computer. Years of using browsers like Chrome have taught people to expect that protection. When an agent tells me “sandbox enabled,” it’s easy to relax. It can run programs for me, and I have reason to expect it to protect my devices, my desktop, and my data.
 

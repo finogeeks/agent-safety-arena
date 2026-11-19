@@ -34,13 +34,26 @@ class PublishedArticleTests(unittest.TestCase):
                 sandbox = (site / ('agent-sandbox' + suffix + '.html')).read_text('utf8')
                 self.assertIn('class="guide-takeaways"', sandbox)
                 self.assertIn('class="guide-toc"', sandbox)
-                self.assertEqual(sandbox.count('<section class="article-chapter"'), 5)
+                self.assertEqual(sandbox.count('<section class="guide-section"'), 5)
+                self.assertNotIn('>Markdown</a>', sandbox)
+                self.assertNotIn('AI-assisted editing', sandbox)
+                self.assertNotIn('AI 辅助编辑', sandbox)
+                self.assertIn('分钟阅读' if suffix else 'min read', sandbox)
                 self.assertIn('<details class="chapter-sources">', sandbox)
                 self.assertIn('<nav class="guide-toc"', sandbox)
                 for number in range(1, 6):
                     self.assertIn(f'href="#section-{number}"', sandbox)
                     self.assertIn(f'id="section-{number}"', sandbox)
                 self.assertEqual(sandbox.count('<figcaption>'), 3)
+
+    def test_sandbox_guide_layout_survives_windows_line_endings(self):
+        from arena.reporting.articles import render_article_body
+        for language in ('en', 'zh-CN'):
+            source = (fixtures.ROOT / 'articles' / f'agent-sandbox.{language}.md').read_text('utf8')
+            unix = render_article_body(source, language, 'Summary', '')
+            windows = render_article_body(source.replace('\n', '\r\n'), language, 'Summary', '')
+            self.assertIn('class="guide-takeaways"', windows)
+            self.assertEqual(unix, windows)
 
     def test_markdown_escapes_html_and_rejects_unsafe_urls(self):
         from arena.reporting.articles import render_markdown

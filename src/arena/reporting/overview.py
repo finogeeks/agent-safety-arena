@@ -67,7 +67,10 @@ def load_roster(path):
         raise ValueError('Invalid evaluation coverage roster')
     identities, aliases = set(), set()
     for agent in roster['agents']:
-        if (not isinstance(agent, dict) or set(agent) != {'id', 'label', 'recordAgentIds'}
+        required_keys = {'id', 'label', 'recordAgentIds'}
+        if (not isinstance(agent, dict) or not required_keys.issubset(agent)
+                or set(agent) - (required_keys | {'preview'})
+                or type(agent.get('preview', False)) is not bool
                 or not isinstance(agent['id'], str) or not re.fullmatch(r'[a-z0-9][a-z0-9-]*', agent['id'])
                 or not bilingual_text(agent['label'])
                 or not isinstance(agent['recordAgentIds'], list) or not agent['recordAgentIds']
@@ -169,9 +172,12 @@ def make_catalog(records, roster=None, taxonomy=None):
         for agent in sorted({data['agentId'] for _, _, data in live}):
             agents.append(dict(id=agent, label=bi(agent, agent), recordAgentIds=[agent]))
     coverage = []
+    live_agent_ids = {data['agentId'] for _, _, data in live}
     for agent in agents:
         row = dict(id=agent['id'], label=agent['label'],
                    recordAgentIds=agent['recordAgentIds'])
+        if agent.get('preview') and live_agent_ids.isdisjoint(agent['recordAgentIds']):
+            row['preview'] = True
         for name in GROUPS:
             selected = []
             for _, relative, record in live:

@@ -14,13 +14,14 @@ ROOT = fixtures.ROOT
 
 class ScoreMatrix(HTMLParser):
     def __init__(self):
-        super().__init__();self.agent=None;self.cell=None;self.depth=0;self.values={}
+        super().__init__();self.agent=None;self.scope=None;self.cell=None;self.depth=0;self.values={}
 
     def handle_starttag(self,tag,attrs):
         attrs=dict(attrs)
-        if 'data-score-agent' in attrs:self.agent=attrs['data-score-agent']
-        if self.agent and 'data-score-scope' in attrs:
-            self.cell=(self.agent,attrs['data-score-scope'],attrs['data-score-protection'])
+        if tag == 'tr':self.agent=attrs.get('data-score-agent')
+        if tag == 'td':self.scope=attrs.get('data-score-scope')
+        if self.scope and self.agent and 'data-score-protection' in attrs:
+            self.cell=(self.agent,self.scope,attrs['data-score-protection'])
             self.values[self.cell]='';self.depth=0
         elif self.cell is not None:self.depth+=1
 
@@ -171,10 +172,8 @@ class ProtectionScoreTests(unittest.TestCase):
                 self.assertLess(html.index('data-score-scope="privacy"'), html.index('data-score-scope="interaction"'))
                 self.assertIn('0',parsed.values[('other-agent','overall','native')])
                 self.assertIn('100',parsed.values[('other-agent','overall','finshield')])
-                self.assertIn('class="agent-card-grid"',html)
+                self.assertIn('class="home-score-table"',html)
                 self.assertEqual(html.count('data-score-agent='),2)
-                self.assertNotIn('score-matrix',html)
-                self.assertNotIn('matrix-hint',html)
                 if language=='zh-CN':
                     self.assertIn('「内置沙箱」是各Agent的默认配置。Windows上，DeepSeek Harness、WorkBuddy、Codex CLI使用各自产品的默认沙箱；Claude CLI默认没有系统级沙箱。',html)
                     method=(root/'site/methodology.zh-CN.html').read_text('utf8')

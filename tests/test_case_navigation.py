@@ -185,9 +185,8 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertIn(value, block)
             self.assertNotIn('详情与证据', block)
             self.assertIn('<a class="result-row" href="../../window-flood/dsh/paired/zh-CN.html">', block)
-            for value in ('Claude CLI', 'Codex CLI'):
+            for value in ('Claude CLI', 'Codex CLI', 'Kilo', 'Hermes', 'OpenCode'):
                 self.assertIn(value, block)
-            self.assertNotIn('OpenCode CLI', block)
             for value in ('开发评测', '条件有差异或缺项', '受控文件丢失'):
                 self.assertNotIn(value, html)
             for value in ('%', '成功0 · 失败1', '成功1 · 失败0'):

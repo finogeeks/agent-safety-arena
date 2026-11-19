@@ -44,6 +44,7 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全公开测评项目
 
 目前公开测评覆盖 **DeepSeek Harness、WorkBuddy、Codex CLI 和 Claude CLI**，包含隐私安全、
 交互安全、系统安全和数据安全。网站展示当前覆盖范围和有效样本数，并区分“未测试”和“待核实”。
+首页也提供 Kilo、Hermes 和 OpenCode 的成绩页入口。评测结果发布前，成绩显示为空。
 
 ## 怎么测
 

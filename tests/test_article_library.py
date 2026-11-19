@@ -38,6 +38,12 @@ class ArticleLibraryTests(unittest.TestCase):
                     self.assertIn('CollectionPage', html)
                     self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + route, html)
                     self.assertIn('href="guide' + suffix + '.html"', html)
+                    featured = re.search(r'<article class="featured-article".*?</article>', html, re.S)[0]
+                    self.assertIn('href="agent-sandbox' + suffix + '.html"', featured)
+                    self.assertNotIn('href="guide' + suffix + '.html"', featured)
+                    cards = re.findall(r'<article class="published-article">.*?</article>', html, re.S)
+                    self.assertIn('href="guide' + suffix + '.html"', cards[0])
+                    self.assertFalse(any('href="agent-sandbox' + suffix + '.html"' in card for card in cards))
                     self.assertIn('href="methodology' + suffix + '.html"', html)
                     planned = re.findall(r'<article class="planned-article">.*?</article>', html, re.S)
                     self.assertEqual(len(planned), 4)

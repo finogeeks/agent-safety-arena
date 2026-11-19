@@ -10,9 +10,10 @@ evaluation gains a series of technical articles.
 - AC-1: Build `articles.html` and `articles.zh-CN.html`. All full-site header
   entries and the homepage article entry open the matching directory. Keep
   the label Methods & Findings / 方法与发现 and the accepted header layout.
-- AC-2: Feature the existing overview first, with its actual title, update
-  date and estimated reading time. Keep `guide.html` and `guide.zh-CN.html`
-  as article addresses. Add a directory breadcrumb to that article.
+- AC-2: Feature the article selected by `featuredSlug` in both languages,
+  with its title, summary, date, link and estimated reading time. The current
+  selection is the sandbox article. List the overview first among the remaining
+  published articles. Keep its existing URLs and directory breadcrumb.
 - AC-3: Show four planned technical topics: fixed programs and direct tasks;
   approval and enforcement boundaries; file protection and parent directories;
   evidence and scoring. Each has a title, short scope and visible Planned

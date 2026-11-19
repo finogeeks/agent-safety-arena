@@ -28,6 +28,10 @@ def reading_minutes(content, language):
                 yield from strings(item)
     visible = ' '.join(strings({key: content.get(key, []) for key in
                                ('title', 'summary', 'takeaways', 'sections')}))
+    return text_reading_minutes(visible)
+
+
+def text_reading_minutes(visible):
     cjk = len(re.findall(r'[\u3400-\u9fff]', visible))
     words = len(re.findall(r'[A-Za-z0-9]+(?:[-’\'][A-Za-z0-9]+)*', visible))
     return max(1, ceil(cjk / 400 + words / 220))

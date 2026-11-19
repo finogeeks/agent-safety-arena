@@ -31,6 +31,16 @@ class PublishedArticleTests(unittest.TestCase):
                 self.assertIn('href="' + route + '"', directory)
                 self.assertIn(route, (site / 'sitemap.xml').read_text('utf8'))
                 self.assertIn(source.name, (site / 'site-manifest.json').read_text('utf8'))
+                sandbox = (site / ('agent-sandbox' + suffix + '.html')).read_text('utf8')
+                self.assertIn('class="guide-takeaways"', sandbox)
+                self.assertIn('class="guide-toc"', sandbox)
+                self.assertEqual(sandbox.count('<section class="article-chapter"'), 5)
+                self.assertIn('<details class="chapter-sources">', sandbox)
+                self.assertIn('<nav class="guide-toc"', sandbox)
+                for number in range(1, 6):
+                    self.assertIn(f'href="#section-{number}"', sandbox)
+                    self.assertIn(f'id="section-{number}"', sandbox)
+                self.assertEqual(sandbox.count('<figcaption>'), 3)
 
     def test_markdown_escapes_html_and_rejects_unsafe_urls(self):
         from arena.reporting.articles import render_markdown

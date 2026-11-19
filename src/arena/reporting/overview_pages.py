@@ -78,6 +78,11 @@ class Pages:
     def badge(self, text, state='neutral'):
         return f'<span class="badge {self.e(state)}">{self.e(text)}</span>'
 
+    def untested_result(self):
+        label = self.t('未测试', 'Not tested')
+        return ('<span class="untested-result"><span aria-hidden="true">—</span>'
+                f'<span class="sr-only">{label}</span></span>')
+
     def model(self):
         protocol = self.data['protocol']
         return (protocol['label'] + ' · ' + protocol['reasoningEffort'].capitalize()) if protocol else self.t('模型见各记录', 'Model recorded per report')
@@ -121,7 +126,7 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261119c"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261119d"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -130,14 +135,17 @@ class Pages:
     def agent_table(self, values, mini=False, agents=None, category_id=None):
         t=self.t; e=self.e
         if agents is None:
-            agents = self.comparison_agents
+            agents = self.data['coverage']
         style='category-score-table' if mini else 'coverage-table'
         text=f'<table class="{style}"><thead><tr><th>Agent</th><th>'+t('Agent内置沙箱','Built-in sandbox')+'</th><th>FinShield</th></tr></thead><tbody>'
         for agent in agents:
             href = self.agent_page(agent['id'], category_id)
             text+=f'<tr><th scope="row"><a class="row-link" href="{href}">{e(agent["label"][self.language])}</a></th>'
             for group in ('native','finshield'):
-                text+='<td>'+self.score(values[agent['id']][group],True)+'</td>'
+                value = values[agent['id']][group]
+                mark = (self.untested_result() if category_id is not None and self.result_state(value) == 'untested'
+                        else self.score(value, compact=True))
+                text += f'<td>{mark}</td>'
             text+='</tr>'
         return text+'</tbody></table>'
 
@@ -455,12 +463,13 @@ class Pages:
         body += ('<div class="scene-list"><div class="scene-head"><span>'+t('智能体','Agent')+'</span><span>'
                  +t('Agent内置沙箱','Built-in sandbox')+'</span><span>FinShield</span></div>')
         displayed = set()
-        for agent in self.comparison_agents:
+        for agent in self.data['coverage']:
             row = self.preferred_report(case, agent)
             href = f'{prefix}{self.report_path(row)}' if row else ''
             if row:
                 displayed.add(row['path'])
-            body += self.result_row(e(agent['label'][self.language]), self.result_cells(case, agent, row), href)
+            cells = self.result_cells(case, agent, row, untested_as_dash=True)
+            body += self.result_row(e(agent['label'][self.language]), cells, href)
         body += '</div>'
         remaining = [row for row in rows if row['path'] not in displayed]
         if remaining:
@@ -490,13 +499,14 @@ class Pages:
                 display[key] = 1
         return display, observed
 
-    def result_cells(self, case, agent, row):
+    def result_cells(self, case, agent, row, *, untested_as_dash=False):
         text = ''
         scores = self.scores['cases'][case['id']][agent['id']]
         for group in ('native', 'finshield'):
             label = self.t('Agent内置沙箱', 'Built-in sandbox') if group == 'native' else 'FinShield'
             display, observed = self.shown_result(row, scores[group], group)
-            text += f'<span class="result-cell" data-label="{label}">'+self.case_result(display)
+            text += f'<span class="result-cell" data-label="{label}">' + self.case_result(
+                display, untested_as_dash=untested_as_dash)
             text += self.case_warning(case, agent, group, display, observed)
             if observed:
                 text += self.case_scope_note(observed, group)
@@ -558,7 +568,7 @@ class Pages:
                              description=label + t('在Windows上的公开安全测评：查看内置防护和FinShield的场景成绩、实际配置与可复查证据。',
                                 ' public safety evaluations on Windows: built-in controls and FinShield scenario results, recorded configurations and verifiable evidence.'))
 
-    def case_result(self, value):
+    def case_result(self, value, *, untested_as_dash=False):
         if value['failed']:
             return self.badge(self.t('未拦截', 'Unblocked'), 'not-blocked')
         if value['unassessed']:
@@ -567,6 +577,8 @@ class Pages:
             return self.badge(self.t('已拦截', 'Blocked'), 'blocked')
         if value['excluded']:
             return self.badge(self.t('未纳入本轮评分', 'Outside score scope'))
+        if untested_as_dash:
+            return self.untested_result()
         return self.badge(self.t('未测试', 'Not tested'), 'not-run')
 
     def case_scope_note(self, report, group):

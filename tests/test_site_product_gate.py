@@ -121,7 +121,7 @@ class SiteProductGateTests(unittest.TestCase):
                     self.assertIn(untested, detail)
                 self.assertNotIn('class="phase-label"', home)
 
-    def test_preview_comparison_rows_require_live_evidence(self):
+    def test_category_and_scenario_rows_show_untested_agents_and_link_live_results(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             results = root / 'results'
@@ -133,12 +133,24 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.save(path, record)
             site = root / 'site'
             build_site(results, site, ROOT / 'profiles/coverage.json')
-            category = (site / 'interaction.html').read_text('utf8')
-            hub = (site / 'cases/window-flood/index.html').read_text('utf8').split('<details class="archive">')[0]
-            for html in (category, hub):
-                self.assertIn('OpenCode', html)
-                self.assertNotIn('Kilo', html)
-                self.assertNotIn('Hermes', html)
+            roster = ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI', 'Claude CLI', 'Kilo', 'Hermes', 'OpenCode']
+            for suffix, leaf, report_leaf, untested in (('', 'index.html', 'en.html', 'Not tested'),
+                                                       ('.zh-CN', 'zh-CN.html', 'zh-CN.html', '未测试')):
+                category = (site / f'interaction{suffix}.html').read_text('utf8')
+                hub = (site / 'cases/window-flood' / leaf).read_text('utf8').split('<details class="archive">')[0]
+                self.assertEqual(re.findall(r'<a class="row-link"[^>]*>([^<]+)</a>', category), roster)
+                self.assertEqual(re.findall(r'class="result-row"[^>]*><span class="name">([^<]+)</span>', hub), roster)
+                empty = (f'<span class="untested-result"><span aria-hidden="true">—</span>'
+                         f'<span class="sr-only">{untested}</span></span>')
+                for agent_id, label in (('kilo', 'Kilo'), ('hermes', 'Hermes')):
+                    category_link = f'href="agents/{agent_id}/interaction{suffix}.html">{label}</a>'
+                    category_row = category.split(category_link, 1)[1].split('</tr>', 1)[0]
+                    self.assertEqual(category_row.count(empty), 2)
+                    case_label = f'<div class="result-row"><span class="name">{label}</span>'
+                    case_row = hub.split(case_label, 1)[1].split('</div>', 1)[0]
+                    self.assertEqual(case_row.count(empty), 2)
+                self.assertIn(f'<a class="result-row" href="../../window-flood/opencode/paired/{report_leaf}">'
+                              '<span class="name">OpenCode</span>', hub)
             scores = json.loads((site / 'catalog.json').read_text('utf8'))['scores']['formal']['agents']
             for agent in ('kilo', 'hermes'):
                 for group in ('native', 'finshield'):
@@ -188,11 +200,9 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
             table = (root / 'site/cases/window-flood/index.html').read_text('utf8')
             table = table.split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
-            for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness'):
+            for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy', 'DeepSeek Harness', 'Kilo', 'Hermes', 'OpenCode'):
                 self.assertIn(label, table)
-            for label in ('Kilo', 'Hermes', 'OpenCode'):
-                self.assertNotIn(label, table)
-            self.assertIn('Not tested', table)
+            self.assertIn('<span class="sr-only">Not tested</span>', table)
 
     def test_case_hubs_on_real_results_list_cli_agents(self):
         if not (ROOT / 'results').is_dir():
@@ -202,10 +212,8 @@ class SiteProductGateTests(unittest.TestCase):
             build_site(ROOT / 'results', root / 'site', ROOT / 'profiles/coverage.json')
             path = root / 'site/cases/window-flood/index.html'
             table = path.read_text('utf8').split('class="scene-list"', 1)[-1].split('<footer', 1)[0]
-            for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy'):
+            for label in ('Claude CLI', 'Codex CLI', 'WorkBuddy', 'Kilo', 'Hermes', 'OpenCode'):
                 self.assertIn(label, table, path.name)
-            for label in ('Kilo', 'Hermes', 'OpenCode'):
-                self.assertNotIn(label, table)
             interaction = (root / 'site/interaction.html').read_text('utf8')
             self.assertNotIn('keyboard-hook', interaction)
             self.assertNotIn('Keyboard Hook', interaction)

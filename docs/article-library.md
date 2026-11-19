@@ -69,7 +69,8 @@ URLs on every platform. Allow that origin in the image content policy, so a
 partial site export can display evidence that was not included in its inputs.
 The sandbox article starts with a numbered Markdown list under “Key takeaways”
 or “核心结论”. The site displays the list in the guide's takeaway panel and
-places the guide's wrapping contents links before its single-column sections
+uses the short, localized `tocLabels` for its contents links. Like the guide,
+it places these links before its numbered, single-column sections
 on desktop and mobile. The header shows the author, date and reading time.
 It omits the editing credit and Markdown link. Headings keep their authored
 numbering in both languages. Each chapter groups its trailing source links in

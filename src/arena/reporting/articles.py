@@ -71,17 +71,19 @@ def render_markdown(source):
 TRAILING_SOURCES = re.compile(r'\s*((?:\[[^\]]+\]\(https://[^\s)]+\)(?:\s*·\s*)?)+)$')
 
 
-def render_chapters(blocks, language):
+def render_chapters(blocks, language, toc_labels):
     sources_label = '本章资料与实测' if language == 'zh-CN' else 'Sources and test records'
     navigation = []
     sections = []
     chapters = re.split(r'(?m)^## ', '\n\n'.join(blocks))
+    if toc_labels is not None and len(toc_labels) != len(chapters) - 1:
+        raise ValueError('Provide one contents label per article chapter')
     if chapters[0].strip():
         sections.append(render_markdown(chapters[0]))
     for number, chapter in enumerate(chapters[1:], 1):
         heading, _, content = chapter.partition('\n\n')
         anchor = f'section-{number}'
-        navigation.append((anchor, heading))
+        navigation.append((anchor, heading if toc_labels is None else toc_labels[number - 1]))
         paragraphs = []
         sources = []
         for block in re.split(r'\n\s*\n', content.strip()):
@@ -100,7 +102,7 @@ def render_chapters(blocks, language):
     return guide_toc(navigation, language) + ''.join(sections)
 
 
-def render_article_body(source, language, summary, meta):
+def render_article_body(source, language, summary, meta, toc_labels=None):
     """Give articles with an authored takeaway list the guide's introduction and contents."""
     blocks = re.split(r'\n\s*\n', source.replace('\r\n', '\n').strip())
     label = '核心结论' if language == 'zh-CN' else 'Key takeaways'
@@ -117,7 +119,7 @@ def render_article_body(source, language, summary, meta):
              + ('<span>Key takeaways</span>' if language == 'zh-CN' else '') + '</h2><ol>')
     for item in blocks[2].splitlines():
         aside += '<li>' + inline(item.split('. ', 1)[1]) + '</li>'
-    return intro + aside + '</ol></aside>' + render_chapters(blocks[3:], language)
+    return intro + aside + '</ol></aside>' + render_chapters(blocks[3:], language, toc_labels)
 
 
 def load_articles():

@@ -359,7 +359,8 @@ class Pages:
                     + self.t('AI 辅助编辑', 'AI-assisted editing') + '</span><a href="' + markdown_name
                     + '">Markdown</a></div>')
         prose = render_article_body(article['source'][self.language], self.language,
-                                    article['summary'][self.language], meta)
+                                    article['summary'][self.language], meta,
+                                    article.get('tocLabels', {}).get(self.language))
         body += '<article class="evaluation-guide published-prose">' + prose + '</article>'
         head = page_head(title, article['summary'][self.language], self.language, routes,
                          kind='BlogPosting', schema={'headline': title, 'datePublished': article['date'],

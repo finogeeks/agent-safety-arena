@@ -65,11 +65,15 @@ def guide_meta(author, date, minutes, language):
             + escape(date) + '</time></span><span>' + duration + '</span></div>')
 
 
-def guide_toc(links, language):
+def guide_toc(links, language, *, numbered=False):
     label, title = ('文章目录', '本文目录') if language == 'zh-CN' else ('Article contents', 'In this article')
-    return (f'<nav class="guide-toc" aria-label="{label}"><span>{title}</span>'
-            + ''.join(f'<a href="#{escape(anchor, quote=True)}">{escape(text)}</a>'
-                      for anchor, text in links) + '</nav>')
+    anchors = [f'<a href="#{escape(anchor, quote=True)}">{escape(text)}</a>' for anchor, text in links]
+    if numbered:
+        items = ''.join(f'<li>{link}</li>' for link in anchors)
+        contents = f'<ol class="contents-list">{items}</ol>'
+    else:
+        contents = ''.join(anchors)
+    return f'<nav class="guide-toc" aria-label="{label}"><span>{title}</span>{contents}</nav>'
 
 
 def render_guide(content, language, results_html, evidence_html):

@@ -41,7 +41,9 @@ class PublishedArticleTests(unittest.TestCase):
                 self.assertIn('分钟阅读' if suffix else 'min read', sandbox)
                 self.assertIn('<details class="chapter-sources">', sandbox)
                 self.assertIn('<nav class="guide-toc"', sandbox)
-                label = '沙箱真的安全吗' if suffix else 'How safe is the sandbox?'
+                label = '沙箱真的安全吗' if suffix else 'What “sandbox enabled” promises'
+                if language == 'en':
+                    self.assertIn('<ol class="contents-list"><li>', sandbox)
                 self.assertIn(f'<a href="#section-1">{label}</a>', sandbox)
                 heading = '一、完整的安全感，几乎消失的保护' if suffix else '1. Complete peace of mind, almost no protection'
                 self.assertIn(f'<h2>{heading}</h2>', sandbox)

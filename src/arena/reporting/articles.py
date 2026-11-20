@@ -99,7 +99,7 @@ def render_chapters(blocks, language, toc_labels):
                       f'</summary><ul>{items}</ul></details>')
         sections.append(f'<section class="guide-section" id="{anchor}"><h2>{inline(heading)}</h2>'
                         + prose + '</section>')
-    return guide_toc(navigation, language) + ''.join(sections)
+    return guide_toc(navigation, language, numbered=language == 'en') + ''.join(sections)
 
 
 def render_article_body(source, language, summary, meta, toc_labels=None):

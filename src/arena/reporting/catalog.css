@@ -182,6 +182,14 @@
 .evaluation-guide .guide-takeaways strong{color:var(--ink);font-weight:650}
 .evaluation-guide .guide-toc{--text-size:13px;display:flex;flex-wrap:wrap;gap:8px 18px;margin:0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:13px;line-height:1.8}
 .evaluation-guide .guide-toc>span{color:var(--muted)}
+.evaluation-guide .guide-toc:has(.contents-list){display:grid;grid-template-columns:9rem minmax(0,1fr);gap:12px 24px;align-items:start}
+.guide-toc:has(.contents-list)>span{padding-top:8px;font-weight:600;color:var(--ink)}
+.guide-toc .contents-list{margin:0;padding-left:2em;list-style:decimal-leading-zero}
+.contents-list li{padding-left:6px}
+.contents-list li+li{border-top:1px solid var(--line)}
+.contents-list li::marker{color:var(--muted);font-variant-numeric:tabular-nums}
+.contents-list a{display:block;padding:8px 0;font-size:15px;line-height:1.6}
+@media(max-width:600px){.evaluation-guide .guide-toc:has(.contents-list){grid-template-columns:minmax(0,1fr);gap:4px}.guide-toc:has(.contents-list)>span{padding-top:0}.contents-list a{padding:10px 0}}
 .evaluation-guide .guide-section{margin:36px 0;scroll-margin-top:24px}
 .evaluation-guide .guide-section:last-child{margin-bottom:0}
 .evaluation-guide h2{margin:0 0 16px;font-size:22px;line-height:1.5}

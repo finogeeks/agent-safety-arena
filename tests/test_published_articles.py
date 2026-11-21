@@ -21,7 +21,8 @@ class PublishedArticleTests(unittest.TestCase):
                 self.assertEqual((site / source.name).read_bytes(), source.read_bytes())
                 html = (site / route).read_text('utf8')
                 self.assertIn('BlogPosting', html)
-                self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + route, html)
+                public = ('zh-cn/' if suffix else '') + 'articles/agent-privacy/'
+                self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + public + '"', html)
                 self.assertIn('href="articles' + suffix + '.html"', html)
                 self.assertEqual(html.count('<blockquote>'), 2)
                 self.assertEqual(html.count('<img '), 7)
@@ -29,7 +30,7 @@ class PublishedArticleTests(unittest.TestCase):
                 self.assertEqual(html.count('img src="https://safety.finaios.ai/'), 7)
                 directory = (site / ('articles' + suffix + '.html')).read_text('utf8')
                 self.assertIn('href="' + route + '"', directory)
-                self.assertIn(route, (site / 'sitemap.xml').read_text('utf8'))
+                self.assertIn('https://safety.finaios.ai/' + public, (site / 'sitemap.xml').read_text('utf8'))
                 self.assertIn(source.name, (site / 'site-manifest.json').read_text('utf8'))
                 sandbox = (site / ('agent-sandbox' + suffix + '.html')).read_text('utf8')
                 self.assertIn('class="guide-takeaways"', sandbox)

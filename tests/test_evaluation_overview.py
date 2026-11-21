@@ -21,7 +21,8 @@ class Links(HTMLParser):
     def handle_starttag(self, tag, attrs):
         for key, value in attrs:
             if key in ('href', 'src') and value and not value.startswith(('https:', '#', '/')):
-                self.paths.append(value.split('#')[0].split('?', 1)[0])
+                path = value.split('#')[0].split('?', 1)[0]
+                self.paths.append(path + 'index.html' if path.endswith('/') else path)
 
 
 def section(html, identity):
@@ -267,7 +268,8 @@ class EvaluationOverviewTests(unittest.TestCase):
                 self.assertEqual(len(cards), 4, filename)
                 self.assertEqual(showcase_html.count('<a '), 4, 'One native link per entire card')
                 for category, whole_card in zip(('privacy', 'interaction', 'system', 'data'), cards):
-                    self.assertIn(f'href="{category}{suffix}.html"', whole_card)
+                    target = f'{category}{suffix}.html' if suffix else f'{category}/'
+                    self.assertIn(f'href="{target}"', whole_card)
                     self.assertIn('<h3', whole_card)
                     self.assertIn('class="showcase-lead"', whole_card)
                     self.assertIn('class="category-entry"', whole_card)
@@ -279,7 +281,7 @@ class EvaluationOverviewTests(unittest.TestCase):
             card=re.search(r'<a class="test-card scenario-card"[^>]*data-category="data".*?</a>',showcase,re.S).group()
             self.assertIn('>Data<',card)
             self.assertIn('Files are deleted, changed, or copied away, so your data is lost or leaked',card)
-            self.assertIn('href="data.html"',card)
+            self.assertIn('href="data/"',card)
             self.assertLess(card.index('<h3'), card.index('<img'))
             self.assertNotIn('#section-3',card)
             self.assertNotIn('Controlled deletion',showcase)

@@ -36,7 +36,7 @@ class SiteNotFound(unittest.TestCase):
             body = not_found.read_text('utf8')
             self.assertIn('noindex', body)
             self.assertIn('Agent Safety Arena', body)
-            self.assertIn('zh-CN.html', body)
+            self.assertIn('/zh-cn/', body)
             self.assertTrue(redirects.is_file(), '_redirects missing from build output')
             rules = redirects.read_text('utf8')
             self.assertIn('/.env', rules)

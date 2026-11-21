@@ -3,6 +3,9 @@
 Status: Accepted, 2026-11-13. Canonical host confirmed by the owner:
 `https://safety.finaios.ai`.
 
+The [public URL contract](public-urls.md) defines the route migration accepted
+on 2026-11-21. Canonical metadata and discovery use those directory URLs.
+
 ## Problem
 
 Public AI Agent safety evaluations need stable addresses and readable evidence.

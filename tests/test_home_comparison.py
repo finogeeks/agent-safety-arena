@@ -87,7 +87,7 @@ class HomeComparisonTests(unittest.TestCase):
 
     def test_home_keeps_article_entry_in_header_and_below_inline_title(self):
         for route, guide, label in (
-            ('index.html', 'articles.html', 'Methods &amp; Findings'),
+            ('index.html', 'articles/', 'Methods &amp; Findings'),
             ('en.html', 'articles.html', 'Methods &amp; Findings'),
             ('zh-CN.html', 'articles.zh-CN.html', '方法与发现'),
         ):

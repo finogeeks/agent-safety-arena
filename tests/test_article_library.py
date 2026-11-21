@@ -36,7 +36,8 @@ class ArticleLibraryTests(unittest.TestCase):
                     self.assertTrue((site / route).is_file(), 'Article directory must exist')
                     html = (site / route).read_text('utf8')
                     self.assertIn('CollectionPage', html)
-                    self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + route, html)
+                    public = ('zh-cn/' if suffix else '') + 'articles/'
+                    self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + public + '"', html)
                     self.assertIn('href="guide' + suffix + '.html"', html)
                     featured = re.search(r'<article class="featured-article".*?</article>', html, re.S)[0]
                     self.assertIn('href="agent-sandbox' + suffix + '.html"', featured)
@@ -61,7 +62,7 @@ class ArticleLibraryTests(unittest.TestCase):
                     self.assertIn(render_guide(load_guide(), language, '', ''), guide)
                     self.assertIn('href="' + route + '"', guide)
                     home = (site / ('zh-CN.html' if suffix else 'index.html')).read_text('utf8')
-                    self.assertEqual(home.count('href="' + route + '"'), 2)
-                    self.assertIn(route, (site / 'sitemap.xml').read_text('utf8'))
+                    self.assertEqual(home.count('href="' + (route if suffix else 'articles/') + '"'), 2)
+                    self.assertIn('https://safety.finaios.ai/' + public, (site / 'sitemap.xml').read_text('utf8'))
                     self.assertIn(route, (site / 'site-manifest.json').read_text('utf8'))
             self.assertEqual(source.read_bytes(), evidence)

@@ -149,7 +149,7 @@ class CaseNavigationTests(unittest.TestCase):
                 (root / 'site/interaction.html', 'Interaction',
                  [('index.html', 'Home')]),
                 (root / 'site/cases/window-flood/index.html', 'Window Flood',
-                 [('../../index.html', 'Home'), ('../../interaction.html', 'Interaction')]),
+                 [('../../', 'Home'), ('../../interaction/', 'Interaction')]),
             ]
             for path, current, parents in pages:
                 html = path.read_text('utf8')

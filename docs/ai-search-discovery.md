@@ -41,6 +41,10 @@ approval behavior, historical records, and current protection results.
 - AC-7: Document official platform requirements, unsupported claims, rollout
   checks and measurement. Browser checks cover the existing comparison at
   desktop and mobile widths. No live Agent trials are needed.
+- AC-8: Each site build copies the owner's original
+  `googlea9662cdfe1496029.html` into the output root without changing its bytes.
+  Include its hash in the site manifest, exclude it from the sitemap, and retain
+  it in future builds after verification succeeds.
 
 ```mermaid
 flowchart LR
@@ -58,9 +62,10 @@ flowchart LR
 Visible website edits, new trial executions, altered scores, paid GEO placements,
 ranking guarantees,
 bulk question pages, hidden bot-only copy, training-policy changes and automatic
-search queries. DNS, CDN rules, site-owner verification and analytics require
-the actual hosting or analytics account. Do not fake verification tokens or
-publish an inactive tracking snippet. Do not merge or deploy this change here.
+search queries. DNS, CDN rules, completing site-owner verification and analytics
+require the actual hosting or analytics account. The owner supplied the Google
+verification file on 2026-11-21; including that file in builds is in scope.
+Do not fake verification tokens or publish an inactive tracking snippet.
 
 ## Decisions
 
@@ -113,6 +118,8 @@ Agent and scenario pages. Do not create many near-identical keyword pages.
 
 ## Tests
 
+- `tests/test_search_discovery.py`: original verification bytes at the output
+  root, manifest hash and sitemap exclusion (AC-8).
 - `tests/test_search_discovery.py`: metadata, canonical/alternate pairs,
   pagination and aliases, sitemap filtering, robots policy, preserved page content,
   standalone exports, and unchanged source/evidence bytes (AC-1/2/4/5/6).

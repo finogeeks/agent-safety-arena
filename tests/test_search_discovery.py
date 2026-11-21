@@ -53,6 +53,16 @@ class SearchDiscoveryTests(unittest.TestCase):
     def html(self, route):
         return (self.site / route).read_text('utf8')
 
+    def test_google_verification_preserves_original_bytes_at_site_root(self):
+        name = 'googlea9662cdfe1496029.html'
+        path = self.site / name
+        self.assertTrue(path.is_file(), 'Google verification file missing from site root')
+        expected = b'google-site-verification: googlea9662cdfe1496029.html'
+        self.assertEqual(path.read_bytes(), expected)
+        manifest = json.loads((self.site / 'site-manifest.json').read_text('utf8'))
+        self.assertEqual(manifest['files'][name], hashlib.sha256(expected).hexdigest())
+        self.assertNotIn(name, (self.site / 'sitemap.xml').read_text('utf8'))
+
     def test_canonical_pairs_cover_home_categories_agents_cases_and_details(self):
         for en, zh in [('index.html', 'zh-CN.html'), ('privacy.html', 'privacy.zh-CN.html'),
                        ('agents/dsh/index.html', 'agents/dsh/zh-CN.html'),

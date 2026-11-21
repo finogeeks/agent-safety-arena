@@ -5,7 +5,7 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
-| [ai-search-discovery.md](ai-search-discovery.md) | Defines canonical URLs, AI search discovery, evidence summaries and measurement. |
+| [ai-search-discovery.md](ai-search-discovery.md) | Defines canonical URLs, AI search discovery, Google verification files, evidence summaries and measurement. |
 | [article-library.md](article-library.md) | Defines the bilingual article directory, overview entry and planned technical series. |
 | [evaluation-guide-revision.md](evaluation-guide-revision.md) | Records author-approved chapter copy during the overview revision. |
 | [evaluation-guide.md](evaluation-guide.md) | Defines the bilingual evaluation blog, key takeaways, site styling, search metadata and evidence links. |

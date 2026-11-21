@@ -15,11 +15,11 @@ live evaluations come from real executions in controlled environments. Test code
 recordings, records and reproduction methods are public so readers can verify
 the findings. Results apply to the recorded conditions and scope.
 
-Readers, researchers and AI search services are welcome to [cite and verify](https://safety.finaios.ai/index.html)
+Readers, researchers and AI search services are welcome to [cite and verify](https://safety.finaios.ai/)
 these public evaluations. Cite the specific result page and retain its test conditions.
 
 [Evaluation website](https://safety.finaios.ai/) ·
-[Read the project article](https://safety.finaios.ai/guide.html) ·
+[Read the project article](https://safety.finaios.ai/articles/guide/) ·
 [Browse the cases](scenarios/README.md)
 
 ## Why we test
@@ -44,10 +44,10 @@ observations. The evaluations keep them separate.
 
 | Category | What could happen to the user |
 | --- | --- |
-| [Privacy](https://safety.finaios.ai/privacy.html) | Camera, microphone, or screen capture can leak what you see and say. |
-| [Interaction](https://safety.finaios.ai/interaction.html) | Pop-ups cover the screen, windows jump or vanish, and the computer feels taken over. |
-| [System](https://safety.finaios.ai/system.html) | Programs shut down, permissions and settings change, and the computer becomes unusable. |
-| [Data](https://safety.finaios.ai/data.html) | Files are deleted, changed, or copied away, so your data is lost or leaked. |
+| [Privacy](https://safety.finaios.ai/privacy/) | Camera, microphone, or screen capture can leak what you see and say. |
+| [Interaction](https://safety.finaios.ai/interaction/) | Pop-ups cover the screen, windows jump or vanish, and the computer feels taken over. |
+| [System](https://safety.finaios.ai/system/) | Programs shut down, permissions and settings change, and the computer becomes unusable. |
+| [Data](https://safety.finaios.ai/data/) | Files are deleted, changed, or copied away, so your data is lost or leaked. |
 
 Completed evaluations currently cover **DeepSeek Harness, WorkBuddy, Codex CLI and
 Claude CLI** across Privacy, Interaction, System and Data. The website shows
@@ -97,7 +97,7 @@ effect does not by itself prove which API or mechanism blocked it.
 
 Built-in protection results vary by Agent and scenario. Some harmful operations
 occurred after an approval prompt was recorded and permission was granted.
-The [current results](https://safety.finaios.ai/index.html) are generated from
+The [current results](https://safety.finaios.ai/) are generated from
 reviewed records; Agent score pages include assessed sample counts.
 These are results for specified Windows versions, configurations and approval
 policies, not a universal safety ranking or evidence of autonomous malicious intent.
@@ -106,7 +106,7 @@ The difference matters because a sandbox can serve different priorities. Keeping
 an Agent working toward task completion and enforcing the user’s limits are
 separate responsibilities. An independent sandbox can put user protection first,
 without letting the Agent expand its own authority to finish a task. The
-[project article](https://safety.finaios.ai/guide.html) explains
+[project article](https://safety.finaios.ai/articles/guide/) explains
 our findings, approval fatigue, product priorities and FinShield’s approach.
 
 The website reports each Agent separately, with total and category scores.
@@ -115,7 +115,7 @@ that Agent's row opens the same page with that category's scenarios, and each
 recorded scenario links to its existing comparison. A successful protection result means the tested harmful effect was prevented.
 The rate is `passed / (passed + failed)`; unassessed and unrun items are excluded.
 Re-exporting a trial does not create another execution. See the
-[methodology](https://safety.finaios.ai/methodology.html) and
+[methodology](https://safety.finaios.ai/methodology/) and
 [saved records](results/README.md) for scope and evidence.
 
 ## Build the website locally
@@ -195,3 +195,7 @@ Confirm that both the build and deploy jobs succeeded before checking the live
 site. Publishing to `safety.finaios.ai` is managed separately by a bot; this
 repository does not yet document its trigger or deployment command. A successful
 GitHub Pages run does not establish that the other destination was updated.
+
+Public page URLs use directories: English starts at `/`, Chinese at `/zh-cn/`,
+articles at `/articles/<slug>/`, and cases at `/cases/<id>/`. Old links remain
+usable. See the [URL contract](docs/public-urls.md) for redirects and host limits.

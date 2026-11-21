@@ -113,6 +113,9 @@ change supplies a build artifact, not hosting credentials or a production deploy
 Each build copies `404.html` and `_redirects` from `src/arena/reporting/` into
 the publish root so Cloudflare Pages does not treat the catalog as a single-page
 app and return homepage HTML with status 200 for missing paths.
+The [public URL contract](public-urls.md) adds directory pages, a route map and
+legacy URL redirects during site assembly. Standalone report exports retain
+their original filenames. Publish the entire artifact, including `_redirects`.
 The [evaluation overview](evaluation-overview.md) defines the compact global home,
 four safety categories with Privacy first, 20-scenario static pagination, scenario hubs, and evidence
 navigation. English is the default; Chinese is available. The build reads

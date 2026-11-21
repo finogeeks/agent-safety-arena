@@ -80,7 +80,7 @@ class RepositoryWorkflowTests(unittest.TestCase):
             self.assertTrue((site / 'owned-windows/codex/second/zh-CN.html').is_file())
             self.assertFalse(list(site.rglob('private-notes.txt')))
             index = (site / 'index.html').read_text('utf8')
-            self.assertIn('unclassified.html', index)
+            self.assertIn('href="unclassified/"', index)
             hub = (site / 'cases/owned-windows/zh-CN.html').read_text('utf8')
             self.assertIn('../../owned-windows/dsh/sample/zh-CN.html', hub)
             self.assertNotIn('href="/', index)

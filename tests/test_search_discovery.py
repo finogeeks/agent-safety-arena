@@ -51,7 +51,8 @@ class SearchDiscoveryTests(unittest.TestCase):
         build_site(self.root / 'results', self.site)
 
     def html(self, route):
-        return (self.site / route).read_text('utf8')
+        return (self.site / route / 'index.html' if not route or route.endswith('/')
+                else self.site / route).read_text('utf8')
 
     def test_google_verification_preserves_original_bytes_at_site_root(self):
         name = 'googlea9662cdfe1496029.html'
@@ -64,11 +65,11 @@ class SearchDiscoveryTests(unittest.TestCase):
         self.assertNotIn(name, (self.site / 'sitemap.xml').read_text('utf8'))
 
     def test_canonical_pairs_cover_home_categories_agents_cases_and_details(self):
-        for en, zh in [('index.html', 'zh-CN.html'), ('privacy.html', 'privacy.zh-CN.html'),
-                       ('agents/dsh/index.html', 'agents/dsh/zh-CN.html'),
-                       ('cases/camera-capture/index.html', 'cases/camera-capture/zh-CN.html'),
-                       ('camera-capture/dsh/paired/en.html', 'camera-capture/dsh/paired/zh-CN.html'),
-                       ('guide.html', 'guide.zh-CN.html'), ('methodology.html', 'methodology.zh-CN.html')]:
+        for en, zh in [('', 'zh-cn/'), ('privacy/', 'zh-cn/privacy/'),
+                       ('agents/dsh/', 'zh-cn/agents/dsh/'),
+                       ('cases/camera-capture/', 'zh-cn/cases/camera-capture/'),
+                       ('results/camera-capture/dsh/paired/', 'zh-cn/results/camera-capture/dsh/paired/'),
+                       ('articles/guide/', 'zh-cn/articles/guide/'), ('methodology/', 'zh-cn/methodology/')]:
             for language, route in [('en', en), ('zh-CN', zh)]:
                 with self.subTest(route=route):
                     html = self.html(route)
@@ -83,8 +84,8 @@ class SearchDiscoveryTests(unittest.TestCase):
                     self.assertEqual(schema['inLanguage'], language)
                     self.assertNotIn('aggregateRating', schema)
                     self.assertNotIn('datePublished', schema)
-        self.assertEqual(Head(self.html('en.html')).canonical(), [HOST + '/index.html'])
-        self.assertEqual(Head(self.html('agents/dsh/privacy.html')).canonical(), [HOST + '/agents/dsh/index.html'])
+        self.assertEqual(Head(self.html('en.html')).canonical(), [HOST + '/'])
+        self.assertEqual(Head(self.html('agents/dsh/privacy.html')).canonical(), [HOST + '/agents/dsh/'])
 
     def test_sitemap_only_lists_indexable_canonical_pages_and_is_manifested(self):
         path = self.site / 'sitemap.xml'
@@ -92,8 +93,8 @@ class SearchDiscoveryTests(unittest.TestCase):
         tree = ET.fromstring(path.read_text('utf8'))
         urls = [node.text for node in tree.findall('{*}url/{*}loc')]
         self.assertEqual(len(urls), len(set(urls)))
-        self.assertIn(HOST + '/camera-capture/dsh/paired/en.html', urls)
-        self.assertIn(HOST + '/cases/camera-capture/zh-CN.html', urls)
+        self.assertIn(HOST + '/results/camera-capture/dsh/paired/', urls)
+        self.assertIn(HOST + '/zh-cn/cases/camera-capture/', urls)
         self.assertNotIn(HOST + '/en.html', urls)
         self.assertNotIn(HOST + '/agents/dsh/privacy.html', urls)
         self.assertFalse(any('sample-only' in url or '404' in url for url in urls))

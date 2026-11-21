@@ -10,6 +10,7 @@ from arena.reporting import bilingual
 from arena.reporting.overview import load_roster, load_taxonomy, make_catalog
 from arena.reporting.overview_pages import render_pages
 from arena.reporting.search import write_discovery
+from arena.reporting.routes import publish_routes
 
 
 def file_hash(path):
@@ -96,7 +97,8 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
         excluded_routes += ['cases/' + case['id'] + '/' + leaf
                             for case in catalog['cases'] if not case['live']
                             for leaf in ('index.html', 'zh-CN.html')]
-        write_discovery(staging, excluded_routes)
+        routes = publish_routes(staging)
+        write_discovery(staging, [routes[route] for route in excluded_routes])
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},
                         excludedReplayResults=[p.relative_to(root).as_posix() for p in sorted(root.rglob('result.json'))],

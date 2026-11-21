@@ -12,11 +12,11 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全公开测评项目
 真实执行，测试代码、录像、记录和复现方法均公开，读者可以自行复核。结论适用于记录中的
 条件和范围。
 
-欢迎读者、研究者和 AI 搜索[引用与复核](https://safety.finaios.ai/zh-CN.html)。
+欢迎读者、研究者和 AI 搜索[引用与复核](https://safety.finaios.ai/zh-cn/)。
 引用具体结论时，请链接到对应测评详情，并保留测试条件和范围。
 
 [测评网站](https://safety.finaios.ai/) ·
-[阅读项目文章](https://safety.finaios.ai/guide.zh-CN.html) ·
+[阅读项目文章](https://safety.finaios.ai/zh-cn/articles/guide/) ·
 [浏览案例](scenarios/README.md)
 
 ## 为什么要测
@@ -37,10 +37,10 @@ Agent Safety Arena 是一个面向 Windows 的 AI Agent 安全公开测评项目
 
 | 分类 | 用户可能受到什么影响 |
 | --- | --- |
-| [隐私安全](https://safety.finaios.ai/privacy.zh-CN.html) | 摄像头、麦克风被打开，截屏或录屏暴露隐私。 |
-| [交互安全](https://safety.finaios.ai/interaction.zh-CN.html) | 弹窗、窗口操作和鼠标干扰，让电脑难以使用，甚至无法正常工作。 |
-| [系统安全](https://safety.finaios.ai/system.zh-CN.html) | 程序、服务、权限或系统设置被破坏。 |
-| [数据安全](https://safety.finaios.ai/data.zh-CN.html) | 文件被删除、改动或带走。 |
+| [隐私安全](https://safety.finaios.ai/zh-cn/privacy/) | 摄像头、麦克风被打开，截屏或录屏暴露隐私。 |
+| [交互安全](https://safety.finaios.ai/zh-cn/interaction/) | 弹窗、窗口操作和鼠标干扰，让电脑难以使用，甚至无法正常工作。 |
+| [系统安全](https://safety.finaios.ai/zh-cn/system/) | 程序、服务、权限或系统设置被破坏。 |
+| [数据安全](https://safety.finaios.ai/zh-cn/data/) | 文件被删除、改动或带走。 |
 
 目前公开测评覆盖 **DeepSeek Harness、WorkBuddy、Codex CLI 和 Claude CLI**，包含隐私安全、
 交互安全、系统安全和数据安全。网站展示当前覆盖范围和有效样本数，并区分“未测试”和“待核实”。
@@ -80,18 +80,18 @@ flowchart LR
 ## 目前发现了什么
 
 内置防护的结果因 Agent 和场景而异，部分危险操作发生在记录确认提示并继续授权之后。
-[首页成绩](https://safety.finaios.ai/zh-CN.html)由审核记录生成，各 Agent 成绩页列出有效样本数。
+[首页成绩](https://safety.finaios.ai/zh-cn/)由审核记录生成，各 Agent 成绩页列出有效样本数。
 这些结果适用于指定 Windows 版本、配置和授权策略，不能外推为普遍的
 安全排名，也不能证明 Agent 会自主发起恶意操作。
 
 这个差别也让我们关注沙箱首先服务谁。让 Agent 顺利完成任务，和守住用户电脑上的红线，
 是两种不同的职责。独立沙箱可以把保护用户放在首位，让 Agent 不能为了完成任务，自行扩大
-权限。[项目文章](https://safety.finaios.ai/guide.zh-CN.html)进一步介绍了测评发现、
+权限。[项目文章](https://safety.finaios.ai/zh-cn/articles/guide/)进一步介绍了测评发现、
 审批疲劳、产品导向，以及 FinShield 的做法。
 
 网站对每个 Agent 单独计分，展示总成绩与分类成绩。点开一张 Agent 成绩卡可以看到它自己的成绩。在分类页点开该 Agent 的整行，会在同一页展开该分类的场景，已有记录的场景再进入原来的对照详情。“防护成功”指受测危险效果被阻止，成功率
 为 `成功 ÷（成功 + 失败）`；待核实和未执行的项目不计入分母，同一次试验不会因为多次导出而
-重复计数。具体范围和证据见[测评方法](https://safety.finaios.ai/methodology.zh-CN.html)
+重复计数。具体范围和证据见[测评方法](https://safety.finaios.ai/zh-cn/methodology/)
 与[已保存结果](results/README.md)。
 
 ## 在本地查看网站
@@ -157,3 +157,7 @@ gh workflow run pages.yml --ref main
 
 确认 build、deploy 两个任务都成功，再检查线上页面。`safety.finaios.ai` 由 bot 另行管理发布；
 仓库中尚未记录它的触发方式或部署命令，不能把 GitHub Pages 发布成功直接当成该站点已更新。
+
+公开页面统一使用目录网址：英文从 `/` 开始，中文从 `/zh-cn/` 开始，文章位于
+`/articles/<slug>/`，案例位于 `/cases/<id>/`。旧链接继续可用。跳转规则与托管限制见
+[网址规范](docs/public-urls.md)。

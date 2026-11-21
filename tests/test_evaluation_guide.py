@@ -49,7 +49,7 @@ class EvaluationGuideTests(unittest.TestCase):
                 homepage = (root / 'site' / home).read_text('utf8')
                 self.assertIn('">100<', homepage)
                 self.assertNotIn('%', homepage)
-                directory = route.replace('guide', 'articles')
+                directory = route.replace('guide', 'articles') if language == 'zh-CN' else 'articles/'
                 self.assertIn('class="guide-entry" href="' + directory + '"', homepage)
                 header = re.search(r'<header.*?</header>', homepage).group()
                 self.assertLess(header.index('href="' + directory + '"'), header.index('GitHub'))

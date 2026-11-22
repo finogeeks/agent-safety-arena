@@ -296,28 +296,34 @@
  .case-page .result-cell::before{content:attr(data-label);display:block;margin-bottom:4px;color:#65758b;text-align:center}
 }
 
-/* Article discovery uses the category page's type, spacing and card surfaces. */
-.article-library{margin:0 0 24px}
-.library-intro{padding:10px 0 16px}
-.library-intro h1{margin:0 0 6px}
-.library-intro p{max-width:760px;margin:0;color:#53647b;line-height:1.55}
-.featured-article,.planned-article,.published-article{background:white;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 3px 14px #24324808;min-width:0}
-.article-kicker{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#65758b}
-.reading-start{color:#65758b}
-.featured-article h2{margin:12px 0 8px}
-.featured-article h2 a{--text-size:var(--heading-size);color:var(--ink)}
-.featured-article>p{max-width:900px;color:#53647b;line-height:1.5;margin:0}
-.featured-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:16px;padding-top:10px;border-top:1px solid var(--line)}
-.article-read{display:inline-flex;align-items:center;gap:16px;font-weight:600}
-.article-meta{display:flex;flex-wrap:wrap;gap:8px 16px;color:#65758b}
-.technical-series{margin-top:24px}
-.series-heading{margin-bottom:10px}
-.series-heading h2{margin:0 0 6px}
-.series-heading p{margin:0;color:#53647b;line-height:1.55}
-.article-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.planned-status{color:#76859a;background:#f3f5f9;border:1px solid var(--line);border-radius:4px;padding:3px 7px;white-space:nowrap}
-.planned-article h3,.published-article h3{margin:12px 0 8px;color:var(--ink)}
-.planned-article p,.published-article p{color:#53647b;line-height:1.5;margin:0}
+/* Single-column index with one editorial pin and a chronological archive. */
+.articles-page{background:#fff}
+.articles-page main{max-width:920px}
+.article-library{margin:0 0 36px;color:var(--ink)}
+.library-intro{padding:20px 0 24px;border-bottom:2px solid var(--ink)}
+.library-intro h1{--heading-size:clamp(28px,4vw,38px);margin:0}
+.article-library p{color:#53647b;line-height:1.65;margin:6px 0 0}
+.featured-article{padding:24px 0 26px;border-bottom:1px solid var(--line)}
+.pin-meta{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;color:#53647b;--text-size:13px}
+.pin-meta strong{color:var(--blue)}
+.article-library time{font-family:Consolas,monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+.featured-article h2{--heading-size:clamp(22px,3vw,28px);margin:8px 0}
+.article-library h2 a,.article-library h3 a{--text-size:var(--heading-size);color:var(--ink)}
+.article-library h2 a:hover,.article-library h3 a:hover{color:var(--blue);text-decoration:underline}
+#archive-title{--heading-size:18px;margin:24px 0 0}
+.article-archive,.planned-topics ul{list-style:none;margin:0;padding:0}
+.article-archive li{display:grid;grid-template-columns:96px minmax(0,1fr);gap:18px;padding:16px 0;border-bottom:1px solid var(--line)}
+.article-archive time{--text-size:13px;color:#53647b;line-height:1.6;padding-top:2px}
+.article-archive h3{--heading-size:19px;margin:0}
+.library-footer{display:flex;justify-content:space-between;gap:12px 32px;align-items:baseline;flex-wrap:wrap;padding-top:20px}
+.planned-topics summary{cursor:pointer}
+.planned-topics[open]{flex-basis:100%}
+.planned-article h3{margin:16px 0 0}
+@media(max-width:600px){
+  .article-archive li{grid-template-columns:1fr;gap:3px}
+  .library-intro{padding:10px 0 18px}
+  .featured-article{padding:18px 0}
+}
 .published-prose>h2{margin-top:36px;scroll-margin-top:24px}
 .published-prose figure{margin:22px 0}
 .published-prose figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px}
@@ -329,13 +335,6 @@
 .published-prose blockquote{margin:18px 0;padding:1px 20px;border-left:3px solid var(--blue);background:var(--bg)}
 .published-prose code,.published-prose a{overflow-wrap:anywhere}
 .published-prose hr{border:0;border-top:1px solid var(--line);margin:28px 0}
-.library-reference{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:24px;padding:16px 0;border-top:1px solid var(--line)}
-.library-reference h2{margin:0 0 6px}
-.library-reference p{margin:0;color:#53647b;line-height:1.55}
-.library-reference>a{flex-shrink:0}
-@media(max-width:700px){.article-grid{grid-template-columns:1fr}.library-reference{align-items:flex-start;flex-direction:column;gap:12px}}
-@media(max-width:600px){.library-intro{padding-bottom:14px}.featured-article,.planned-article{padding:14px}}
-
 /* Shared navigation: categories beside the brand, article and utilities on the right. */
 .site-header .site-bar{max-width:1200px;display:flex;align-items:center;flex-wrap:wrap;gap:24px;min-height:68px;margin:auto;padding:12px 30px}
 .site-header .brand{white-space:nowrap;flex-shrink:0}

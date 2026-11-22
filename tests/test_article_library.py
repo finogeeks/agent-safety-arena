@@ -40,16 +40,23 @@ class ArticleLibraryTests(unittest.TestCase):
                     self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + public + '"', html)
                     self.assertIn('href="guide' + suffix + '.html"', html)
                     featured = re.search(r'<article class="featured-article".*?</article>', html, re.S)[0]
-                    self.assertIn('href="agent-sandbox' + suffix + '.html"', featured)
-                    self.assertNotIn('href="guide' + suffix + '.html"', featured)
-                    cards = re.findall(r'<article class="published-article">.*?</article>', html, re.S)
-                    self.assertIn('href="guide' + suffix + '.html"', cards[0])
-                    self.assertFalse(any('href="agent-sandbox' + suffix + '.html"' in card for card in cards))
+                    self.assertIn('href="guide' + suffix + '.html"', featured)
+                    self.assertIn('置顶' if suffix else 'Pinned', featured)
+                    archive = re.search(r'<ol class="article-archive">.*?</ol>', html, re.S)[0]
+                    article_links = Links()
+                    article_links.feed(archive)
+                    self.assertEqual(article_links.hrefs, [
+                        slug + suffix + '.html'
+                        for slug in ('chrome-windows-sandbox', 'agent-sandbox', 'agent-interaction', 'agent-privacy')
+                    ])
+                    dates = re.findall(r'<time datetime="([^"]+)"', archive)
+                    self.assertEqual(len(dates), len(article_links.hrefs))
+                    self.assertEqual(dates, sorted(dates, reverse=True))
                     self.assertIn('href="methodology' + suffix + '.html"', html)
-                    planned = re.findall(r'<article class="planned-article">.*?</article>', html, re.S)
+                    disclosure = re.search(r'<details class="planned-topics">.*?</details>', html, re.S)[0]
+                    planned = re.findall(r'<li class="planned-article">.*?</li>', disclosure, re.S)
                     self.assertEqual(len(planned), 4)
                     for item in planned:
-                        self.assertIn('计划中' if language == 'zh-CN' else 'Planned', item)
                         self.assertNotIn('<a ', item)
                         self.assertNotIn('<time', item)
                     links = Links()

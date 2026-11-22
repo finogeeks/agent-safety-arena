@@ -147,6 +147,10 @@ cd agent-safety-arena
 
 ## 发布网站
 
+搜索与AI回答发现的操作见[SEO与AI搜索运维指南](docs/seo-geo-operations.md)。指南分别记录本地检查、
+线上收录、AI引用和真人访问。结果页保留实际测试条件；未测试的Agent页面仍可访问，发布真实
+评测记录后才允许索引。
+
 [Publish site 工作流](https://github.com/finogeeks/agent-safety-arena/actions/workflows/pages.yml)
 会在代码推送到 `main` 后构建并部署到 GitHub Pages，合并 PR 也会触发。不改代码而重新部署时，
 选择 **Run workflow** 和 `main` 分支，或执行：
@@ -155,8 +159,9 @@ cd agent-safety-arena
 gh workflow run pages.yml --ref main
 ```
 
-确认 build、deploy 两个任务都成功，再检查线上页面。`safety.finaios.ai` 由 bot 另行管理发布；
-仓库中尚未记录它的触发方式或部署命令，不能把 GitHub Pages 发布成功直接当成该站点已更新。
+确认 build、deploy 两个任务都成功，再检查线上页面。`safety.finaios.ai` 由跟随 `main` 的 bot
+另行管理发布。合并后需单独核对该域名的页面和资源，不能把 GitHub Pages 发布成功直接当成
+该站点已更新。
 
 公开页面统一使用目录网址：英文从 `/` 开始，中文从 `/zh-cn/` 开始，文章位于
 `/articles/<slug>/`，案例位于 `/cases/<id>/`。旧链接继续可用。跳转规则与托管限制见

@@ -6,6 +6,10 @@ Status: Accepted, 2026-11-13. Canonical host confirmed by the owner:
 The [public URL contract](public-urls.md) defines the route migration accepted
 on 2026-11-21. Canonical metadata and discovery use those directory URLs.
 
+The owner authorized the [search result clarity follow-up](search-result-clarity.md)
+on 2026-11-22. Its scoped additions supersede the visible-content deferrals below;
+other evidence, layout and crawler-policy requirements remain in force.
+
 ## Problem
 
 Public AI Agent safety evaluations need stable addresses and readable evidence.

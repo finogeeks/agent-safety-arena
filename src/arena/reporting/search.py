@@ -9,7 +9,7 @@ SITE_NAME = 'Agent Safety Arena'
 
 
 def page_head(title, description, language, routes, *, kind='WebPage',
-              schema=None, site=SITE_URL):
+              schema=None, site=SITE_URL, indexable=True):
     """Describe visible content; callers supply the two canonical routes."""
     site = site.rstrip('/')
     canonical = site + '/' + routes[language]
@@ -21,6 +21,8 @@ def page_head(title, description, language, routes, *, kind='WebPage',
               ('property', 'og:site_name', SITE_NAME),
               ('property', 'og:locale', 'zh_CN' if language == 'zh-CN' else 'en_US'),
               ('name', 'twitter:card', 'summary')]
+    if not indexable:
+        values.append(('name', 'robots', 'noindex,follow'))
     if schema and schema.get('dateModified'):
         values.append(('property', 'article:modified_time', schema['dateModified']))
     head = ''.join(f'<meta {attribute}="{escape(name, quote=True)}" content="{escape(value, quote=True)}">'

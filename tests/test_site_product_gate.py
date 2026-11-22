@@ -92,9 +92,8 @@ class SiteProductGateTests(unittest.TestCase):
             self.fixture.record(results, agent='dsh')
             self.fixture.record(results, agent='workbuddy')
             build_site(results, root / 'site', ROOT / 'profiles/coverage.json')
-            for route, leaf, untested in (('index.html', 'index.html', 'Not tested'),
-                                           ('en.html', 'index.html', 'Not tested'),
-                                           ('zh-CN.html', 'zh-CN.html', '未测试')):
+            for route, locale, untested in (('index.html', '', 'Not tested'),
+                                            ('zh-cn/index.html', 'zh-cn/', '未测试')):
                 home = (root / 'site' / route).read_text('utf8')
                 table = re.search(r'<table class="home-score-table".*?</table>', home, re.S)
                 self.assertIsNotNone(table)
@@ -111,12 +110,12 @@ class SiteProductGateTests(unittest.TestCase):
                     self.assertEqual(re.findall(r'<td data-score-scope="([^"]+)"', row), columns)
                     self.assertEqual(row.count('data-score-protection='), 10)
                 for agent_id, label in (('kilo', 'Kilo'), ('hermes', 'Hermes'), ('opencode-cli', 'OpenCode')):
-                    target = f'agents/{agent_id}/{leaf}'
+                    target = f'agents/{agent_id}/'
                     self.assertIn(f'<th scope="row"><a href="{target}">{label}</a></th>', rows[agent_id])
                     cells = re.findall(r'<td .*?</td>', rows[agent_id], re.S)
                     self.assertEqual(len(cells), 5)
                     self.assertTrue(all(cell.count('<span class="dash">—</span>') == 2 for cell in cells))
-                    detail = (root / 'site' / target).read_text('utf8')
+                    detail = (root / 'site' / locale / target / 'index.html').read_text('utf8')
                     self.assertIn(f'<h1>{label}</h1>', detail)
                     self.assertIn(untested, detail)
                 self.assertNotIn('class="phase-label"', home)
@@ -134,22 +133,21 @@ class SiteProductGateTests(unittest.TestCase):
             site = root / 'site'
             build_site(results, site, ROOT / 'profiles/coverage.json')
             roster = ['DeepSeek Harness', 'WorkBuddy', 'Codex CLI', 'Claude CLI', 'Kilo', 'Hermes', 'OpenCode']
-            for suffix, leaf, report_leaf, untested in (('', 'index.html', 'en.html', 'Not tested'),
-                                                       ('.zh-CN', 'zh-CN.html', 'zh-CN.html', '未测试')):
-                category = (site / f'interaction{suffix}.html').read_text('utf8')
-                hub = (site / 'cases/window-flood' / leaf).read_text('utf8').split('<details class="archive">')[0]
+            for locale, untested in (('', 'Not tested'), ('zh-cn/', '未测试')):
+                category = (site / locale / 'interaction/index.html').read_text('utf8')
+                hub = (site / locale / 'cases/window-flood/index.html').read_text('utf8').split('<details class="archive">')[0]
                 self.assertEqual(re.findall(r'<a class="row-link"[^>]*>([^<]+)</a>', category), roster)
                 self.assertEqual(re.findall(r'class="result-row"[^>]*><span class="name">([^<]+)</span>', hub), roster)
                 empty = (f'<span class="untested-result"><span aria-hidden="true">—</span>'
                          f'<span class="sr-only">{untested}</span></span>')
                 for agent_id, label in (('kilo', 'Kilo'), ('hermes', 'Hermes')):
-                    category_link = f'href="agents/{agent_id}/interaction{suffix}.html">{label}</a>'
+                    category_link = f'href="../agents/{agent_id}/interaction/">{label}</a>'
                     category_row = category.split(category_link, 1)[1].split('</tr>', 1)[0]
                     self.assertEqual(category_row.count(empty), 2)
                     case_label = f'<div class="result-row"><span class="name">{label}</span>'
                     case_row = hub.split(case_label, 1)[1].split('</div>', 1)[0]
                     self.assertEqual(case_row.count(empty), 2)
-                self.assertIn(f'<a class="result-row" href="../../window-flood/opencode/paired/{report_leaf}">'
+                self.assertIn('<a class="result-row" href="../../results/window-flood/opencode/paired/">'
                               '<span class="name">OpenCode</span>', hub)
             scores = json.loads((site / 'catalog.json').read_text('utf8'))['scores']['formal']['agents']
             for agent in ('kilo', 'hermes'):

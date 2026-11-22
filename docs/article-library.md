@@ -12,12 +12,12 @@ evaluation gains a series of technical articles.
   the label Methods & Findings / 方法与发现 and the accepted header layout.
 - AC-2: Feature the article selected by `featuredSlug` in both languages,
   with its title, summary, date, link and estimated reading time. The current
-  selection is the sandbox article. List the overview first among the remaining
+  selection is the camera-access article. List the overview first among the remaining
   published articles. Keep its existing URLs and directory breadcrumb.
 - AC-3: Show four planned technical topics: fixed programs and direct tasks;
   approval and enforcement boundaries; file protection and parent directories;
-  evidence and scoring. Each has a title, short scope and visible Planned
-  status. Planned items have no link, fabricated date or reading time.
+  evidence and scoring. Group their titles and scopes in a collapsed “Planned topics”
+  list below the published cards. Planned items have no link, date or reading time.
 - AC-4: Provide a separate link to the existing methodology reference. Use
   the site's colors, type and header. Match category pages: use the full main
   content width, 20px headings, 14px body text, shared title spacing, and the
@@ -67,7 +67,7 @@ inline code, HTTPS links, images and horizontal rules. Escape raw HTML and
 reject unsafe URL schemes. Article images retain their original public Safety
 URLs on every platform. Allow that origin in the image content policy, so a
 partial site export can display evidence that was not included in its inputs.
-The sandbox article starts with a numbered Markdown list under “Key takeaways”
+The sandbox and camera-access articles start with a numbered Markdown list under “Key takeaways”
 or “核心结论”. The site displays the list in the guide's takeaway panel and
 uses localized `tocLabels` for its contents links. The English edition lists
 each chapter on a numbered row, with the contents title above the list on phones.

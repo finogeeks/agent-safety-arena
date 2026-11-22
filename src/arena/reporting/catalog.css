@@ -301,7 +301,7 @@
 .library-intro{padding:10px 0 16px}
 .library-intro h1{margin:0 0 6px}
 .library-intro p{max-width:760px;margin:0;color:#53647b;line-height:1.55}
-.featured-article,.planned-article,.published-article{background:white;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 3px 14px #24324808;min-width:0}
+.featured-article,.published-article{background:white;border:1px solid var(--line);border-radius:22px;padding:16px;box-shadow:0 3px 14px #24324808;min-width:0}
 .article-kicker{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#65758b}
 .reading-start{color:#65758b}
 .featured-article h2{margin:12px 0 8px}
@@ -313,9 +313,11 @@
 .technical-series{margin-top:24px}
 .series-heading{margin-bottom:10px}
 .series-heading h2{margin:0 0 6px}
-.series-heading p{margin:0;color:#53647b;line-height:1.55}
 .article-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.planned-status{color:#76859a;background:#f3f5f9;border:1px solid var(--line);border-radius:4px;padding:3px 7px;white-space:nowrap}
+.planned-topics{margin-top:24px;border-top:1px solid var(--line)}
+.planned-topics summary{padding:12px 0;cursor:pointer;font-weight:600}
+.planned-topics ul{list-style:none;margin:0;padding:0}
+.planned-article{padding:0 0 12px}
 .planned-article h3,.published-article h3{margin:12px 0 8px;color:var(--ink)}
 .planned-article p,.published-article p{color:#53647b;line-height:1.5;margin:0}
 .published-prose>h2{margin-top:36px;scroll-margin-top:24px}
@@ -334,7 +336,7 @@
 .library-reference p{margin:0;color:#53647b;line-height:1.55}
 .library-reference>a{flex-shrink:0}
 @media(max-width:700px){.article-grid{grid-template-columns:1fr}.library-reference{align-items:flex-start;flex-direction:column;gap:12px}}
-@media(max-width:600px){.library-intro{padding-bottom:14px}.featured-article,.planned-article{padding:14px}}
+@media(max-width:600px){.library-intro{padding-bottom:14px}.featured-article,.published-article{padding:14px}}
 
 /* Shared navigation: categories beside the brand, article and utilities on the right. */
 .site-header .site-bar{max-width:1200px;display:flex;align-items:center;flex-wrap:wrap;gap:24px;min-height:68px;margin:auto;padding:12px 30px}

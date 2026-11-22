@@ -305,7 +305,7 @@ class Pages:
                  + '</h1><p>' + e(library['summary'][self.language]) + '</p></header>')
         body += ('<article class="featured-article" aria-labelledby="featured-title">'
                  '<div class="article-kicker"><span>' + e(featured['category'][self.language])
-                 + '</span><span class="reading-start">' + t('从这里开始', 'Start here') + '</span></div>'
+                 + '</span><span class="reading-start">' + t('本期推荐', 'Featured') + '</span></div>'
                  '<h2 id="featured-title"><a href="' + featured_url + '">'
                  + e(featured['title'][self.language]) + '</a></h2><p>'
                  + e(featured['summary'][self.language]) + '</p><div class="featured-footer">'
@@ -316,10 +316,8 @@ class Pages:
                  + e(featured['date']) + '</time></span><span>'
                  + t(f'约{minutes}分钟阅读', f'{minutes} min read') + '</span></div></div></article>')
         body += ('<section class="technical-series" aria-labelledby="series-title">'
-                 '<div class="series-heading"><h2 id="series-title">' + t('技术专题', 'Technical articles')
-                 + '</h2><p>' + t('围绕一个具体问题，展开案例背后的设计与判断。',
-                                  'One question at a time: the design and reasoning behind the cases.')
-                 + '</p></div><div class="article-grid">')
+                 '<div class="series-heading"><h2 id="series-title">' + t('更多文章', 'More articles')
+                 + '</h2></div><div class="article-grid">')
         for article in articles:
             if article['slug'] == featured_slug:
                 continue
@@ -328,12 +326,12 @@ class Pages:
                      + e(article['date']) + '">' + e(article['date']) + '</time></div><h3><a href="'
                      + self.route(article['slug']) + '">' + e(article['title'][self.language])
                      + '</a></h3><p>' + e(article['summary'][self.language]) + '</p></article>')
+        body += ('</div></section><details class="planned-topics"><summary>'
+                 + t('计划中的选题', 'Planned topics') + f" ({len(library['topics'])})</summary><ul>")
         for topic in library['topics']:
-            body += ('<article class="planned-article"><div class="article-kicker"><span>'
-                     + e(topic['category'][self.language]) + '</span><span class="planned-status">'
-                     + t('计划中', 'Planned') + '</span></div><h3>' + e(topic['title'][self.language])
-                     + '</h3><p>' + e(topic['summary'][self.language]) + '</p></article>')
-        body += ('</div></section><aside class="library-reference"><div><h2>'
+            body += ('<li class="planned-article"><h3>' + e(topic['title'][self.language])
+                     + '</h3><p>' + e(topic['summary'][self.language]) + '</p></li>')
+        body += ('</ul></details><aside class="library-reference"><div><h2>'
                  + t('方法与复现', 'Methodology and reproduction') + '</h2><p>'
                  + t('查看评分口径、运行条件与证据边界。', 'Check scoring rules, run conditions and evidence limits.')
                  + '</p></div><a href="' + self.method_path + '">' + t('查看参考说明', 'Read the reference')
@@ -350,7 +348,7 @@ class Pages:
         markdown_name = article['slug'] + '.' + self.language + '.md'
         body = self.trail([(self.home_path, self.t('首页', 'Home')),
                            (self.route('articles'), self.t('方法与发现', 'Methods & Findings'))], title)
-        if article['slug'] == 'agent-sandbox':
+        if article.get('tocLabels'):
             visible = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', article['source'][self.language])
             meta = guide_meta('Agent Safety Arena', article['date'], text_reading_minutes(visible), self.language)
         else:

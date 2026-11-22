@@ -52,6 +52,16 @@ class PublishedArticleTests(unittest.TestCase):
                     self.assertIn(f'href="#section-{number}"', sandbox)
                     self.assertIn(f'id="section-{number}"', sandbox)
                 self.assertEqual(sandbox.count('<figcaption>'), 3)
+                slug = 'chrome-windows-sandbox'
+                camera = (site / (slug + suffix + '.html')).read_text('utf8')
+                self.assertIn('class="guide-takeaways"', camera)
+                self.assertIn('class="guide-toc"', camera)
+                self.assertEqual(camera.count('<section class="guide-section"'), 4)
+                self.assertEqual(camera.count('<details class="chapter-sources">'), 4)
+                self.assertIn('分钟阅读' if suffix else 'min read', camera)
+                self.assertNotIn('>Markdown</a>', camera)
+                source = fixtures.ROOT / 'articles' / f'{slug}.{language}.md'
+                self.assertEqual((site / source.name).read_bytes(), source.read_bytes())
 
     def test_sandbox_guide_layout_survives_windows_line_endings(self):
         from arena.reporting.articles import render_article_body

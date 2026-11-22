@@ -40,15 +40,14 @@ class ArticleLibraryTests(unittest.TestCase):
                     self.assertIn('rel="canonical" href="https://safety.finaios.ai/' + public + '"', html)
                     self.assertIn('href="guide' + suffix + '.html"', html)
                     featured = re.search(r'<article class="featured-article".*?</article>', html, re.S)[0]
-                    self.assertIn('href="chrome-windows-sandbox' + suffix + '.html"', featured)
+                    self.assertIn('href="guide' + suffix + '.html"', featured)
                     self.assertIn('置顶' if suffix else 'Pinned', featured)
-                    self.assertNotIn('href="guide' + suffix + '.html"', featured)
                     archive = re.search(r'<ol class="article-archive">.*?</ol>', html, re.S)[0]
                     article_links = Links()
                     article_links.feed(archive)
                     self.assertEqual(article_links.hrefs, [
                         slug + suffix + '.html'
-                        for slug in ('agent-sandbox', 'agent-interaction', 'agent-privacy', 'guide')
+                        for slug in ('chrome-windows-sandbox', 'agent-sandbox', 'agent-interaction', 'agent-privacy')
                     ])
                     dates = re.findall(r'<time datetime="([^"]+)"', archive)
                     self.assertEqual(len(dates), len(article_links.hrefs))

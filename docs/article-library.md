@@ -12,8 +12,8 @@ evaluation gains a series of technical articles.
   the label Methods & Findings / 方法与发现 and the accepted header layout.
 - AC-2: Feature the article selected by `featuredSlug` in both languages,
   with its title, summary, date, link and estimated reading time. The current
-  selection is the camera-access article. Mark it as pinned. List the remaining
-  articles, including the overview, once each in descending date order.
+  selection is the evaluation overview. Mark it as pinned. List the remaining
+  articles once each in descending date order.
 - AC-3: Show four planned technical topics: fixed programs and direct tasks;
   approval and enforcement boundaries; file protection and parent directories;
   evidence and scoring. Group their titles and scopes in a collapsed “Planned topics”

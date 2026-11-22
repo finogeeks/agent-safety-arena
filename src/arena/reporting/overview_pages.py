@@ -304,38 +304,28 @@ class Pages:
         body += ('<div class="article-library"><header class="library-intro"><h1>' + e(title)
                  + '</h1><p>' + e(library['summary'][self.language]) + '</p></header>')
         body += ('<article class="featured-article" aria-labelledby="featured-title">'
-                 '<div class="article-kicker"><span>' + e(featured['category'][self.language])
-                 + '</span><span class="reading-start">' + t('本期推荐', 'Featured') + '</span></div>'
+                 '<div class="pin-meta"><strong>' + t('置顶', 'Pinned') + '</strong>'
+                 '<time datetime="' + e(featured['date']) + '">' + e(featured['date'])
+                 + '</time><span>' + t(f'约 {minutes} 分钟阅读', f'{minutes} min read') + '</span></div>'
                  '<h2 id="featured-title"><a href="' + featured_url + '">'
                  + e(featured['title'][self.language]) + '</a></h2><p>'
-                 + e(featured['summary'][self.language]) + '</p><div class="featured-footer">'
-                 '<a class="article-read" href="' + featured_url + '">'
-                 + t('阅读文章', 'Read the article') + ' <span aria-hidden="true">→</span></a>'
-                 '<div class="article-meta"><span>' + t('更新于 ', 'Updated ')
-                 + '<time datetime="' + e(featured['date']) + '">'
-                 + e(featured['date']) + '</time></span><span>'
-                 + t(f'约{minutes}分钟阅读', f'{minutes} min read') + '</span></div></div></article>')
-        body += ('<section class="technical-series" aria-labelledby="series-title">'
-                 '<div class="series-heading"><h2 id="series-title">' + t('更多文章', 'More articles')
-                 + '</h2></div><div class="article-grid">')
-        for article in articles:
+                 + e(featured['summary'][self.language]) + '</p></article>')
+        body += ('<section aria-labelledby="archive-title"><h2 id="archive-title">'
+                 + t('文章归档', 'Archive') + '</h2><ol class="article-archive">')
+        for article in sorted(articles, key=lambda item: item['date'], reverse=True):
             if article['slug'] == featured_slug:
                 continue
-            body += ('<article class="published-article"><div class="article-kicker"><span>'
-                     + e(article['category'][self.language]) + '</span><time datetime="'
-                     + e(article['date']) + '">' + e(article['date']) + '</time></div><h3><a href="'
+            date = e(article['date'])
+            body += ('<li><time datetime="' + date + '">' + date + '</time><div><h3><a href="'
                      + self.route(article['slug']) + '">' + e(article['title'][self.language])
-                     + '</a></h3><p>' + e(article['summary'][self.language]) + '</p></article>')
-        body += ('</div></section><details class="planned-topics"><summary>'
+                     + '</a></h3><p>' + e(article['summary'][self.language]) + '</p></div></li>')
+        body += ('</ol></section><footer class="library-footer"><details class="planned-topics"><summary>'
                  + t('计划中的选题', 'Planned topics') + f" ({len(library['topics'])})</summary><ul>")
         for topic in library['topics']:
             body += ('<li class="planned-article"><h3>' + e(topic['title'][self.language])
                      + '</h3><p>' + e(topic['summary'][self.language]) + '</p></li>')
-        body += ('</ul></details><aside class="library-reference"><div><h2>'
-                 + t('方法与复现', 'Methodology and reproduction') + '</h2><p>'
-                 + t('查看评分口径、运行条件与证据边界。', 'Check scoring rules, run conditions and evidence limits.')
-                 + '</p></div><a href="' + self.method_path + '">' + t('查看参考说明', 'Read the reference')
-                 + ' <span aria-hidden="true">→</span></a></aside></div>')
+        body += ('</ul></details><a href="' + self.method_path + '">'
+                 + t('方法与复现', 'Methodology and reproduction') + '</a></footer></div>')
         return self.document(title, body, self.route('articles').replace('.zh-CN', '') if self.zh else 'articles.zh-CN.html',
                              page_class='refined-page articles-page',
                              routes={'en': 'articles.html', 'zh-CN': 'articles.zh-CN.html'},

@@ -12,18 +12,16 @@ evaluation gains a series of technical articles.
   the label Methods & Findings / 方法与发现 and the accepted header layout.
 - AC-2: Feature the article selected by `featuredSlug` in both languages,
   with its title, summary, date, link and estimated reading time. The current
-  selection is the camera-access article. List the overview first among the remaining
-  published articles. Keep its existing URLs and directory breadcrumb.
+  selection is the camera-access article. Mark it as pinned. List the remaining
+  articles, including the overview, once each in descending date order.
 - AC-3: Show four planned technical topics: fixed programs and direct tasks;
   approval and enforcement boundaries; file protection and parent directories;
   evidence and scoring. Group their titles and scopes in a collapsed “Planned topics”
-  list below the published cards. Planned items have no link, date or reading time.
+  list below the archive. Planned items have no link, date or reading time.
 - AC-4: Provide a separate link to the existing methodology reference. Use
-  the site's colors, type and header. Match category pages: use the full main
-  content width, 20px headings, 14px body text, shared title spacing, and the
-  same card padding, border, radius and shadow. Do not add a separate hero
-  treatment or accent border. Show two topic columns on desktop and
-  one on phones. All published links work without JavaScript.
+  the site's navigation and a single reading column. Align dates beside linked
+  titles and summaries on desktop. Stack each date above its title on phones.
+  All published links work without JavaScript.
 - AC-5: Provide matching bilingual routes, language switches, canonical URLs
   and CollectionPage metadata. Keep article bodies, trial evidence and scores
   unchanged. Add both directory routes to generated discovery and manifests.
@@ -89,5 +87,5 @@ No model calls or trial executions occur during publication.
   metadata while routing navigation through the directory.
 - Published article tests: bilingual routes, exact Markdown exports, discovery,
   preserved content and media, and escaped HTML/unsafe links: AC-6 and AC-7.
-- Browser checks at desktop and phone widths: visible navigation, two/one
-  column topic layout, no horizontal overflow and working language links.
+- Browser checks at desktop and phone widths: visible navigation, responsive
+  date alignment, no horizontal overflow and working language links.

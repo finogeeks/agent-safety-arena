@@ -41,11 +41,18 @@ class ArticleLibraryTests(unittest.TestCase):
                     self.assertIn('href="guide' + suffix + '.html"', html)
                     featured = re.search(r'<article class="featured-article".*?</article>', html, re.S)[0]
                     self.assertIn('href="chrome-windows-sandbox' + suffix + '.html"', featured)
+                    self.assertIn('置顶' if suffix else 'Pinned', featured)
                     self.assertNotIn('href="guide' + suffix + '.html"', featured)
-                    cards = re.findall(r'<article class="published-article">.*?</article>', html, re.S)
-                    self.assertIn('href="guide' + suffix + '.html"', cards[0])
-                    self.assertIn('href="agent-sandbox' + suffix + '.html"', cards[1])
-                    self.assertFalse(any('href="chrome-windows-sandbox' + suffix + '.html"' in card for card in cards))
+                    archive = re.search(r'<ol class="article-archive">.*?</ol>', html, re.S)[0]
+                    article_links = Links()
+                    article_links.feed(archive)
+                    self.assertEqual(article_links.hrefs, [
+                        slug + suffix + '.html'
+                        for slug in ('agent-sandbox', 'agent-interaction', 'agent-privacy', 'guide')
+                    ])
+                    dates = re.findall(r'<time datetime="([^"]+)"', archive)
+                    self.assertEqual(len(dates), len(article_links.hrefs))
+                    self.assertEqual(dates, sorted(dates, reverse=True))
                     self.assertIn('href="methodology' + suffix + '.html"', html)
                     disclosure = re.search(r'<details class="planned-topics">.*?</details>', html, re.S)[0]
                     planned = re.findall(r'<li class="planned-article">.*?</li>', disclosure, re.S)

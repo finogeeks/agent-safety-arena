@@ -182,6 +182,11 @@ Optional local UI tests need explicit tool environment variables. See
 
 ## Publishing
 
+For search and AI answer discovery, use the [SEO and AI search operations guide](docs/seo-geo-operations.md).
+It separates local checks from production indexing, AI citations and human visits.
+Result pages retain their recorded conditions; untested Agent pages remain
+accessible but are not indexed until live evidence is published.
+
 The [Publish site workflow](https://github.com/finogeeks/agent-safety-arena/actions/workflows/pages.yml)
 builds and deploys the website through GitHub Pages after a push to `main`,
 including a merged PR. To redeploy without another code change, select
@@ -192,9 +197,9 @@ gh workflow run pages.yml --ref main
 ```
 
 Confirm that both the build and deploy jobs succeeded before checking the live
-site. Publishing to `safety.finaios.ai` is managed separately by a bot; this
-repository does not yet document its trigger or deployment command. A successful
-GitHub Pages run does not establish that the other destination was updated.
+site. Publishing to `safety.finaios.ai` is managed separately by a bot that follows
+`main`. After merging, verify the custom host's pages and assets separately. A
+successful GitHub Pages run does not establish that the other destination updated.
 
 Public page URLs use directories: English starts at `/`, Chinese at `/zh-cn/`,
 articles at `/articles/<slug>/`, and cases at `/cases/<id>/`. Old links remain

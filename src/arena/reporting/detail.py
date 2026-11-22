@@ -86,7 +86,14 @@ details{border-top:1px solid #e8edf3;margin-top:16px;padding-top:14px}summary{cu
 }
 @media(max-width:600px){
  .site-header .site-bar{padding-left:17px;padding-right:17px}
- .site-header .site-nav{gap:4px 16px}
+ .site-header .site-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 8px}
+ .site-header .site-nav a{min-width:0;min-height:40px;display:flex;align-items:center;justify-content:center;white-space:normal;overflow-wrap:anywhere}
+ .site-header .site-nav a:nth-child(n+5){grid-column:span 2}
+ .site-header .site-nav a[href*="articles"]{margin-left:0}
+ .hero,.hero h1,.hero .lead,.pair>*,.overview-headings>*{min-width:0;overflow-wrap:anywhere}
+ body .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;overflow:visible;white-space:normal}
+ body .nav a{display:flex;align-items:center;min-height:40px;white-space:normal;overflow-wrap:anywhere}
+ .evaluation-scope{color:#53647b;line-height:1.65;overflow-wrap:anywhere}
 }
 
 """
@@ -383,7 +390,7 @@ def shell(title, language, body, dense=False, home_href='index.html', navigation
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\' blob:; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
-        +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css">'
+        +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css?v=20261122a">'
         +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
         +header+'<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
@@ -486,6 +493,14 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
                   'This pair does not isolate FinShield causality.' if language=='en'
                   else 'Agent内置沙箱与 FinShield 两侧记录配置不同；该对照不能单独归因于 FinShield。')
         body+=f'<div class="condition-banner" role="note">{e(mismatch)}</div>'
+    if navigation and navigation.get('methodHref'):
+        scope_text = ('Results apply to the recorded conditions and approval decisions.' if language == 'en'
+                      else '结果仅适用于记录中的条件与批准决定。')
+        links = (('Methodology' if language == 'en' else '评测方法', navigation['methodHref']),
+                 ('Execution settings' if language == 'en' else '执行配置', '#section-2'),
+                 ('Evidence and reproduction' if language == 'en' else '证据与复现', '#section-6'))
+        body += '<p class="evaluation-scope">' + e(scope_text) + ' ' + ' · '.join(
+            f'<a href="{e(href)}">{e(label)}</a>' for label, href in links) + '</p>'
     body+='<nav class="nav" aria-label="'+e(ui['sections_nav'])+'">'+''.join(f'<a href="#section-{i+1}">{e(label)}</a>' for i,label in enumerate(words['sections']))+'</nav>'
     if compact and overview:
         item=next(m for m in record['publicMedia'] if m['group']=='comparison' and m['path']==overview['media'])
@@ -603,9 +618,15 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
     body+=section(6,evidence_body)
     if navigation:
         body += f'<a class="report-return" href="{e(navigation["caseHref"])}">← '+('返回场景评测' if language == 'zh-CN' else 'Back to scenario')+'</a>'
+        if navigation.get('agentHref'):
+            body += ' · <a href="' + e(navigation['agentHref']) + '">' + e(navigation['agentLabel']) + '</a>'
     body+=f'<footer>{ui["hash_label"]}: {e(evidence_hash)}</footer>'
     extra_head = ''
     if navigation and navigation.get('searchRoutes'):
         from arena.reporting.search import page_head
+        document_title = navigation['agentLabel'] + (': ' if language == 'en' else '：') + document_title
+        tested = (presentation or {}).get('testedOn')
+        if tested:
+            document_title += ' (' + tested['date'] + ')'
         extra_head = page_head(document_title, text['purpose'], language, navigation['searchRoutes'])
     return shell(document_title,language,body,dense,navigation['homeHref'] if navigation else 'index.html', navigation, extra_head)

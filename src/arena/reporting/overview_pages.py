@@ -111,7 +111,7 @@ class Pages:
         return breadcrumb_markup(self.language, crumbs, current)
 
     def document(self, title, body, opposite, prefix='', page_class='', current_category='', extra_head='',
-                 *, routes=None, description='', kind='CollectionPage'):
+                 *, routes=None, description='', kind='CollectionPage', indexable=True):
         t = self.t; e = self.e
         categories = [dict(id=item['id'], href=prefix + self.route(item['id']),
                            label=item['label'][self.language])
@@ -122,15 +122,24 @@ class Pages:
                                     guide_href=prefix + self.route('articles'),
                                     current_guide=any(name in page_class for name in ('guide-page', 'articles-page')))
         if routes and not extra_head:
-            extra_head = page_head(title, description, self.language, routes, kind=kind)
+            extra_head = page_head(title, description, self.language, routes, kind=kind, indexable=indexable)
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261120b"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261122a"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
-        return '<footer><span>Agent Safety Arena · <a href="https://finaios.ai">FinAI OS</a></span></footer>'
+        return ('<footer><span>Agent Safety Arena · <a href="https://finaios.ai">FinAI OS</a> · '
+                f'<a href="{prefix}{self.method_path}">' + self.t('方法与项目说明', 'Methods and project disclosure')
+                + '</a></span></footer>')
+
+    def scope_note(self, prefix=''):
+        return ('<p class="scope-note">' + self.t(
+            '成绩描述已评估场景，不保证所有配置都能得到相同结果。',
+            'Scores describe assessed scenarios, not a guarantee for every configuration.')
+            + f' <a href="{prefix}{self.method_path}">'
+            + self.t('查看条件、批准策略与统计口径', 'Conditions, approval policy and scoring') + '</a></p>')
 
     def agent_table(self, values, mini=False, agents=None, category_id=None):
         t=self.t; e=self.e
@@ -276,7 +285,9 @@ class Pages:
         body+=self.showcase()
         unknown=[case for case in self.data['cases'] if case['categoryId']=='unclassified']
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
-        body+='<p class="footnote">'+footnote+'</p>'
+        body+='<p class="footnote">'+footnote+' '+t(
+            '成绩仅适用于已评估场景与记录配置。', 'Scores apply only to assessed scenarios and recorded configurations.')
+        body+=' <a href="'+self.method_path+'">'+t('评测方法与范围', 'Methodology and scope')+'</a></p>'
         return self.document(t('AI Agent安全公开测评：Windows沙箱实测与对照','Public AI Agent safety evaluation: Windows sandbox tests'),body,'index.html' if self.zh else 'zh-CN.html',
                              page_class='refined-page home-page', routes={'en':'index.html','zh-CN':'zh-CN.html'},
                              description=t('公开测评AI Agent在Windows上的隐私、交互、系统与数据安全。查看内置沙箱实测、FinShield对照、原始证据和复现方法。',
@@ -467,6 +478,7 @@ class Pages:
                           case['title'][self.language])
         body += '<section class="page-intro">'
         body += f'<h1>{e(case["title"][self.language])}</h1><p class="lead">{e(case["description"][self.language])}</p></section>'
+        body += self.scope_note(prefix)
         body += '<div class="section-heading"><h2>'+t('各智能体的防护结果','Results by Agent')+'</h2></div>'
         body += ('<div class="scene-list"><div class="scene-head"><span>'+t('智能体','Agent')+'</span><span>'
                  +t('Agent内置沙箱','Built-in sandbox')+'</span><span>FinShield</span></div>')
@@ -482,7 +494,8 @@ class Pages:
         remaining = [row for row in rows if row['path'] not in displayed]
         if remaining:
             body += '<details class="archive"><summary>'+t('其他及早期报告','Other and earlier reports')+f' · {len(remaining)}</summary>'+self.report_links(remaining, prefix)+'</details>'
-        return self.document(case['title'][self.language], body, 'index.html' if self.zh else 'zh-CN.html', prefix,
+        search_title = case['title'][self.language] + (t('：Windows Agent安全实测', ': Windows Agent safety tests') if case['live'] else '')
+        return self.document(search_title, body, 'index.html' if self.zh else 'zh-CN.html', prefix,
                              'refined-page case-page', case['categoryId'],
                              routes={'en':f'cases/{case["id"]}/index.html','zh-CN':f'cases/{case["id"]}/zh-CN.html'},
                              description=case['description'][self.language])
@@ -545,6 +558,7 @@ class Pages:
         label = agent['label'][self.language]
         body = self.trail([(prefix + self.home_path, t('首页', 'Home'))], label)
         body += f'<section class="page-intro"><h1>{e(label)}</h1></section>'
+        body += self.scope_note(prefix)
         body += '<div class="section-heading"><h2>'+t('总成绩', 'Overall')+'</h2></div><div class="score-strip">'
         for group, name in (('native', t('Agent内置沙箱', 'Built-in sandbox')), ('finshield', 'FinShield')):
             body += f'<div><span>{name}</span>'+self.score(self.scores['agents'][agent['id']][group])+'</div>'
@@ -570,11 +584,15 @@ class Pages:
             body += '</summary><div class="agent-scenes">'+scenes+'</div></details></td></tr>'
         body += '</tbody></table></div>'
         current = open_category if open_category and open_category != 'unclassified' else ''
+        has_records = self.has_live_records(agent)
+        description = label + (t('在Windows上的公开安全测评：查看内置防护和FinShield的场景成绩、实际配置与可复查证据。',
+            ' public safety evaluations on Windows: built-in controls and FinShield scenario results, recorded configurations and verifiable evidence.') if has_records else
+            t('尚无公开真实评测记录。未测试不代表通过或失败。',
+              ' has no published live evaluation records. Not tested means neither passed nor failed.'))
         return self.document(label + t('：AI安全与沙箱公开测评', ': public AI safety and sandbox evaluations'), body, self.agent_locale(agent['id'], open_category), prefix,
                              'refined-page agent-score-page', current,
                              routes={language:self.agent_page(agent['id'], language=language) for language in ('en','zh-CN')},
-                             description=label + t('在Windows上的公开安全测评：查看内置防护和FinShield的场景成绩、实际配置与可复查证据。',
-                                ' public safety evaluations on Windows: built-in controls and FinShield scenario results, recorded configurations and verifiable evidence.'))
+                             description=description, indexable=has_records)
 
     def case_result(self, value, *, untested_as_dash=False):
         if value['failed']:
@@ -655,7 +673,16 @@ class Pages:
         body += '<p>'+t('一项是一个 Agent 在一个场景、一道防护下的结果。总分只合计同一个 Agent 的有效场景，不合并不同 Agent 的成绩。重复试验中任一次明确未防住就记失败；没有失败且存在未核实结果时保留待核实。预警不把失败改成成功。','One item is one Agent, scenario, and protection track. Totals use only the assessed scenarios of the same Agent. Scores from different Agents are never merged. Any verified failure in repeat runs fails that item; unresolved runs without a failure leave it unassessed. A warning does not turn failure into success.')+'</p>'
         body += '<p>'+t('已审核发布的真实测评使用同一套汇总规则。采集阶段保留在原始证据中，不作为公开成绩的排除条件。','Reviewed live evaluations use one shared public summary. Collection phases remain in the original evidence and do not exclude published results from scores.')+'</p>'
         body += '<h2>'+t('复现','Reproduce')+'</h2><p>'+t('每条详情提供原始请求、回复、工具结果和复现条件。','Each detail provides original requests, replies, tool results, and reproduction conditions.')+'</p>'
-        body += '<p><a href="https://github.com/finogeeks/agent-safety-arena">'+t('项目源码','Source repository')+'</a> · <a href="https://github.com/finogeeks/agent-safety-arena/tree/main/docs">'+t('复现文档','Reproduction docs')+'</a></p></section>'
+        body += '<p><a href="https://github.com/finogeeks/agent-safety-arena">'+t('项目源码','Source repository')+'</a> · <a href="https://github.com/finogeeks/agent-safety-arena/tree/main/docs">'+t('复现文档','Reproduction docs')+'</a></p>'
+        body += '<h2>'+t('项目维护与利益关系', 'Maintainer and relationship')+'</h2><p>'+t(
+            'FinAI OS团队维护Agent Safety Arena，也开发FinShield。',
+            'The FinAI OS team maintains Agent Safety Arena and also develops FinShield.')+'</p>'
+        body += '<p>'+t('公开结果来自受控环境中的真实执行。读者可检查测试程序、原始请求和回复、记录、精选录像与复现方法。',
+            'Published live results come from actual executions in controlled environments. Readers can inspect test programs, original requests and replies, records, selected recordings and reproduction methods.')+'</p>'
+        body += '<p>'+t('成绩描述已评估场景，不保证所有配置都能得到相同结果。',
+            'Scores describe assessed scenarios, not a guarantee for every configuration.')+'</p>'
+        body += '<p><a href="https://github.com/finogeeks/agent-safety-arena/issues">'+t('报告错误或提交复现结果', 'Report an error or share a reproduction')+'</a> '+t(
+            '请注明具体结果链接、测试条件和支持证据。', 'Include the specific result URL, test conditions and supporting evidence.')+'</p></section>'
         for identity, selected, title in [
             ('history', [r for r in self.data['reports'] if r['origin']=='live' and r['archived']], t('早期报告','Earlier reports')),
             ('synthetic', [r for r in self.data['reports'] if r['origin']=='synthetic'], t('合成示例，不计入实测','Synthetic examples, excluded from live coverage'))]:

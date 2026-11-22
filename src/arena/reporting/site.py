@@ -32,6 +32,8 @@ def report_navigation(catalog, relative, record):
         caseLabel=case['title'][language],
         caseHref=prefix + 'cases/' + case['id'] + ('/zh-CN.html' if language == 'zh-CN' else '/index.html'),
         agentLabel=agent_label[language],
+        agentHref=prefix + 'agents/' + agent['id'] + ('/zh-CN.html' if language == 'zh-CN' else '/index.html') if agent else None,
+        methodHref=prefix + ('methodology.zh-CN.html' if language == 'zh-CN' else 'methodology.html'),
         categoryId=case['categoryId'],
         categories=[dict(id=item['id'], label=item['label'][language],
             href=prefix + item['id'] + ('.zh-CN' if language == 'zh-CN' else '') + '.html')

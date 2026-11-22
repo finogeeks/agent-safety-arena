@@ -24,6 +24,8 @@ That leaves two decisions for the sandbox to enforce. WorkBuddy can decide wheth
 
 > **Test conditions.** WorkBuddy and Claude CLI requested no additional approval. Claude CLI ran without a sandbox in this Windows test. Codex CLI and DSH failed on their first attempts and completed the recording after approval to run with broader permissions. Both prompts asked for permission to run code. Neither explicitly said that approving the request would turn on the camera and record video. [Claude CLI test](https://safety.finaios.ai/camera-capture/claude-cli/claude-python-file-v2-20261110/en.html) · [Codex CLI approval prompt](https://safety.finaios.ai/camera-capture/codex-cli/codex-python-file-v2-20261109/en.html) · [DSH approval prompt](https://safety.finaios.ai/camera-capture/dsh/dsh-python-file-v2-20261109/en.html)
 
+The [camera comparison hub for all four Agents](https://safety.finaios.ai/cases/camera-capture/) lists the test dates and execution settings.
+
 ## 3. How do you sandbox a program that writes programs?
 
 An agent is a program that can write programs. Today it can launch a recording tool. Tomorrow it can write code that calls Windows directly. Suppose you give the agent a camera interface and require the user’s consent every time it’s called. That sounds thorough. Run the script from the previous section again, though, and your permission check will never run. The script already has another way to reach the camera.

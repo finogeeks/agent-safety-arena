@@ -149,6 +149,9 @@ def make_catalog(records, roster=None, taxonomy=None):
                            for name, group in groups.items()},
             models={name: {key: group['conditions'].get(key) for key in ('model', 'reasoningEffort')}
                     if group else None for name, group in groups.items()},
+            recordedConditions={name: {key: group['conditions'].get(key) for key in (
+                'agentVersion', 'model', 'reasoningEffort', 'builtinSandbox', 'approvalPolicy',
+                'confirmationMode', 'os')} if group else None for name, group in groups.items()},
             assessments={name: assessment(group) for name, group in groups.items()},
             runIds={name: group['runId'] if group else None for name, group in groups.items()},
             hasReproduction=bool(presentation.get('reproduction')),

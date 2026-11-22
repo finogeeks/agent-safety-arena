@@ -126,7 +126,7 @@ class Pages:
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
             '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261122a"></head><body class="{page_class}">'
+            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261122d"></head><body class="{page_class}">'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):
@@ -285,9 +285,10 @@ class Pages:
         body+=self.showcase()
         unknown=[case for case in self.data['cases'] if case['categoryId']=='unclassified']
         if unknown:body+=f'<p class="small-note"><a href="{self.route("unclassified")}">{t("待分类记录","Unclassified records")} · {len(unknown)}</a></p>'
+        body+='<details class="evidence-notes"><summary>'+t('评分说明与统计范围', 'Scoring notes and scope')+'</summary>'
         body+='<p class="footnote">'+footnote+' '+t(
             '成绩仅适用于已评估场景与记录配置。', 'Scores apply only to assessed scenarios and recorded configurations.')
-        body+=' <a href="'+self.method_path+'">'+t('评测方法与范围', 'Methodology and scope')+'</a></p>'
+        body+=' <a href="'+self.method_path+'">'+t('评测方法与范围', 'Methodology and scope')+'</a></p></details>'
         return self.document(t('AI Agent安全公开测评：Windows沙箱实测与对照','Public AI Agent safety evaluation: Windows sandbox tests'),body,'index.html' if self.zh else 'zh-CN.html',
                              page_class='refined-page home-page', routes={'en':'index.html','zh-CN':'zh-CN.html'},
                              description=t('公开测评AI Agent在Windows上的隐私、交互、系统与数据安全。查看内置沙箱实测、FinShield对照、原始证据和复现方法。',
@@ -478,7 +479,6 @@ class Pages:
                           case['title'][self.language])
         body += '<section class="page-intro">'
         body += f'<h1>{e(case["title"][self.language])}</h1><p class="lead">{e(case["description"][self.language])}</p></section>'
-        body += self.scope_note(prefix)
         body += '<div class="section-heading"><h2>'+t('各智能体的防护结果','Results by Agent')+'</h2></div>'
         body += ('<div class="scene-list"><div class="scene-head"><span>'+t('智能体','Agent')+'</span><span>'
                  +t('Agent内置沙箱','Built-in sandbox')+'</span><span>FinShield</span></div>')
@@ -494,11 +494,80 @@ class Pages:
         remaining = [row for row in rows if row['path'] not in displayed]
         if remaining:
             body += '<details class="archive"><summary>'+t('其他及早期报告','Other and earlier reports')+f' · {len(remaining)}</summary>'+self.report_links(remaining, prefix)+'</details>'
+        body += '<details class="evidence-notes"><summary>'+t('实测说明与测试条件', 'Recorded findings and test conditions')+'</summary>'
+        body += self.scope_note(prefix)+self.case_answer(case, prefix)+self.case_conditions(case, prefix)+'</details>'
         search_title = case['title'][self.language] + (t('：Windows Agent安全实测', ': Windows Agent safety tests') if case['live'] else '')
         return self.document(search_title, body, 'index.html' if self.zh else 'zh-CN.html', prefix,
                              'refined-page case-page', case['categoryId'],
                              routes={'en':f'cases/{case["id"]}/index.html','zh-CN':f'cases/{case["id"]}/zh-CN.html'},
                              description=case['description'][self.language])
+
+    def recorded_value(self, value):
+        if value in (None, '', 'unknown', 'und', 'not-recorded', 'not-exposed'):
+            return self.t('未记录', 'Not recorded')
+        return str(value)
+
+    def track_name(self, group):
+        return self.t('Agent内置沙箱', 'Built-in sandbox') if group == 'native' else 'FinShield'
+
+    def case_answer(self, case, prefix):
+        t = self.t; e = self.e
+        selected = [(agent, self.preferred_report(case, agent)) for agent in self.data['coverage']]
+        selected = [(agent, row) for agent, row in selected if row]
+        if not selected:
+            return ''
+        text = '<section class="evidence-summary" id="recorded-answer"><h2>'+t('实测结论', 'What happened in the recorded tests?')+'</h2>'
+        text += '<p>'+t('以下按Agent列出实测观察。结果只适用于记录中的配置和批准过程。',
+            'These observations come from each Agent’s selected record and apply to its recorded settings and approval sequence.')+'</p><ul>'
+        for agent, row in selected:
+            text += '<li><strong>'+e(agent['label'][self.language])+'</strong>'
+            for group in ('native', 'finshield'):
+                result = row['assessments'][group]
+                reason = result['reason'][self.language]
+                observation = reason or result['label'][self.language]
+                text += f'<p><b>{e(self.track_name(group))}:</b> {e(observation)}</p>'
+            text += f'<a href="{prefix}{self.report_path(row)}">'+t('查看原始报告、录像与确认记录', 'View the original report, recording and confirmations')+'</a></li>'
+        return text+'</ul></section>'
+
+    def case_conditions(self, case, prefix):
+        t = self.t; e = self.e
+        fields = [('agentVersion', t('Agent版本', 'Agent version')),
+                  ('model', t('模型', 'Model')), ('reasoningEffort', t('推理强度', 'Reasoning effort')),
+                  ('builtinSandbox', t('内置沙箱设置', 'Built-in sandbox setting')),
+                  ('approvalPolicy', t('审批策略', 'Approval policy')),
+                  ('confirmationMode', t('确认处理方式', 'Confirmation handling')),
+                  ('os', t('操作系统', 'Operating system'))]
+        cards = ''
+        for agent in self.data['coverage']:
+            row = self.preferred_report(case, agent)
+            if not row:
+                continue
+            date = row.get('date') or {}
+            tested = self.recorded_value(date.get('date'))
+            if date.get('date'):
+                tested += ' · '+self.recorded_value(date.get('timezone'))
+            cards += '<article class="condition-card"><h3>'+e(agent['label'][self.language])+'</h3>'
+            cards += '<p>'+t('测试日期：', 'Test date: ')+e(tested)+'</p><div class="condition-tracks">'
+            for group in ('native', 'finshield'):
+                conditions = row.get('recordedConditions', {}).get(group)
+                cards += '<div><h4>'+e(self.track_name(group))
+                if conditions is None:
+                    cards += ': '+t('未运行', 'Not run')+'</h4></div>'
+                    continue
+                cards += '</h4><dl>'
+                for key, label in fields:
+                    cards += '<dt>'+e(label)+'</dt><dd>'+e(self.recorded_value(conditions.get(key)))+'</dd>'
+                if group == 'finshield':
+                    cards += '<dt>'+t('FinShield版本', 'FinShield version')+'</dt><dd>'+e(self.recorded_value(row['versions'][group]))+'</dd>'
+                cards += '</dl></div>'
+            cards += '</div><a href="'+prefix+self.report_path(row)+'#section-2">'+t('核对完整执行配置', 'Check the complete execution settings')+'</a></article>'
+        if not cards:
+            return ''
+        return ('<section class="recorded-conditions" id="recorded-conditions"><h2>'
+                +t('测试条件', 'Test conditions')+'</h2><p>'+t(
+                    '两组设置分别列出。审批策略和确认处理方式不代表每次操作都出现了确认框；实际确认及后续效果见原始报告。',
+                    'Settings are listed separately for each track. Approval policy and confirmation handling do not establish that a dialog appeared for every operation; the original report records actual confirmations and subsequent effects.')
+                +'</p>'+cards+'</section>')
 
     def preferred_report(self, case, agent):
         candidates = [row for row in self.data['reports']
@@ -558,7 +627,6 @@ class Pages:
         label = agent['label'][self.language]
         body = self.trail([(prefix + self.home_path, t('首页', 'Home'))], label)
         body += f'<section class="page-intro"><h1>{e(label)}</h1></section>'
-        body += self.scope_note(prefix)
         body += '<div class="section-heading"><h2>'+t('总成绩', 'Overall')+'</h2></div><div class="score-strip">'
         for group, name in (('native', t('Agent内置沙箱', 'Built-in sandbox')), ('finshield', 'FinShield')):
             body += f'<div><span>{name}</span>'+self.score(self.scores['agents'][agent['id']][group])+'</div>'
@@ -583,6 +651,8 @@ class Pages:
                 body += self.score(values[group])
             body += '</summary><div class="agent-scenes">'+scenes+'</div></details></td></tr>'
         body += '</tbody></table></div>'
+        body += '<details class="evidence-notes"><summary>'+t('实测摘要与统计范围', 'Recorded findings and score scope')+'</summary>'
+        body += self.scope_note(prefix)+self.agent_overview(agent)+'</details>'
         current = open_category if open_category and open_category != 'unclassified' else ''
         has_records = self.has_live_records(agent)
         description = label + (t('在Windows上的公开安全测评：查看内置防护和FinShield的场景成绩、实际配置与可复查证据。',
@@ -593,6 +663,56 @@ class Pages:
                              'refined-page agent-score-page', current,
                              routes={language:self.agent_page(agent['id'], language=language) for language in ('en','zh-CN')},
                              description=description, indexable=has_records)
+
+    def score_sentence(self, value):
+        t = self.t
+        if not value['denominator']:
+            result = (t('尚无已判定结果', 'No assessed outcomes') if value['unassessed'] else
+                      t('未纳入本轮评分', 'Outside score scope') if value['excluded'] else t('未测试', 'Not tested'))
+        else:
+            result = t(f'在{value["denominator"]}个已判定场景中阻止了{value["passed"]}个目标效果，{value["failed"]}个未阻止',
+                f'prevented the target effect in {value["passed"]} of {value["denominator"]} assessed scenarios; {value["failed"]} were not prevented')
+        if value['unassessed']:
+            result += t(f'；另有{value["unassessed"]}个待核实', f'; {value["unassessed"]} unassessed')
+        if value['excluded']:
+            result += t(f'；{value["excluded"]}个不符合评分条件', f'; {value["excluded"]} outside score scope')
+        return result
+
+    def agent_overview(self, agent):
+        t = self.t; e = self.e
+        text = '<section class="evidence-summary" id="recorded-overview"><h2>'+t('实测摘要', 'Recorded findings')+'</h2>'
+        if not self.has_live_records(agent):
+            return text+'<p>'+t('尚无公开真实评测记录。未测试不代表通过或失败。',
+                'No published live evaluation records. Not tested means neither passed nor failed.')+'</p></section>'
+        protocol = self.data.get('protocol')
+        if protocol:
+            text += '<p>'+t('统一评分模型：', 'Fixed model for scoring: ')+e(protocol['label'])+' · '+e(protocol['reasoningEffort'])+t('。', '.')+'</p>'
+        text += '<p>'+t('以下按该Agent的已判定场景统计；待核实和不符合模型条件的记录不计入分母。',
+            'Counts below describe this Agent’s assessed scenarios. Unassessed and model-mismatched records do not enter the denominator.')+'</p>'
+        for group in ('native', 'finshield'):
+            text += '<p><b>'+e(self.track_name(group))+':</b> '+e(self.score_sentence(self.scores['agents'][agent['id']][group]))+t('。', '.')+'</p>'
+        text += '<ul class="category-findings">'
+        for category in self.listed_categories():
+            values = self.agent_category_scores(agent['id'], category['id'])
+            text += '<li><a href="#'+e(category['id'])+'">'+e(category['label'][self.language])+'</a>: '
+            text += ' · '.join(e(self.track_name(group))+': '+e(self.score_sentence(values[group])) for group in ('native', 'finshield'))+t('。', '.')+'</li>'
+        text += '</ul>'
+        paths = {path for item in self.scores['items'] if item['agentId'] == agent['id'] and item['status'] != 'excluded'
+                 for path in item['reports']}
+        rows = [row for row in self.data['reports'] if row['path'] in paths]
+        if rows:
+            dates = sorted({row['date']['date'] for row in rows if row.get('date') and row['date'].get('date')})
+            span = ' – '.join(dict.fromkeys((dates[0], dates[-1]))) if dates else self.recorded_value(None)
+            if dates and any(not row.get('date') or not row['date'].get('date') for row in rows):
+                span += t('；部分日期未记录', '; some dates not recorded')
+            text += '<p>'+t('纳入统计的测试日期：', 'Test dates of contributing records: ')+e(span)+t('。', '.')+'</p>'
+            for group in ('native', 'finshield'):
+                versions = sorted({self.recorded_value(row['agentVersions'][group]) for row in rows
+                                   if row['runIds'][group] and any(item['group'] == group and row['path'] in item['reports']
+                                      and item['agentId'] == agent['id'] and item['status'] != 'excluded' for item in self.scores['items'])})
+                text += '<p>'+e(self.track_name(group))+' · '+t('Agent版本：', 'Agent versions: ')+e(', '.join(versions) if versions else self.recorded_value(None))+t('。', '.')+'</p>'
+            text += '<details class="summary-sources"><summary>'+t('核对统计来源与原始证据', 'Check contributing records and original evidence')+'</summary>'+self.report_links(rows, '../../')+'</details>'
+        return text+'</section>'
 
     def case_result(self, value, *, untested_as_dash=False):
         if value['failed']:

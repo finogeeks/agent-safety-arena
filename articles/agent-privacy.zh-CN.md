@@ -44,6 +44,8 @@ Anthropic 在浏览器安全研究中也指出，提示注入仍是未解决的�
 
 具体录像如下。
 
+在[四款Agent的摄像头对照汇总](https://safety.finaios.ai/zh-cn/cases/camera-capture/)中，可以核对测试日期和执行配置。
+
 **Codex CLI：批准继续后，摄像头打开。**
 
 ![Codex CLI 摄像头测试](https://safety.finaios.ai/camera-capture/codex-cli/codex-python-file-v2-20261109/media/comparison-scenario-v1.gif)

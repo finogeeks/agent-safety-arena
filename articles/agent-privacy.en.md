@@ -44,6 +44,8 @@ We tested four Agents: Codex CLI, Claude CLI, WorkBuddy, and DeepSeek Harness, c
 
 Here are the recordings.
 
+The [camera comparison hub for all four Agents](https://safety.finaios.ai/cases/camera-capture/) lists the test dates and execution settings.
+
 **Codex CLI: the camera opened after continuation was approved.**
 
 ![Codex CLI camera test](https://safety.finaios.ai/camera-capture/codex-cli/codex-python-file-v2-20261109/media/comparison-scenario-v1.gif)

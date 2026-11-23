@@ -390,7 +390,7 @@ def shell(title, language, body, dense=False, home_href='index.html', navigation
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\' blob:; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
-        +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css?v=20261122a">'
+        +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css?v=20261122d">'
         +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
         +header+'<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
@@ -493,14 +493,17 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
                   'This pair does not isolate FinShield causality.' if language=='en'
                   else 'Agent内置沙箱与 FinShield 两侧记录配置不同；该对照不能单独归因于 FinShield。')
         body+=f'<div class="condition-banner" role="note">{e(mismatch)}</div>'
+    scope_note = ''
     if navigation and navigation.get('methodHref'):
         scope_text = ('Results apply to the recorded conditions and approval decisions.' if language == 'en'
                       else '结果仅适用于记录中的条件与批准决定。')
         links = (('Methodology' if language == 'en' else '评测方法', navigation['methodHref']),
                  ('Execution settings' if language == 'en' else '执行配置', '#section-2'),
                  ('Evidence and reproduction' if language == 'en' else '证据与复现', '#section-6'))
-        body += '<p class="evaluation-scope">' + e(scope_text) + ' ' + ' · '.join(
-            f'<a href="{e(href)}">{e(label)}</a>' for label, href in links) + '</p>'
+        scope_note = '<details class="evidence-notes"><summary>' + (
+            'Evaluation scope and sources' if language == 'en' else '评测范围与来源') + '</summary>'
+        scope_note += '<p class="evaluation-scope">' + e(scope_text) + ' ' + ' · '.join(
+            f'<a href="{e(href)}">{e(label)}</a>' for label, href in links) + '</p></details>'
     body+='<nav class="nav" aria-label="'+e(ui['sections_nav'])+'">'+''.join(f'<a href="#section-{i+1}">{e(label)}</a>' for i,label in enumerate(words['sections']))+'</nav>'
     if compact and overview:
         item=next(m for m in record['publicMedia'] if m['group']=='comparison' and m['path']==overview['media'])
@@ -616,6 +619,7 @@ def render_detail(record, language, evidence_hash, pair, words, outcomes, naviga
         if compact:
             evidence_body+=''.join(f'<p><a href="{e(name)}">{e(name)}</a></p>' for name in presentation.get('evidenceFiles',[]))
     body+=section(6,evidence_body)
+    body+=scope_note
     if navigation:
         body += f'<a class="report-return" href="{e(navigation["caseHref"])}">← '+('返回场景评测' if language == 'zh-CN' else 'Back to scenario')+'</a>'
         if navigation.get('agentHref'):

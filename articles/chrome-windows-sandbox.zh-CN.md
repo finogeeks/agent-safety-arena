@@ -24,6 +24,8 @@
 
 > **测试说明**　WorkBuddy 和 Claude CLI 均未要求额外审批。Claude CLI 此次在 Windows 上没有启用沙箱。Codex CLI 和 DSH 首次运行失败，获准扩大权限后完成采集。两者的确认框要求允许运行代码，没有明说接下来会打开摄像头录像。 [Claude CLI 记录](https://safety.finaios.ai/camera-capture/claude-cli/claude-python-file-v2-20261110/en.html) · [Codex CLI 原始确认](https://safety.finaios.ai/camera-capture/codex-cli/codex-python-file-v2-20261109/en.html) · [DSH 原始确认](https://safety.finaios.ai/camera-capture/dsh/dsh-python-file-v2-20261109/en.html)
 
+在[四款Agent的摄像头对照汇总](https://safety.finaios.ai/zh-cn/cases/camera-capture/)中，可以核对测试日期和执行配置。
+
 ## 三、一个会写程序的程序，该怎么管？
 
 Agent 是一个会写程序的程序。今天它可以调用现成的录像工具，明天也可以自己写一段调用 Windows 接口的代码。假如你给 Agent 设计了一个“打开摄像头”的接口，而且每次调用都要经过用户同意，看上去已经很周全了。可把上一章那份脚本再运行一遍，这套检查一次也不会触发。脚本有别的路可以走。

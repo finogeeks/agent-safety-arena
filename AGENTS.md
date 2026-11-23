@@ -137,6 +137,7 @@ Read the matching skill before you start its task.
 | Change code and verify behavior | [arena-tdd](skills/arena-tdd/SKILL.md) |
 | Prepare a machine and record a new or existing case | [arena-record-trial](skills/arena-record-trial/SKILL.md) |
 | Prepare or revise a result report | [arena-write-report](skills/arena-write-report/SKILL.md) |
+| Write or revise a public article based on safety findings | [arena-write-article](skills/arena-write-article/SKILL.md) |
 | Edit recorded trials and prepare approval screenshots | [arena-edit-recording](skills/arena-edit-recording/SKILL.md) |
 | Review interception and warnings after collection | [arena-assess-confirmations](skills/arena-assess-confirmations/SKILL.md) |
 | Check the instruction tree and report evidence | [arena-verify](skills/arena-verify/SKILL.md) |

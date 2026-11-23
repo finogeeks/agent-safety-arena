@@ -33,6 +33,20 @@ evaluation gains a series of technical articles.
 - AC-7: List published articles before planned topics, with dates and links.
   Use the existing article layout, responsive images, language navigation,
   directory breadcrumb and BlogPosting metadata. Never replace reviewed media.
+- AC-8: Include the approved six-chapter `ai-safety` article in both languages.
+  An article with `tocLabels` can use the chapter layout without a takeaway
+  list. Preserve its title, paragraphs, chapter numbering, captions and exact
+  Markdown export. Group trailing citations separated by `·` or `、` together.
+- AC-9: Export authored illustrations referenced as `media/<article>/<file>`
+  from `articles/media/` to the matching `articles/media/` site path. Support
+  PNG, JPEG, WebP and GIF. Export a linked original reviewed record referenced
+  as `../results/<case>/<agent>/<comparison>/record.json` to the matching site
+  path after record validation. Reject missing files, traversal, and resolved
+  paths outside their declared source directories. Do not copy unrelated files.
+  The generated routes must load these resources from the local website too.
+- AC-10: Use English labels in all six English article illustrations. Keep
+  the approved hand-drawn style and short labels. Keep Chinese illustrations
+  unchanged. These illustrations remain conceptual, not evaluation evidence.
 
 ```mermaid
 flowchart TD
@@ -62,7 +76,7 @@ Published entries in `templates/article-library.json` own the slug, date and
 directory summary. The Markdown file owns the title and body. Support the
 article's authored Markdown subset: headings, paragraphs, quotations, emphasis,
 inline code, HTTPS links, images and horizontal rules. Escape raw HTML and
-reject unsafe URL schemes. Article images retain their original public Safety
+reject unsafe URL schemes. Existing evidence images retain their original public Safety
 URLs on every platform. Allow that origin in the image content policy, so a
 partial site export can display evidence that was not included in its inputs.
 The sandbox and camera-access articles start with a numbered Markdown list under “Key takeaways”
@@ -76,7 +90,11 @@ It omits the editing credit and Markdown link. Headings keep their authored
 numbering in both languages. Each chapter groups its trailing source links in
 a disclosure. A reviewed image with a Markdown title uses that title as its visible caption
 and links to the full-size original.
-These article media require access to the public site; report assets stay local.
+Existing remote evidence images can require access to the public site.
+Authored local illustrations are copied without altering their bytes. Resolve
+their public URLs only for HTML rendering; preserve the Markdown source.
+English and Chinese illustrations use separate files. Source records copied
+for article references do not create report entries, scores, or trial executions.
 No model calls or trial executions occur during publication.
 
 ## Tests
@@ -89,3 +107,8 @@ No model calls or trial executions occur during publication.
   preserved content and media, and escaped HTML/unsafe links: AC-6 and AC-7.
 - Browser checks at desktop and phone widths: visible navigation, responsive
   date alignment, no horizontal overflow and working language links.
+- `test_ai_safety_article_is_available_in_the_full_site`: AC-8 through AC-10,
+  including language-specific image files, unchanged source exports and local
+  resources after route publication.
+- Chapter layout, citation separator and local-resource validation tests:
+  AC-8 and AC-9, including unsafe and missing resource rejection.

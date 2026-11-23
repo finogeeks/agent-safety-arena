@@ -47,7 +47,7 @@ class ArticleLibraryTests(unittest.TestCase):
                     article_links.feed(archive)
                     self.assertEqual(article_links.hrefs, [
                         slug + suffix + '.html'
-                        for slug in ('chrome-windows-sandbox', 'agent-sandbox', 'agent-interaction', 'agent-privacy')
+                        for slug in ('ai-safety', 'chrome-windows-sandbox', 'agent-sandbox', 'agent-interaction', 'agent-privacy')
                     ])
                     dates = re.findall(r'<time datetime="([^"]+)"', archive)
                     self.assertEqual(len(dates), len(article_links.hrefs))

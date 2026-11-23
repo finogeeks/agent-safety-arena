@@ -10,6 +10,53 @@ from arena.reporting.guide import guide_toc
 
 ROOT = Path(__file__).resolve().parents[3]
 INLINE = re.compile(r'`([^`]+)`|\[([^\]]+)\]\(([^\s)]+)\)|\*\*(.+?)\*\*|\*([^*]+)\*')
+RESOURCE_TARGET = re.compile(r'(?<=\]\()([^\s)]+)')
+
+
+def article_resource(value):
+    """Resolve only authored illustrations and explicitly linked reviewed records."""
+    if value.startswith('media/'):
+        if not re.fullmatch(r'media/[a-z0-9]+(?:-[a-z0-9]+)*/[a-z0-9][a-z0-9-]*\.(?:png|jpe?g|webp|gif)', value):
+            raise ValueError('Invalid article illustration path: ' + value)
+        boundary = ROOT.resolve() / 'articles/media'
+        path = (ROOT / 'articles' / value).resolve()
+        destination = 'articles/' + value
+    elif value.startswith('../results/'):
+        if not re.fullmatch(r'\.\./results/(?:[a-z0-9][a-z0-9-]*/){3}record\.json', value):
+            raise ValueError('Invalid article record path: ' + value)
+        boundary = ROOT.resolve() / 'results'
+        path = (ROOT / 'articles' / value).resolve()
+        destination = value.removeprefix('../')
+    else:
+        return None
+    if not path.is_relative_to(boundary) or not path.is_file():
+        raise ValueError('Article resource must exist within its source directory: ' + value)
+    return path, destination
+
+
+def prepare_article_resources(source):
+    def replace(match):
+        resource = article_resource(match[1])
+        return SITE_URL + '/' + resource[1] if resource else match[1]
+    return RESOURCE_TARGET.sub(replace, source)
+
+
+def copy_article_resources(directory):
+    from arena.reporting.bilingual import validate
+    resources = {}
+    for article in load_articles():
+        for source in article['source'].values():
+            for value in RESOURCE_TARGET.findall(source):
+                resource = article_resource(value)
+                if resource:
+                    path, destination = resource
+                    resources[destination] = path
+    for destination, path in resources.items():
+        if path.suffix == '.json':
+            validate(json.loads(path.read_text('utf8')))
+        target = directory / destination
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(path.read_bytes())
 
 
 def safe_url(value):
@@ -37,6 +84,7 @@ def inline(text):
 
 
 def render_markdown(source):
+    source = prepare_article_resources(source)
     blocks = []
     section = 0
     for block in re.split(r'\n\s*\n', source.replace('\r\n', '\n').strip()):
@@ -68,14 +116,14 @@ def render_markdown(source):
     return '\n'.join(blocks)
 
 
-TRAILING_SOURCES = re.compile(r'\s*((?:\[[^\]]+\]\(https://[^\s)]+\)(?:\s*·\s*)?)+)$')
+TRAILING_SOURCES = re.compile(r'\s*((?:\[[^\]]+\]\(https://[^\s)]+\)(?:\s*[·、]\s*)?)+)$')
 
 
 def render_chapters(blocks, language, toc_labels):
     sources_label = '本章资料与实测' if language == 'zh-CN' else 'Sources and test records'
     navigation = []
     sections = []
-    chapters = re.split(r'(?m)^## ', '\n\n'.join(blocks))
+    chapters = re.split(r'(?m)^## ', prepare_article_resources('\n\n'.join(blocks)))
     if toc_labels is not None and len(toc_labels) != len(chapters) - 1:
         raise ValueError('Provide one contents label per article chapter')
     if chapters[0].strip():
@@ -89,7 +137,7 @@ def render_chapters(blocks, language, toc_labels):
         for block in re.split(r'\n\s*\n', content.strip()):
             match = TRAILING_SOURCES.search(block)
             if match and not block.startswith('!['):
-                sources.extend(link.strip() for link in re.split(r'\s+·\s+', match[1]))
+                sources.extend(link.strip() for link in re.split(r'(?<=\))\s*[·、]\s*(?=\[)', match[1]))
                 block = block[:match.start()]
             paragraphs.append(block)
         prose = render_markdown('\n\n'.join(paragraphs))
@@ -103,17 +151,19 @@ def render_chapters(blocks, language, toc_labels):
 
 
 def render_article_body(source, language, summary, meta, toc_labels=None):
-    """Give articles with an authored takeaway list the guide's introduction and contents."""
+    """Use the chapter layout for articles with contents labels or a takeaway list."""
     blocks = re.split(r'\n\s*\n', source.replace('\r\n', '\n').strip())
     label = '核心结论' if language == 'zh-CN' else 'Key takeaways'
+    intro = ('<header class="guide-intro">' + render_markdown(blocks[0])
+             + '<p class="guide-summary">' + escape(summary) + '</p>' + meta + '</header>')
     if len(blocks) < 4 or blocks[1] != '## ' + label:
+        if toc_labels is not None:
+            return intro + render_chapters(blocks[1:], language, toc_labels)
         return render_markdown(source).replace('</h1>', '</h1>' + meta, 1)
 
     items = re.fullmatch(r'1\. .+(?:\n\d+\. .+)*', blocks[2])
     if not items:
         raise ValueError('Key takeaways must be a numbered Markdown list')
-    intro = ('<header class="guide-intro">' + render_markdown(blocks[0])
-             + '<p class="guide-summary">' + escape(summary) + '</p>' + meta + '</header>')
     aside = ('<aside class="guide-takeaways" aria-labelledby="takeaways-title">'
              + '<h2 id="takeaways-title">' + label
              + ('<span>Key takeaways</span>' if language == 'zh-CN' else '') + '</h2><ol>')

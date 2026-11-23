@@ -7,6 +7,7 @@ import tempfile
 
 from arena.evidence.media import resolve_public_media_sources
 from arena.reporting import bilingual
+from arena.reporting.articles import copy_article_resources
 from arena.reporting.overview import load_roster, load_taxonomy, make_catalog
 from arena.reporting.overview_pages import render_pages
 from arena.reporting.search import write_discovery
@@ -92,6 +93,7 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
                          'googlea9662cdfe1496029.html')
         for filename in static_assets:
             (staging / filename).write_bytes(Path(__file__).with_name(filename).read_bytes())
+        copy_article_resources(staging)
         # Synthetic examples stay public but are not promoted as live evaluations.
         excluded_routes = [row['path'] + '/' + locale + '.html'
                            for row in catalog['reports'] if row['origin'] != 'live'

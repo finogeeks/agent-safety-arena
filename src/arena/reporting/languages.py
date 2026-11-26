@@ -20,7 +20,7 @@ UI = {
  'ar': ('اختر اللغة','غير منشورة','اختيار تلقائي','استخدام لغة المتصفح في الزيارة التالية عبر صفحة اختيار اللغة تلقائيًا','تمت استعادة الاختيار التلقائي. تبقى هذه الصفحة بلغتها الحالية.'),
  'fr': ('Choisir la langue','Non publié','Sélection automatique','Utiliser la langue du navigateur lors du prochain accès automatique au site','La sélection automatique est rétablie. La langue de cette page reste inchangée.'),
  'pt-BR': ('Escolher idioma','Não publicado','Seleção automática','Usar o idioma do navegador no próximo acesso com seleção automática','A seleção automática foi restaurada. O idioma desta página não muda.'),
- 'ja': ('言語を選択','未公開','自動選択','次回、自動入口からアクセスした際にブラウザーの言語を使用します','自動選択に戻しました。このページの言語は変わりません。'),
+ 'ja': ('言語を選択','未公開','自動選択','次回、自動言語選択ページにアクセスした際は、ブラウザーの言語を使用します。','自動選択に戻しました。このページの言語は変わりません。'),
  'ko': ('언어 선택','미게시','자동 선택','다음 자동 진입 페이지 방문 시 브라우저 언어 사용','자동 선택으로 복원했습니다. 현재 페이지의 언어는 바뀌지 않습니다.'),
 }
 

@@ -376,3 +376,20 @@ passes six, and the localization suite passes four. The shared UI and translatio
 notices include wording recommendations from the language owners. The complete
 eight-language artifact and browser checks remain pending until all six target
 catalogs are ready.
+
+VERIFY: The four-language preview publishes 245 Spanish and 245 Arabic pages
+without unavailable or stale entries. It has 1,587 HTML pages, 980 Markdown
+exports, 87,150 resolved local references, 7,215 checked file hashes and
+159 unchanged source-record hashes. Its sitemap has 856 entries. Checks compare
+490 target-language page pairs, preserve English/Chinese evidence-media identity,
+and report zero trial executions and no errors. Local Chrome passed 96 checks
+across the four published languages, including every page family, 320-pixel
+dropdowns, browser-language entry and fixed Arabic evidence/track orientation.
+Arabic and Spanish desktop/mobile screenshots were inspected. This preview
+does not claim that its four unavailable languages are published.
+
+The dedicated French owner subsequently completed and reviewed all 3,568 patterns.
+Its 4,388 expanded messages and 245 paired source signatures pass the same
+compiler checks. Literal checks also reject newly introduced Unicode replacement
+characters and retain original Chinese input strings quoted in English evidence
+descriptions. Portuguese, Japanese and Korean remain in progress at this stage.

@@ -27,7 +27,7 @@ NOTICE = {
  'ar':'ترجمة بمساعدة الذكاء الاصطناعي عن النسخة الإنجليزية. عند وجود غموض، راجع الأصل الصيني والأدلة الأصلية.',
  'fr':'Traduction assistée de la version anglaise. En cas d’ambiguïté, consultez l’original chinois et les preuves originales.',
  'pt-BR':'Tradução feita com auxílio de IA a partir da versão em inglês. Em caso de dúvida, consulte o original em chinês e as evidências originais.',
- 'ja':'英語版を基にした翻訳支援による訳文です。解釈に曖昧さがある場合は、中国語原文と元の証拠をご確認ください。',
+ 'ja':'この文章は、承認済みの英語版からLLMで翻訳したものです。解釈に曖昧さがある場合は、中国語の原文と元の証拠をご確認ください。',
  'ko':'영문판을 바탕으로 번역 도구의 도움을 받아 작성한 번역입니다. 해석이 모호한 경우 중국어 원문과 원본 증거를 확인하세요.',
 }
 

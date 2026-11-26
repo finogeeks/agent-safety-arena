@@ -226,4 +226,8 @@ language. The English homepage can suggest another edition without redirecting.
 IP-based selection is not enabled. See the [multilingual design](docs/multilingual-website.md).
 `/llms.txt` offers a concise AI-readable index. Public directory pages also have
 an `index.md` export with the canonical HTML citation URL and the same original
-evidence. These exports are navigation aids, not search ranking guarantees.
+evidence. Long original text is linked from shared `.txt` files; human pages keep
+the full displayed evidence. Old bilingual Markdown addresses point to the
+canonical exports. Tool-log downloads and reviewed editing notes remain available.
+See [shared evidence exports](docs/shared-evidence-exports.md). These exports are
+navigation aids, not search ranking guarantees.

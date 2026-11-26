@@ -467,7 +467,7 @@ The GitHub Pages API reports the configured mirror domain as
 `safety.finaios.ai`. Capacity for the primary host has not been verified.
 
 The owner subsequently requested [shared display-image compression](site-image-compression.md)
-and smaller animation previews. The verified artifact is now 613,358,855 bytes,
+and smaller animation previews. The verified image-optimized artifact was 613,358,855 bytes,
 below the 750,000,000-byte publication budget and the documented Pages limit.
 It reserves about 387 MB against the conservative 1 GB limit. The Pages workflow
 enables compression and enforces this budget before publication.
@@ -479,3 +479,10 @@ eight-language artifact passed source, link, text, image, hash and browser check
 The earlier local capacity gate is resolved. Hosting migration and production
 publication remain outside this change. Local validation does not establish
 live hosting acceptance or indexing.
+
+The subsequent [shared evidence export step](shared-evidence-exports.md) reduces
+the artifact to 592,535,970 bytes. All eight editions retain 245 canonical
+Markdown pages each. This replaces 328 old full exports with lightweight pointers
+and shares repeated long evidence text. The 302 reviewed editing notes, original
+tool-log downloads and full HTML evidence remain intact. This step does not
+change translations, recordings, findings or trial counts.

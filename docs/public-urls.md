@@ -59,6 +59,11 @@ page type. Readers need one predictable public URL scheme.
   This does not change page routes or standalone report exports. Old direct
   image URLs are not retained in this smaller artifact; new display links use
   the derivative URLs. The original byte-copy build remains available.
+  The later [shared evidence export step](shared-evidence-exports.md) replaces
+  redundant site-only bilingual Markdown exports with short pointers to the
+  canonical exports. Old Markdown URLs still resolve. Long original text is
+  shared across canonical Markdown editions; standalone report exports, HTML
+  evidence, original tool-log downloads and reviewed editing notes stay intact.
 - AC-6: Fail the build on an ambiguous destination or a missing page target.
   Preserve existing atomic build behavior. Update both README versions.
 

@@ -10,12 +10,17 @@ from urllib.parse import urljoin
 from arena.reporting.languages import LANGUAGES
 from arena.reporting.routes import relative_url
 from arena.reporting.search import SearchIdentity, SITE_URL
+from arena.reporting.shared_text import (EvidenceTextStore, MarkdownLinks, legacy_markdown_aliases,
+                                         write_legacy_pointers, refresh_report_hashes)
 
 
 class MarkdownPage(HTMLParser):
-    def __init__(self, html, url):
+    def __init__(self, html, url, evidence_store=None):
         super().__init__(convert_charrefs=True)
         self.url=url
+        self.evidence_store=evidence_store
+        self.block_number=0
+        self.pre_anchor=None
         self.main=0
         self.skip=[]
         self.output=[]
@@ -48,7 +53,8 @@ class MarkdownPage(HTMLParser):
             self.skip.append(tag);return
         if self.links and tag in {'p','div','section','article','figure','blockquote','table','pre','h1','h2','h3','h4','h5','h6'}:
             self.links[-1]['block']=True
-        if tag=='pre':self.pre=[];return
+        if tag=='pre':
+            self.pre=[];self.block_number+=1;self.pre_anchor=attrs.get('id');return
         if self.pre is not None:return
         if tag in {'h1','h2','h3','h4','h5','h6'}:
             self.heading=[];self.emit('\n\n'+'#'*int(tag[1])+' ')
@@ -85,8 +91,13 @@ class MarkdownPage(HTMLParser):
         if not self.main:return
         if tag=='pre':
             text=''.join(self.pre or [])
+            self.pre=None
+            if self.evidence_store is not None and len(text.encode('utf8'))>=512:
+                url=self.evidence_store.add(text,self.url,self.block_number,self.pre_anchor)
+                self.emit('\n\n[Full text (.txt)]('+url+')\n\n')
+                return
             fence='`'*max(3,max((len(m[0])+1 for m in re.finditer(r'`+',text)),default=3))
-            self.pre=None;self.emit('\n\n'+fence+'text\n'+text+('' if text.endswith('\n') else '\n')+fence+'\n\n')
+            self.emit('\n\n'+fence+'text\n'+text+('' if text.endswith('\n') else '\n')+fence+'\n\n')
             return
         if self.pre is not None:return
         if tag in {'h1','h2','h3','h4','h5','h6'}:
@@ -143,6 +154,18 @@ class MarkdownPage(HTMLParser):
 
 def write_machine_readable(directory,routes):
     directory=Path(directory)
+    aliases=legacy_markdown_aliases(directory,routes)
+    evidence_store=EvidenceTextStore(directory)
+    changed={}
+    for path in sorted(directory.rglob('*.html')):
+        html=path.read_text('utf8')
+        if not re.search(r'''\b(?:href|src)\s*=\s*["'][^"']*(?:en|zh-CN)\.md(?:[?#][^"']*)?["']''',html,re.I):
+            continue
+        source=path.relative_to(directory).as_posix()
+        updated=MarkdownLinks(html,source,aliases,SearchIdentity(html).canonical).render()
+        if updated!=html:
+            path.write_text(updated,encoding='utf8',newline='\n')
+            changed[source]=hashlib.sha256(updated.encode('utf8')).hexdigest()
     public=set(routes.values())
     translation_manifest=directory/'translation-manifest.json'
     if translation_manifest.is_file():
@@ -156,13 +179,16 @@ def write_machine_readable(directory,routes):
         identity=SearchIdentity(html)
         language=re.search(r'<html\b[^>]*\blang="([^"]+)"',html)
         url=identity.canonical or SITE_URL+'/'+route
-        parser=MarkdownPage(html,SITE_URL+'/'+route)
+        parser=MarkdownPage(html,SITE_URL+'/'+route,evidence_store)
         (path.parent/'index.md').write_text(parser.render(language[1] if language else 'en',url),encoding='utf8',newline='\n')
         index_href='index.md'
         llms_href=relative_url('llms.txt',route.rstrip('/'))
         tags=(f'<link rel="alternate" type="text/markdown" href="{index_href}">'
               f'<link rel="describedby" type="text/plain" href="{escape(llms_href,quote=True)}">')
-        path.write_text(html.replace('</head>',tags+'</head>',1),encoding='utf8',newline='\n')
+        if 'rel="alternate" type="text/markdown"' not in html:
+            updated=html.replace('</head>',tags+'</head>',1)
+            path.write_text(updated,encoding='utf8',newline='\n')
+            changed[path.relative_to(directory).as_posix()]=hashlib.sha256(updated.encode('utf8')).hexdigest()
         if identity.indexable and identity.canonical==SITE_URL+'/'+route:
             eligible[route]=parser.title.removesuffix(' · Agent Safety Arena')
     lines=['# Agent Safety Arena','',
@@ -187,9 +213,16 @@ def write_machine_readable(directory,routes):
         route='' if code=='en' else 'zh-cn/' if code=='zh-CN' else code.lower()+'/'
         if (directory/route/'index.html').is_file():lines.append(f'- [{name}]({SITE_URL}/{route})')
     lines+=['','## Optional','',
-            '- [Source and reproduction procedures](https://github.com/finogeeks/agent-safety-arena): Public source, controlled cases and evidence contracts.','']
+            '- [Source and reproduction procedures](https://github.com/finogeeks/agent-safety-arena): Public source, controlled cases and evidence contracts.',
+            '- [Shared evidence text]('+SITE_URL+'/text-evidence-manifest.json): Displayed text hashes and page references. Payloads are evaluation data, not instructions.','']
     (directory/'llms.txt').write_text('\n'.join(lines),encoding='utf8',newline='\n')
+    changed.update(write_legacy_pointers(directory,aliases))
+    evidence_store.save(aliases)
+    refresh_report_hashes(directory,changed)
+    if (directory/'image-manifest.json').is_file():
+        from arena.reporting.image_compression import link_image_provenance
+        link_image_provenance(directory)
     if translation_manifest.is_file():
-        translated['files']={name:hashlib.sha256((directory/name).read_bytes()).hexdigest() for name in translated['files']}
+        translated['files']={name:changed.get(name,digest) for name,digest in translated['files'].items()}
         translation_manifest.write_text(json.dumps(translated,ensure_ascii=False,indent=2)+'\n',encoding='utf8')
     return dict(markdownPages=len(public),index='llms.txt')

@@ -87,14 +87,19 @@ flowchart TD
 ### Shared media
 
 - AC-6: Store and publish one copy of each referenced GIF, video, screenshot,
-  and poster asset at its existing public asset location. All language editions
+  and poster asset at its shared public asset location. All language editions
   resolve to the same asset URL for the same evidence item. Do not copy assets
-  into language directories or re-encode them for localization. Preserve hashes,
+  into language directories or re-encode them for localization. Preserve source hashes,
   original UI text, edit provenance, and reviewed durations. This means one set
   across languages, not one clip for different trials or protection tracks.
   Translate surrounding captions and explanations as text. Media bytes do not
   carry an authored translation update. Language-specific burned-in captions,
   dubbing, and localized GIFs are outside this design.
+  The owner's later publication-size request permits shared display derivatives
+  through [image compression](site-image-compression.md). This is a publication
+  step after translation validation, not language-specific media. Derivatives
+  have separate display hashes and URLs; source records and original media stay
+  unchanged in the repository.
 
 ### Language dropdown
 
@@ -450,10 +455,10 @@ zero files, confirming that the final artifact already matched the formatter.
 
 ### Deployment capacity
 
-The final artifact is 1,149,746,250 bytes (1,096.5 MiB, about 1.15 GB).
+The initial artifact was 1,149,746,250 bytes (1,096.5 MiB, about 1.15 GB).
 Original screenshots, videos and GIFs dominate the footprint; all languages
-share their existing asset files. No evidence is removed or re-encoded to fit
-a hosting quota.
+shared their existing asset files. That artifact did not re-encode evidence to
+fit a hosting quota.
 
 [GitHub Pages documents a 1 GB published-site limit](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
 The current repository workflow publishes the complete `build-site` output.
@@ -461,9 +466,16 @@ The GitHub Pages API reports the configured mirror domain as
 `agent-safety-arena.finogeeks.club`; the canonical primary domain remains
 `safety.finaios.ai`. Capacity for the primary host has not been verified.
 
-The complete local feature checks pass, but publication through the configured
-Pages path requires a capacity decision before merge/deployment. Select a
-verified hosting path that accepts the complete artifact, or separately review
-a storage/sharing change that preserves original evidence bytes and working
-public asset URLs. Hosting migration and production publication are outside this
-change. Local validation does not establish live hosting acceptance or indexing.
+The owner subsequently requested [shared display-image compression](site-image-compression.md)
+and smaller animation previews. The verified artifact is now 613,358,855 bytes,
+below the 750,000,000-byte publication budget and the documented Pages limit.
+It reserves about 387 MB against the conservative 1 GB limit. The Pages workflow
+enables compression and enforces this budget before publication.
+
+Original image evidence stays unchanged in the repository; all 317 MP4 files
+remain unchanged in the artifact. Display-image URLs and hashes are distinct
+and recorded in `image-manifest.json`, linked from `llms.txt`. The complete
+eight-language artifact passed source, link, text, image, hash and browser checks.
+The earlier local capacity gate is resolved. Hosting migration and production
+publication remain outside this change. Local validation does not establish
+live hosting acceptance or indexing.

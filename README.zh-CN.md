@@ -147,6 +147,14 @@ cd agent-safety-arena
 
 ## 发布网站
 
+需要压缩网站的共享截图和动画预览时，先运行 `pip install -e ".[site]"`，
+再运行 `python -m arena build-site --results results --output site --optimize-images`。
+此构建保留截图原尺寸，动图使用较小的 WebP 预览，仓库中的原始证据保持不变。
+动图预览以约 200 KB 为目标，约每秒 10 帧，宽 352–640 像素。
+压缩后的完整发布包必须低于 750 MB，为后续测评预留容量。
+`image-manifest.json` 记录原件与显示版的哈希、尺寸和动画时序。
+详见[图片压缩规范](docs/site-image-compression.md)。
+
 搜索与AI回答发现的操作见[SEO与AI搜索运维指南](docs/seo-geo-operations.md)。指南分别记录本地检查、
 线上收录、AI引用和真人访问。结果页保留实际测试条件；未测试的Agent页面仍可访问，发布真实
 评测记录后才允许索引。

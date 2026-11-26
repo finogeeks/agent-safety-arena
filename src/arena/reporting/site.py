@@ -15,6 +15,7 @@ from arena.reporting.routes import publish_routes
 from arena.reporting.languages import automatic_entry
 from arena.reporting.localization import localize_site, PREFIXES
 from arena.reporting.machine_readable import write_machine_readable
+from arena.reporting.image_compression import optimize_images, check_site_size
 
 
 def file_hash(path):
@@ -47,7 +48,7 @@ def report_navigation(catalog, relative, record):
         for language in ('en', 'zh-CN')}
 
 
-def build_site(results_root, output, coverage_path=None, catalog_path=None):
+def build_site(results_root, output, coverage_path=None, catalog_path=None, *, compress_images=False):
     root = Path(results_root).resolve()
     output = Path(output).resolve()
     if not root.is_dir():
@@ -115,6 +116,8 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
         excluded_public = [routes[route] for route in excluded_routes]
         excluded_public += [prefix+route for prefix in PREFIXES.values() for route in excluded_public if not route.startswith('zh-cn/')]
         write_discovery(staging, excluded_public)
+        if compress_images:
+            optimize_images(staging)
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},
                         excludedReplayResults=[p.relative_to(root).as_posix() for p in sorted(root.rglob('result.json'))],
@@ -123,6 +126,8 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
                                for p in sorted(staging.rglob('*')) if p.is_file()})
         (staging / 'site-manifest.json').write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
+        if compress_images:
+            check_site_size(staging)
         if output.exists():
             raise ValueError('Site output appeared during build; preserve it')
         staging.rename(output)

@@ -22,8 +22,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install -e .
-      - run: python -m arena build-site --results results --output site
+      - run: python -m pip install -e '.[site]'
+      - run: python -m arena build-site --results results --output site --optimize-images
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

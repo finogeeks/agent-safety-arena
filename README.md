@@ -182,6 +182,15 @@ Optional local UI tests need explicit tool environment variables. See
 
 ## Publishing
 
+For smaller shared screenshots and animation previews, install `pip install -e ".[site]"`
+and build with `python -m arena build-site --results results --output site --optimize-images`.
+This creates full-size screenshot copies and smaller WebP animation previews,
+and preserves the reviewed originals in the repository. Animation previews
+target 200 KB at approximately 10 fps and 352–640 pixels wide. The complete
+optimized build must stay below 750 MB to reserve capacity for later evaluations.
+`image-manifest.json` records source/display hashes, dimensions and frame timing.
+See [image compression](docs/site-image-compression.md).
+
 For search and AI answer discovery, use the [SEO and AI search operations guide](docs/seo-geo-operations.md).
 It separates local checks from production indexing, AI citations and human visits.
 Result pages retain their recorded conditions; untested Agent pages remain

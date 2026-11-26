@@ -52,6 +52,13 @@ page type. Readers need one predictable public URL scheme.
   Google verification file unchanged. Refresh generated export manifest hashes
   when the site's copy of report HTML changes. Record the route map in
   `site-routes.json` so the migration can be audited.
+  The later, opt-in [image compression](site-image-compression.md) publication
+  step can replace staged PNG/GIF assets with shared WebP display derivatives.
+  It runs after routing and translation validation, retains original repository
+  evidence, and records source/display identities in `image-manifest.json`.
+  This does not change page routes or standalone report exports. Old direct
+  image URLs are not retained in this smaller artifact; new display links use
+  the derivative URLs. The original byte-copy build remains available.
 - AC-6: Fail the build on an ambiguous destination or a missing page target.
   Preserve existing atomic build behavior. Update both README versions.
 

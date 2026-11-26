@@ -2,6 +2,14 @@
 
 Status: Accepted, 2026-11-21. English uses the default path; Chinese uses `/zh-cn/`.
 
+The [multilingual design](multilingual-website.md), accepted on 2026-11-25,
+adds `/visit/` as a non-indexed automatic-language entry. It has real fallback
+language links and no canonical identity. Existing content routes remain stable.
+The six additional editions use `/es/`, `/ar/`, `/fr/`, `/pt-br/`, `/ja/`, and
+`/ko/`. Each published edition retains the same content slug and shared evidence
+paths. `index.md` beside a public directory page is an AI-readable export, not a
+new trial or a replacement for its canonical HTML identity.
+
 ## Problem
 
 Search Console identifies `/index.html` and `/guide.html` as redirected pages.

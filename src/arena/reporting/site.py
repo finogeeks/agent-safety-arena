@@ -12,6 +12,9 @@ from arena.reporting.overview import load_roster, load_taxonomy, make_catalog
 from arena.reporting.overview_pages import render_pages
 from arena.reporting.search import write_discovery
 from arena.reporting.routes import publish_routes
+from arena.reporting.languages import automatic_entry
+from arena.reporting.localization import localize_site, PREFIXES
+from arena.reporting.machine_readable import write_machine_readable
 
 
 def file_hash(path):
@@ -89,10 +92,12 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(content, encoding='utf8', newline='\n')
         (staging / 'catalog.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
-        static_assets = ('catalog.css', '404.html', '_redirects',
+        static_assets = ('catalog.css', 'language.css', 'language.js', '404.html', '_redirects',
                          'googlea9662cdfe1496029.html')
         for filename in static_assets:
             (staging / filename).write_bytes(Path(__file__).with_name(filename).read_bytes())
+        (staging / 'visit').mkdir()
+        (staging / 'visit/index.html').write_text(automatic_entry(), encoding='utf8', newline='\n')
         copy_article_resources(staging)
         # Synthetic examples stay public but are not promoted as live evaluations.
         excluded_routes = [row['path'] + '/' + locale + '.html'
@@ -102,7 +107,14 @@ def build_site(results_root, output, coverage_path=None, catalog_path=None):
                             for case in catalog['cases'] if not case['live']
                             for leaf in ('index.html', 'zh-CN.html')]
         routes = publish_routes(staging)
-        write_discovery(staging, [routes[route] for route in excluded_routes])
+        translations = localize_site(staging, routes)
+        entry_routes = {'en':'../', 'zh-CN':'../zh-cn/'}
+        entry_routes.update({code:'../'+PREFIXES[code] for code, published in translations['published'].items() if '' in published})
+        (staging/'visit/index.html').write_text(automatic_entry(entry_routes),encoding='utf8',newline='\n')
+        write_machine_readable(staging, routes)
+        excluded_public = [routes[route] for route in excluded_routes]
+        excluded_public += [prefix+route for prefix in PREFIXES.values() for route in excluded_public if not route.startswith('zh-cn/')]
+        write_discovery(staging, excluded_public)
         manifest = dict(schemaVersion=1, trialExecutions=0,
                         sources={relative.as_posix(): file_hash(path) for path, relative, _ in records},
                         excludedReplayResults=[p.relative_to(root).as_posix() for p in sorted(root.rglob('result.json'))],

@@ -8,6 +8,7 @@ from arena.reporting.detail import breadcrumb_markup, site_header_markup, warnin
 from arena.reporting.guide import guide_meta, guide_head, load_guide, reading_minutes, render_guide, text_reading_minutes
 from arena.reporting.search import page_head
 from arena.reporting.articles import load_articles, render_article_body
+from arena.reporting.languages import language_assets
 
 PAGE_SIZE = 20
 
@@ -116,17 +117,23 @@ class Pages:
         categories = [dict(id=item['id'], href=prefix + self.route(item['id']),
                            label=item['label'][self.language])
                       for item in self.data['categories'] if item['id'] != 'unclassified']
+        if self.zh:
+            current_locale = 'zh-CN.html' if opposite == 'index.html' else opposite.removesuffix('.html') + '.zh-CN.html'
+        else:
+            current_locale = 'index.html' if opposite == 'zh-CN.html' else opposite.replace('.zh-CN.html', '.html')
         header = site_header_markup(self.language, prefix + self.home_path, opposite,
                                     t('English', '中文'), categories=categories,
                                     current_category=current_category, brand_mark=True,
                                     guide_href=prefix + self.route('articles'),
-                                    current_guide=any(name in page_class for name in ('guide-page', 'articles-page')))
+                                    current_guide=any(name in page_class for name in ('guide-page', 'articles-page')),
+                                    current_locale_href=current_locale)
         if routes and not extra_head:
             extra_head = page_head(title, description, self.language, routes, kind=kind, indexable=indexable)
         return ('<!doctype html><html lang="'+self.language+'"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
-            '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'none\'; object-src \'none\'">'
-            +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261122d"></head><body class="{page_class}">'
+            '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\' https://safety.finaios.ai; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
+            +extra_head+language_assets(prefix)+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="{prefix}catalog.css?v=20261122d"></head>'
+            +f'<body class="{page_class}"' + (' data-language-home' if not self.zh and routes == {'en':'index.html','zh-CN':'zh-CN.html'} else '') + '>'
             +header+'<main>'+body+self.document_footer_brand(prefix)+'</main></body></html>')
 
     def document_footer_brand(self, prefix=''):

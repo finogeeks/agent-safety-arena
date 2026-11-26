@@ -204,3 +204,17 @@ successful GitHub Pages run does not establish that the other destination update
 Public page URLs use directories: English starts at `/`, Chinese at `/zh-cn/`,
 articles at `/articles/<slug>/`, and cases at `/cases/<id>/`. Old links remain
 usable. See the [URL contract](docs/public-urls.md) for redirects and host limits.
+
+The header language dropdown opens the same page in another published edition.
+The published snapshot includes English, Simplified Chinese, Spanish, Arabic,
+French, Brazilian Portuguese, Japanese and Korean. Chinese is the editorial
+master; the approved English edition is the pivot for LLM-authored translations.
+Stored paired source signatures prevent stale or incomplete editions from being
+advertised. Manual choices are remembered for 180 days when browser
+storage is available. `/visit/` selects a published homepage from that preference
+or the browser language, then falls back to English. Direct page URLs keep their
+language. The English homepage can suggest another edition without redirecting.
+IP-based selection is not enabled. See the [multilingual design](docs/multilingual-website.md).
+`/llms.txt` offers a concise AI-readable index. Public directory pages also have
+an `index.md` export with the canonical HTML citation URL and the same original
+evidence. These exports are navigation aids, not search ranking guarantees.

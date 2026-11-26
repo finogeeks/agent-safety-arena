@@ -44,6 +44,7 @@ class LanguagePickerTests(unittest.TestCase):
         cls.source_hash = hashlib.sha256(cls.source.read_bytes()).hexdigest()
         cls.site = cls.root / 'site'
         build_site(cls.root / 'results', cls.site)
+        cls.published = json.loads((cls.site / 'translation-manifest.json').read_text('utf8'))['published']
         export_reports(cls.source, cls.root / 'standalone')
 
     def resolve(self, source, href):
@@ -65,12 +66,13 @@ class LanguagePickerTests(unittest.TestCase):
                     picker = Picker((self.site / source).read_text('utf8'))
                     self.assertEqual(picker.pickers, 1, 'Every public page needs the shared language dropdown')
                     self.assertEqual(list(picker.options), order)
+                    available = {'en', 'zh-CN'} | {code for code, pages in self.published.items() if route in pages}
                     for locale, (tag, attrs) in picker.options.items():
-                        if locale in ('en', 'zh-CN'):
+                        if locale in available:
                             self.assertEqual(tag, 'a')
                             self.assertTrue(self.resolve(source, attrs['href']).is_file())
                             if locale != language:
-                                expected = ('' if locale == 'en' else 'zh-cn/') + route + 'index.html'
+                                expected = ('' if locale == 'en' else 'zh-cn/' if locale == 'zh-CN' else locale.lower() + '/') + route + 'index.html'
                                 self.assertEqual(self.resolve(source, attrs['href']), self.site / expected)
                         else:
                             self.assertEqual(attrs.get('aria-disabled'), 'true')

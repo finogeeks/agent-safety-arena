@@ -37,6 +37,7 @@ class PublicURLTests(unittest.TestCase):
         fixture.record(cls.root / 'results', scenario='sample-only', origin='synthetic')
         cls.site = cls.root / 'site'
         build_site(cls.root / 'results', cls.site)
+        cls.published = json.loads((cls.site / 'translation-manifest.json').read_text('utf8'))['published']
 
     def test_publishes_bilingual_directory_routes_with_matching_identity(self):
         for route in ('', 'privacy/', 'articles/', 'articles/guide/', 'articles/agent-sandbox/',
@@ -52,7 +53,12 @@ class PublicURLTests(unittest.TestCase):
                     self.assertEqual(head.canonical(), [url])
                     self.assertEqual(head.meta['og:url'], url)
                     alternates = {x['hreflang']: x['href'] for x in head.links if 'hreflang' in x}
-                    self.assertEqual(alternates, {'en': HOST + '/' + route, 'zh-CN': HOST + '/zh-cn/' + route})
+                    expected = {'en': HOST + '/' + route, 'zh-CN': HOST + '/zh-cn/' + route}
+                    expected.update({code: HOST + '/' + code.lower() + '/' + route
+                                     for code, pages in self.published.items() if route in pages})
+                    if len(expected) > 2:
+                        expected['x-default'] = HOST + '/' + route
+                    self.assertEqual(alternates, expected)
                     self.assertNotIn('http-equiv="refresh"', html)
 
     def test_new_page_links_work_under_prefix_without_legacy_html_navigation(self):

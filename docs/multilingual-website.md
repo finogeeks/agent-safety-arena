@@ -332,3 +332,47 @@ eight complete route families, Arabic full-page layout, and expanded search
 alternates remain later stages. An unavailable menu option is not a translated
 edition. Browser and artifact inspection helpers and screenshots are local-only
 files under ignored `.tools/language-picker/`.
+
+### Source and AI-readable export verification, 2026-11-26
+
+GREEN: `test_localization.py` passes four tests. These cover six stored editions,
+source-signature newline normalization, literal facts and original evidence,
+stale Chinese source rejection, and incomplete-message rejection.
+`test_machine_readable.py` passes three tests. They cover tables, original fenced
+text, media, escaped HTML examples, index exclusions, and alias-relative links
+with separate canonical citation metadata. The public URL suite passes six tests.
+
+VERIFY: The current base build includes 159 comparisons and zero trial executions.
+Its 245 Chinese/English page pairs match the approved translation snapshot after
+excluding the new machine-readable discovery tags. All 4,388 required English
+messages have source bindings. The artifact has 1,097 HTML pages, 490 new Markdown
+page exports, 54,064 resolved local references, 5,745 checked file hashes, and
+159 unchanged source-record hashes. All checks pass. Its 428 sitemap entries
+are identical to the previous bilingual publication snapshot. These are base
+build results, not evidence that the six target translations are complete.
+
+Seven changed documents have 126 valid local file links. The 12-skill instruction
+index, JavaScript syntax, and Git whitespace checks pass. Translation authoring
+checkpoints and local QA scripts remain outside the publication catalogs.
+
+### First language handoffs, 2026-11-26
+
+Dedicated Arabic and Spanish LLM agents completed all 3,568 source patterns per
+language. Their final checks cover exact placeholder multiplicities, complete
+unit coverage, ordinary English residue, repeated phrases, and sentence joins.
+Original UI labels, commands, fields, and evidence quotations remain identifiable.
+The publication compiler expanded 4,388 messages per language, retained literal
+paths, flags, URLs and hashes, and bound each catalog to 245 source-page pairs.
+This is LLM authoring and review, not native-speaker human copyediting.
+
+RED: Once the stored catalogs were present, the language-picker and public-URL
+suites each reported four failures. Their older expectations treated every
+non-English/Chinese edition as absent, including unchanged article pages that
+now have valid translations. These assertions now check the exact published
+editions, real equivalent destinations, and reciprocal alternate URLs.
+
+GREEN: The updated language-picker suite passes four tests, the public-URL suite
+passes six, and the localization suite passes four. The shared UI and translation
+notices include wording recommendations from the language owners. The complete
+eight-language artifact and browser checks remain pending until all six target
+catalogs are ready.

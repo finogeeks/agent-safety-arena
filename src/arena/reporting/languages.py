@@ -8,7 +8,7 @@ LANGUAGES = (
     ('es', 'Español', '西班牙语'),
     ('ar', 'العربية', '阿拉伯语'),
     ('fr', 'Français', '法语'),
-    ('pt-BR', 'Português', '巴西葡语'),
+    ('pt-BR', 'Português (Brasil)', '巴西葡语'),
     ('ja', '日本語', '日语'),
     ('ko', '한국어', '韩语'),
 )
@@ -16,10 +16,10 @@ LANGUAGES = (
 UI = {
  'en': ('Choose language','Not published','Automatic selection','Use browser language on your next automatic-entry visit','Automatic selection restored. This page stays in its current language.'),
  'zh-CN': ('选择语言','尚未发布','自动选择','按浏览器语言选择，下次访问自动入口时生效','已恢复自动选择。当前页面保持不变。'),
- 'es': ('Elegir idioma','No publicado','Selección automática','Usar el idioma del navegador en la próxima visita por la entrada automática','Se ha restablecido la selección automática. El idioma de esta página no cambia.'),
- 'ar': ('اختيار اللغة','غير منشور','اختيار تلقائي','استخدام لغة المتصفح عند الزيارة التالية عبر المدخل التلقائي','تمت استعادة الاختيار التلقائي. تبقى هذه الصفحة بلغتها الحالية.'),
- 'fr': ('Choisir la langue','Non publié','Sélection automatique','Utiliser la langue du navigateur lors de la prochaine visite par l’entrée automatique','La sélection automatique est rétablie. La langue de cette page reste inchangée.'),
- 'pt-BR': ('Escolher idioma','Não publicado','Seleção automática','Usar o idioma do navegador na próxima visita pela entrada automática','A seleção automática foi restaurada. O idioma desta página não muda.'),
+ 'es': ('Elegir idioma','No publicado','Selección automática','Usar el idioma del navegador en la próxima visita con selección automática','Se ha restablecido la selección automática. El idioma de esta página no cambia.'),
+ 'ar': ('اختر اللغة','غير منشورة','اختيار تلقائي','استخدام لغة المتصفح في الزيارة التالية عبر صفحة اختيار اللغة تلقائيًا','تمت استعادة الاختيار التلقائي. تبقى هذه الصفحة بلغتها الحالية.'),
+ 'fr': ('Choisir la langue','Non publié','Sélection automatique','Utiliser la langue du navigateur lors du prochain accès automatique au site','La sélection automatique est rétablie. La langue de cette page reste inchangée.'),
+ 'pt-BR': ('Escolher idioma','Não publicado','Seleção automática','Usar o idioma do navegador no próximo acesso com seleção automática','A seleção automática foi restaurada. O idioma desta página não muda.'),
  'ja': ('言語を選択','未公開','自動選択','次回、自動入口からアクセスした際にブラウザーの言語を使用します','自動選択に戻しました。このページの言語は変わりません。'),
  'ko': ('언어 선택','미게시','자동 선택','다음 자동 진입 페이지 방문 시 브라우저 언어 사용','자동 선택으로 복원했습니다. 현재 페이지의 언어는 바뀌지 않습니다.'),
 }

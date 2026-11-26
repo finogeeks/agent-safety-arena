@@ -137,6 +137,20 @@ The complete artifact is **613,358,855 bytes**, down **46.7 percent** from
 1,000,000,000-byte host limit and 136,641,145 bytes before the 750 MB build budget.
 No oversized screenshot or animation exception remains under the AC-6 limits.
 
+The complete local publication directory has the following distribution. MB
+means 1,000,000 bytes; percentages are rounded. Language editions share media.
+
+| Content | Files | MB | Share |
+| --- | ---: | ---: | ---: |
+| MP4 videos | 317 | 301.12 | 49.09% |
+| Screenshots and illustrations | 786 | 134.31 | 21.90% |
+| HTML pages | 2,567 | 87.43 | 14.25% |
+| Markdown reports and AI-readable exports | 2,590 | 53.70 | 8.75% |
+| Animation previews | 160 | 20.06 | 3.27% |
+| JSON records, indexes and manifests | 1,005 | 13.36 | 2.18% |
+| Styles, scripts and other text | 1,262 | 3.37 | 0.55% |
+| Total | 8,687 | 613.36 | 100% |
+
 Checks passed for 946 source/display image identities, 2,418 protected files,
 2,567 unchanged HTML text bodies, 1,960 Markdown exports recomputed in memory,
 4,443 nested report hash entries, 10,156 root/translation hash entries,

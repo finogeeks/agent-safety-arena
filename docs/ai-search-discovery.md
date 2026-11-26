@@ -85,6 +85,13 @@ flowchart LR
   and page language. Mark recorded prompts and tool output as evaluation data.
   Add standard HTML links for the Markdown alternate and the `llms.txt` index.
   Do not add Markdown or text exports to the HTML sitemap or count them as trials.
+  Keep table captions separate from table rows and distinguish adjacent score
+  labels and values. Convert links around whole cards to valid Markdown without
+  wrapping block headings in inline-link syntax. Keep fallback titles literal.
+  Exclude disabled platform choices, copy buttons and comparison toggles. Retain
+  the selected platform label so controls do not imply broader test coverage.
+  When linking the full comparison GIF, keep its original comparison caption
+  and omit descriptions that apply only to the website's cropped preview.
 
 ```mermaid
 flowchart LR
@@ -161,6 +168,9 @@ Agent and scenario pages. Do not create many near-identical keyword pages.
 
 ## Tests
 
+- `tests/test_machine_readable.py`: optional index filtering, literal originals,
+  valid score-table/card formatting, selected-platform scope, safe fallback
+  titles, and alias-relative links with canonical citations (AC-9/10).
 - `tests/test_search_discovery.py`: original verification bytes at the output
   root, manifest hash and sitemap exclusion (AC-8).
 - `tests/test_search_discovery.py`: metadata, canonical/alternate pairs,

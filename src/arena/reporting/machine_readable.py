@@ -27,6 +27,7 @@ class MarkdownPage(HTMLParser):
         self.cell=None
         self.title=''
         self.in_title=False
+        self.heading=None
         self.feed(html)
 
     def emit(self,value):
@@ -41,12 +42,19 @@ class MarkdownPage(HTMLParser):
             if tag not in {'img','br','hr','source','input','meta','link','wbr'}:self.skip.append(tag)
             return
         if not self.main:return
-        if tag in {'script','style','nav'} or 'language-picker' in attrs.get('class','').split():
+        if (tag in {'script','style','nav'}
+                or {'language-picker','comparison-control','native-preview-description'} & set(attrs.get('class','').split())
+                or tag=='button' and ('disabled' in attrs or attrs.get('aria-disabled')=='true' or 'data-copy' in attrs)):
             self.skip.append(tag);return
+        if self.links and tag in {'p','div','section','article','figure','blockquote','table','pre','h1','h2','h3','h4','h5','h6'}:
+            self.links[-1]['block']=True
         if tag=='pre':self.pre=[];return
         if self.pre is not None:return
-        if tag in {'h1','h2','h3','h4','h5','h6'}:self.emit('\n\n'+'#'*int(tag[1])+' ')
-        elif tag in {'p','section','article','figure','blockquote'}:self.emit('\n\n')
+        if tag in {'h1','h2','h3','h4','h5','h6'}:
+            self.heading=[];self.emit('\n\n'+'#'*int(tag[1])+' ')
+        elif tag in {'p','div','section','article','figure','blockquote'}:self.emit('\n\n')
+        elif tag in {'span','small','label','button'}:self.emit(' ')
+        elif tag=='caption':self.emit('\n\n**')
         elif tag in {'strong','b'}:self.emit('**')
         elif tag in {'em','i'}:self.emit('*')
         elif tag=='code':self.emit('`')
@@ -58,7 +66,10 @@ class MarkdownPage(HTMLParser):
             if self.lists:self.lists[-1][1]+=1
             marker=str(self.lists[-1][1])+'. ' if self.lists and self.lists[-1][0]=='ol' else '- '
             self.emit('\n'+marker)
-        elif tag=='a':self.links.append(urljoin(self.url,attrs.get('href','')));self.emit('[')
+        elif tag=='a':
+            buffer=self.cell if self.cell is not None else self.output
+            self.links.append(dict(url=urljoin(self.url,attrs.get('href','')),buffer=buffer,index=len(buffer),block=False,label=''))
+            self.emit('[')
         elif tag=='img':self.emit('!['+attrs.get('alt','').replace(']','\\]')+']('+urljoin(self.url,attrs.get('src',''))+')')
         elif tag in {'video','source'} and attrs.get('src'):self.emit('\n\n[Original recording]('+urljoin(self.url,attrs['src'])+')\n\n')
         elif tag=='table':self.rows=[];self.emit('\n\n')
@@ -78,7 +89,13 @@ class MarkdownPage(HTMLParser):
             self.pre=None;self.emit('\n\n'+fence+'text\n'+text+('' if text.endswith('\n') else '\n')+fence+'\n\n')
             return
         if self.pre is not None:return
-        if tag in {'h1','h2','h3','h4','h5','h6','p','section','article','figure','figcaption','footer'}:self.emit('\n\n')
+        if tag in {'h1','h2','h3','h4','h5','h6'}:
+            if self.links and self.links[-1]['block'] and self.heading:
+                self.links[-1]['label']=''.join(self.heading).strip()
+            self.heading=None
+        if tag in {'h1','h2','h3','h4','h5','h6','p','div','section','article','figure','figcaption','footer'}:self.emit('\n\n')
+        elif tag in {'span','small','label','button'}:self.emit(' ')
+        elif tag=='caption':self.emit('**\n\n')
         elif tag in {'strong','b'}:self.emit('**')
         elif tag in {'em','i'}:self.emit('*')
         elif tag=='code':self.emit('`')
@@ -86,7 +103,13 @@ class MarkdownPage(HTMLParser):
         elif tag in {'ul','ol'}:
             if self.lists:self.lists.pop()
             self.emit('\n\n')
-        elif tag=='a' and self.links:self.emit(']('+self.links.pop()+')')
+        elif tag=='a' and self.links:
+            link=self.links.pop()
+            if link['block']:
+                link['buffer'][link['index']]=''
+                label=escape(link['label'] or link['url'],quote=False).replace('[',r'\[').replace(']',r'\]')
+                self.emit('\n\n['+label+']('+link['url']+')\n\n')
+            else:self.emit(']('+link['url']+')')
         elif tag in {'th','td'} and self.cell is not None:
             self.row.append(re.sub(r'\s+',' ',''.join(self.cell)).strip().replace('|','\\|'));self.cell=None
         elif tag=='tr' and self.row is not None:self.rows.append(self.row);self.row=None
@@ -102,7 +125,10 @@ class MarkdownPage(HTMLParser):
         if self.in_title:self.title+=value
         if self.main and not self.skip:
             if self.pre is not None:self.pre.append(value)
-            else:self.emit(escape(value,quote=False))
+            else:
+                if self.heading is not None:self.heading.append(value)
+                if self.links and not self.links[-1]['label'] and value.strip():self.links[-1]['label']=value.strip()
+                self.emit(escape(value,quote=False))
 
     def render(self,language,canonical=None):
         content=''.join(self.output).strip()
@@ -112,7 +138,7 @@ class MarkdownPage(HTMLParser):
         if content.startswith('# '):
             heading,_,rest=content.partition('\n')
             return heading+'\n\n'+metadata+rest.lstrip()+'\n'
-        return '# '+self.title.removesuffix(' · Agent Safety Arena')+'\n\n'+metadata+content+'\n'
+        return '# '+escape(self.title.removesuffix(' · Agent Safety Arena'),quote=False)+'\n\n'+metadata+content+'\n'
 
 
 def write_machine_readable(directory,routes):

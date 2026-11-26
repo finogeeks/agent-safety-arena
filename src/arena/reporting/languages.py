@@ -21,7 +21,7 @@ UI = {
  'fr': ('Choisir la langue','Non publié','Sélection automatique','Utiliser la langue du navigateur lors du prochain accès automatique au site','La sélection automatique est rétablie. La langue de cette page reste inchangée.'),
  'pt-BR': ('Escolher idioma','Não publicado','Seleção automática','Usar o idioma do navegador no próximo acesso com seleção automática','A seleção automática foi restaurada. O idioma desta página não muda.'),
  'ja': ('言語を選択','未公開','自動選択','次回、自動言語選択ページにアクセスした際は、ブラウザーの言語を使用します。','自動選択に戻しました。このページの言語は変わりません。'),
- 'ko': ('언어 선택','미게시','자동 선택','다음 자동 진입 페이지 방문 시 브라우저 언어 사용','자동 선택으로 복원했습니다. 현재 페이지의 언어는 바뀌지 않습니다.'),
+ 'ko': ('언어 선택','미공개','자동 선택','다음에 자동 언어 선택 페이지로 접속하면 브라우저 언어를 사용합니다','자동 선택을 다시 설정했습니다. 현재 페이지의 언어는 바뀌지 않습니다.'),
 }
 
 

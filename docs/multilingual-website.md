@@ -11,6 +11,10 @@ subagent per target language. Earlier machine-translation drafts are excluded
 from the committed publication catalogs. The existing approved Chinese/English
 editions remain the source snapshot; this change does not rewrite their claims.
 
+Implementation and local eight-language validation are complete as of 2026-11-26.
+Live publication has a capacity gate for the configured GitHub Pages mirror;
+see the final verification and deployment-capacity sections below.
+
 ## Problem
 
 The current static website renders English and Simplified Chinese. Page text,
@@ -393,3 +397,73 @@ Its 4,388 expanded messages and 245 paired source signatures pass the same
 compiler checks. Literal checks also reject newly introduced Unicode replacement
 characters and retain original Chinese input strings quoted in English evidence
 descriptions. Portuguese, Japanese and Korean remain in progress at this stage.
+
+### Complete eight-language verification, 2026-11-26
+
+All six dedicated LLM owners completed 3,568 patterns each. The six publication
+catalogs each contain 4,388 expanded messages and signatures for 245 approved
+Chinese/English source pairs. Final language QA covers full sentence joins,
+durations, negation, source quotations, exact placeholders, original technical
+literals and repeated phrases. Native-speaker human copyediting was not performed.
+
+RED/GREEN: Actual homepage export checks exposed joined score labels, table
+captions without a boundary, block-card links rendered as invalid inline links,
+unsafe fallback titles, disabled controls presented as content, and a cropped
+preview description beside a full GIF. Added regressions reproduced these
+failures. All six machine-readable tests pass after correction. The HTML page
+content and original evidence remain the source of the export.
+
+An Arabic browser regression also exposed reversed homepage GIF labels with the
+comparison checkbox enabled. At a 1,360-pixel viewport, the built-in label was at
+x=1,112 and FinShield at x=991. Shared RTL styling now fixes the evidence-label
+grid to LTR while retaining RTL text. The same check reports x=991 and x=1,112.
+The complete browser run also checks all four GIF label pairs at mobile width.
+
+GREEN: The combined language-picker, localization, machine-readable and public
+URL suites pass 20 tests. Search discovery passes 13 tests and the article library
+passes one, for 34 relevant tests. Commands use the project Python environment:
+
+```text
+python -m unittest tests.test_language_picker tests.test_localization tests.test_machine_readable tests.test_public_urls
+python -m unittest discover -s tests -p test_search_discovery.py
+python -m unittest discover -s tests -p test_article_library.py
+```
+
+VERIFY: The complete build command was
+`python -m arena build-site --results results --output artifacts/site/multilingual-final-20261126`.
+It includes 159 comparisons and zero trial executions. Strict artifact checks
+pass for 2,567 HTML pages, 1,960 Markdown exports, 164,102 local references,
+1,470 foreign-language page comparisons, 10,155 file hashes and 159 source-record
+hashes. Each of the six target languages publishes all 245 pages, with no stale,
+missing or incomplete entries. The sitemap has 1,712 eligible URLs. Original
+preformatted text, literal conditions, source records and shared evidence/media
+references remain intact.
+
+Local Chrome passed 211 checks across all eight languages. Checks cover every
+page family, equivalent links and section anchors, regional browser-language
+matching, explicit URL authority, stored preference expiry/reset, disabled
+storage, no-script fallback, keyboard controls, 320/360-pixel layouts, zoom
+reflow, full-page width, Arabic comparison order and JavaScript errors.
+Desktop/mobile screenshots for all languages and the Arabic GIF comparison
+were inspected. A derived Markdown refresh with the current exporter changed
+zero files, confirming that the final artifact already matched the formatter.
+
+### Deployment capacity
+
+The final artifact is 1,149,746,250 bytes (1,096.5 MiB, about 1.15 GB).
+Original screenshots, videos and GIFs dominate the footprint; all languages
+share their existing asset files. No evidence is removed or re-encoded to fit
+a hosting quota.
+
+[GitHub Pages documents a 1 GB published-site limit](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
+The current repository workflow publishes the complete `build-site` output.
+The GitHub Pages API reports the configured mirror domain as
+`agent-safety-arena.finogeeks.club`; the canonical primary domain remains
+`safety.finaios.ai`. Capacity for the primary host has not been verified.
+
+The complete local feature checks pass, but publication through the configured
+Pages path requires a capacity decision before merge/deployment. Select a
+verified hosting path that accepts the complete artifact, or separately review
+a storage/sharing change that preserves original evidence bytes and working
+public asset URLs. Hosting migration and production publication are outside this
+change. Local validation does not establish live hosting acceptance or indexing.

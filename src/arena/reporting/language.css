@@ -1,0 +1,41 @@
+/* Shared header control: scoped to avoid the report's general details rules. */
+.site-bar>.language-picker,.language-entry .language-picker{position:relative;flex-shrink:0;margin:0;padding:0;border:0;color:#243248;font:400 14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif;z-index:30}
+.language-picker>summary{display:flex;align-items:center;gap:8px;list-style:none;cursor:pointer;padding:8px 10px;border:1px solid #dde3eb;border-radius:7px;background:#fff;color:#43556d;white-space:nowrap}
+.language-picker>summary::-webkit-details-marker{display:none}
+.language-picker .language-globe{font-size:15px;line-height:1}
+.language-picker .language-chevron{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);margin:0 2px 3px 3px}
+.language-picker[open] .language-chevron{transform:rotate(225deg);margin-top:4px;margin-bottom:0}
+.language-picker .language-menu{position:absolute;top:calc(100% + 8px);inset-inline-end:0;width:280px;max-width:calc(100vw - 32px);box-sizing:border-box;padding:8px;background:#fff;border:1px solid #dde3eb;border-radius:10px;box-shadow:0 8px 24px #2432481a}
+.language-picker .language-menu-title{display:block;padding:5px 9px 8px;font-size:12px;color:#69798d}
+.language-picker .language-option{display:flex;align-items:center;gap:8px;min-height:39px;box-sizing:border-box;padding:7px 9px;border-radius:6px;color:#243248;text-decoration:none;font-size:14px;line-height:1.5}
+.language-picker a.language-option:hover{background:#f1f4f9;text-decoration:none}
+.language-picker a.language-option[aria-current="true"]{background:#eaf0fc;color:#243248}
+.language-picker .language-option-name{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;flex:1;min-width:0}
+.language-picker .language-secondary{font-size:12px;color:#69798d}
+.language-picker .language-check{width:16px;flex-shrink:0;text-align:center;color:#285dbb}
+.language-picker .language-pending{font-size:11px;color:#69798d;white-space:nowrap}
+.language-picker .language-unavailable{color:#69798d}
+.language-picker .language-auto{margin-top:7px;padding:7px 9px 4px;border-top:1px solid #e0e6ee}
+.language-picker .language-auto button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:5px 0;border:0;background:transparent;color:#243248;font:inherit;text-align:start;cursor:pointer}
+.language-picker .language-auto-note,.language-picker .language-status{display:block;font-size:12px;color:#69798d;line-height:1.5;white-space:normal}
+.language-picker :focus-visible,.language-suggestion :focus-visible{outline:3px solid #82a9ff;outline-offset:2px}
+.language-picker [hidden],.language-suggestion[hidden]{display:none!important}
+.language-suggestion{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;max-width:1120px;margin:10px auto;padding:10px 16px;box-sizing:border-box;background:#eaf0fc;border-radius:6px;color:#243248;font:400 14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif}
+.language-suggestion a{color:#285dbb}
+.language-suggestion button{border:0;background:transparent;color:#43556d;font:inherit;cursor:pointer;padding:5px 8px}
+.language-entry{margin:0;background:#f5f7fb;color:#243248;font:400 14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif}
+.language-entry main{max-width:620px;margin:48px auto;padding:24px}
+.language-entry .language-picker{display:inline-block}
+.language-entry .language-menu{inset-inline-end:auto;inset-inline-start:0}
+.translation-notice{margin:18px 0;padding:12px 0;border-top:1px solid #e0e6ee;color:#69798d;font-size:12px;line-height:1.7}
+html[lang="ar"] body{font-family:"Segoe UI",Tahoma,"Noto Sans Arabic",sans-serif}
+html[lang="ja"] body{font-family:"Yu Gothic",Meiryo,"Microsoft YaHei",sans-serif}
+html[lang="ko"] body{font-family:"Malgun Gothic","Segoe UI",sans-serif}
+html[dir="rtl"] table,html[dir="rtl"] .pair,html[dir="rtl"] .overview-headings,html[dir="rtl"] .score-strip,html[dir="rtl"] .category-scores,html[dir="rtl"] .gif-labels{direction:ltr}
+html[dir="rtl"] .gif-labels>span{direction:rtl}
+html[dir="rtl"] th,html[dir="rtl"] td,html[dir="rtl"] .pair>*,html[dir="rtl"] .overview-headings>*,html[dir="rtl"] .score-strip>*,html[dir="rtl"] .category-scores>*{direction:rtl;text-align:start}
+html[dir="rtl"] pre,html[dir="rtl"] code{direction:ltr;text-align:left;unicode-bidi:isolate}
+html[dir="rtl"] .facts td[dir="ltr"]{direction:ltr;text-align:left;unicode-bidi:isolate}
+html[dir="rtl"] .site-header .site-nav a[href*="articles"]{margin-left:0;margin-inline-start:auto}
+html[dir="rtl"] .language-picker .language-menu-title{direction:rtl}
+@media(max-width:760px){.site-bar>.language-picker{margin-inline-start:auto}.language-picker>summary{min-height:40px}.language-picker .language-option,.language-picker .language-auto button{min-height:44px}.language-suggestion{margin:8px 12px}.site-bar>.language-picker .language-menu{max-width:calc(100vw - 32px)}}

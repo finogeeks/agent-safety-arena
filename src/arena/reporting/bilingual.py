@@ -447,9 +447,12 @@ def export_reports(record_path, output, navigation=None):
     (output/'prompt.txt').write_bytes(record['prompt']['text'].encode('utf8'))
     for language,body in reports.items():(output/(language+'.md')).write_text(body,encoding='utf8')
     from arena.reporting.detail import render_detail, render_index, CSS, JS, DENSE_CSS
-    (output/'index.html').write_text(render_index(record),encoding='utf8')
+    (output/'index.html').write_text(render_index(record, navigation.get('en') if navigation else None),encoding='utf8')
     (output/'report.css').write_text(CSS,encoding='utf8')
     (output/'report.js').write_text(JS,encoding='utf8')
+    if not navigation:
+        for filename in ('language.css', 'language.js'):
+            (output/filename).write_bytes(Path(__file__).with_name(filename).read_bytes())
     if record.get('presentation',{}).get('dense'):
         (output/'detail-compact.css').write_text(DENSE_CSS,encoding='utf8')
     for language in WORDS:

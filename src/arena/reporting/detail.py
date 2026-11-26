@@ -3,6 +3,7 @@ from html import escape
 from pathlib import PurePosixPath
 import re
 from arena.reporting.publication import public_record
+from arena.reporting.languages import language_assets, language_picker
 
 
 TEXT = {
@@ -127,9 +128,9 @@ GITHUB_HREF = 'https://github.com/finogeeks/agent-safety-arena'
 
 
 def site_header_markup(language, home_href, locale_href, locale_label, categories=None,
-                       current_category=None, brand_mark=False, guide_href=None, current_guide=False):
+                       current_category=None, brand_mark=False, guide_href=None, current_guide=False,
+                       current_locale_href=None):
     aria = '主导航' if language == 'zh-CN' else 'Main navigation'
-    locale_lang = 'en' if language == 'zh-CN' else 'zh-CN'
     def nav_label(value):
         if language == 'zh-CN':
             value = re.sub(r'(?<=[\u3400-\u9fff])\s+(?=[A-Za-z0-9])|(?<=[A-Za-z0-9])\s+(?=[\u3400-\u9fff])', '', str(value))
@@ -147,7 +148,8 @@ def site_header_markup(language, home_href, locale_href, locale_label, categorie
         label = e('方法与发现' if language == 'zh-CN' else 'Methods & Findings')
         nav += f'<a href="{e(guide_href)}"{current}>{label}</a>'
     nav += f'<a href="{GITHUB_HREF}">GitHub ↗</a></nav>'
-    locale = f'<a class="locale" href="{e(locale_href)}" lang="{locale_lang}">{e(locale_label)}</a>'
+    opposite = 'en' if language == 'zh-CN' else 'zh-CN'
+    locale = language_picker(language, {language: current_locale_href or language + '.html', opposite: locale_href})
     return f'<header class="site-header"><div class="site-bar">{brand}{nav}{locale}</div></header>'
 
 
@@ -390,7 +392,8 @@ def shell(title, language, body, dense=False, home_href='index.html', navigation
     return ('<!doctype html><html lang="'+language+'"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; img-src \'self\'; media-src \'self\' blob:; style-src \'self\'; script-src \'self\'; object-src \'none\'">'
-        +extra_head+f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css?v=20261122d">'
+        +extra_head+language_assets(str(PurePosixPath(home_href).parent) + '/' if navigation else '')
+        +f'<title>{e(title)} · Agent Safety Arena</title><link rel="stylesheet" href="report.css?v=20261122d">'
         +('<link rel="stylesheet" href="detail-compact.css">' if dense else '')+'</head><body>'
         +header+'<main>'+body+'</main><script src="report.js" defer></script></body></html>')
 
@@ -404,7 +407,7 @@ def display_text(record, language, original, original_language, translation):
     return original, True
 
 
-def render_index(record):
+def render_index(record, navigation=None):
     record = public_record(record)
     cards=[]
     for language in ('en','zh-CN'):
@@ -413,7 +416,8 @@ def render_index(record):
         cards.append(f'<a class="case-card" href="{language}.html" lang="{language}"><span class="chip">{e(phase)}</span>'
             f'<h2>{e(page_title(text["title"]))}</h2><p>{e(text["purpose"])}</p>{assessment_markup(record["groups"]["native"],language)}'
             f'<p>{ui["detail"]} →</p></a>')
-    return shell('Results','en','<div class="hero"><h1>Results</h1></div><div class="pair">'+''.join(cards)+'</div>')
+    return shell('Results','en','<div class="hero"><h1>Results</h1></div><div class="pair">'+''.join(cards)+'</div>',
+                 home_href=(navigation or {}).get('homeHref', 'index.html'), navigation=navigation)
 
 
 def render_detail(record, language, evidence_hash, pair, words, outcomes, navigation=None):

@@ -5,6 +5,9 @@ describe observable behavior. Decisions record choices and their consequences.
 
 | Doc | Use |
 | --- | --- |
+| [shared-evidence-exports.md](shared-evidence-exports.md) | Defines shared original text, compact Markdown and legacy export compatibility. |
+| [site-image-compression.md](site-image-compression.md) | Defines smaller shared display images, source preservation, animation timing and publication checks. |
+| [multilingual-website.md](multilingual-website.md) | Defines eight-language publication, shared media, LLM translation provenance, source revision checks, and language selection. |
 | [public-urls.md](public-urls.md) | Defines public routes, language prefixes, canonical identity and legacy URL compatibility. |
 | [ai-search-discovery.md](ai-search-discovery.md) | Defines canonical URLs, AI search discovery, Google verification files, evidence summaries and measurement. |
 | [search-result-clarity.md](search-result-clarity.md) | Defines result identities, evidence summaries, recorded conditions, maintainer disclosure and index eligibility for untested Agents. |

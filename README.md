@@ -182,6 +182,15 @@ Optional local UI tests need explicit tool environment variables. See
 
 ## Publishing
 
+For smaller shared screenshots and animation previews, install `pip install -e ".[site]"`
+and build with `python -m arena build-site --results results --output site --optimize-images`.
+This creates full-size screenshot copies and smaller WebP animation previews,
+and preserves the reviewed originals in the repository. Animation previews
+target 200 KB at approximately 10 fps and 352–640 pixels wide. The complete
+optimized build must stay below 750 MB to reserve capacity for later evaluations.
+`image-manifest.json` records source/display hashes, dimensions and frame timing.
+See [image compression](docs/site-image-compression.md).
+
 For search and AI answer discovery, use the [SEO and AI search operations guide](docs/seo-geo-operations.md).
 It separates local checks from production indexing, AI citations and human visits.
 Result pages retain their recorded conditions; untested Agent pages remain
@@ -204,3 +213,21 @@ successful GitHub Pages run does not establish that the other destination update
 Public page URLs use directories: English starts at `/`, Chinese at `/zh-cn/`,
 articles at `/articles/<slug>/`, and cases at `/cases/<id>/`. Old links remain
 usable. See the [URL contract](docs/public-urls.md) for redirects and host limits.
+
+The header language dropdown opens the same page in another published edition.
+The published snapshot includes English, Simplified Chinese, Spanish, Arabic,
+French, Brazilian Portuguese, Japanese and Korean. Chinese is the editorial
+master; the approved English edition is the pivot for LLM-authored translations.
+Stored paired source signatures prevent stale or incomplete editions from being
+advertised. Manual choices are remembered for 180 days when browser
+storage is available. `/visit/` selects a published homepage from that preference
+or the browser language, then falls back to English. Direct page URLs keep their
+language. The English homepage can suggest another edition without redirecting.
+IP-based selection is not enabled. See the [multilingual design](docs/multilingual-website.md).
+`/llms.txt` offers a concise AI-readable index. Public directory pages also have
+an `index.md` export with the canonical HTML citation URL and the same original
+evidence. Long original text is linked from shared `.txt` files; human pages keep
+the full displayed evidence. Old bilingual Markdown addresses point to the
+canonical exports. Tool-log downloads and reviewed editing notes remain available.
+See [shared evidence exports](docs/shared-evidence-exports.md). These exports are
+navigation aids, not search ranking guarantees.

@@ -10,6 +10,15 @@ The owner authorized the [search result clarity follow-up](search-result-clarity
 on 2026-11-22. Its scoped additions supersede the visible-content deferrals below;
 other evidence, layout and crawler-policy requirements remain in force.
 
+The accepted [multilingual design](multilingual-website.md) adds the shared
+language dropdown and browser-language entry on 2026-11-25. This supersedes the
+visible-content deferral only for these controls. Only published page editions
+have alternate-language links; unavailable translations do not enter the sitemap.
+
+On 2026-11-26 the owner requested examination of CC Safety Net's AI-readable
+documentation entry and `llms.txt`. Add the optional discovery exports below;
+they are navigation aids, not search-engine eligibility or ranking requirements.
+
 ## Problem
 
 Public AI Agent safety evaluations need stable addresses and readable evidence.
@@ -63,6 +72,40 @@ flowchart LR
   S --> C
   C --> M[Observe citations and referred visits]
 ```
+
+- AC-9: Generate a concise English `/llms.txt` from the site's available,
+  indexable method, article, category, and reviewed Agent entry pages. Include
+  the maintainer/FinShield relationship, scope and citation boundaries, and links
+  to the available language homepages. Do not duplicate scores or dates in this
+  index, advertise untested Agents as assessed, or create a large full-site dump.
+- AC-10: Generate `index.md` beside public directory pages from the same rendered
+  content, including translated editions. Exclude site navigation, scripts, and
+  language controls. Preserve headings, tables, media links, original code/replies,
+  evidence links, and translation notices. Name the canonical HTML citation URL
+  and page language. Mark recorded prompts and tool output as evaluation data.
+  Add standard HTML links for the Markdown alternate and the `llms.txt` index.
+  Do not add Markdown or text exports to the HTML sitemap or count them as trials.
+  Keep table captions separate from table rows and distinguish adjacent score
+  labels and values. Convert links around whole cards to valid Markdown without
+  wrapping block headings in inline-link syntax. Keep fallback titles literal.
+  Exclude disabled platform choices, copy buttons and comparison toggles. Retain
+  the selected platform label so controls do not imply broader test coverage.
+  When linking the full comparison GIF, keep its original comparison caption
+  and omit descriptions that apply only to the website's cropped preview.
+
+```mermaid
+flowchart LR
+  P[Rendered available language pages] --> M[Clean Markdown exports]
+  P --> I[Curated llms.txt index]
+  M --> H[Canonical HTML citations and original evidence]
+  I --> M
+```
+
+These exports follow the [llms.txt proposal](https://llmstxt.org/). The proposal
+is optional; [Google's AI search guidance](https://developers.google.com/search/docs/appearance/ai-features)
+does not require a special AI file. No CDN header support or crawler adoption
+is inferred from generating the files. Non-HTML canonical headers, if desired,
+require a separate check of the actual hosting capabilities.
 
 ## Out of scope
 
@@ -125,6 +168,9 @@ Agent and scenario pages. Do not create many near-identical keyword pages.
 
 ## Tests
 
+- `tests/test_machine_readable.py`: optional index filtering, literal originals,
+  valid score-table/card formatting, selected-platform scope, safe fallback
+  titles, and alias-relative links with canonical citations (AC-9/10).
 - `tests/test_search_discovery.py`: original verification bytes at the output
   root, manifest hash and sitemap exclusion (AC-8).
 - `tests/test_search_discovery.py`: metadata, canonical/alternate pairs,

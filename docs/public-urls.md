@@ -2,6 +2,14 @@
 
 Status: Accepted, 2026-11-21. English uses the default path; Chinese uses `/zh-cn/`.
 
+The [multilingual design](multilingual-website.md), accepted on 2026-11-25,
+adds `/visit/` as a non-indexed automatic-language entry. It has real fallback
+language links and no canonical identity. Existing content routes remain stable.
+The six additional editions use `/es/`, `/ar/`, `/fr/`, `/pt-br/`, `/ja/`, and
+`/ko/`. Each published edition retains the same content slug and shared evidence
+paths. `index.md` beside a public directory page is an AI-readable export, not a
+new trial or a replacement for its canonical HTML identity.
+
 ## Problem
 
 Search Console identifies `/index.html` and `/guide.html` as redirected pages.
@@ -44,6 +52,18 @@ page type. Readers need one predictable public URL scheme.
   Google verification file unchanged. Refresh generated export manifest hashes
   when the site's copy of report HTML changes. Record the route map in
   `site-routes.json` so the migration can be audited.
+  The later, opt-in [image compression](site-image-compression.md) publication
+  step can replace staged PNG/GIF assets with shared WebP display derivatives.
+  It runs after routing and translation validation, retains original repository
+  evidence, and records source/display identities in `image-manifest.json`.
+  This does not change page routes or standalone report exports. Old direct
+  image URLs are not retained in this smaller artifact; new display links use
+  the derivative URLs. The original byte-copy build remains available.
+  The later [shared evidence export step](shared-evidence-exports.md) replaces
+  redundant site-only bilingual Markdown exports with short pointers to the
+  canonical exports. Old Markdown URLs still resolve. Long original text is
+  shared across canonical Markdown editions; standalone report exports, HTML
+  evidence, original tool-log downloads and reviewed editing notes stay intact.
 - AC-6: Fail the build on an ambiguous destination or a missing page target.
   Preserve existing atomic build behavior. Update both README versions.
 

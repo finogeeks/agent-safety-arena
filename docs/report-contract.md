@@ -37,6 +37,14 @@ Every full-site page uses the same header: brand, the four authored category
 links, GitHub, and language. Category, scenario hub, and methodology pages keep
 the Home-first breadcrumb under that header. Standalone report exports omit
 category links.
+The language control is the shared dropdown described in
+[multilingual-website.md](multilingual-website.md). Its current implementation
+links available equivalents in eight languages and marks a missing or stale
+edition unavailable. It uses first-party preference assets. Standalone exports include their own
+local copies of these small assets. Original media remains shared.
+The website's six translated editions use stored LLM-authored display copy from
+the approved English pivot, with Chinese editorial authority. Original prompts,
+replies, code, recorded condition values, grades and media remain unchanged.
 Use the same type rules as category and scenario hub pages: Microsoft YaHei,
 14px body text, and 20px headings. Wrap items on phones. The site
 brand links to the localized project home. Standalone report exports retain

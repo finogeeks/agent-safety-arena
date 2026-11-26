@@ -164,7 +164,7 @@ class CaseNavigationTests(unittest.TestCase):
                 self.assertNotIn('← 场景列表', html)
                 self.assertIn('GitHub ↗', header)
                 self.assertIn('class="brand"', header)
-                self.assertIn('class="locale"', header)
+                self.assertIn('class="language-picker"', header)
                 if 'zh-CN' in path.name:
                     self.assertIn('aria-label="主导航"', header)
                     self.assertIn('隐私安全', header)

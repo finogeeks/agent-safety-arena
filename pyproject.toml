@@ -9,6 +9,9 @@ description = "Controlled AI agent safety evaluation and static evidence reports
 requires-python = ">=3.12"
 dependencies = []
 
+[project.optional-dependencies]
+site = ["Pillow>=13.0.0,<14"]
+
 [project.scripts]
 arena = "arena.cli:main"
 
@@ -18,5 +21,5 @@ include = ["arena*"]
 
 [tool.setuptools.package-data]
 "arena.adapters.agents" = ["*.cjs", "*.mjs"]
-"arena.reporting" = ["*.css", "googlea9662cdfe1496029.html"]
+"arena.reporting" = ["*.css", "*.js", "googlea9662cdfe1496029.html"]
 "arena.diagnostics" = ["*.cs"]
